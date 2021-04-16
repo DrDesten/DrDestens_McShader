@@ -12,7 +12,7 @@ uniform float frameTimeCounter;
 
 const bool colortex0MipmapEnabled = true;
 
-varying vec2 coord;
+in vec2 coord;
 
 vec2 pixelSize = vec2(1 / viewWidth, 1 / viewHeight);
 

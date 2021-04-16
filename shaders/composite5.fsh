@@ -22,9 +22,9 @@ const float centerDepthHalflife = 1.0;
 
 const bool colortex0MipmapEnabled = true;
 
-varying vec2 coord;
-varying vec2 screenResolution;
-varying vec2 pixelSize;
+in vec2 coord;
+in vec2 screenResolution;
+in vec2 pixelSize;
 
 uniform mat4 gbufferProjection;
 

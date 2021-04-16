@@ -7,12 +7,14 @@
 //#define FAST_SKY
 
 #ifdef FAST_SKY
-    varying vec3 skyColor;
+    in vec3 skyColor;
 #endif
-varying vec2 texcoord;
+in vec2 coord;
 
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferProjection;
+
+/* DRAWBUFFERS:04 */
 
 void main() {
 
@@ -31,5 +33,5 @@ void main() {
     #endif
 
     COLORTEX_0 = vec4(color, 1.0);
-    COLORTEX_1 = vec4(0,0,0,1);
+    COLORTEX_1 = vec4(0);
 }

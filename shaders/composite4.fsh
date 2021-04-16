@@ -12,9 +12,9 @@
 
 uniform int worldTime;
 
-varying vec2 texcoord;
+in vec2 texcoord;
 
-varying vec2 x3_kernel[9];
+in vec2 x3_kernel[9];
 
 
 vec2 pixelSize = vec2(1 / viewWidth, 1 / viewHeight);
@@ -125,7 +125,7 @@ void main() {
 
     #ifdef SSR_DENOISE
 
-        if (getType(texcoord) == vec3(0,0,1)) {
+        if (getType(texcoord) == 1) {
 
             #ifdef DENOISER_HIGH_QUALITY
 

@@ -3,9 +3,9 @@
 uniform float viewWidth;
 uniform float viewHeight;
 
-varying vec2 texcoord;
+out vec2 texcoord;
 
-varying vec2 x3_kernel[9];
+out vec2 x3_kernel[9];
 
 void main() {
     gl_Position = ftransform();

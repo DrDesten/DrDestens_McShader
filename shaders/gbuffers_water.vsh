@@ -8,8 +8,14 @@
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
-varying vec3 Normal;
-varying vec2 texcoord;
+// Optifine specifically looks for 'attribute' in order to parse mc_Entity.
+// Since I am using opengl v130, I have to define 'attribute' as in to comply with the newer glsl syntax
+#define attribute in
+attribute vec4 mc_Entity;
+
+flat out float blockId;
+out vec3 Normal;
+out vec2 coord;
 
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -46,25 +52,36 @@ void main(){
 
 	#ifdef WAVY_WATER
 
-		vec4 playerPos = vertexPlayer() + vec4(cameraPosition, 0);
+		if (mc_Entity.x == 1001) {
+			
+			vec4 playerPos = vertexPlayer() + vec4(cameraPosition, 0);
 
-		float zOffset    = (sin((playerPos.x * 0.5) + (frameTimeCounter * 3)) - 0.5) * 0.05;
-		float zOffset2   = (sin((playerPos.z * 2) + (frameTimeCounter * 7.5)) - 0.5) * 0.025;
+			// "Physical" Wave Offsets
+			float zOffset    = (sin((playerPos.x * 0.5) + (frameTimeCounter * 3)) - 0.5) * 0.05;
+			float zOffset2   = (sin((playerPos.z * 2) + (frameTimeCounter * 7.5)) - 0.5) * 0.025;
+			// Appling them (y Direction aka "up")
+			playerPos += vec4(0, zOffset + zOffset2,0 ,0);
 
-		playerPos += vec4(0, zOffset + zOffset2,0 ,0);
+			vec4 clipPos = vertexWorldToClip(playerPos - vec4(cameraPosition, 0));
 
-		vec4 clipPos = vertexWorldToClip(playerPos - vec4(cameraPosition, 0));
+			gl_Position = clipPos;
 
-		gl_Position = clipPos;
+			// "Fake" Waves
+			vec2 seed = playerPos.xz;
+			seed = (playerPos.xz * 0.5) + (frameTimeCounter);
 
-		vec2 seed = playerPos.xz;
-		seed = (playerPos.xz * 0.5) + (frameTimeCounter);
+			vec3 random3d = vec3(noise(seed), noise(vec2(seed.x + 100, seed.y)), 0);
+			vec3 surfaceNormal = gl_NormalMatrix * gl_Normal;
 
-		vec3 random3d = vec3(noise(seed), noise(vec2(seed.x + 100, seed.y)), 0);
-		vec3 surfaceNormal = gl_NormalMatrix * gl_Normal;
+			// Rotate a set Amount along a random axis
+			surfaceNormal = rotateAxisAngle(random3d, 0.05) * surfaceNormal;
+			Normal = surfaceNormal;
 
-		surfaceNormal = rotateAxisAngle(random3d, 0.05) * surfaceNormal;
-    	Normal = surfaceNormal;
+		} else {
+
+			gl_Position = ftransform();
+			Normal = gl_NormalMatrix * gl_Normal;
+		}
 
 	#else
 
@@ -73,5 +90,6 @@ void main(){
 
 	#endif
 
-    texcoord = gl_MultiTexCoord0.st;
+	blockId = mc_Entity.x;
+    coord = gl_MultiTexCoord0.st;
 }

@@ -6,9 +6,9 @@
 //#define FAST_SKY
 
 #ifdef FAST_SKY
-    varying vec3 skyColor;
+    out vec3 skyColor;
 #endif
-varying vec2 texcoord;
+out vec2 coord;
 
 void main() {
     gl_Position = ftransform();
@@ -18,5 +18,5 @@ void main() {
         skyColor = getSkyColor(viewPos);
     #endif
 
-    texcoord = gl_MultiTexCoord0.xy;
+    coord = gl_MultiTexCoord0.xy;
 }

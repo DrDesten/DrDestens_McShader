@@ -31,7 +31,7 @@ vec3 getAlbedo_interpolated(in vec2 coord) {
 }
 
 vec3 getNormal(in vec2 coord) {
-    return normalize(texture(colortex2, coord).rgb * 2 - 1);
+    return normalize(texture(colortex2, coord).rgb);
 }
 
 float getDepth(in vec2 coord) {
@@ -44,11 +44,11 @@ float getLinearDepth(in vec2 coord) {
     return texture(colortex1, coord).x;
 }
 
-vec3 getType(in vec2 coord) {
-    return texelFetch(colortex4, convertIntCoords(coord, viewWidth, viewHeight), 0).rgb;
+float getType(in vec2 coord) {
+    return texelFetch(colortex4, convertIntCoords(coord, viewWidth, viewHeight), 0).r;
 }
-vec3 getType_interpolated(in vec2 coord) {
-    return texture(colortex4, coord).rgb;
+float getType_interpolated(in vec2 coord) {
+    return texture(colortex4, coord).r;
 }
 /*
 vec3 getViewPosition(in vec2 coord) {

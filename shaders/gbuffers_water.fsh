@@ -3,18 +3,25 @@
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 
-varying vec3 Normal;
-varying vec2 texcoord;
+
+flat in float blockId;
+
+in vec3 Normal;
+in vec2 coord;
+
+/* DRAWBUFFERS:024 */
 
 void main(){
-    /* DRAWBUFFERS:024 */
+    
 
-    vec4 color       = texture(colortex0, texcoord);
-    color.a *= 0.4;
+    vec4 color       = texture(colortex0, coord);
+
+    // Reduce opacity of only water
+    color.a -= color.a * 0.6 * float(blockId == 1001);
     
     //color.rgb = Normal;
     
     gl_FragData[0] = color; // Color
-    gl_FragData[1] = vec4(Normal * 0.5 + 0.5, 1); // Normal (mapping from -1/1 to 0/1)
-    gl_FragData[2] = vec4(0,0,1,1); // Type (colortex4)
+    gl_FragData[1] = vec4(Normal, 1); // Normal
+    gl_FragData[2] = vec4(vec3(blockId - 1000), 1); // Type (colortex4)
 }

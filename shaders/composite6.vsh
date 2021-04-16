@@ -1,11 +1,6 @@
 #version 130
 
-uniform float viewWidth;
-uniform float viewHeight;
-
-varying vec2 coord;
-
-
+out vec2 coord;
 
 void main() {
     gl_Position = ftransform();

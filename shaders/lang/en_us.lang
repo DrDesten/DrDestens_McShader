@@ -54,6 +54,9 @@ screen.SSR=Screen Space Reflections
 option.SSR_STEPS=Raytrace Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
 
+option.SSR_STEP_OPTIMIZATION=Optimize Raytrace
+option.SSR_STEP_OPTIMIZATION.comment=Only for use with low Raytrace Quality. Causes artifacts when paired with high quality raytracing.
+
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Influences assumption about how thick a pixel is. No performance impact.
 

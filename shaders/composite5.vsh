@@ -3,9 +3,9 @@
 uniform float viewWidth;
 uniform float viewHeight;
 
-varying vec2 coord;
-varying vec2 screenResolution;
-varying vec2 pixelSize;
+out vec2 coord;
+out vec2 screenResolution;
+out vec2 pixelSize;
 
 
 

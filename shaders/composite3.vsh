@@ -7,10 +7,9 @@ uniform int worldTime;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 
-varying vec2 coord;
-varying vec2 pixelSize;
-
-varying vec3 lightVector;
+out vec2 coord;
+out vec2 pixelSize;
+out vec3 lightVector;
 
 void main() {
     gl_Position = ftransform();
