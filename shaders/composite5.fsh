@@ -18,17 +18,16 @@
 #define FOCUS_SPEED 1.0
 
 uniform float centerDepthSmooth;
-const float centerDepthHalflife = 1.0;
+const float   centerDepthHalflife = 1.0;
 
-const bool colortex0MipmapEnabled = true;
+const bool    colortex0MipmapEnabled = true;
 
-in vec2 coord;
-in vec2 screenResolution;
-in vec2 pixelSize;
+in vec2       coord;
+flat in vec2  pixelSize;
 
-uniform mat4 gbufferProjection;
+uniform mat4  gbufferProjection;
 
-uniform int frameCounter;
+uniform int   frameCounter;
 uniform float near;
 uniform float far;
 
@@ -265,5 +264,5 @@ void main() {
 
     //Pass everything forward
     
-    COLORTEX_0          = vec4(color,  1);
+    FD0          = vec4(color,  1);
 }

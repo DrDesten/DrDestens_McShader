@@ -1,12 +1,12 @@
 #version 130
 
 /*
-const int colortex0Format = RGBA16F;
+const int colortex0Format = RGB16F;
 const int colortex1Format = R32F;
 const int colortex2Format = RGB16_SNORM;
 
-const int colortex4Format = R16F; 
-
+const int colortex4Format = R16F;
+const int colortex5Format = RGB16F;
 */
 
 
@@ -14,7 +14,7 @@ const int colortex4Format = R16F;
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
-#define SMOOTH_WATER_THRESHOLD 0.6                  // Angle limit for smoothing Water              [0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
+#define SMOOTH_WATER_THRESHOLD 0.4                  // Angle limit for smoothing Water              [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define BLUR_WATER_NORMALS
 
 in vec2 coord;
@@ -70,6 +70,6 @@ void main() {
 
     //Pass everything forward
     
-    COLORTEX_0          = vec4(linearDepth);
-    COLORTEX_1          = vec4(normal, 1);
+    FD0          = vec4(linearDepth);
+    FD1          = vec4(normal, 1);
 }

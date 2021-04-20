@@ -19,5 +19,5 @@ void main() {
 
     vec3 diffColor = albedo * lightStrength;
 
-    COLORTEX_0 = vec4(vec3(lightStrength), 1);
+    FD0 = vec4(vec3(lightStrength), 1);
 }

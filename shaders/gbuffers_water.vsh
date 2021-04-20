@@ -57,8 +57,8 @@ void main(){
 			vec4 playerPos = vertexPlayer() + vec4(cameraPosition, 0);
 
 			// "Physical" Wave Offsets
-			float zOffset    = (sin((playerPos.x * 0.5) + (frameTimeCounter * 3)) - 0.5) * 0.05;
-			float zOffset2   = (sin((playerPos.z * 2) + (frameTimeCounter * 7.5)) - 0.5) * 0.025;
+			float zOffset    = (sin((playerPos.x * 0.1) + (frameTimeCounter * 3)) - 0.5) * 0.05;
+			float zOffset2   = (sin((playerPos.z * 0.2) + (frameTimeCounter * 7.5)) - 0.5) * 0.025;
 			// Appling them (y Direction aka "up")
 			playerPos += vec4(0, zOffset + zOffset2,0 ,0);
 

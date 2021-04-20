@@ -3,13 +3,13 @@
 uniform float viewWidth;
 uniform float viewHeight;
 
-varying vec2 texcoord;
+varying vec2 coord;
 
 
 void main() {
     gl_Position = ftransform();
 
-    texcoord = gl_MultiTexCoord0.st;
+    coord = gl_MultiTexCoord0.st;
 
     
     float pixelWidth = 1.0 / viewWidth;

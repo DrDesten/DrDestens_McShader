@@ -7,6 +7,6 @@ varying vec3 tintColor;
 
 
 void main() {
-    COLORTEX_0 = vec4(tintColor, 1.0);
-    COLORTEX_1 = vec4(0,0,0,1);
+    FD0 = vec4(tintColor, 1.0);
+    FD1 = vec4(0,0,0,1);
 }

@@ -10,9 +10,10 @@ uniform float viewHeight;
 uniform float viewWidth;
 
 
-#define COLORTEX_0 gl_FragData[0]
-#define COLORTEX_1 gl_FragData[1]
-#define COLORTEX_2 gl_FragData[2]
+#define FD0 gl_FragData[0]
+#define FD1 gl_FragData[1]
+#define FD2 gl_FragData[2]
+#define FD3 gl_FragData[3]
 
 
 ivec2 convertIntCoords(vec2 coord, float x, float y) {
@@ -26,7 +27,7 @@ vec2 blurOffset(vec2 coord, float lod) {
 vec3 getAlbedo(in vec2 coord) {
     return texelFetch(colortex0, convertIntCoords(coord, viewWidth, viewHeight), 0).rgb;
 }
-vec3 getAlbedo_interpolated(in vec2 coord) {
+vec3 getAlbedo_int(in vec2 coord) {
     return texture(colortex0, coord).rgb;
 }
 

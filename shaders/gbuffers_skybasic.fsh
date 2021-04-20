@@ -32,6 +32,6 @@ void main() {
 
     #endif
 
-    COLORTEX_0 = vec4(color, 1.0);
-    COLORTEX_1 = vec4(0);
+    FD0 = vec4(color, 1.0);
+    FD1 = vec4(0);
 }

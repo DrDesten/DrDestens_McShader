@@ -1,20 +1,21 @@
 #version 130
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                            REFLECTIONS AND WATER EFFECTS
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/skyColor.glsl"
 
 
-#define SSR_STEPS 64                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256]
+#define SSR_STEPS 32                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
 #define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0]
 #define SSR_DISTANCE 0.9                // How far reflections go                       [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define SSR_FINE_STEPS 4
-#if SSR_STEPS < 32
-    #define SSR_STEP_OPTIMIZATION
-#else
-    //#define SSR_STEP_OPTIMIZATION
-#endif
+#define SSR_STEP_OPTIMIZATION
 //#define SSR_CHEAP
 //#define DEBUG_SSR_ERROR_CORRECTION
 
@@ -116,87 +117,7 @@ vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceTy
 }
 
 
-vec3 testSSR(vec2 coord, vec3 normal, float depth, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection) {
-    if (isEyeInWater != 0) {return getAlbedo(coord);}
-    
-    // Reflect view Ray along normals of surface
-    vec3 reflectionRay = reflect(viewDirection, normal);
-    vec3 viewSpaceReflection = viewPos + reflectionRay;
-
-    // Project ray into screen space
-    vec4 screenSpaceRayTemp = gbufferProjection * vec4(viewSpaceReflection, 1);
-    vec3 screenSpaceRayDirection = normalize(screenSpaceRayTemp.xyz / screenSpaceRayTemp.w - clipPos);
-
-    vec3 rayPos = screenPos;
-
-    // define the step Size for the ray
-    vec3 rayStep = screenSpaceRayDirection;
-    rayStep /= SSR_STEPS;
-    rayStep *= SSR_DISTANCE;
-
-    float randfac = randf_01(coord) * 0.3333;
-    rayPos -= rayStep * randfac;
-
-    float appliedDepthTolerance;
-    float hitDepth;
-    float rayDepth;
-
-
-    //////////////////////////////////////////////////////////////////
-    //                  Screen Space Raytrace Loop
-    //////////////////////////////////////////////////////////////////
-
-
-    for (int i = 0; i < SSR_STEPS; i++) {        
-        rayPos += rayStep;
-
-        if(clamp(rayPos, 0, 1 + rayStep.z) != rayPos) {
-            break;
-        }
-
-        float hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z >= hitDepth && hitDepth > 0.5) {
-            // Check if reflection hits water
-            if (getType(rayPos.xy) == 1) {
-                return cheapSSR_final(rayPos.xy, getNormal(rayPos.xy), getSkyColor(reflectionRay), 1, 0.2, 8);
-            } 
-
-            // After having found an intersection, refine Reflection
-            // Define new (smaller) Stepsize
-            vec3 newRayStep = rayStep / SSR_FINE_STEPS;
-
-            // Move the position back by half a step
-            rayPos -= rayStep;
-
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                //return getAlbedo(rayPos.xy);
-
-                rayPos += newRayStep;
-                
-                /*if (clamp(rayPos, 0, 0.999999) != rayPos) {
-                    return getSkyColor(reflectionRay);
-                }*/
-                if (getType(rayPos.xy) == 1) {
-                    break;
-                }
-                
-                hitDepth = getDepth(rayPos.xy);
-                rayDepth = rayPos.z;
-
-                appliedDepthTolerance = rayStep.z * SSR_DEPTH_TOLERANCE;
-                
-                if (rayDepth > hitDepth && rayDepth - appliedDepthTolerance < hitDepth && hitDepth > 0.5) {
-                    return getAlbedo(rayPos.xy);
-                }
-            }
-        }
-    }
-
-    return getSkyColor(reflectionRay);
-}
-
-vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
+vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
     // Reflect view Ray along normals of surface
     vec3 reflectionRay = reflect(viewDirection, normal);
     vec3 viewSpaceReflection = viewPos + reflectionRay;
@@ -276,7 +197,96 @@ vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
                     float edgeFade = min(min(rayPos.x, rayPos.y), 1 - max(rayPos.x, rayPos.y));
                     edgeFade = clamp(edgeFade * 25, 0, 1);
                     
-                    return mix(getSkyColor(reflectionRay), getAlbedo_interpolated(rayPos.xy), edgeFade);
+                    return mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade);
+                }
+            }
+        }
+    }
+
+    return getSkyColor(reflectionRay);
+}
+
+vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
+    // Reflect view Ray along normals of surface
+    vec3 reflectionRay = reflect(viewDirection, normal);
+    vec3 viewSpaceReflection = viewPos + reflectionRay;
+
+    // Project ray into screen space
+    vec4 screenSpaceRayTemp = gbufferProjection * vec4(viewSpaceReflection, 1);
+    vec3 screenSpaceRayDirection = normalize(screenSpaceRayTemp.xyz / screenSpaceRayTemp.w - clipPos);
+
+    vec3 rayPos = screenPos;
+
+    // Define the step Size for the ray:
+    // The multiplication scales the step so that its z-length is not longer than the remaining space in the z-direction
+    // "(1-rayPos.z) / screenSpaceRayDirection.z"  is the factor with whom screenSpaceRayDirection has to be changed.
+    // In order to avoid errors when looking straight down, the value is clamped to a minimum value.
+    #ifdef SSR_STEP_OPTIMIZATION
+        vec3 rayStep = screenSpaceRayDirection * max((1-rayPos.z) / screenSpaceRayDirection.z, 0.05); //Optimized stepsize
+    #else
+        vec3 rayStep = screenSpaceRayDirection;
+    #endif
+    rayStep /= SSR_STEPS;
+    rayStep *= SSR_DISTANCE;
+
+    //return screenSpaceRayDirection;
+
+    float randfac = pattern_crossf(coord, viewWidth, viewHeight) * 0.3333;
+    rayPos -= rayStep * randfac;
+
+    float appliedDepthTolerance = rayStep.z * SSR_DEPTH_TOLERANCE;
+    float hitDepth;
+
+    //////////////////////////////////////////////////////////////////
+    //                  Screen Space Raytrace Loop
+    //////////////////////////////////////////////////////////////////
+
+
+    for (int i = 0; i < SSR_STEPS; i++) {
+
+        if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1) {
+            break;
+        }
+
+        rayPos += rayStep;
+        
+        float hitDepth = getDepth(rayPos.xy);
+
+        if (rayPos.z >= hitDepth && hitDepth > 0.5) {
+            // Check if reflection hits water
+            if (getType(rayPos.xy) == surfaceType) {
+                #ifdef DEBUG_SSR_ERROR_CORRECTION
+                    return vec3(0,1,0);
+                #endif
+                return cheapSSR_final(rayPos.xy, normal, getSkyColor(reflectionRay), 1, 0.2, 8);
+            } 
+
+            // After having found an intersection, refine Reflection
+
+            // Move the position back by half a step
+            rayPos -= rayStep;
+            // Define new (smaller) Stepsize
+            rayStep /= SSR_FINE_STEPS;
+
+            for (int o = 0; o < SSR_FINE_STEPS; o++) {
+                //return getAlbedo(rayPos.xy);
+
+                rayPos += rayStep;
+                
+                if (getType(rayPos.xy) == surfaceType) {
+                    break;
+                }
+                
+                hitDepth = getDepth(rayPos.xy);
+                
+                if (rayPos.z > hitDepth && rayPos.z - appliedDepthTolerance < hitDepth && hitDepth > 0.5) {
+                    // Raytrace hit found
+                    
+                    // Calculate Distance to edge
+                    float edgeFade = min(min(rayPos.x, rayPos.y), 1 - max(rayPos.x, rayPos.y));
+                    edgeFade = clamp(edgeFade * 25, 0, 1);
+                    
+                    return mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade);
                 }
             }
         }
@@ -436,21 +446,30 @@ void main() {
 
     #ifdef REFRACTION
 
+        vec2 coordDistort = coord;
+
+        // In-Water refraction (distorts texcoords when in water)
+        if (isEyeInWater != 0) {
+            coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
+        }
+
         // Refraction
         // This effect simpy distorts the texcoords for things seen through water
         if (type == 1) {
             normal       = getNormal(coord);
+            
+            coordDistort -= 0.5;
 
             // Simple Noise (coord is transformed to [-0.5, 0.5] in order to scale effect correctly)
-            vec2 noise = vec2(noise((coord * 3 * linearDepth) + (frameTimeCounter * 2)));
-            vec2 coordDistort = (coord - 0.5) + ((noise - 0.5) * REFRACTION_AMOUNT / linearDepth);
+            vec2 noise    = vec2(noise((coord * 3 * linearDepth) + (frameTimeCounter * 2)));
+            coordDistort += ((noise - 0.5) * REFRACTION_AMOUNT / linearDepth);
 
             coordDistort += 0.5;
 
-            color   = getAlbedo_interpolated(coordDistort);
+            color   = getAlbedo_int(coordDistort);
         } else {
             normal  = getNormal(coord);
-            color   = getAlbedo(coord);
+            color   = getAlbedo_int(coordDistort);
         }
 
     #else
@@ -463,9 +482,13 @@ void main() {
 
     // Absorption
     if (type == 1 || isEyeInWater != 0) {
-        float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
+        #ifdef REFRACTION
+            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
+        #else
+            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
+        #endif
 
-        float water_absorption  = (transparentLinearDepth - linearDepth) * int(isEyeInWater == 0);
+        float water_absorption  = max(1, transparentLinearDepth - linearDepth) * int(isEyeInWater == 0);
         water_absorption       += (linearDepth * int(isEyeInWater != 0));
         water_absorption        = 2 / water_absorption;
         water_absorption        = clamp(water_absorption, 0, 1);
@@ -517,5 +540,5 @@ void main() {
 
 
     //Pass everything forward
-    COLORTEX_0          = vec4(color, 1);
+    FD0          = vec4(color, 1);
 }

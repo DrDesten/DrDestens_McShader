@@ -21,9 +21,48 @@ float cosf(float x) {
 ////////////////////////////////////////////////////////////////////////
 // Randomization and Dither Patterns
 
-float rand(float n) {
-    return fract(sin(n) * 43758.5453123);
+float pattern(vec2 seed, float size, float vW, float vH) {
+    // Returns a gradient which repeats
+    // the coords (akak seed) are multiplied by vW / vH in order to make square segments
+    // Then they can be scaled to be bigger/smaller than one pixel.
+    // The fractional component is extracted to repeat them between 0/1
+    // x and y are averaged to create a linear gradient
+    return (fract(seed.x * vW * size) + fract(seed.y * vH * size)) * 0.5;
 }
+float pattern_cross(vec2 seed, float size, float vW, float vH) {
+    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
+    float modX = fract(coord.x * 0.5);
+    float modY = fract(coord.y * 0.5);
+    return float(modX == modY);
+}
+float pattern_crossf(vec2 seed, float vW, float vH) {
+    vec2 coord = floor(vec2(seed.x * vW, seed.y * vH));
+    float modX = fract(coord.x * 0.5);
+    float modY = fract(coord.y * 0.5);
+    return float(modX == modY);
+}
+float pattern_cross_detail3(vec2 seed, float size, float vW, float vH) {
+    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
+    float modX1 = mod(coord.x, 2);
+    float modY1 = mod(coord.y, 2);
+    float modX2 = mod(floor(coord.x * 0.6666666666) * 1.5, 2);
+    float modY2 = mod(floor(coord.y * 0.6666666666) * 1.5, 2);
+    float modX3 = mod(floor(coord.x * 0.3333333333) * 3,   2);
+    float modY3 = mod(floor(coord.y * 0.3333333333) * 3,   2);
+    return (float(modX1 == modY1) + (float(modX2 == modY2) * 0.75) + (float(modX3 == modY3) * 0.5)) * 0.444444444;
+}
+float pattern_cross_detail4(vec2 seed, float size, float vW, float vH) {
+    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
+    float modX1 = fract(coord.x * 0.5);
+    float modY1 = fract(coord.y * 0.5);
+    float modX2 = fract(floor(coord.x * 0.3333333333) * 1.5);
+    float modY2 = fract(floor(coord.y * 0.3333333333) * 1.5);
+    float modX3 = fract(floor(coord.x * 0.2222222222) * 2.25);
+    float modY3 = fract(floor(coord.y * 0.2222222222) * 2.25);
+    return (float(modX1 == modY1) + (float(modX2 == modY2) * 0.75) + (float(modX3 == modY3) * 0.5)) * 0.444444444;
+}
+
+float rand(float n) { return fract(sin(n) * 43758.5453123); }
 
 float randf_01(vec2 xy){
     xy = fract(xy);

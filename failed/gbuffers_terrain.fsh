@@ -17,6 +17,6 @@ void main() {
     blockColor.rgb *= tintColor;
 
 
-    COLORTEX_0 = blockColor;
-    COLORTEX_2 = vec4(normal, 1); // n*0.5+0.5 = Change range of values from -1/1 to 0/1
+    FD0 = blockColor;
+    FD2 = vec4(normal, 1); // n*0.5+0.5 = Change range of values from -1/1 to 0/1
 }

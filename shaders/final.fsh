@@ -7,8 +7,9 @@
 #define LENS_DISTORT        0.2    // Lens Distorsion          [0.0 0.2 0.35 0.5 0.75 1.0]
 #define LENS_DISTORT_SCALE  1.2    // Lens Distorsion Scaling  [1.0 1.1 1.2 1.3 1.45]
 
-varying vec2 texcoord;
+varying vec2 coord;
 
+uniform sampler2D colortex5;
 uniform int frameCounter;
 
 const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 500;
@@ -16,7 +17,7 @@ const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 500;
 /* DRAWBUFFERS:0 */
 
 void Vignette(inout vec3 color) { //Darken Screen Borders
-    float dist = distance(texcoord.st, vec2(0.5f));
+    float dist = distance(coord.st, vec2(0.5f));
 
     dist = dist * dist * dist;
     dist *= 1.5;
@@ -74,14 +75,15 @@ vec3 ChromaticAbberation(vec2 coord, float amount) {
 
 void main() {
     #if CHROM_ABERRATION == 0
-        vec3 color = getAlbedo(texcoord);
+        vec3 color = getAlbedo(coord);
     #else
-        vec3 color = ChromaticAbberation(texcoord, chromatic_aberration_amount);
+        vec3 color = ChromaticAbberation(coord, chromatic_aberration_amount);
     #endif
 
+    color = mix(color, color + texture(colortex5, coord * 0.5).rgb, 0.2);
+    //color = texture(colortex5, coord * 0.5).rgb;
+
     //Vignette(color);
-
-
 
     gl_FragColor = vec4(color, 1.0);
 }

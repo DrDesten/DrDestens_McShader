@@ -42,7 +42,7 @@ vec3 convHDR(in vec3 color, float over, float under) { //Changes Vibrance and Co
 
 vec3 cheapFXAA(vec2 coord, float threshold) {
     vec3 color          = getAlbedo(coord);
-    vec3 color_average  = getAlbedo_interpolated(coord + (pixelSize * 0.5));
+    vec3 color_average  = getAlbedo_int(coord + (pixelSize * 0.5));
 
     float diff = sum(abs(color - color_average));
 
@@ -66,10 +66,10 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     vec2 coordOffsetNeg  = coord - pixelOffset;
 
     vec3 color_surround[4]  = vec3[4](
-        getAlbedo_interpolated(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_interpolated(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_interpolated(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_interpolated(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
     );
 
     for (int i = 0; i < 4; i++) {
@@ -87,14 +87,14 @@ vec3 AntiSpeckleX8(vec2 coord, float amount) {
     vec2 coordOffsetNeg  = coord - pixelOffset;
 
     vec3 color_surround[8]  = vec3[8](
-        getAlbedo_interpolated(vec2(coordOffsetPos.x,  coord.y         )),
-        getAlbedo_interpolated(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_interpolated(vec2(coord.x,           coordOffsetPos.y)),
-        getAlbedo_interpolated(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_interpolated(vec2(coordOffsetNeg.x,  coord.y         )),
-        getAlbedo_interpolated(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_interpolated(vec2(coord.x,           coordOffsetNeg.y)),
-        getAlbedo_interpolated(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
     );
 
     for (int i = 0; i < 8; i++) {
@@ -152,5 +152,5 @@ void main() {
 
     //color = texture(colortex0, coord).aaa;
     
-    COLORTEX_0 = vec4(color, 1);
+    FD0 = vec4(color, 1);
 }
