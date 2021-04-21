@@ -5,7 +5,7 @@ uniform float viewHeight;
 
 out vec2 coord;
 
-out vec2 x3_kernel[9];
+flat out vec2 x3_kernel[9];
 
 void main() {
     gl_Position = ftransform();

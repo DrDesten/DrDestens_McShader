@@ -10,18 +10,19 @@
 #define DENOISER_QUALITY   2            // Denoise Quality          [1 2 3]
 //#define DENOISER_DEBUG
 
+#define OUTLINE
+
 uniform int worldTime;
 
 in vec2 coord;
 
-in vec2 x3_kernel[9];
+flat in vec2 x3_kernel[9];
 
 
 vec2 pixelSize = vec2(1 / viewWidth, 1 / viewHeight);
 
 
 //Kernels
-
 const float edgeKernelHorizontal[9] = float[](
     -1, 0, 1,
     -2, 0, 2,
@@ -54,6 +55,7 @@ float separationDetect(vec2 coord) {
     return edgeColor;
 }
 
+// 2-Sample Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
@@ -80,6 +82,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     return color;
 }
 
+// 4-Sample Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -110,6 +113,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     return color;
 }
 
+// 8-Sample Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -153,20 +157,15 @@ void main() {
 
     #ifdef SSR_DENOISE
 
-        if (getType(newcoord) == 1) {
+        if (getType(newcoord) == 3) {
 
+            // Select different despeclers for different denoising qualities
             #if DENOISER_QUALITY == 3
-
                 color = AntiSpeckleX8(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
-
             #elif DENOISER_QUALITY == 2
-
                 color = AntiSpeckleX4(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
-
             #else
-
                 color = AntiSpeckleX2(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
-
             #endif
 
         } else {
@@ -181,9 +180,10 @@ void main() {
 
     #endif
 
-    //color = mix(color, vec3(1), separationDetect(newcoord));
+    #ifdef OUTLINE
+        color = mix(color, vec3(1), separationDetect(newcoord));
+    #endif
 
     //Pass everything forward
-    
     FD0          = vec4(color, 1);
 }

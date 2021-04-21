@@ -5,8 +5,8 @@ const int colortex0Format = RGB16F;
 const int colortex1Format = R32F;
 const int colortex2Format = RGB16_SNORM;
 
-const int colortex4Format = R16F;
-const int colortex5Format = RGB16F;
+const int colortex4Format = R16F; // Colortex4 = blockId
+const int colortex5Format = RGB8; // Colortex5 = bloom
 */
 
 
@@ -36,7 +36,6 @@ vec3 getViewPos(vec2 coord, float pixeldepth) {
 */
 
 vec3 blurNormal(vec2 coord, vec3 pixelNormal, float amount) {
-
     vec3 normal = vec3(0);
     vec2 newcoord;
 
@@ -46,30 +45,29 @@ vec3 blurNormal(vec2 coord, vec3 pixelNormal, float amount) {
         vec3 sampleNormal = getNormal(newcoord);
         int isBlur = int(distance(pixelNormal, sampleNormal) < SMOOTH_WATER_THRESHOLD);
 
+        // Branchless if (isBlur) { += sampleNormal } else { += pixelNormal }
         normal += sampleNormal * isBlur;
         normal += pixelNormal * int(isBlur == 0);
     }
-    return normal * 1/16;
+    return normal * 0.0625;
 }
 
 /* DRAWBUFFERS:12 */
 
 void main() {
     vec3 normal         = getNormal(coord);
-
-    float depth         = getDepth(coord);
-    float linearDepth   = linearizeDepth(depth, near, far);
+    float linearDepth   = linearizeDepth(getDepth(coord), near, far);
 
     #ifdef BLUR_WATER_NORMALS
-    if (getType(coord) == 1) {
-        float fovScale = gbufferProjection[1][1] * 0.7299270073;
 
-        normal = blurNormal(coord, normal, 0.1 * fovScale / linearDepth);
-    }
+        if (getType(coord) == 1) {
+            float fovScale = gbufferProjection[1][1];
+            normal = blurNormal(coord, normal, 0.07299270073 * fovScale / linearDepth);
+        }
+
     #endif
 
     //Pass everything forward
-    
     FD0          = vec4(linearDepth);
     FD1          = vec4(normal, 1);
 }

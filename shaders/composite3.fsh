@@ -142,7 +142,7 @@ vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos
 
     //return screenSpaceRayDirection;
 
-    float randfac = randf_01(coord) * 0.3333;
+    float randfac = pattern_cross2(coord, 1, viewWidth, viewHeight) * 0.25;
     rayPos -= rayStep * randfac;
 
     float appliedDepthTolerance = rayStep.z * SSR_DEPTH_TOLERANCE;
@@ -158,8 +158,8 @@ vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos
         if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1) {
             break;
         }
+
         rayPos += rayStep;
-    
         
         float hitDepth = getDepth(rayPos.xy);
 
@@ -206,7 +206,7 @@ vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos
     return getSkyColor(reflectionRay);
 }
 
-vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
+vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
     // Reflect view Ray along normals of surface
     vec3 reflectionRay = reflect(viewDirection, normal);
     vec3 viewSpaceReflection = viewPos + reflectionRay;
@@ -231,7 +231,7 @@ vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     //return screenSpaceRayDirection;
 
-    float randfac = pattern_crossf(coord, viewWidth, viewHeight) * 0.3333;
+    float randfac = pattern_cross2(coord, 1, viewWidth, viewHeight) * 0.25;
     rayPos -= rayStep * randfac;
 
     float appliedDepthTolerance = rayStep.z * SSR_DEPTH_TOLERANCE;
@@ -256,9 +256,9 @@ vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
             // Check if reflection hits water
             if (getType(rayPos.xy) == surfaceType) {
                 #ifdef DEBUG_SSR_ERROR_CORRECTION
-                    return vec3(0,1,0);
+                    return vec3(0,1,0,0);
                 #endif
-                return cheapSSR_final(rayPos.xy, normal, getSkyColor(reflectionRay), 1, 0.2, 8);
+                return vec4(cheapSSR_final(rayPos.xy, normal, getSkyColor(reflectionRay), 1, 0.2, 8), 1);
             } 
 
             // After having found an intersection, refine Reflection
@@ -286,13 +286,13 @@ vec3 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
                     float edgeFade = min(min(rayPos.x, rayPos.y), 1 - max(rayPos.x, rayPos.y));
                     edgeFade = clamp(edgeFade * 25, 0, 1);
                     
-                    return mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade);
+                    return vec4(mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade), 0);
                 }
             }
         }
     }
 
-    return getSkyColor(reflectionRay);
+    return vec4(getSkyColor(reflectionRay), 1);
 }
 
 
@@ -422,7 +422,7 @@ float getSpecularP(vec3 viewDirection, vec3 normal, float bias, float shininess)
     return spec;
 }
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:04 */
 
 void main() {
     /*
@@ -439,11 +439,14 @@ void main() {
     float linearDepth   = getLinearDepth(coord);
     float type          = getType(coord);
 
+    float denoise       = 0;
 
     //////////////////////////////////////////////////////////
     //                  WATER EFFECTS
     //////////////////////////////////////////////////////////
 
+    // Refraction
+    // This effect simpy distorts the texcoords for things seen through water
     #ifdef REFRACTION
 
         vec2 coordDistort = coord;
@@ -453,11 +456,8 @@ void main() {
             coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
         }
 
-        // Refraction
-        // This effect simpy distorts the texcoords for things seen through water
         if (type == 1) {
-            normal       = getNormal(coord);
-            
+            normal        = getNormal(coord);
             coordDistort -= 0.5;
 
             // Simple Noise (coord is transformed to [-0.5, 0.5] in order to scale effect correctly)
@@ -467,15 +467,17 @@ void main() {
             coordDistort += 0.5;
 
             color   = getAlbedo_int(coordDistort);
+
         } else {
+
             normal  = getNormal(coord);
             color   = getAlbedo_int(coordDistort);
         }
 
     #else
         
-        color   = getAlbedo(coord);
-        normal  = getNormal(coord);
+            color   = getAlbedo(coord);
+            normal  = getNormal(coord);
 
     #endif
 
@@ -483,23 +485,25 @@ void main() {
     // Absorption
     if (type == 1 || isEyeInWater != 0) {
         #ifdef REFRACTION
+            // Adjust the depth coordinates to the distorted coordinates from the refraction effect
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
         #else
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
         #endif
 
-        float water_absorption  = max(1, transparentLinearDepth - linearDepth) * int(isEyeInWater == 0);
-        water_absorption       += (linearDepth * int(isEyeInWater != 0));
-        water_absorption        = 2 / water_absorption;
-        water_absorption        = clamp(water_absorption, 0, 1);
+        float water_absorption     = max(1, transparentLinearDepth - linearDepth) * int(isEyeInWater == 0);
+        water_absorption          += linearDepth                                  * int(isEyeInWater != 0);
+        water_absorption           = 2 / water_absorption;
+        water_absorption           = clamp(water_absorption, 0, 1);
 
         color *= water_absorption;
     }
 
-    // SSR
+    // SSR for Water
     if (type == 1 && isEyeInWater == 0) {
         depth     = getDepth(coord);
 
+        // Calculate the view Position for the upcoming SSR
         vec3 screenPos = vec3(coord, depth);
         vec3 clipPos = screenPos * 2.0 - 1.0;
         vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
@@ -515,7 +519,9 @@ void main() {
 
         #else
 
-            color = mix(color, testSSR_opt(coord, normal, screenPos, clipPos, viewPos, viewDirection, 1), fresnel);
+            vec4 SSR = testSSR_opt(coord, normal, screenPos, clipPos, viewPos, viewDirection, 1);
+            color    = mix(color, SSR.rgb, fresnel);
+            denoise  = SSR.a;
 
         #endif
     }
@@ -524,21 +530,29 @@ void main() {
     //                  OTHER REFLECTIVE SURFACES
     //////////////////////////////////////////////////////////
 
+    // SSR for other reflective surfaces
     if (type == 2) {
         depth     = getDepth(coord);
 
-        vec3 screenPos = vec3(coord, depth);
-        vec3 clipPos = screenPos * 2.0 - 1.0;
-        vec4 tmp = gbufferProjectionInverse * vec4(clipPos, 1.0);
-        vec3 viewPos = tmp.xyz / tmp.w;
+        // Calculate the view Position for the upcoming SSR
+        vec3 screenPos     = vec3(coord, depth);
+        vec3 clipPos       = screenPos * 2.0 - 1.0;
+        vec4 tmp           = gbufferProjectionInverse * vec4(clipPos, 1.0);
+        vec3 viewPos       = tmp.xyz / tmp.w;
         vec3 viewDirection = normalize(viewPos);
 
         float fresnel = customFresnel(viewDirection, normal, 0.05, 1, 4);
+        vec4 SSR      = testSSR_opt(coord, normal, screenPos, clipPos, viewPos, viewDirection, 2);
 
-        color = mix(color, testSSR_opt(coord, normal, screenPos, clipPos, viewPos, viewDirection, 2), fresnel);
+        color   = mix(color, SSR.rgb, fresnel);
+        denoise = SSR.a;
     }
 
 
     //Pass everything forward
     FD0          = vec4(color, 1);
+
+    // If there is some thing to be denoised, override the type buffer to "3", the denoise pass.
+    if (denoise != 0) { FD1 = vec4(3, 0, 0, 1); } 
+    else              { FD1 = vec4(getType(coord), 0, 0, 1); }
 }

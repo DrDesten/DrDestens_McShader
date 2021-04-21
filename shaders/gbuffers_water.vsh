@@ -4,6 +4,8 @@
 #include "/lib/framebuffer_vertex.glsl"
 
 #define WAVY_WATER
+#define WATER_WAVE_AMOUNT 1.0					// Physical Wave Height 			[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define WATER_NORMALS_AMOUNT 1.0					// "Fake" Wave strength 		[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
@@ -54,13 +56,14 @@ void main(){
 
 		if (mc_Entity.x == 1001) {
 			
-			vec4 playerPos = vertexPlayer() + vec4(cameraPosition, 0);
+			vec4 vertexPos = vertexPlayer();
+			vec4 playerPos = vertexPos + vec4(cameraPosition, 0);
 
 			// "Physical" Wave Offsets
 			float zOffset    = (sin((playerPos.x * 0.1) + (frameTimeCounter * 3)) - 0.5) * 0.05;
 			float zOffset2   = (sin((playerPos.z * 0.2) + (frameTimeCounter * 7.5)) - 0.5) * 0.025;
 			// Appling them (y Direction aka "up")
-			playerPos += vec4(0, zOffset + zOffset2,0 ,0);
+			playerPos.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
 
 			vec4 clipPos = vertexWorldToClip(playerPos - vec4(cameraPosition, 0));
 
@@ -74,7 +77,7 @@ void main(){
 			vec3 surfaceNormal = gl_NormalMatrix * gl_Normal;
 
 			// Rotate a set Amount along a random axis
-			surfaceNormal = rotateAxisAngle(random3d, 0.05) * surfaceNormal;
+			surfaceNormal = rotateAxisAngle(random3d, 0.05 * max(0, WATER_NORMALS_AMOUNT - abs(vertexPos.y * 0.03))) * surfaceNormal;
 			Normal = surfaceNormal;
 
 		} else {

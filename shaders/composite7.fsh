@@ -29,7 +29,7 @@ vec3 gaussianHorizontal7(vec2 coord, float size) {
 /* DRAWBUFFERS:5 */
 
 void main() {
-    vec3 color = gaussianHorizontal7(coord, 4 / viewWidth);
+    vec3 color = gaussianHorizontal7(coord, 6 / viewWidth);
     
     FD0 = vec4(color, 1);
 }

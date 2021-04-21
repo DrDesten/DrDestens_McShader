@@ -31,11 +31,11 @@ vec3 gaussianVertical7(vec2 coord, float size) {
 /* DRAWBUFFERS:5 */
 
 void main() {
-    vec3 color = gaussianVertical7(coord * 0.5, 2 / viewHeight);
+    vec3 color = gaussianVertical7(coord * 0.5, 3 / viewHeight);
     
     float brightness = sum(color);
-    color = mix(color, vec3(brightness * 0.3333), 0.5);
-    color *= brightness * 0.5;
+    color = mix(color, vec3(brightness * 0.333333), 0.75);
+    color *= brightness;
 
     FD0 = vec4(color, 1);
 }

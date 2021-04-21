@@ -9,7 +9,6 @@
 
 varying vec2 coord;
 
-uniform sampler2D colortex5;
 uniform int frameCounter;
 
 const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 500;
@@ -80,8 +79,7 @@ void main() {
         vec3 color = ChromaticAbberation(coord, chromatic_aberration_amount);
     #endif
 
-    color = mix(color, color + texture(colortex5, coord * 0.5).rgb, 0.2);
-    //color = texture(colortex5, coord * 0.5).rgb;
+    //color = vec3(float(getType(coord) == 3));
 
     //Vignette(color);
 

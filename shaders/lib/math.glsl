@@ -35,11 +35,12 @@ float pattern_cross(vec2 seed, float size, float vW, float vH) {
     float modY = fract(coord.y * 0.5);
     return float(modX == modY);
 }
-float pattern_crossf(vec2 seed, float vW, float vH) {
-    vec2 coord = floor(vec2(seed.x * vW, seed.y * vH));
-    float modX = fract(coord.x * 0.5);
-    float modY = fract(coord.y * 0.5);
-    return float(modX == modY);
+float pattern_cross2(vec2 seed, float size, float vW, float vH) {
+    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
+    float modX1 = mod(coord.x, 3);
+    float modY1 = mod(coord.y, 3);
+    float modX2 = mod(coord.x + 1, 3);
+    return (float(modX1 == modY1)) + (float(modX2 == modY1) * 0.5);
 }
 float pattern_cross_detail3(vec2 seed, float size, float vW, float vH) {
     vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
