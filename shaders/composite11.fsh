@@ -7,6 +7,8 @@
 #define FXAA_THRESHOLD 0.5            //When does FXAA kick in            [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 //#define FXAA_DEBUG
 
+//#define BLOOM
+
 uniform sampler2D colortex5;
 uniform int worldTime;
 uniform float frameTimeCounter;
@@ -51,7 +53,7 @@ vec3 cheapFXAA(vec2 coord, float threshold) {
     color -= color * int(diff > threshold);                      // make (0,0,0) if true
     
     #ifdef FXAA_DEBUG
-        color += vec3(1.0) * int(diff > threshold); //(color + color_average) * (int(diff > threshold));    // set to color_average
+        color += vec3(1, 1, 0) * int(diff > threshold); //(color + color_average) * (int(diff > threshold));    // set to color_average
     #else
         color += color_average * int(diff > threshold);    // set to color_average
     #endif
@@ -118,9 +120,10 @@ void main() {
         color = getAlbedo(coord);
     #endif
 
-    
-    color += clamp((texture(colortex5, coord * 0.5).rgb - 0.75) * 2, 0, 1) * 0.25;
-    //color = texture(colortex5, coord * 0.5).rgb;
+    #ifdef BLOOM
+        color += clamp((texture(colortex5, coord * 0.5).rgb - 0.75) * 2, 0, 1) * 0.25;
+        //color = texture(colortex5, coord * 0.5).rgb;
+    #endif
 
     //color = vec3(pattern_cross2(coord, 5, viewWidth, viewHeight));
 

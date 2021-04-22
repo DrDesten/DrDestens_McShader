@@ -4,6 +4,9 @@
 #include "/lib/framebuffer.glsl"
 
 #define CHROM_ABERRATION    3      // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]
+
+#define SATURATION 0.5             // Saturation               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+
 #define LENS_DISTORT        0.2    // Lens Distorsion          [0.0 0.2 0.35 0.5 0.75 1.0]
 #define LENS_DISTORT_SCALE  1.2    // Lens Distorsion Scaling  [1.0 1.1 1.2 1.3 1.45]
 
@@ -62,15 +65,23 @@ vec3 ChromaticAbberation(vec2 coord, float amount) {
     amount = distance(coord, vec2(0.5)) * amount;
 
     //Red Channel
-    col.r = texture(colortex0, scaleCoord_f(coord, 1.0 + amount)).r;
-    //Blue Channel
-    col.g = texture(colortex0, coord).g;
+    col.r     = texture(colortex0, scaleCoord_f(coord, 1.0 - amount)).r;
     //Green Channel
-    col.b = texture(colortex0, scaleCoord_f(coord, 1.0 - amount)).b;
+    col.g     = texture(colortex0, coord).g;
+    //Blue Channel
+    col.b     = texture(colortex0, scaleCoord_f(coord, 1.0 + amount)).b;
 
     return col;
 }
 
+vec3 luminanceNeutralize(vec3 col) {
+    return (col * col) / (sum(col) * sum(col));
+}
+
+vec3 saturation(vec3 col, float saturation) {
+    float brightness = dot(col, vec3(0.299, 0.587, 0.112));
+    return mix(col, vec3(brightness), -saturation);
+}
 
 void main() {
     #if CHROM_ABERRATION == 0
@@ -80,6 +91,9 @@ void main() {
     #endif
 
     //color = vec3(float(getType(coord) == 3));
+
+    //color = mix(color, color * color * 2, 0.5);
+    color = saturation(color, SATURATION);
 
     //Vignette(color);
 

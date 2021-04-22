@@ -217,6 +217,9 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     vec3 rayPos = screenPos;
 
+    // I need randfac earlier on for the stepsize scaling
+    float randfac = pattern_cross2(coord, 1, viewWidth, viewHeight) * 0.25;
+
     // Define the step Size for the ray:
     // The multiplication scales the step so that its z-length is not longer than the remaining space in the z-direction
     // "(1-rayPos.z) / screenSpaceRayDirection.z"  is the factor with whom screenSpaceRayDirection has to be changed.
@@ -231,7 +234,6 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     //return screenSpaceRayDirection;
 
-    float randfac = pattern_cross2(coord, 1, viewWidth, viewHeight) * 0.25;
     rayPos -= rayStep * randfac;
 
     float appliedDepthTolerance = rayStep.z * SSR_DEPTH_TOLERANCE;
@@ -244,7 +246,7 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1) {
+        if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1 || rayPos.z < 0 || rayPos.z > 1 - rayStep.z) {
             break;
         }
 

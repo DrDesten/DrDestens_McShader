@@ -2,15 +2,18 @@
 
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/kernels.glsl"
 
 #define SSR_DENOISE
-#define SSR_DENOISE_AMOUNT 1.5          // Denoise Amount           [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
+#define SSR_DENOISE_AMOUNT 1.5          // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
 
-#define DENOISER_THRESHOLD 0.5          // Denoise sensitivity      [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DENOISER_QUALITY   2            // Denoise Quality          [1 2 3]
+#define DENOISER_THRESHOLD 0.5          // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define DENOISER_QUALITY   2            // Denoise Quality                   [1 2 3]
 //#define DENOISER_DEBUG
 
 #define OUTLINE
+#define OUTLINE_DISTANCE 100            // How far does the outline reach    [50 75 100 125 150 175 200 225 250 275 300]
+#define OUTLINE_BRIGHTNESS 1.0          // How bright is the outline         [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 uniform int worldTime;
 
@@ -21,20 +24,6 @@ flat in vec2 x3_kernel[9];
 
 vec2 pixelSize = vec2(1 / viewWidth, 1 / viewHeight);
 
-
-//Kernels
-const float edgeKernelHorizontal[9] = float[](
-    -1, 0, 1,
-    -2, 0, 2,
-    -1, 0, 1
-);
-
-const float edgeKernelVertical[9] = float[](
-    -1, -2, -1,
-    0, 0, 0,
-    1, 2, 1
-);
-
 float separationDetect(vec2 coord) {
     float edgeColor;
     float edgeColors[4] = float[](0,0,0,0);
@@ -42,17 +31,26 @@ float separationDetect(vec2 coord) {
     for (int i = 0; i < 9; i++) {
         float ccolor = getDepth_interpolated(x3_kernel[i]);
 
-        edgeColors[0] += ccolor * edgeKernelVertical[i];
-        edgeColors[2] += ccolor * edgeKernelHorizontal[i];
+        edgeColors[0] += ccolor * sobel_vertical[i];
+        edgeColors[2] += ccolor * sobel_horizontal[i];
 
-        edgeColors[1] += ccolor * -edgeKernelVertical[i];
-        edgeColors[3] += ccolor * -edgeKernelHorizontal[i];
+        edgeColors[1] += ccolor * -sobel_vertical[i];
+        edgeColors[3] += ccolor * -sobel_horizontal[i];
     }
 
     edgeColor = abs(edgeColors[0]) + abs(edgeColors[1]) + abs(edgeColors[2]) + abs(edgeColors[3]);
 
     edgeColor = min(edgeColor * 2, 1);
     return edgeColor;
+}
+
+float depthEdgeFast(vec2 coord) {
+    float depth         = getDepth(coord);
+    // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
+    float depthSurround = getDepth_interpolated((pixelSize * 1.5) + coord) + getDepth_interpolated((pixelSize * -1.5) + coord) + getDepth_interpolated(vec2(pixelSize.x * 1.5, pixelSize.y * -1.5) + coord) + getDepth_interpolated(vec2(pixelSize.x * -1.5, pixelSize.y * 1.5) + coord);
+    depthSurround *= 0.25;
+
+    return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
 // 2-Sample Despecler
@@ -181,7 +179,7 @@ void main() {
     #endif
 
     #ifdef OUTLINE
-        color = mix(color, vec3(1), separationDetect(newcoord));
+        color = mix(color, vec3(1), depthEdgeFast(newcoord));
     #endif
 
     //Pass everything forward
