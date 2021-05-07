@@ -29,7 +29,7 @@ float separationDetect(vec2 coord) {
     float edgeColors[4] = float[](0,0,0,0);
 
     for (int i = 0; i < 9; i++) {
-        float ccolor = getDepth_interpolated(x3_kernel[i]);
+        float ccolor = getDepth_int(x3_kernel[i]);
 
         edgeColors[0] += ccolor * sobel_vertical[i];
         edgeColors[2] += ccolor * sobel_horizontal[i];
@@ -47,7 +47,7 @@ float separationDetect(vec2 coord) {
 float depthEdgeFast(vec2 coord) {
     float depth         = getDepth(coord);
     // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
-    float depthSurround = getDepth_interpolated((pixelSize * 1.5) + coord) + getDepth_interpolated((pixelSize * -1.5) + coord) + getDepth_interpolated(vec2(pixelSize.x * 1.5, pixelSize.y * -1.5) + coord) + getDepth_interpolated(vec2(pixelSize.x * -1.5, pixelSize.y * 1.5) + coord);
+    float depthSurround = getDepth_int((pixelSize * 1.5) + coord) + getDepth_int((pixelSize * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * 1.5, pixelSize.y * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * -1.5, pixelSize.y * 1.5) + coord);
     depthSurround *= 0.25;
 
     return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);

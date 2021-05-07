@@ -38,7 +38,7 @@ vec3 getNormal(in vec2 coord) {
 float getDepth(in vec2 coord) {
     return texelFetch(depthtex0, convertIntCoords(coord, viewWidth, viewHeight), 0).x;
 }
-float getDepth_interpolated(in vec2 coord) {
+float getDepth_int(in vec2 coord) {
     return texture(depthtex0, coord).x;
 }
 float getLinearDepth(in vec2 coord) {

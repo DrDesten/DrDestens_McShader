@@ -21,7 +21,7 @@ option.DOF_MAXSIZE.comment=Limits the size of the DoF blur. Hides artifacts when
 value.DOF_MAXSIZE.0.002=Low
 value.DOF_MAXSIZE.0.005=Medium
 value.DOF_MAXSIZE.0.007=High
-value.DOF_MAXSIZE.0.01=Highest
+value.DOF_MAXSIZE.0.02=Highest
 value.DOF_MAXSIZE.1.0=Unlimited
 
 option.DOF_STRENGTH=DoF Intensity

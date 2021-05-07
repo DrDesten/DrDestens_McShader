@@ -13,7 +13,7 @@
 
 #define DOF_DOWNSAMPLING 0.5         // How much downsampling takes place for the DoF effect    [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define DOF_KERNEL_SIZE 2            // Bokeh Quality                                           [1 2 3 4]           
-#define DOF_MAXSIZE 0.005            // Maximum Blur                                            [0.002 0.005 0.007 0.01 1.0]
+#define DOF_MAXSIZE 0.005            // Maximum Blur                                            [0.002 0.005 0.007 0.02 1.0]
 
 #define FOCUS_SPEED 1.0
 
