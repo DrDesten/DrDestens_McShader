@@ -19,7 +19,42 @@ float cosf(float x) {
 
 
 ////////////////////////////////////////////////////////////////////////
+// Color-Specific functions
+
+vec3 saturation(vec3 col, float saturation) {
+    float brightness = dot(col, vec3(0.299, 0.587, 0.112));
+    return mix(vec3(brightness), col, saturation);
+}
+
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+////////////////////////////////////////////////////////////////////////
 // Randomization and Dither Patterns
+
+float Bayer2(vec2 a) {
+    a = floor(a);
+    return fract(a.x / 2. + a.y * a.y * .75);
+}
+#define Bayer8(a)   (Bayer4 (0.5 * (a)) * 0.25 + Bayer2(a))
+#define Bayer4(a)   (Bayer2 (0.5 * (a)) * 0.25 + Bayer2(a))
+#define Bayer16(a)  (Bayer8 (0.5 * (a)) * 0.25 + Bayer2(a))
+#define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
+#define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
+
 
 float pattern(vec2 seed, float size, float vW, float vH) {
     // Returns a gradient which repeats

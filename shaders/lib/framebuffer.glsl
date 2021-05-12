@@ -9,11 +9,12 @@ uniform sampler2D depthtex0;
 uniform float viewHeight;
 uniform float viewWidth;
 
-
 #define FD0 gl_FragData[0]
 #define FD1 gl_FragData[1]
 #define FD2 gl_FragData[2]
 #define FD3 gl_FragData[3]
+
+vec2 ScreenSize = vec2(viewWidth, viewHeight);
 
 
 ivec2 convertIntCoords(vec2 coord, float x, float y) {
