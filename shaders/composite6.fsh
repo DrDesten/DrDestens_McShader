@@ -25,7 +25,7 @@
 uniform float centerDepthSmooth;
 const float   centerDepthHalflife = 1.0;
 
-const bool    colortex0MipmapEnabled = true;
+const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2       coord;
 flat in vec2  pixelSize;

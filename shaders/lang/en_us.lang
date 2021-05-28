@@ -86,7 +86,7 @@ option.REFRACTION_AMOUNT=Refraction Strength
 // WATER
 ///////////////////////////////////////////////////////////
 
-screen.WATER= Water
+screen.WATER=Water
 
 option.WAVY_WATER=Waves
 
@@ -94,6 +94,22 @@ option.BLUR_WATER_NORMALS=Smooth Water
 option.SMOOTH_WATER_THRESHOLD=Water smoothing threshold
 option.WATER_WAVE_AMOUNT=Wave Height
 option.WATER_NORMALS_AMOUNT=Bump Strength
+
+
+///////////////////////////////////////////////////////////
+// POST-PROCESSING
+///////////////////////////////////////////////////////////
+
+screen.POST_PROCESSING=Post Processing
+
+option.CHROM_ABERRATION=Chromatic Aberration
+option.CHROM_ABERRATION.comment=Color Diffraction at Screen Borders.
+value.CHROM_ABERRATION.0=Off
+
+option.SATURATION=Saturation
+
+option.BLOOM=Bloom
+option.BLOOM_AMOUNT=Bloom Strength
 
 
 ///////////////////////////////////////////////////////////
@@ -106,11 +122,6 @@ option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
 option.OUTLINE_BRIGHTNESS=Outline Brightness
 
-option.SATURATION=Saturation
-
-option.CHROM_ABERRATION=Chromatic Aberration
-option.CHROM_ABERRATION.comment=Color Diffraction at Screen Borders.
-value.CHROM_ABERRATION.0=Off
 
 option.LENS_DISTORT=Lens Distorsion
 option.LENS_DISTORT.comment=Lens Distorsion Strength.

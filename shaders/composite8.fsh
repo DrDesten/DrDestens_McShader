@@ -7,6 +7,7 @@
 
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/kernels.glsl"
 #include "/lib/bloom.glsl"
 
 in vec2 coord;
@@ -14,8 +15,8 @@ in vec2 coord;
 
 /* DRAWBUFFERS:5 */
 void main() {
-    float blursize = 1.5 / viewHeight;
-    vec3 color = gBlur_vertical7_bloom_clamp((coord + (0.5 / ScreenSize)) * 0.25, blursize, 0.249);
+    float blursize = 2 / viewHeight;
+    vec3 color = gBlur_v16_bloom(coord * 0.25, blursize);
 
     color = saturation(color, 0.3);
 
