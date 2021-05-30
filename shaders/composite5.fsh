@@ -1,15 +1,25 @@
 #version 130
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                      MOTION BLUR
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
+//#define MOTION_BLUR
 
 uniform float near;
 uniform float far;
 
 uniform mat4 gbufferProjection;
 uniform vec3 sunPosition;
+
+in vec2 coord;
+in vec2 movecoord;
 
 vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
     // Calculate Vector connecting startPos with endPos
@@ -40,11 +50,31 @@ vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
     return vec4(endPos, 1);
 }
 
-in vec2 coord;
+
+vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
+    if (dot(blur, blur) < 0.008 / viewWidth) { return getAlbedo(coord); }
+
+    vec3 col      = vec3(0);
+    vec2 blurStep = blur / float(samples);
+    vec2 sample   = coord - (blur * 0.5);
+
+    for (int i = 0; i < samples; i++) {
+        col += getAlbedo_int(sample);
+        sample += blurStep;
+    }
+
+    return col / float(samples);
+}
+
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3 color = getAlbedo(coord);
+    #ifdef MOTION_BLUR
+        vec2 motionBlurVector = coord - movecoord;
+        vec3 color = vectorBlur(coord, motionBlurVector, 10);
+    #else
+        vec3 color = getAlbedo(coord);
+    #endif
 
     #if 1 == 0
         float depth = getDepth(coord);

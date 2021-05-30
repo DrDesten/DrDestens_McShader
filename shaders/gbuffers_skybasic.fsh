@@ -2,6 +2,7 @@
 
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 
 //#define FAST_SKY
@@ -10,9 +11,6 @@
     in vec3 skyColor;
 #endif
 in vec2 coord;
-
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferProjection;
 
 /* DRAWBUFFERS:04 */
 

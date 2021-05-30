@@ -1,4 +1,3 @@
-uniform mat4 gbufferModelViewInverse;
 uniform int worldTime;
 
 vec3 getSkyColor(vec3 viewPos) {

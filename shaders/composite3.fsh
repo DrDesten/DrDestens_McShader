@@ -8,6 +8,7 @@
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 
 
@@ -31,10 +32,6 @@ uniform sampler2D depthtex1;
 in vec2 coord;
 in vec2 pixelSize;
 in vec3 lightVector;
-
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferProjection;
 
 uniform float near;
 uniform float far;
@@ -297,6 +294,37 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
     return vec4(getSkyColor(reflectionRay), 1);
 }
 
+vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos) {
+    vec3 clipPos        = screenPos * 2 - 1;
+    // Reflect in View Space
+    vec3 viewPos        = toView(screenPos * 2 - 1);
+    vec3 viewReflection = reflect(normalize(viewPos), normal) + viewPos;
+
+    // Project to Screen Space
+    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - clipPos);
+
+    vec3 rayPos  = screenPos;
+    vec3 rayStep = screenSpaceRay / (SSR_STEPS * 5);
+
+    for (int i = 0; i < SSR_STEPS * 5; i++) {
+
+        if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1 || rayPos.z < 0 || rayPos.z > 1 - rayStep.z) {
+            break; // Break if out of bounds
+        }
+
+        rayPos += rayStep;
+        
+        float hitDepth = getDepth(rayPos.xy);
+
+        if (rayPos.z >= hitDepth && hitDepth > 0.56) {
+            //return vec3(distance(rayPos, screenPos) <= 0.03 && getType(rayPos.xy) == 1 && hitDepth < 0.95);
+            return getAlbedo(rayPos.xy);
+        }
+    }
+
+    return vec3(0);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //                     SCREEN SPACE AMBIENT OCCLUSION
@@ -524,6 +552,8 @@ void main() {
             vec4 SSR = testSSR_opt(coord, normal, screenPos, clipPos, viewPos, viewDirection, 1);
             color    = mix(color, SSR.rgb * 0.95, fresnel);
             denoise  = SSR.a;
+
+            //color = universalSSR(coord, normal, screenPos);
 
         #endif
     }

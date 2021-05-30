@@ -120,49 +120,12 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec2 bloomCoord = clamp(coord * 0.1, 0, 0.1 - 1 / viewHeight);
+        vec2 bloomCoord = clamp(coord * 0.05, 0, 0.05 - 1.5/viewHeight);
         vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
 
-        color += (bloomColor * bloomColor) * BLOOM_AMOUNT;
-        //color = texture(colortex5, bloomCoord).rgb;
+        color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 1.5;
     #endif
 
-    //color = vec3(pattern_cross2(coord, 5, viewWidth, viewHeight));
-
-    /*
-    vec3 dayColor = vec3(1.1, 1.05, 1.05);
-    vec3 nightColor = vec3(.3, .3, .45);
-    vec3 noonColor = vec3(1.1, .8, .6);
-
-    //Day:     23250 -> 0/24000 -> 12700 (24000 to 12000)
-    //Night:   12700    ->   23250       (12000 to 24000)
-
-    if (worldTime < 6000) {         // Morning to Noon       (0.5 - 1)
-        daynight = map(worldTime, 0, 6000, 0.5, 1);
-    } else if (worldTime < 12000) { // Noon to Afternoon     (1 - 0.5)
-        daynight = map(worldTime, 6000, 12000, 1, 0.5);
-    } else if (worldTime < 18000) { // Afternoon to Midnight (0.5 - 0)
-        daynight = map(worldTime, 12000, 18000, 0.5, 0);
-    } else if (worldTime < 24000) { // Midnight to Morning   (0 - 0.5)
-        daynight = map(worldTime, 18000, 24000, 0, 0.5);
-    }
-
-    color = convHDR(color, 1, 1.2);
-
-    if (daynight >= .52) {
-        colorGrade( color, dayColor);
-    } else if (daynight <= .48) {
-        colorGrade( color, nightColor);
-    } else if (daynight >= .5) {
-        colorGrade( color, mix(dayColor, noonColor, map(daynight, .52, .5, 0, 1)));
-    } else {
-        colorGrade( color, mix(nightColor, noonColor, map(daynight, .48, .5, 0, 1)));
-    }
-    */
-    
     //Pass everything forward
-
-    //color = texture(colortex0, coord).aaa;
-    
     FD0 = vec4(color, 1);
 }

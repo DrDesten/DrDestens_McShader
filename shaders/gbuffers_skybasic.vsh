@@ -1,6 +1,7 @@
 #version 130
 
 #include "/lib/math.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 
 //#define FAST_SKY

@@ -16,12 +16,10 @@ in vec2 coord;
 void main() {
     vec3 color = getAlbedo(coord);
     
-    #ifdef BLOOM
-        vec2 bloomCoord = clamp(coord * 0.25, 0, 0.25 - 1 / viewHeight);
-        vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
+    vec2 bloomCoord = clamp(coord * 0.25, 0, 0.25 - 1 / viewHeight);
+    vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
 
-        color += (bloomColor * bloomColor) * BLOOM_AMOUNT;
-    #endif
+    color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 0.5;
 
     FD0 = vec4(color, 1);
 }
