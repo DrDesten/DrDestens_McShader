@@ -17,7 +17,7 @@ void main(){
     vec4 color       = texture(colortex0, coord);
 
     // Reduce opacity of only water
-    color.a -= color.a * 0.6 * float(blockId == 1001);
+    color.a -= color.a * 0.8 * float(blockId == 1001);
     
     //color.rgb = Normal;
     

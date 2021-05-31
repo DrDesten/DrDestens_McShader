@@ -14,7 +14,7 @@ void main() {
 
     #ifdef MOTION_BLUR
 
-        movecoord = screenSpaceMovement(vec3(clipPos.xy, 1 - MOTION_BLUR_STRENGTH)).xy;
+        movecoord = screenSpaceMovement(vec3(clipPos.xy, 1 - MOTION_BLUR_STRENGTH), vec3(0.5, 1, 0.5)).xy;
 
     #else
         movecoord = vec2(0);

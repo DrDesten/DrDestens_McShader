@@ -17,6 +17,27 @@ float cosf(float x) {
     return sinf(x + 1.5708);
 }
 
+vec2 radClamp(vec2 coord) {
+    // Center at 0,0
+    coord = coord - 0.5;
+    // Calculate oversize vector by subtracting 1 on each axis from the absulute
+    // We just need the length so sing doesnt matter
+    vec2 oversize = max(vec2(0), abs(coord) - 0.5);
+    coord /= (length(oversize) + 1);
+    coord = coord + 0.5;
+    return coord;
+}
+vec3 radClamp(vec3 coord) {
+    // Center at 0,0
+    coord = coord - 0.5;
+    // Calculate oversize vector by subtracting 1 on each axis from the absulute
+    // We just need the length so sing doesnt matter
+    vec3 oversize = max(vec3(0), abs(coord) - 0.5);
+    coord /= (length(oversize) + 1);
+    coord = coord + 0.5;
+    return coord;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // Color-Specific functions
@@ -49,8 +70,8 @@ float Bayer2(vec2 a) {
     a = floor(a);
     return fract(a.x / 2. + a.y * a.y * .75);
 }
-#define Bayer8(a)   (Bayer4 (0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer4(a)   (Bayer2 (0.5 * (a)) * 0.25 + Bayer2(a))
+#define Bayer8(a)   (Bayer4 (0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer16(a)  (Bayer8 (0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))

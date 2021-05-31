@@ -120,10 +120,10 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec2 bloomCoord = clamp(coord * 0.05, 0, 0.05 - 1.5/viewHeight);
+        vec2 bloomCoord = clamp(coord * 0.05 - (pixelSize * 0.5), 0, 0.05 - 1.5/viewHeight);
         vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
 
-        color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 1.5;
+        color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 20;
     #endif
 
     //Pass everything forward

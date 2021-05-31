@@ -3,7 +3,7 @@
 
 
 /*
-const int colortex0Format = RGB16F;
+const int colortex0Format = RGBA16F;
 const int colortex1Format = R32F;
 const int colortex2Format = RGB16_SNORM;
 

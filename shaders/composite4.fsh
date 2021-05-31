@@ -10,7 +10,7 @@
 #include "/lib/kernels.glsl"
 
 #define SSR_DENOISE
-#define SSR_DENOISE_AMOUNT 1.5          // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
+#define SSR_DENOISE_AMOUNT 1.0          // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
 
 #define DENOISER_THRESHOLD 0.5          // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define DENOISER_QUALITY   2            // Denoise Quality                   [1 2 3]
@@ -58,7 +58,7 @@ float depthEdgeFast(vec2 coord) {
     return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
-// 2-Sample Despecler
+// 2-Sample Dark Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
@@ -85,7 +85,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 4-Sample Despecler
+// 4-Sample Dark Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -116,7 +116,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 8-Sample Despecler
+// 8-Sample Dark Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -151,6 +151,98 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
 }
 
 
+
+// 2-Sample Average Despecler
+vec3 AntiSpeckleV2Low(vec2 coord, float threshold, float amount) {
+    float pixelOffsetX = pixelSize.x * amount;
+
+    vec3 color           = getAlbedo(coord);
+
+    vec3 color_surround[2]  = vec3[2](
+        getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
+        getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
+    );
+    
+    float average     = sum(color+color_surround[0]+color_surround[1]) / 3;
+    float close       = abs(sum(color) - average);
+    vec3 closestColor = color;
+
+    for (int i = 0; i < 2; i++) {
+        float diff = abs(sum(color_surround[i]) - average);
+        if (diff < close) {
+            close        = diff;
+            closestColor = color_surround[i];
+        }
+    }
+
+    return closestColor;
+}
+
+// 4-Sample Average Despecler
+vec3 AntiSpeckleV2(vec2 coord, float threshold, float amount) {
+    vec2 pixelOffset = pixelSize * amount;
+
+    vec3 color           = getAlbedo(coord);
+    vec2 coordOffsetPos  = coord + pixelOffset;
+    vec2 coordOffsetNeg  = coord - pixelOffset;
+
+    vec3 color_surround[4]  = vec3[4](
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+    );
+
+    float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]) * 0.2;
+    float close       = abs(sum(color) - average);
+    vec3 closestColor = color;
+
+    for (int i = 0; i < 4; i++) {
+        float diff = abs(sum(color_surround[i]) - average);
+        if (diff < close) {
+            close        = diff;
+            closestColor = color_surround[i];
+        }
+    }
+
+    return closestColor;
+}
+
+// 8-Sample Average Despecler
+vec3 AntiSpeckleV2High(vec2 coord, float threshold, float amount) {
+    vec2 pixelOffset = pixelSize * amount;
+
+    vec3 color           = getAlbedo(coord);
+    vec2 coordOffsetPos  = coord + pixelOffset;
+    vec2 coordOffsetNeg  = coord - pixelOffset;
+
+    vec3 color_surround[8]  = vec3[8](
+        getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
+        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
+        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+    );
+
+    float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]+color_surround[4]+color_surround[5]+color_surround[6]+color_surround[7]) / 9;
+    float close       = abs(sum(color) - average);
+    vec3 closestColor = color;
+
+    for (int i = 0; i < 8; i++) {
+        float diff = abs(sum(color_surround[i]) - average);
+        if (diff < close) {
+            close = diff;
+            closestColor = color_surround[i];
+        }
+    }
+
+    return closestColor;
+}
+
+
 /* DRAWBUFFERS:0 */
 
 void main() {
@@ -164,11 +256,11 @@ void main() {
 
             // Select different despeclers for different denoising qualities
             #if DENOISER_QUALITY == 3
-                color = AntiSpeckleX8(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = AntiSpeckleV2High(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #elif DENOISER_QUALITY == 2
-                color = AntiSpeckleX4(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = AntiSpeckleV2(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #else
-                color = AntiSpeckleX2(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = AntiSpeckleV2Low(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #endif
 
         } else {

@@ -52,7 +52,7 @@ vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
 
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
-    if (dot(blur, blur) < 0.008 / viewWidth) { return getAlbedo(coord); }
+    if (length(blur) < 1 / viewWidth) { return getAlbedo(coord); }
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);

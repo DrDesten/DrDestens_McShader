@@ -16,6 +16,9 @@ vec3 toView(vec3 clipspace) { // Clippos to viewpos
 vec3 toPlayer(vec3 viewspace) { // Viewpos to Playerfeetpos
     return mat3(gbufferModelViewInverse) * viewspace + gbufferModelViewInverse[3].xyz;
 }
+vec3 toPlayerEye(vec3 viewspace) { // Viewpos to Playerfeetpos
+    return mat3(gbufferModelViewInverse) * viewspace;
+}
 
 vec3 toWorld(vec3 playerpos) { // Playerfeetpos to worldpos
     return playerpos + cameraPosition;
@@ -75,6 +78,18 @@ vec3 screenSpaceMovement(vec3 clipPos) {
 
     // Project to previous Screen Space
     pos      = toPrevPlayer(pos);
+    pos      = backToView(pos);
+    return     backToScreen(pos);
+}
+vec3 screenSpaceMovement(vec3 clipPos, vec3 weight) {
+    // Project to Player Space
+    vec3 pos = toView(clipPos);
+    pos      = toPlayer(pos);
+
+    // Calculate World Space
+    pos      += (cameraPosition - previousCameraPosition) * 1;
+
+    // Project to previous Screen Space
     pos      = backToView(pos);
     return     backToScreen(pos);
 }
