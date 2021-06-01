@@ -2,6 +2,7 @@
 
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/gamma.glsl"
 
 #define CHROM_ABERRATION    3      // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]
 
@@ -107,13 +108,15 @@ void main() {
     #if CHROM_ABERRATION == 0
         vec3 color = getAlbedo(coord);
     #else
-        vec3 color = ChromaticAbberation_HQ(coord, chromatic_aberration_amount, CHROM_ABERRATION / 2);
+        vec3 color = ChromaticAbberation(coord, chromatic_aberration_amount);
     #endif
 
 
     color = saturation(color, SATURATION);
 
     //Vignette(color);
+
+    color = invgamma(color);
 
     FD0 = vec4(color, 1.0);
 }

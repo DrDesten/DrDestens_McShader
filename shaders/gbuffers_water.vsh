@@ -89,7 +89,7 @@ void main(){
 	#else
 
 		gl_Position = ftransform();
-		Normal = gl_NormalMatrix * gl_Normal;
+		Normal = normalize(gl_NormalMatrix * gl_Normal);
 
 	#endif
 

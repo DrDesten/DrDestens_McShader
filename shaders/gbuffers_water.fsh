@@ -2,6 +2,7 @@
 
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/gamma.glsl"
 
 
 flat in float blockId;
@@ -18,8 +19,6 @@ void main(){
 
     // Reduce opacity of only water
     color.a -= color.a * 0.8 * float(blockId == 1001);
-    
-    //color.rgb = Normal;
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(Normal, 1); // Normal

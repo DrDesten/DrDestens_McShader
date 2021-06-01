@@ -4,6 +4,7 @@
 #include "/lib/framebuffer.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
+#include "/lib/gamma.glsl"
 
 //#define FAST_SKY
 
@@ -29,6 +30,7 @@ void main() {
         vec3 color = getSkyColor(viewPos.xyz); //Get sky
 
     #endif
+
 
     FD0 = vec4(color, 1.0);
     FD1 = vec4(0);

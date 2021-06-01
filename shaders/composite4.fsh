@@ -58,7 +58,7 @@ float depthEdgeFast(vec2 coord) {
     return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
-// 2-Sample Dark Despecler
+// 2-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
@@ -85,7 +85,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 4-Sample Dark Despecler
+// 4-Sample Dark Priority Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -116,7 +116,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 8-Sample Dark Despecler
+// 8-Sample Dark Priority Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -152,8 +152,8 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
 
 
 
-// 2-Sample Average Despecler
-vec3 AntiSpeckleV2Low(vec2 coord, float threshold, float amount) {
+// 2-Sample Mean Denoiser
+vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
     vec3 color           = getAlbedo(coord);
@@ -178,8 +178,8 @@ vec3 AntiSpeckleV2Low(vec2 coord, float threshold, float amount) {
     return closestColor;
 }
 
-// 4-Sample Average Despecler
-vec3 AntiSpeckleV2(vec2 coord, float threshold, float amount) {
+// 4-Sample Mean Denoiser
+vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
     vec3 color           = getAlbedo(coord);
@@ -208,8 +208,8 @@ vec3 AntiSpeckleV2(vec2 coord, float threshold, float amount) {
     return closestColor;
 }
 
-// 8-Sample Average Despecler
-vec3 AntiSpeckleV2High(vec2 coord, float threshold, float amount) {
+// 8-Sample Mean Denoiser
+vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
     vec3 color           = getAlbedo(coord);
@@ -256,11 +256,11 @@ void main() {
 
             // Select different despeclers for different denoising qualities
             #if DENOISER_QUALITY == 3
-                color = AntiSpeckleV2High(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = DenoiseMeanH(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #elif DENOISER_QUALITY == 2
-                color = AntiSpeckleV2(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = DenoiseMeanM(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #else
-                color = AntiSpeckleV2Low(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = DenoiseMeanL(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
             #endif
 
         } else {

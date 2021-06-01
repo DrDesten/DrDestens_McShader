@@ -3,13 +3,15 @@
 
 
 /*
-const int colortex0Format = RGBA16F;
+const int colortex0Format = RGB16F;
 const int colortex1Format = R32F;
 const int colortex2Format = RGB16_SNORM;
 
 const int colortex4Format = R16F; // Colortex4 = blockId
 const int colortex5Format = RGB8; // Colortex5 = bloom
 */
+
+const float sunPathRotation = -40.0;
 
 
 #include "/lib/math.glsl"
