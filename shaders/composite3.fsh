@@ -310,9 +310,9 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
     
     float randfac    = Bayer4(coord * ScreenSize) * 0.5;
 
-    float zDir       = step(0, screenSpaceRay.z);                                    // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(screenPos.z, 1 - screenPos.z, zDir);                      // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3 rayStep     = screenSpaceRay * max(maxZtravel / screenSpaceRay.z, 0.05);    // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+    float zDir       = step(0, screenSpaceRay.z);                                      // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                        // Selects the maximum Z-Distance a ray can travel based on the information
+    vec3 rayStep     = screenSpaceRay * clamp(maxZtravel / screenSpaceRay.z, 0.05, 1); // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
     rayStep         *= SSR_DISTANCE / SSR_STEPS;
     vec3 rayPos      = rayStep * randfac + screenPos;
@@ -335,7 +335,7 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
 
             // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
             rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step
+            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
 
             float condition;
             for (int o = 0; o < SSR_FINE_STEPS; o++) {
@@ -349,8 +349,8 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
             }
 
             if ((rayPos.z - hitDepth) < depthTolerance) {
-                float rayLength = log2(length(toView(rayPos * 2 -1) - viewPos));
-                return textureLod(colortex0, rayPos.xy, rayLength * roughness * 5).rgb;
+                //float rayLength = log2(length(toView(rayPos * 2 -1) - viewPos));
+                return textureLod(colortex0, rayPos.xy, roughness * 10).rgb;
             } else {
                 break;
             }

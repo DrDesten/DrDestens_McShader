@@ -20,6 +20,7 @@ void main() {
     vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
 
     color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 5;
+    //color = bloomColor;
 
     FD0 = vec4(color, 1);
 }

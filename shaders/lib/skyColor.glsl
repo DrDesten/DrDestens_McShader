@@ -18,8 +18,8 @@ vec3 getSkyColor(vec3 viewPos) {
     const float sky_bias_day = 0;
 
     //Night
-    const vec3 sky_up_night = vec3(0.1, 0.1, 0.2); //Color of upper part of sky
-    const vec3 sky_down_night = vec3(0.2, 0.3, 0.5); //Color of bottom part of sky
+    const vec3 sky_up_night = vec3(0.075, 0.075, 0.15); //Color of upper part of sky
+    const vec3 sky_down_night = vec3(0.075, 0.1, 0.2); //Color of bottom part of sky
     const float sky_bias_night = 0;
     
     // Afternoon / Morning

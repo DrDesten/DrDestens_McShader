@@ -14,7 +14,7 @@ void main() {
 
 	color.rgb *= 1 + (1 * float(color.r > 0.5));
 	
-    color.rgb = gamma(color.rgb);
+    gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 }

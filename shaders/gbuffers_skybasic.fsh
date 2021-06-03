@@ -31,6 +31,7 @@ void main() {
 
     #endif
 
+    gamma(color);
 
     FD0 = vec4(color, 1.0);
     FD1 = vec4(0);

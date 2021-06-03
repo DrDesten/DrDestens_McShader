@@ -18,11 +18,10 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:02 */
 void main() {
 	vec4 color = texture2D(texture, texcoord) * glcolor;
+	gamma(color.rgb);
+	
 	float dinamicLight = lmcoord.x * lmcoord.x  * 0.25;
 	color.rgb  *= texture2D(lightmap, lmcoord).rgb + (dinamicLight);
-	//color = glcolor;
-
-	color.rgb = gamma(color.rgb);
 		
 	#ifdef PBR
 		float roughness = sum((1 - color) / 3) * 0.7 + 0.3;

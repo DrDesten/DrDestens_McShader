@@ -329,3 +329,30 @@ float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, int powe
     float reflectiveness = clamp(bias + scale * pow(1.0 + dot(viewRay, normal), power), 0, 1); 
     return reflectiveness;
 }
+
+
+float sq(float x) {
+    return x * x;
+}
+vec2 sq(vec2 x) {
+    return x * x;
+}
+vec3 sq(vec3 x) {
+    return x * x;
+}
+vec4 sq(vec4 x) {
+    return x * x;
+}
+
+float cb(float x) {
+    return x * x * x;
+}
+vec2 cb(vec2 x) {
+    return x * x * x;
+}
+vec3 cb(vec3 x) {
+    return x * x * x;
+}
+vec4 cb(vec4 x) {
+    return x * x * x;
+}

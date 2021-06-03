@@ -8,6 +8,7 @@ uniform sampler2D lightmap;
 uniform sampler2D texture;
 uniform vec4 entityColor;
 
+varying vec3 normal;
 varying vec2 lmcoord;
 varying vec2 texcoord;
 varying vec4 glcolor;
@@ -16,9 +17,9 @@ varying vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, texcoord) * glcolor;
 	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
-	color *= texture2D(lightmap, lmcoord);
+	gamma(color.rgb);
 
-	color.rgb = gamma(color.rgb);
+	color *= texture2D(lightmap, lmcoord);
 
 	gl_FragData[0] = color; //gcolor
 }

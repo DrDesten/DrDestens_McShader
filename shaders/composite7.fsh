@@ -17,8 +17,8 @@ in vec2 coord;
 
 void main() {
     float randfac = 0; // rand_11(-coord);
-    float blursize = 8 / viewHeight;
-    vec3 color = gBlur_h6_col(coord, blursize, 4) * 0.25;
+    float blursize = 12 / viewHeight;
+    vec3 color = gBlur_h6_col(coord, blursize, 5) * 0.2;
     
     FD0 = vec4(color, 1);
 }
