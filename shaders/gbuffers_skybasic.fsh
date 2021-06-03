@@ -27,7 +27,7 @@ void main() {
         vec4 viewPos = gbufferProjectionInverse * (screenPos * 2.0 - 1.0);
         viewPos /= viewPos.w;
 
-        vec3 color = getSkyColor(viewPos.xyz); //Get sky
+        vec3 color = getSkyColor3(viewPos.xyz); //Get sky
 
     #endif
 

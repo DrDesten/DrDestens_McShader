@@ -167,7 +167,7 @@ vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceTy
                 #ifdef DEBUG_SSR_ERROR_CORRECTION
                     return vec3(0,1,0);
                 #endif
-                return cheapSSR_final(rayPos.xy, normal, getSkyColor(reflectionRay), 1, 0.2, 8);
+                return cheapSSR_final(rayPos.xy, normal, getSkyColor3(reflectionRay), 1, 0.2, 8);
             } 
 
             // After having found an intersection, refine Reflection
@@ -195,13 +195,13 @@ vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceTy
                     float edgeFade = min(min(rayPos.x, rayPos.y), 1 - max(rayPos.x, rayPos.y));
                     edgeFade = clamp(edgeFade * 25, 0, 1);
                     
-                    return mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade);
+                    return mix(getSkyColor3(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade);
                 }
             }
         }
     }
 
-    return getSkyColor(reflectionRay);
+    return getSkyColor3(reflectionRay);
 }
 
 vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
@@ -258,7 +258,7 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
                 #ifdef DEBUG_SSR_ERROR_CORRECTION
                     return vec3(0,1,0,0);
                 #endif
-                return vec4(cheapSSR_final(rayPos.xy, normal, getSkyColor(reflectionRay), 1, 0.2, 8), 1);
+                return vec4(cheapSSR_final(rayPos.xy, normal, getSkyColor3(reflectionRay), 1, 0.2, 8), 1);
             } 
 
             // After having found an intersection, refine Reflection
@@ -286,13 +286,13 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
                     float edgeFade = min(min(rayPos.x, rayPos.y), 1 - max(rayPos.x, rayPos.y));
                     edgeFade = clamp(edgeFade * 25, 0, 1);
                     
-                    return vec4(mix(getSkyColor(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade), 0);
+                    return vec4(mix(getSkyColor3(reflectionRay), getAlbedo_int(rayPos.xy), edgeFade), 0);
                 }
             }
         }
     }
 
-    return vec4(getSkyColor(reflectionRay), 1);
+    return vec4(getSkyColor3(reflectionRay), 1);
 } */
 
 vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool skipSame) {
@@ -302,7 +302,7 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
     vec3 viewReflection = reflect(normalize(viewPos), normal) + viewPos;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return getSkyColor(viewReflection - viewPos);
+        return getSkyColor3(viewReflection - viewPos);
     }
 
     // Project to Screen Space
@@ -357,7 +357,7 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
         }
     }
 
-    return vec3(getSkyColor(viewReflection - viewPos));
+    return vec3(getSkyColor3(viewReflection - viewPos));
 }
 
 
@@ -579,7 +579,7 @@ void main() {
 
         #ifdef SSR_CHEAP
 
-            vec3 sky = getSkyColor(reflect(viewPos, normal));
+            vec3 sky = getSkyColor3(reflect(viewPos, normal));
             color = mix(color, cheapSSR_final(coord, normal, sky, 1, SSR_DISTANCE, SSR_STEPS), fresnel);
 
         #else

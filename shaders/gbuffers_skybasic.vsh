@@ -16,7 +16,7 @@ void main() {
 
     #ifdef FAST_SKY
         vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-        skyColor = getSkyColor(viewPos);
+        skyColor = getSkyColor3(viewPos);
     #endif
 
     coord = gl_MultiTexCoord0.xy;

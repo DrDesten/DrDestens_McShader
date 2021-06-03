@@ -1,6 +1,14 @@
 uniform int worldTime;
+uniform vec3 sunPosition;
+uniform vec3 moonPosition;
 
-vec3 getSkyColor(vec3 viewPos) {
+/*
+// Thanks BuilderbOy ;)
+float ang = fract(worldTime / 24000.0 - 0.25);
+ang = (ang + (cos(ang * 3.14159265358979) * -0.5 + 0.5 - ang) / 3.0); // * 6.28318530717959; //0-2pi, rolls over from 2pi to 0 at noon.
+*/
+
+vec3 getSkyColor1(vec3 viewPos) {
     vec3 eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
     vec3 dir = normalize(eyePlayerPos); //Get view direction in world space (chech ;position in bot channel to understand what eyePlayerPos is
     dir.y = max(dir.y, 0);
@@ -131,6 +139,66 @@ vec3 getSkyColor2(vec3 viewPos) {
         sky_bias = mix(sky_bias_night, sky_bias_noon, mixfac);
 
         //return vec3(0);
+    }
+
+    return mix(sky_down, sky_up, dir.y + sky_bias); //Get sky
+}
+
+vec3 getSkyColor3(vec3 viewPos) {
+    vec3 eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
+    vec3 dir = normalize(eyePlayerPos); //Get view direction in world space (chech ;position in bot channel to understand what eyePlayerPos is
+    dir.y = max(dir.y, 0);
+    
+    float ang = fract(worldTime / 24000.0 - 0.25);
+    ang = (ang + (cos(ang * 3.14159265358979) * -0.5 + 0.5 - ang) / 3.0); // * 6.28318530717959; //0-2pi, rolls over from 2pi to 0 at noon.
+
+    float daynight;
+    float mixfac;
+    vec3 sky_up;
+    vec3 sky_down;
+    float sky_bias;
+
+    //Day
+    const vec3 sky_up_day = vec3(0.1, 0.4, 1.0); //Color of upper part of sky
+    const vec3 sky_down_day = vec3(0.55, 0.7, 1.0); //Color of bottom part of sky
+    const float sky_bias_day = 0;
+
+    //Night
+    const vec3 sky_up_night = vec3(0.1, 0.1, 0.2); //Color of upper part of sky
+    const vec3 sky_down_night = vec3(0.2, 0.3, 0.5); //Color of bottom part of sky
+    const float sky_bias_night = 0;
+    
+    // Afternoon / Morning
+    const vec3 sky_up_noon = vec3(0.1, 0.2, 0.5); //Color of upper part of sky
+    const vec3 sky_down_noon = vec3(0.7, 0.3, 0.2); //Color of bottom part of sky
+    const float sky_bias_noon = 0.4;
+
+
+    if (ang > .8 || ang < .2) { // Day
+        sky_up   = sky_up_day;
+        sky_down = sky_down_day;
+        sky_bias = sky_bias_day;
+
+    } else if (ang < .7 && ang > .3) { // Night
+        sky_up   = sky_up_night;
+        sky_down = sky_down_night;
+        sky_bias = sky_bias_night;
+
+    } else if (ang > .7) { // Inbetween (night-day)
+        mixfac = (ang - .7) * 10;
+        
+        sky_up   = mix(sky_up_night,   sky_up_day,   mixfac);
+        sky_down = mix(sky_down_night, sky_down_day, mixfac);
+        sky_bias = mix(sky_bias_night, sky_bias_day, mixfac);
+        //sky_up = vec3(1,0,0);
+
+    } else if (ang < .3) { // Inbetween (day-night)
+        mixfac = (ang - .2) * 10;
+
+        sky_up   = mix(sky_up_day,   sky_up_night,   mixfac);
+        sky_down = mix(sky_down_day, sky_down_night, mixfac);
+        sky_bias = mix(sky_bias_day, sky_bias_night, mixfac);
+
     }
 
     return mix(sky_down, sky_up, dir.y + sky_bias); //Get sky
