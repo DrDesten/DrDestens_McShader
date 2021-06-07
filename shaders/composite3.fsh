@@ -552,6 +552,7 @@ void main() {
         #ifdef REFRACTION
             // Adjust the depth coordinates to the distorted coordinates from the refraction effect
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
+            linearDepth = getLinearDepth(coordDistort);
         #else
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
         #endif

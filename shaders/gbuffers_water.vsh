@@ -18,6 +18,7 @@ attribute vec4 mc_Entity;
 flat out float blockId;
 out vec3 Normal;
 out vec2 coord;
+out vec3 worldPos;
 
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -54,7 +55,7 @@ void main(){
 
 	#ifdef WAVY_WATER
 
-		if (mc_Entity.x == 1001) {
+		if (mc_Entity.x == 1001 && 1 == 0) {
 			
 			vec4 vertexPos = vertexPlayer();
 			vec4 playerPos = vertexPos + vec4(cameraPosition, 0);
@@ -69,7 +70,7 @@ void main(){
 
 			gl_Position = clipPos;
 
-			// "Fake" Waves
+			/* // "Fake" Waves
 			vec2 seed = playerPos.xz;
 			seed = (playerPos.xz * 0.5) + (frameTimeCounter);
 
@@ -78,20 +79,23 @@ void main(){
 
 			// Rotate a set Amount along a random axis
 			surfaceNormal = rotateAxisAngle(random3d, 0.05 * max(0, WATER_NORMALS_AMOUNT - abs(vertexPos.y * 0.03))) * surfaceNormal;
-			Normal = surfaceNormal;
-
-		} else {
-
-			gl_Position = ftransform();
-			Normal = gl_NormalMatrix * gl_Normal;
+			Normal = surfaceNormal; */
 		}
 
+		gl_Position = ftransform();
+		Normal = gl_NormalMatrix * gl_Normal;
+		
 	#else
 
 		gl_Position = ftransform();
 		Normal = normalize(gl_NormalMatrix * gl_Normal);
 
 	#endif
+	
+	vec3 viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	vec3 eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
+	vec3 feetPlayerPos = eyePlayerPos + gbufferModelViewInverse[3].xyz;
+	worldPos = feetPlayerPos + cameraPosition;
 
 	blockId = mc_Entity.x;
     coord = gl_MultiTexCoord0.st;
