@@ -1,7 +1,18 @@
-uniform vec3 shadowLightPosition;
+//requires: uniform int worldTime;
+uniform vec3 sunPosition;
+uniform vec3 moonPosition;
 
-vec3 halfway(vec3 viewPos) {
-    return normalize(viewPos + shadowLightPosition);
+vec3 lightPosition() {
+    if (worldTime > 13500 && worldTime < 22500) { // Night
+        return moonPosition;
+    } else { //Day
+        return sunPosition;
+    }
+}
+
+
+vec3 halfway(vec3 viewPos, vec3 lightPos) {
+    return normalize(viewPos + lightPos);
 }
 
 
@@ -57,7 +68,7 @@ float DGF(vec3 normal, vec3 viewDir, vec3 lightVector, float roughness, float F0
 vec3 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float roughness, float F0) {
     const float PI = 3.14159265359;
 
-    vec3  viewDir = -normalize(viewPos);
+    vec3  viewDir             = -normalize(viewPos);
     float NormDistribution    = D(normal, normalize(viewDir + normalize(lightVector)), roughness);
     float GeometryObstruction = G(normal, viewDir, lightVector, roughness);
     float Fresnel             = F(dot(normal, viewDir), F0);
@@ -72,5 +83,27 @@ vec3 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float
     float NdotL    = max(dot(normal, normalize(lightVector)), 0.0);
     vec3  radiance = (kD * color / PI + specular) * NdotL;
 
-    return radiance;
+    return max(radiance, 0);
+}
+
+// Cook-Torrance Specular BRDF (Metallic)
+vec3 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float roughness, vec3 F0) {
+    const float PI = 3.14159265359;
+
+    vec3  viewDir             = -normalize(viewPos);
+    float NormDistribution    = D(normal, normalize(viewDir + normalize(lightVector)), roughness);
+    float GeometryObstruction = G(normal, viewDir, lightVector, roughness);
+    vec3  Fresnel             = F(dot(normal, viewDir), F0);
+
+    vec3  zaehler  = NormDistribution * GeometryObstruction * Fresnel;
+    float nenner   = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, normalize(lightVector)), 0.0);
+    vec3  specular = zaehler / max(nenner, 0.01);
+
+    vec3  kS = Fresnel; // Specular Energy
+    vec3  kD = vec3(1) - kS;  // Diffuse Energy
+
+    float NdotL    = max(dot(normal, normalize(lightVector)), 0.0);
+    vec3  radiance = (kD * (color / PI) + specular) * NdotL;
+
+    return max(radiance, 0);
 }

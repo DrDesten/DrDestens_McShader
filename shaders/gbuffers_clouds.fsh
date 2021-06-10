@@ -6,14 +6,14 @@ uniform sampler2D texture;
 
 uniform vec3 shadowLightPosition;
 
-varying vec2 texcoord;
+varying vec2 coord;
 varying vec3 normal;
 varying vec3 viewPos;
 varying vec4 glcolor;
 
 /* DRAWBUFFERS:024 */
 void main() {
-	vec4 color = texture2D(texture, texcoord);
+	vec4 color = texture2D(texture, coord);
 	color.a = step(0.5, color.a);
 
 	// "Volumetrics" (not actually)

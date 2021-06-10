@@ -100,7 +100,7 @@ vec3 dir = normalize(eyePlayerPos); //Get view direction in world space (chech ;
 vec3 sky_up = vec3(0.05, 0.2, 0.5); //Color of upper part of sky
 vec3 sky_down = vec3(0.10, 0.40, 1.0); //Color of bottom part of sky
 
-if (texture2D(depthtex0, texcoord).r == 1.0f)    //Check depth, if it's 1.0 - then it's sky.
+if (texture2D(depthtex0, coord).r == 1.0f)    //Check depth, if it's 1.0 - then it's sky.
     color = mix(sky_down, sky_up, dir.y); //Get sky
 
 */

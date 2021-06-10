@@ -24,7 +24,7 @@ void main(){
 
     // Reduce opacity and saturation of only water
     if (blockId == 1001) {
-        color.rgb = mix(color.rgb, vec3(sum(color.rgb) / 10), 0.8);
+        color.rgb = mix(color.rgb, vec3(sum(color.rgb) / 10), 1);
         color.a *= 0.5;
         
 
