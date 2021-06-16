@@ -6,7 +6,7 @@
 screen.DEPTH_OF_FIELD=Depth Of Field
 
 option.DOF_MODE=DoF Type
-option.DOF_MODE.comment=Blurs non-focussed objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (usually better performance).
+option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (usually better performance).
 value.DOF_MODE.0=Off
 value.DOF_MODE.2=Box
 value.DOF_MODE.3=Bokeh
@@ -51,7 +51,7 @@ value.DOF_KERNEL_SIZE.4=Highest
 
 screen.SSR=Screen Space Reflections
 
-option.SSR_STEPS=Raytrace Quality
+option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
 
 option.SSR_STEP_OPTIMIZATION=Optimize Raytrace
@@ -113,6 +113,25 @@ option.BLOOM_AMOUNT=Bloom Strength
 
 
 ///////////////////////////////////////////////////////////
+// MATERIALS
+///////////////////////////////////////////////////////////
+
+screen.MATERIALS=Physically Based Rendering
+
+option.PBR=PBR
+option.PBR.comment=Enables Physically Based Rendering
+
+option.PBR_BLEND_MIN=Minimum Amount of PBR
+option.PBR_BLEND_MIN.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. If you increase this value, the PBR effect will be stronger.
+
+option.PBR_BLEND_MAX=Maximum Amount of PBR
+option.PBR_BLEND_MAX.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. This value determines the maximum amount of PBR that will be applied.
+
+option.HEIGHT_AO=Height as AO
+option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
+
+
+///////////////////////////////////////////////////////////
 // MISC
 ///////////////////////////////////////////////////////////
 
@@ -123,12 +142,12 @@ option.OUTLINE_DISTANCE=Outline Distance
 option.OUTLINE_BRIGHTNESS=Outline Brightness
 
 
-option.LENS_DISTORT=Lens Distorsion
-option.LENS_DISTORT.comment=Lens Distorsion Strength.
+option.LENS_DISTORT=Lens Distortion
+option.LENS_DISTORT.comment=Lens Distortion Strength.
 value.LENS_DISTORT.0.0=Off
 
 option.LENS_DISTORT_SCALE=Image Scale
-option.LENS_DISTORT_SCALE.comment=Adjust scale of image to correct for Lens Distorsion.
+option.LENS_DISTORT_SCALE.comment=Adjust scale of image to correct for Lens Distortion.
 
 option.FXAA_THRESHOLD=FXAA threshold
 option.FXAA_THRESHOLD.comment=Lower = more anti-aliasing.

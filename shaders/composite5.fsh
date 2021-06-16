@@ -78,7 +78,7 @@ void main() {
 
     #if 1 == 0
         float depth = getDepth(coord);
-        float linearDepth = getLinearDepth(coord);
+        float linearDepth = linearizeDepth(depth, near, far);
 
         vec4 sunProjection = gbufferProjection * vec4(sunPosition, 1.0);
         vec3 sunScreenSpace = (sunProjection.xyz / sunProjection.w) * 0.5 + 0.5;

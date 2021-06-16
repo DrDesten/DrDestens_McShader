@@ -56,11 +56,10 @@ vec3 blurNormal(vec2 coord, vec3 pixelNormal, float amount) {
     return normal * 0.0625;
 }
 
-/* DRAWBUFFERS:12 */
+/* DRAWBUFFERS:2 */
 
 void main() {
     vec3 normal         = getNormal(coord);
-    float linearDepth   = linearizeDepth(getDepth(coord), near, far);
 
     #ifdef BLUR_WATER_NORMALS
 
@@ -72,6 +71,5 @@ void main() {
     #endif
 
     //Pass everything forward
-    FD0          = vec4(linearDepth);
-    FD1          = vec4(normal, 1);
+    FD0          = vec4(normal, 1);
 }

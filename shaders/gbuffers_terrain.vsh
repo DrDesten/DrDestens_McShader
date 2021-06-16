@@ -1,12 +1,12 @@
 #version 120
 
 attribute vec4 at_tangent;
-
-#include "/lib/transform.glsl"
+attribute vec2 mc_midTexCoord;
 
 varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
+varying vec2 mid_coord;
 varying vec4 glcolor;
 
 varying mat3 tbn;
@@ -17,6 +17,7 @@ void main() {
 	viewpos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 
 	coord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	mid_coord = mc_midTexCoord;
 	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 
 	vec3 tangent = gl_NormalMatrix * (at_tangent.xyz / at_tangent.w);

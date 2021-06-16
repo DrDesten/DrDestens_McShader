@@ -1,5 +1,3 @@
-//#define PBR
-
 uniform sampler2D specular;
 uniform sampler2D normals;
 
@@ -30,4 +28,8 @@ float extractRoughness(vec4 tex) {
 }
 float extractF0(vec4 tex) {
     return tex.g;
+}
+
+float extractEmission(vec4 tex) {
+    return tex.a * float(tex.a != 1);
 }

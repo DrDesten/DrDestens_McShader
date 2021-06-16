@@ -75,7 +75,7 @@ vec3 cheapSSR(vec2 coord, vec3 normal, vec3 fallBackColor, int steps, float step
 
 vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceType, float dist, int steps) {
     vec2 pixelPos = coord;
-    float depth = getLinearDepth(coord);
+    float depth = linearizeDepth(getDepth(coord), near, far);
 
     vec2 marchDirection = normalize(normal.xy);
 
@@ -365,143 +365,15 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
 //                     SCREEN SPACE AMBIENT OCCLUSION
 //////////////////////////////////////////////////////////////////////////////
 
-float cheapSSAO(vec2 coord, float size, float bias) {
-    float depth = getDepth(coord);
-    if (depth == 1.0) { return 0; }
 
-    depth = linearizeDepth(depth, near, far);
-    vec3 normal = getNormal(coord);
 
-    float fine_occlusion = 0;
-    float coarse_occlusion = 0;
-    float occlusion;
-    const int kernelsize = 8;
-
-    for (int i = 0; i < kernelsize; i++) {
-        vec2 kernelcoords = circle_blur_polar_8[i];
-        kernelcoords.y += randf_01(coord) * 3.141;
-        kernelcoords = convertPolarCartesian(kernelcoords) * size * (1/depth);
-
-        float sampleDepth = getLinearDepth(coord + (kernelcoords));
-
-        fine_occlusion += int(sampleDepth < depth - 0.03 && sampleDepth > 0.25);
-        fine_occlusion -= int(sampleDepth > depth + 0.03 && sampleDepth > 0.25);
-        
-        sampleDepth = getLinearDepth(coord + (kernelcoords * 2));
-
-        coarse_occlusion += int(sampleDepth < depth - 0.05 && sampleDepth > 0.25);
-        coarse_occlusion -= int(sampleDepth > depth + 0.05 && sampleDepth > 0.25);
-    }
-
-    occlusion = max(fine_occlusion, coarse_occlusion) / kernelsize;
-    occlusion = clamp(occlusion + bias, 0, 1);
-
-    return occlusion;
-}
-
-float cheapSSAO_opt1(vec2 coord, float size, float bias) {
-    float depth = getDepth(coord);
-    if (depth == 1.0) { return 0; }
-
-    depth = linearizeDepth(depth, near, far);
-    vec3 normal = getNormal(coord);
-
-    float fine_occlusion = 0;
-    float coarse_occlusion = 0;
-    float occlusion;
-    const int kernelsize = 8;
-
-    for (int i = 0; i < kernelsize; i++) {
-        vec2 kernelcoords = circle_blur_polar_8[i];
-        kernelcoords.y += randf_01(coord) * 3.141 * SSAO_RANDOMIZE_AMOUNT;
-        kernelcoords = convertPolarCartesian(kernelcoords) * size * (1/depth);
-
-        float sampleDepth = getLinearDepth(coord + (kernelcoords));
-        int isHand = int(sampleDepth > 0.25);
-
-        fine_occlusion += int(sampleDepth < depth - 0.03) * isHand;
-        fine_occlusion -= int(sampleDepth > depth + 0.03) * isHand;
-        
-        #ifdef SSAO_TWO_PASS
-            sampleDepth = getLinearDepth(coord + (kernelcoords * 2));
-
-            coarse_occlusion += int(sampleDepth < depth - 0.05) * isHand;
-            coarse_occlusion -= int(sampleDepth > depth + 0.05) * isHand;
-        #endif
-    }
-
-    occlusion = max(fine_occlusion, coarse_occlusion) / kernelsize;
-    occlusion = clamp(occlusion + bias, 0, 1);
-
-    return occlusion;
-}
-
-vec4 cheapSSAO_GI(vec2 coord, float size, float bias) {
-    float depth = getDepth(coord);
-    if (depth == 1.0) { return vec4(0); }
-
-    depth = linearizeDepth(depth, near, far);
-    vec3 normal = getNormal(coord);
-
-    vec3 color = vec3(0);
-    float fine_occlusion = 0;
-    float coarse_occlusion = 0;
-    float occlusion;
-    const int kernelsize = 8;
-
-    for (int i = 0; i < kernelsize; i++) {
-        vec2 kernelcoords = circle_blur_polar_8[i];
-        kernelcoords.y += randf_01(coord) * 3.141 * SSAO_RANDOMIZE_AMOUNT;
-        kernelcoords = convertPolarCartesian(kernelcoords) * size * (1/depth);
-
-        float sampleDepth = getLinearDepth(coord + (kernelcoords));
-        int isHand = int(sampleDepth > 0.25);
-        int isInfluence = int(sampleDepth < depth - 0.03);
-
-        color += getAlbedo(coord + (kernelcoords));
-        fine_occlusion += isInfluence * isHand;
-        fine_occlusion -= int(sampleDepth > depth + 0.03) * isHand;
-        
-        #ifdef SSAO_TWO_PASS
-            sampleDepth = getLinearDepth(coord + (kernelcoords * 2));
-
-            coarse_occlusion += int(sampleDepth < depth - 0.05) * isHand;
-            coarse_occlusion -= int(sampleDepth > depth + 0.05) * isHand;
-        #endif
-    }
-
-    color /= kernelsize;
-    occlusion = max(fine_occlusion, coarse_occlusion) / kernelsize;
-    occlusion = clamp(occlusion + bias, 0, 1);
-
-    return vec4(color, occlusion);
-}
-
-float getSpecularP(vec3 viewDirection, vec3 normal, float bias, float shininess) {
-    vec3 lightDir = lightVector;
-    vec3 reflection = reflect(viewDirection, normal);
-
-    float spec = mapclamp(max(dot(reflection, lightDir), 0.0), 0.95, 0.999, 0, 1);
-
-    spec = pow(spec, shininess);
-    return spec;
-}
 
 /* DRAWBUFFERS:04 */
-
 void main() {
-    /*
-    vec2 weirdCoord = (coord * 2) - 1;
-    weirdCoord /= ((getLinearDepth(coord)));
-    weirdCoord = (weirdCoord * 0.5) + 0.5;
-    weirdCoord = clamp(weirdCoord, 0, 0.999999);
-    vec3 color          = getAlbedo(weirdCoord);
-    */
-
     vec3 color;
     vec3 normal;
     float depth;
-    float linearDepth   = getLinearDepth(coord);
+    float linearDepth   = linearizeDepth(getDepth(coord), near, far);
     float type          = getType(coord);
 
     float denoise       = 0;
@@ -552,7 +424,7 @@ void main() {
         #ifdef REFRACTION
             // Adjust the depth coordinates to the distorted coordinates from the refraction effect
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
-            linearDepth = getLinearDepth(coordDistort);
+            linearDepth = linearizeDepth(getDepth(coordDistort), near, far);
         #else
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
         #endif
@@ -585,7 +457,7 @@ void main() {
 
         #else
 
-            vec3 SSR = universalSSR(coord, normal, screenPos, 0.0, true);
+            vec3 SSR = universalSSR(coord, normal, screenPos, 0.0, false);
             color    = mix(color, SSR.rgb * 0.95, fresnel);
             denoise  = 1;
 

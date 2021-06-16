@@ -42,9 +42,6 @@ float getDepth(in vec2 coord) {
 float getDepth_int(in vec2 coord) {
     return texture(depthtex0, coord).x;
 }
-float getLinearDepth(in vec2 coord) {
-    return texture(colortex1, coord).x;
-}
 
 float getType(in vec2 coord) {
     return texelFetch(colortex4, convertIntCoords(coord, viewWidth, viewHeight), 0).r;
