@@ -5,7 +5,7 @@ uniform int worldTime;
 #include "/lib/transform.glsl"
 #include "/lib/math.glsl"
 #include "/lib/lighting.glsl"
-#include "/lib/labPBR.glsl"
+#include "/lib/labPBR13.glsl"
 #include "/lib/gamma.glsl"
 
 uniform ivec2 atlasSize;
@@ -48,16 +48,18 @@ void main() {
 		vec3 lightPos	 = lightPosition();
 
 		vec4 normalTex	 = NormalTex(newcoord);
-		#ifdef HEIGHT_AO
-		color.rgb 		*= extractHeight(normalTex);
-		#endif
-		vec3 normalMap   = normalize(tbn * extractNormal(normalTex));
-		float AO 		 = extractAO(normalTex);
-
 		vec4 specularTex = SpecularTex(newcoord);
-		float roughness  = extractRoughness(specularTex);
-		float f0 		 = extractF0(specularTex);
-		float emission   = extractEmission(specularTex);
+
+		#ifdef HEIGHT_AO
+		color.rgb 		*= extractHeight(normalTex, specularTex);
+		#endif
+		vec3 normalMap   = normalize(tbn * extractNormal(normalTex, specularTex));
+		float AO 		 = extractAO(normalTex, specularTex);
+
+		float roughness  = extractRoughness(normalTex, specularTex);
+		float f0 		 = extractF0(normalTex, specularTex);
+		if (f0 > (230/255)) {f0 = 1;} // Metals
+		float emission   = extractEmission(normalTex, specularTex);
 
 		vec4 BRDF;
 		color.rgb 		*= AO;

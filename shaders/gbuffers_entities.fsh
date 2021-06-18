@@ -4,7 +4,7 @@ uniform int worldTime;
 
 #include "/lib/math.glsl"
 #include "/lib/lighting.glsl"
-#include "/lib/labPBR.glsl"
+#include "/lib/labPBR13.glsl"
 #include "/lib/gamma.glsl"
 
 uniform sampler2D lightmap;
