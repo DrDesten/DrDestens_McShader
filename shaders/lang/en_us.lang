@@ -111,6 +111,12 @@ option.SATURATION=Saturation
 option.BLOOM=Bloom
 option.BLOOM_AMOUNT=Bloom Strength
 
+option.MOTION_BLUR=Motion Blur
+option.MOTION_BLUR_STRENGTH=Motion Blur Intensity
+
+option.MOTION_BLUR_FULL=Realistic Motion Blur
+option.MOTION_BLUR_FULL.comment=With this option enabled, the camera rotation aswell as the distance to the terrain will be taken into account. Otherwise, only player movement affects motion blur.
+
 
 ///////////////////////////////////////////////////////////
 // MATERIALS

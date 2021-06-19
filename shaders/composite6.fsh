@@ -1,273 +1,101 @@
 #version 130
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                         DEPTH OF FIELD
+//                                      MOTION BLUR
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #include "/lib/math.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
-#define DOF_MODE 3                   // Lens Blur Mode                                          [0 3 4]
-#define DOF_STEPS 3                  // Depth of Field Step Size                                [1 2 3 4 5 6 7 8 9 10]
-#define DOF_STRENGTH 1.0             // Depth of Field Intensity                                [0.25 0.5 1.0 1.5 2.0 2.5 3 3.5]
+//#define MOTION_BLUR
+#define MOTION_BLUR_STRENGTH 0.50 // [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
+#define MOTION_BLUR_SAMPLES 4
+//#define MOTION_BLUR_FULL
 
-#define DOF_RANDOMIZE                // Randomize Samples in order to conceil high step sizes   
-#define DOF_RANDOMIZE_AMOUNT 0.5     // Amount of randomization                                 [0.2 0.3 0.4 0.5 0.6 0.7 0.8]
-
-#define DOF_DOWNSAMPLING 0.5         // How much downsampling takes place for the DoF effect    [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DOF_KERNEL_SIZE 2            // Bokeh Quality                                           [1 2 3 4]           
-#define DOF_MAXSIZE 0.005            // Maximum Blur                                            [0.002 0.005 0.007 0.02 1.0]
-
-#define FOCUS_SPEED 1.0
-
-uniform float centerDepthSmooth;
-const float   centerDepthHalflife = 1.0;
-
-const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
-
-in vec2       coord;
-flat in vec2  pixelSize;
-
-uniform mat4  gbufferProjection;
-
-uniform int   frameCounter;
 uniform float near;
 uniform float far;
 
-//Depth of Field
+uniform vec3 sunPosition;
 
-vec3 boxBlur(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= pixelSize.x;
-    if (stepsize > size)                   { stepsize = size; } //Prevent blur from clipping due to lange step size
+in vec2 coord;
+in vec2 movecoord;
 
-    vec3 pixelColor = vec3(0);
+vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
+    // Calculate Vector connecting startPos with endPos
+    vec3 stepDirection = endPos - startPos;
+    // Divide by step amount, to create the correct step size
+    // I am dividing by "steps + 1":
+    // If I would divide by steps, the last rayPos would be endPos (but we already know this point)
+    // Diviting by "steps + 1", the last rayPos is one step before endPos, making endPos the next step, 
+    //     which we can simply assume is the fallback if no intersection is found.
+    stepDirection /= steps + 1;
 
-    float samplecount = 0.0;
+    vec3 rayPos = startPos;
+    rayPos += stepDirection * pattern_cross2(startPos.xy, 1, viewWidth, viewHeight) * 0.666;
 
-    // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_RANDOMIZE
-        float randfac1 = rand_11(coord);
-        float randfac2 = rand_11(coord + 1);
-    #endif        
-    
-    for (float i = -size; i < size; i += stepsize) {
-        for (float o = -size; o < size; o += stepsize) {
-            vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
+    for (int i = 0; i < steps; i++) {
+        // Incrementing the rayPos
+        rayPos += stepDirection;
 
-            // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_RANDOMIZE
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * 0.5;
-            #endif 
+        float depth = getDepth_int(rayPos.xy);
 
-
-            pixelColor += getAlbedo(sampleCoord);
-            
-            samplecount++;
+        // Checking if the rayPos depth is "behind" the actual depth at that location
+        if (depth + 0.0001 < rayPos.z) {
+            float stepLength = length(rayPos - startPos);
+            return vec4(rayPos.xy, depth, stepLength);
         }
     }
 
-    pixelColor /= samplecount;
-    return pixelColor;
+    return vec4(endPos, 1);
 }
 
-vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= pixelSize.x;
-    if (stepsize > size)                         { stepsize = size; } //Prevent blur from clipping due to lange step size
+vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
+    if (length(blur) < 1 / viewWidth) { return getAlbedo(coord); }
 
-    vec3 pixelColor = vec3(0);
+    vec3 col      = vec3(0);
+    vec2 blurStep = blur / float(samples);
+    vec2 sample   = coord - (blur * 0.5);
 
-    float samplecount = 0.0;
-
-    // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_RANDOMIZE
-        float randfac1 = randf_01(coord) * 2 -1;
-        float randfac2 = randfac1;
-    #endif
-    
-    for (float i = -size; i < size; i += stepsize) {
-        for (float o = -size; o < size; o += stepsize) {
-            vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
-
-            // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_RANDOMIZE
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * DOF_RANDOMIZE_AMOUNT;
-            #endif 
-
-            // I am using texelFetch instead of textur2D, in order to avoid linear interpolation. This increases performance
-            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - pixelSize.x);
-            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - pixelSize.y);
-            ivec2 intcoords = ivec2(sampleCoord * vec2(viewWidth, viewHeight));
-
-            pixelColor += texelFetch(colortex0, intcoords, 0).rgb;
-            
-            //pixelColor += getAlbedo(sampleCoord);
-
-            samplecount++;
-        }
+    for (int i = 0; i < samples; i++) {
+        col += getAlbedo_int(sample);
+        sample += blurStep;
     }
 
-    pixelColor /= samplecount;
-    return pixelColor;
-}
-
-vec3 bokehBlur(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.5 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <0.5 pixel
-
-    vec3 pixelColor = vec3(0);
-    float lod = log2(size / pixelSize.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-
-
-    // Low Quality
-    #if DOF_KERNEL_SIZE == 1
-        int kernelSize = 4;
-        vec2[] kernel = circle_blur_4;
-
-    // Medium Quality
-    #elif DOF_KERNEL_SIZE == 2
-        int kernelSize = 16;
-        vec2[] kernel = circle_blur_16;
-    
-    // High Quality
-    #elif DOF_KERNEL_SIZE == 3
-        int kernelSize = 32;
-        vec2[] kernel = circle_blur_32;
-
-    // Very High Quality
-    #elif DOF_KERNEL_SIZE == 4
-        int kernelSize = 64;
-        vec2[] kernel = circle_blur_64;
-    #endif
-
-
-    for (int i = 0; i < kernelSize; i++) {
-        pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (kernel[i] * size), lod).rgb;
-    }
-
-
-    pixelColor /= kernelSize;
-    return pixelColor;
-}
-
-vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.5 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <0.5 pixel
-
-    vec3 pixelColor = vec3(0);
-    float pixelBlur = size / pixelSize.x;
-
-    float lod = log2(pixelBlur) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-
-    // Low Quality
-    #if DOF_KERNEL_SIZE == 1
-        int lowKernelSize = 4;
-        vec2[] lowKernel = circle_blur_4;
-
-        int mediumKernelSize = 4;
-        vec2[] mediumKernel = circle_blur_4;
-
-        int highKernelSize = 16;
-        vec2[] highKernel = circle_blur_16;
-
-    // Medium Quality
-    #elif DOF_KERNEL_SIZE == 2
-        int lowKernelSize = 4;
-        vec2[] lowKernel = circle_blur_4;
-
-        int mediumKernelSize = 16;
-        vec2[] mediumKernel = circle_blur_16;
-
-        int highKernelSize = 32;
-        vec2[] highKernel = circle_blur_32;
-
-    // High Quality
-    #elif DOF_KERNEL_SIZE >= 3
-        int lowKernelSize = 16;
-        vec2[] lowKernel = circle_blur_16;
-
-        int mediumKernelSize = 32;
-        vec2[] mediumKernel = circle_blur_32;
-
-        int highKernelSize = 64;
-        vec2[] highKernel = circle_blur_64;
-
-    #endif
-
-    if (pixelBlur < 4) { // Under 4 pixel blur 
-
-        for (int i = 0; i < lowKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (lowKernel[i] * size), lod).rgb;
-        }
-        pixelColor /= lowKernelSize;
-
-    } else if (pixelBlur < 8) { // under 8 pixel blur
-
-        for (int i = 0; i < mediumKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (mediumKernel[i] * size), lod).rgb;
-        }
-        pixelColor /= mediumKernelSize;
-
-    } else { // over 8 pixel blur
-
-        for (int i = 0; i < highKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (highKernel[i] * size), lod).rgb;
-        }
-
-        pixelColor /= highKernelSize;
-    } 
-
-    return pixelColor;
-}
-
-vec3 DoF(vec2 coord, float pixeldepth, float size, float stepsize) {
-
-        size = min(size, DOF_MAXSIZE);
-    
-
-    // Use precompiler instead if runtime - saves ressources
-    #if DOF_MODE == 2
-        return boxBlur_exp(coord, size * 0.70710, stepsize);
-    #elif DOF_MODE == 3
-        return bokehBlur(coord, size * 1, stepsize);
-    #elif DOF_MODE == 4
-        return bokehBlur_adaptive(coord, size * 1, stepsize);
-    #endif
-
-    #if DOF_MODE == 0
-        return vec3(0);
-    #endif
-}
-
-float CoC(float depth) {
-    depth = (depth * 4) - 3;
-    depth *= depth;
-    return depth;
+    return col / float(samples);
 }
 
 
 /* DRAWBUFFERS:0 */
-
 void main() {
-    vec3 color          = getAlbedo(coord);
+    #ifdef MOTION_BLUR
 
-    // Disables Depth of Field in the precompiler
-    #if DOF_MODE != 0
+        #ifndef MOTION_BLUR_FULL
 
-        float depth         = getDepth(coord);
+            // Motion Blur only dependent on player Movement
+            vec2  motionBlurVector = coord - movecoord;
 
-        float fovScale = gbufferProjection[1][1] * 0.7299270073;
+        #else
 
-        float mappedDepth   = CoC(depth);
-        float lookDepth     = CoC(centerDepthSmooth); //Depth of center pixel (mapped)
-        float blurDepth     = abs(mappedDepth - lookDepth) * DOF_STRENGTH * 0.02 * fovScale; 
+            // Motion Blur dependent on player Movement and Camera
+            vec3  clipPos          = vec3(coord, getDepth(coord)) * 2 - 1;
+            vec2  motionBlurVector = (coord - clamp(previousReproject(clipPos).xy, 0, 1)) * float(clipPos.z > 0.12);
+            motionBlurVector      *= MOTION_BLUR_STRENGTH;
 
-        color = DoF(coord, depth, blurDepth, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu
+        #endif
+
+        float ditherOffset         = (Bayer4(coord * ScreenSize) - 0.5) / (MOTION_BLUR_SAMPLES);
+        vec3  color                = vectorBlur(coord + motionBlurVector * ditherOffset, motionBlurVector, MOTION_BLUR_SAMPLES);
+
+    #else
+
+        vec3  color = getAlbedo(coord);
 
     #endif
 
     //Pass everything forward
-    
-    FD0          = vec4(color,  1);
+    FD0          = vec4(color, 1);
 }

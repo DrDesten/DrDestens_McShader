@@ -12,17 +12,12 @@
 #include "/lib/skyColor.glsl"
 
 
-#define SSR_STEPS 32                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
+#define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
 #define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0]
 #define SSR_DISTANCE 1.0                // How far reflections go                       [0.5 0.6 0.7 0.8 0.9 1.0]
 #define SSR_FINE_STEPS 3
 #define SSR_STEP_OPTIMIZATION
-//#define SSR_CHEAP
 //#define DEBUG_SSR_ERROR_CORRECTION
-
-
-//#define SSAO_TWO_PASS
-#define SSAO_RANDOMIZE_AMOUNT 1
 
 #define REFRACTION
 #define REFRACTION_AMOUNT 0.03          // Refraction Strength                          [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1]
@@ -308,10 +303,10 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
     // Project to Screen Space
     vec3 screenSpaceRay = normalize(backToClip(viewReflection) - clipPos);
     
-    float randfac    = Bayer4(coord * ScreenSize) * 0.5;
+    float randfac    = Bayer4(coord * ScreenSize);
 
     float zDir       = step(0, screenSpaceRay.z);                                      // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                        // Selects the maximum Z-Distance a ray can travel based on the information
+    float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                 // Selects the maximum Z-Distance a ray can travel based on the information
     vec3 rayStep     = screenSpaceRay * clamp(maxZtravel / screenSpaceRay.z, 0.05, 1); // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
     rayStep         *= SSR_DISTANCE / SSR_STEPS;
@@ -450,19 +445,10 @@ void main() {
 
         float fresnel = customFresnel(viewDirection, normal, 0.02, 2, 3);
 
-        #ifdef SSR_CHEAP
+        vec3 SSR = universalSSR(coord, normal, screenPos, 0.0, false);
+        color    = mix(color, SSR.rgb * 0.95, fresnel);
+        denoise  = 1;
 
-            vec3 sky = getSkyColor3(reflect(viewPos, normal));
-            color = mix(color, cheapSSR_final(coord, normal, sky, 1, SSR_DISTANCE, SSR_STEPS), fresnel);
-
-        #else
-
-            vec3 SSR = universalSSR(coord, normal, screenPos, 0.0, false);
-            color    = mix(color, SSR.rgb * 0.95, fresnel);
-            denoise  = 1;
-
-
-        #endif
     }
 
     //////////////////////////////////////////////////////////
@@ -486,6 +472,8 @@ void main() {
 
     //color = textureLod(depthtex0, floor(coord * 100) * 0.01, 5).rrr;
     //color = vec3(Bayer16(coord * ScreenSize));
+
+
 
 
     //Pass everything forward

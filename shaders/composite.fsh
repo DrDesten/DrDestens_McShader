@@ -44,7 +44,8 @@ vec3 blurNormal(vec2 coord, vec3 pixelNormal, float amount) {
     vec2 newcoord;
 
     for (int i = 0; i < 16; i++) {
-        newcoord = (circle_blur_16[i] * amount * ((randf_01(coord) * 0.5) + 0.75)) + coord;
+        newcoord = (circle_blur_16[i] * amount) + coord;
+        newcoord += (Bayer4(newcoord * ScreenSize) - 0.5) * amount;
 
         vec3 sampleNormal = getNormal(newcoord);
         int isBlur = int(distance(pixelNormal, sampleNormal) < SMOOTH_WATER_THRESHOLD);
@@ -65,7 +66,7 @@ void main() {
 
         if (getType(coord) == 1) {
             float fovScale = gbufferProjection[1][1];
-            normal = blurNormal(coord, normal, 0.07299270073 * fovScale / linearDepth);
+            normal = blurNormal(coord, normal, 0.07299270073 * fovScale / linearizeDepth(getDepth(coord), near, far));
         }
 
     #endif
