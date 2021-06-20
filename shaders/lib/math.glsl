@@ -119,64 +119,47 @@ float pattern_cross_detail4(vec2 seed, float size, float vW, float vH) {
     return (float(modX1 == modY1) + (float(modX2 == modY2) * 0.75) + (float(modX3 == modY3) * 0.5)) * 0.444444444;
 }
 
-float rand(float n) { return fract(sin(n) * 43758.5453123); }
-
-float randf_01(vec2 xy){
-    xy = fract(xy);
-    return fract(dot(xy, xy * PHI) * 324975.689);
+float rand(float x) {
+    return fract(sin(x * 12.9898) * 4375.5453123);
 }
-float randf_11(vec2 xy){
-    return randf_01(xy) * 2 -1;
+float rand(vec2 x) {
+    return fract(sin(x.x * 12.9898 + x.y * 78.233) * 4375.5453);
 }
-
-float rand_01(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+float rand11(float x) {
+    return rand(x) * 2 - 1;
 }
-float rand_11(vec2 co){
-    return rand_01(co) * 2 - 1;
+float rand11(vec2 x) {
+    return rand(x) * 2 - 1;
 }
-
-
-float hash(float n) { return fract(sin(n) * 1e4); }
-float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
 float noise(vec2 x) {
     vec2 i = floor(x);
     vec2 f = fract(x);
 
 	// Four corners in 2D of a tile
-	float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
+	float a = rand(i);
+    float b = rand(i + vec2(1.0, 0.0));
+    float c = rand(i + vec2(0.0, 1.0));
+    float d = rand(i + vec2(1.0, 1.0));
 
     vec2 u = f * f * (3.0 - 2.0 * f);
 	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-float fbm(vec2 x) {
+float fbm(vec2 x, int n) {
 	float v = 0.0;
 	float a = 0.5;
 	vec2 shift = vec2(100);
+
 	// Rotate to reduce axial bias
     mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-	for (int i = 0; i < 2; ++i) {
+
+	for (int i = 0; i < n; ++i) {
 		v += a * noise(x);
 		x = rot * x * 2.0 + shift;
 		a *= 0.5;
 	}
 	return v;
-}
-
-float noise_f(vec2 p){
-	vec2 ip = floor(p);
-	vec2 u = fract(p);
-	u = u*u*(3.0-2.0*u);
-	
-	float res = mix(
-		mix(rand_01(ip),rand_01(ip+vec2(1.0,0.0)),u.x),
-		mix(rand_01(ip+vec2(0.0,1.0)),rand_01(ip+vec2(1.0,1.0)),u.x),u.y);
-	return res*res;
 }
 
 
@@ -219,15 +202,6 @@ mat3 rotateAlign( vec3 v1, vec3 v2) {
     );
 
     return result;
-}
-
-vec2 randVector2d(vec2 seed) {
-    return vec2(rand_11(vec2(seed.x)), rand_11(vec2(seed.y)));
-}
-vec3 randVector3d(vec2 seed) {
-    float rand1 = rand_11(seed);
-    float rand2 = rand_11(vec2(rand1));
-    return vec3(rand2, rand_11(vec2(rand2)), rand1);
 }
 
 float mean(vec2 vector) {
@@ -306,13 +280,6 @@ vec2 convertPolarCartesian(vec2 coord) {
 float linearizeDepth(float d,float nearPlane,float farPlane) {
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
-}
-vec3 linearize(vec3 p, float nearPlane, float farPlane) {
-    return vec3(
-        linearizeDepth(p.x, nearPlane, farPlane),
-        p.y,
-        p.z
-    );
 }
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
     //Schlick-Approximation of fresnel

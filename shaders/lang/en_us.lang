@@ -27,9 +27,7 @@ value.DOF_MAXSIZE.1.0=Unlimited
 option.DOF_STRENGTH=DoF Intensity
 option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low Performance impact. Lower = faster.
 
-option.DOF_RANDOMIZE=Jitter Samples
-value.DOF_RANDOMIZE.0=Off
-value.DOF_RANDOMIZE.1=On
+option.DOF_RANDOMIZE=Dither DoF
 
 option.DOF_RANDOMIZE_AMOUNT=Jitter Amount
 option.DOF_RANDOMIZE_AMOUNT.comment=Amount of randomization applied to the DoF effect.
@@ -146,7 +144,6 @@ screen.MISC=Other Stuff
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
 option.OUTLINE_BRIGHTNESS=Outline Brightness
-
 
 option.LENS_DISTORT=Lens Distortion
 option.LENS_DISTORT.comment=Lens Distortion Strength.

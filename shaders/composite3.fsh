@@ -77,7 +77,7 @@ vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceTy
     // Border position ( for binary search )
     vec2 increment = marchDirection * dist;
 
-    vec2 b1 = pixelPos + (randf_01(coord) * increment * 0.0075);
+    vec2 b1 = pixelPos + (rand(coord) * increment * 0.0075);
     vec2 b2 = clamp(increment + pixelPos, 0, 1);
 
     vec2 sampleCoord;
@@ -394,7 +394,7 @@ void main() {
 
             // Simple Noise (coord is transformed to [-0.5, 0.5] in order to scale effect correctly)
             vec2 noise    = vec2(noise((coord * 3 * linearDepth) + (frameTimeCounter * 2)));
-            coordDistort += ((noise - 0.5) * REFRACTION_AMOUNT / linearDepth);
+            coordDistort += (noise - 0.5) * (REFRACTION_AMOUNT / linearDepth);
 
             coordDistort += 0.5;
 

@@ -21,7 +21,7 @@ ivec2 convertIntCoords(vec2 coord, float x, float y) {
     return ivec2(coord.x * x, coord.y * y);
 }
 vec2 blurOffset(vec2 coord, float lod) {
-    return coord + (vec2(1 / viewWidth, 1 / viewHeight) * 0.5 * (lod + 1));
+    return coord + ((0.5 / ScreenSize) * (lod + 1));
 }
 
 
