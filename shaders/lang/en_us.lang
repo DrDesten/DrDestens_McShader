@@ -145,6 +145,9 @@ option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
 option.OUTLINE_BRIGHTNESS=Outline Brightness
 
+option.FOG=Fog
+option.FOG_AMOUNT=Fog Amount
+
 option.LENS_DISTORT=Lens Distortion
 option.LENS_DISTORT.comment=Lens Distortion Strength.
 value.LENS_DISTORT.0.0=Off

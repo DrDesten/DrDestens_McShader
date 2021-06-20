@@ -6,6 +6,7 @@
 
 
 #include "/lib/math.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
@@ -22,6 +23,10 @@
 
 #define FOCUS_SPEED 1.0
 
+#define FOG
+#define FOG_AMOUNT 1.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
+
+
 uniform float centerDepthSmooth;
 const float   centerDepthHalflife = 1.0;
 
@@ -30,11 +35,11 @@ const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 in vec2       coord;
 flat in vec2  pixelSize;
 
-uniform mat4  gbufferProjection;
-
 uniform int   frameCounter;
 uniform float near;
 uniform float far;
+uniform vec3  fogColor;
+uniform vec3  sunPosition;
 
 //Depth of Field
 
@@ -250,12 +255,10 @@ float CoC(float depth) {
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3 color          = getAlbedo(coord);
+    float depth         = getDepth(coord);
 
     // Disables Depth of Field in the precompiler
     #if DOF_MODE != 0
-
-        float depth         = getDepth(coord);
 
         float fovScale      = gbufferProjection[1][1] * 0.7299270073;
 
@@ -265,9 +268,29 @@ void main() {
 
         color = DoF(coord, depth, blurDepth, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu
 
+    #else
+        vec3 color          = getAlbedo(coord);
+    #endif
+
+
+    #ifdef FOG
+
+        // Fog
+        // Increase Fog when looking at sun/moon
+        vec4  sunProjection  = gbufferProjection * vec4(sunPosition, 1.0);
+        vec3  sunScreenSpace = (sunProjection.xyz / sunProjection.w) * 0.5 + 0.5;
+        float sunDist        = clamp(distance(coord, sunScreenSpace.xy), 0, 1);
+        float sunFog         = smoothstep(0.5, 1, 1-sunDist) * 2;
+
+        // Blend between FogColor and normal color based on sqare distance
+        vec3  playerpos = toPlayerEye(toView(vec3(coord, depth) * 2 - 1));
+        float dist      = dot(playerpos, playerpos) * float(depth != 1);
+        float fog       = clamp(dist * 3e-6 * FOG_AMOUNT * (sunFog + 1), 0, 1);
+
+        color           = mix(color, (color * 0.1) + fogColor, fog);
+
     #endif
 
     //Pass everything forward
-    
     FD0          = vec4(color,  1);
 }

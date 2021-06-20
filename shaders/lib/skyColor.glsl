@@ -1,6 +1,7 @@
-uniform int worldTime;
+uniform int  worldTime;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
+uniform vec3 fogColor;
 
 /*
 // Thanks BuilderbOy ;)
@@ -201,5 +202,5 @@ vec3 getSkyColor3(vec3 viewPos) {
 
     }
 
-    return mix(sky_down, sky_up, dir.y + sky_bias); //Get sky
+    return mix(fogColor, sky_up, dir.y + sky_bias); //Get sky
 }
