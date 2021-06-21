@@ -4,6 +4,7 @@
 //                                         BLOOM
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"

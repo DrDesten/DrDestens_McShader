@@ -5,22 +5,15 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
-#define SSR_DENOISE
-#define SSR_DENOISE_AMOUNT 1.0          // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
-
-#define DENOISER_THRESHOLD 0.5          // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DENOISER_QUALITY   2            // Denoise Quality                   [1 2 3]
-//#define DENOISER_DEBUG
-
-#define OUTLINE
-#define OUTLINE_DISTANCE 100            // How far does the outline reach    [50 75 100 125 150 175 200 225 250 275 300]
-#define OUTLINE_BRIGHTNESS 1.0          // How bright is the outline         [0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-
-uniform int worldTime;
+uniform int   worldTime;
+uniform vec3  fogColor;
+uniform vec3  sunPosition;
 
 in vec2 coord;
 
@@ -247,6 +240,7 @@ vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
 
 void main() {
     vec3 color;
+    float depth = getDepth(coord);
 
     vec2 newcoord = coord;
 
@@ -272,6 +266,25 @@ void main() {
     #else
 
         color = getAlbedo(newcoord);
+
+    #endif
+
+
+    #ifdef FOG
+
+        // Fog
+        // Increase Fog when looking at sun/moon
+        vec4  sunProjection  = gbufferProjection * vec4(sunPosition, 1.0);
+        vec3  sunScreenSpace = (sunProjection.xyz / sunProjection.w) * 0.5 + 0.5;
+        float sunDist        = clamp(distance(coord, sunScreenSpace.xy), 0, 1);
+        float sunFog         = smoothstep(0.5, 1, 1-sunDist) * 2;
+
+        // Blend between FogColor and normal color based on sqare distance
+        vec3  playerpos = toPlayerEye(toView(vec3(coord, depth) * 2 - 1));
+        float dist      = dot(playerpos, playerpos) * float(depth != 1);
+        float fog       = clamp(dist * 3e-6 * FOG_AMOUNT * (sunFog + 1), 0, 1);
+
+        color           = mix(color, (color * 0.1) + fogColor, fog);
 
     #endif
 

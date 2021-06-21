@@ -1,5 +1,6 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 

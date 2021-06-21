@@ -1,11 +1,10 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/gamma.glsl"
-
-#define WATER_NORMALS_AMOUNT 1.0					// "Fake" Wave strength 		[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 uniform float frameTimeCounter;
 
@@ -53,17 +52,22 @@ void main(){
 
     // Reduce opacity and saturation of only water
     if (blockId == 1001) {
-        //color.rgb = mix(color.rgb, vec3(sum(color.rgb) / 10), 0.5);
-        color.a *= 0;
+        color.rgb = mix(color.rgb, vec3(sum(color.rgb) / 10), 0.75);
+        color.a = 0.11;
         
         // "Fake" Waves
-        vec2 seed = (worldPos.xz) + (frameTimeCounter * 0.5);
+        vec2 seed = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
         vec3 noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1);
 
         surfaceNormal = normalize(tbn * noiseNormals);
     }
 
     gamma(color.rgb);
+
+    
+	if (blockId == 1005) {
+		color.rgb = vec3(2);
+	}
 
     
     gl_FragData[0] = color; // Color

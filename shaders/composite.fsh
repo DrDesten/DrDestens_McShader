@@ -12,6 +12,8 @@ const int colortex5Format = RGB8; // Colortex5 = bloom
 const float sunPathRotation = -40.0;
 
 
+#include "/lib/settings.glsl"
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"

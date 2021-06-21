@@ -1,5 +1,6 @@
 #version 120
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 
 uniform sampler2D texture;

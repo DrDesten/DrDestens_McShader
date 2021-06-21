@@ -1,15 +1,9 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/gamma.glsl"
-
-#define CHROM_ABERRATION    3      // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]
-
-#define SATURATION 1.2             // Saturation               [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5]
-
-#define LENS_DISTORT        0.2    // Lens Distorsion          [0.0 0.2 0.35 0.5 0.75 1.0]
-#define LENS_DISTORT_SCALE  1.2    // Lens Distorsion Scaling  [1.0 1.1 1.2 1.3 1.45]
 
 varying vec2 coord;
 

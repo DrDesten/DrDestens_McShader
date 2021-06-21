@@ -1,13 +1,10 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/bloom.glsl"
-
-#define FXAA
-#define FXAA_THRESHOLD 0.5            //When does FXAA kick in            [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-//#define FXAA_DEBUG
 
 uniform int worldTime;
 uniform float frameTimeCounter;

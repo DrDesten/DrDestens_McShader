@@ -2,7 +2,10 @@
 
 attribute vec4 at_tangent;
 attribute vec2 mc_midTexCoord;
+attribute vec4 mc_Entity;
 
+
+varying float blockId;
 varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
@@ -22,6 +25,7 @@ void main() {
 
 	vec3 tangent = gl_NormalMatrix * (at_tangent.xyz / at_tangent.w);
 	tbn = mat3(tangent, cross(tangent, normal), normal);
-
+	
+	blockId = mc_Entity.x;
 	glcolor = gl_Color;
 }

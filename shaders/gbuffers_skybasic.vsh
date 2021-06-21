@@ -1,10 +1,9 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
-
-//#define FAST_SKY
 
 #ifdef FAST_SKY
     out vec3 skyColor;

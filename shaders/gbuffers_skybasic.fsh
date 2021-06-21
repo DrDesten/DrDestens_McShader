@@ -1,12 +1,11 @@
 #version 130
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
-
-//#define FAST_SKY
 
 #ifdef FAST_SKY
     in vec3 skyColor;
@@ -43,11 +42,11 @@ float rayleigh(float dotp) {
     return mult * (1 + sq(dotp));
 }
 vec3 rayleigh(float dotp, vec3 coeff) {
-    vec3 output = vec3(0);
-    output.r = rayleigh(dotp) * coeff.r;
-    output.g = rayleigh(dotp) * coeff.g;
-    output.b = rayleigh(dotp) * coeff.b;
-    return output;
+    vec3 result = vec3(0);
+    result.r = rayleigh(dotp) * coeff.r;
+    result.g = rayleigh(dotp) * coeff.g;
+    result.b = rayleigh(dotp) * coeff.b;
+    return result;
 }
 
 

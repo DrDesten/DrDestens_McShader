@@ -1,12 +1,9 @@
 #version 130
 
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer_vertex.glsl"
-
-#define WAVY_WATER
-#define WATER_WAVE_AMOUNT 1.0					// Physical Wave Height 			[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-#define WATER_NORMALS_AMOUNT 1.0					// "Fake" Wave strength 		[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
@@ -45,10 +42,13 @@ void main(){
 			vec4 clipPos = vertexWorldToClip(playerPos - vec4(cameraPosition, 0));
 
 			gl_Position = clipPos;
-		}
 
-		gl_Position = ftransform();
-		
+		} else {
+
+			gl_Position = ftransform();
+
+		}
+	
 	#else
 
 		gl_Position = ftransform();

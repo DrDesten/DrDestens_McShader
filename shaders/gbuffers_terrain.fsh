@@ -3,6 +3,7 @@
 uniform int worldTime;
 
 #include "/lib/transform.glsl"
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/labPBR13.glsl"
@@ -13,6 +14,7 @@ uniform ivec2 atlasSize;
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
+varying float blockId;
 varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
@@ -24,7 +26,7 @@ varying mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:02 */
+/* DRAWBUFFERS:024 */
 void main() {
 		
 	#ifdef PBR
@@ -82,6 +84,10 @@ void main() {
 		color.rgb  *= texture2D(lightmap, lmcoord).rgb + (dinamicLight);
 
 	#endif
+
+	if (blockId == 1005) {
+		color.rgb *= 4;
+	}
 
 	gl_FragData[0] = color;
 	#ifdef PBR

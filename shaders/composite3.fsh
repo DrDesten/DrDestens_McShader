@@ -5,22 +5,12 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
-
-
-#define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
-#define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0]
-#define SSR_DISTANCE 1.0                // How far reflections go                       [0.5 0.6 0.7 0.8 0.9 1.0]
-#define SSR_FINE_STEPS 3
-#define SSR_STEP_OPTIMIZATION
-//#define DEBUG_SSR_ERROR_CORRECTION
-
-#define REFRACTION
-#define REFRACTION_AMOUNT 0.03          // Refraction Strength                          [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1]
 
 uniform sampler2D depthtex1;
 const bool        colortex0MipmapEnabled = true; //Enabling Mipmapping
@@ -383,7 +373,7 @@ void main() {
 
         vec2 coordDistort = coord;
 
-        // In-Water refraction (distorts texcoords when in water)
+        // In-Water refraction (distorts texcoords when in water/lava)
         if (isEyeInWater != 0) {
             coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
         }
@@ -426,10 +416,13 @@ void main() {
 
         float water_absorption     = max(1, transparentLinearDepth - linearDepth) * int(isEyeInWater == 0);
         water_absorption          += linearDepth                                  * int(isEyeInWater != 0);
-        water_absorption           = 5 / water_absorption;
+        water_absorption           = 2 / water_absorption;
         water_absorption           = clamp(water_absorption, 0, 1);
 
         color *= water_absorption;
+        if (isEyeInWater == 2) {
+            color = mix(fogColor, color, water_absorption * 0.75);
+        }
     }
 
     // SSR for Water
@@ -470,11 +463,8 @@ void main() {
         denoise = 1;
     }
 
-    //color = textureLod(depthtex0, floor(coord * 100) * 0.01, 5).rrr;
-    //color = vec3(Bayer16(coord * ScreenSize));
-
-
-
+    // Create some atmosphere
+    color *= (fogColor * 0.5 + 0.5);
 
     //Pass everything forward
     FD0          = vec4(color, 1);

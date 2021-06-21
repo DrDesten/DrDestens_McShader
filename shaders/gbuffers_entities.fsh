@@ -2,6 +2,7 @@
 
 uniform int worldTime;
 
+#include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/labPBR13.glsl"
