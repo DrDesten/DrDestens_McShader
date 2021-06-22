@@ -3,7 +3,7 @@
 Supports versions 1.8.x - 1.16.x (Others may work)
 
 Partial labPBR support
- - Make sure your PBR Ressource pack is labPBR, else it wont work correctly
+ - Make sure your PBR Ressource pack is labPBR, else it won't work correctly
 
 ## Features:
 
