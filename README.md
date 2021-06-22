@@ -1,6 +1,8 @@
-# DrDestens McShader
+# DrDestens Minecraft Shader
 
-DrDestens Minecraft Shader
+Supports versions 1.8.x - 1.16.x (Others may work)
+Partial labPBR support
+ - Make sure your PBR Ressource pack is labPBR, else it wont work correctly
 
 ## Features:
 
