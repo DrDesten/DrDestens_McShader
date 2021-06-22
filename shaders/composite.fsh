@@ -2,9 +2,7 @@
 
 /*
 const int colortex0Format = RGB16F;      // Color
-const int colortex1Format = R32F;        // not in use
 const int colortex2Format = RGB16_SNORM; // Normals
-const int colortex3Format = RGB16_SNORM; // Tangent
 
 const int colortex4Format = R16F;        // Colortex4 = blockId
 const int colortex5Format = RGB8;        // Colortex5 = bloom

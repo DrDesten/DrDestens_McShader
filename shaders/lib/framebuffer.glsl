@@ -1,8 +1,7 @@
 uniform sampler2D colortex0; // Color
-uniform sampler2D colortex1; // Linear Depth
 uniform sampler2D colortex2; // Normals
 
-uniform sampler2D colortex4; // Type (Blue = Water; White = sky)
+uniform sampler2D colortex4; // Type (BlockID)
 //uniform sampler2D colortex5; // View Direction
 uniform sampler2D depthtex0;
 
@@ -49,15 +48,6 @@ float getType(in vec2 coord) {
 float getType_interpolated(in vec2 coord) {
     return texture(colortex4, coord).r;
 }
-/*
-vec3 getViewPosition(in vec2 coord) {
-    return texture(colortex5, coord).xyz;
-} */
-
-float getEmission(in vec2 coord) { //Alpha = 1: Emission
-    return texture(colortex1, coord).a;
-}
-
 
 /* Snipplets for later
 

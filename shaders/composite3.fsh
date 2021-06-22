@@ -13,7 +13,6 @@
 #include "/lib/skyColor.glsl"
 
 uniform sampler2D depthtex1;
-uniform sampler2D colortex3;
 const bool        colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2 coord;
@@ -378,7 +377,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
-    vec3 tangent           = normalize(cross(normal, upPosition));
+    vec3 tangent           = normalize(cross(normal, upPosition)); //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
@@ -390,8 +389,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     for (int i = 0; i < 16; i++) {
         sample      = half_sphere_16[i] * ditherTimesSize;
         sample      = TBN * sample;
-        sample     += viewPos;
-        sample      = backToClip(sample) * 0.5 + 0.5;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
     
         float hitDepth = getDepth(clamp(sample.xy, vec2(0), 1 - 1/ScreenSize));
 
