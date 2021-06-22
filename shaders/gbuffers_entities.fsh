@@ -17,7 +17,7 @@ varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:02 */
 void main() {
 	vec4 color = texture2D(texture, coord) * glcolor;
 	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
@@ -25,5 +25,6 @@ void main() {
 
 	color *= texture2D(lightmap, lmcoord);
 
-	gl_FragData[0] = color; //gcolor
+	gl_FragData[0] = color; //color
+	gl_FragData[1] = vec4(normal, 1); //normal
 }

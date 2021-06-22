@@ -26,8 +26,9 @@ varying mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:024 */
+/* DRAWBUFFERS:0234 */
 void main() {
+	vec3 normal = tbn[2];
 		
 	#ifdef PBR
 		/* float height 	 = extractHeight(NormalTex(coord));
@@ -55,7 +56,7 @@ void main() {
 		#ifdef HEIGHT_AO
 		color.rgb 		*= extractHeight(normalTex, specularTex);
 		#endif
-		vec3 normalMap   = normalize(tbn * extractNormal(normalTex, specularTex));
+		normal           = normalize(tbn * extractNormal(normalTex, specularTex));
 		float AO 		 = extractAO(normalTex, specularTex);
 
 		float roughness  = extractRoughness(normalTex, specularTex);
@@ -66,7 +67,7 @@ void main() {
 		vec4 BRDF;
 		color.rgb 		*= AO;
 		color.rgb 		*= emission * 10 + 1;
-		BRDF			 = specularBRDF(color.rgb, normalMap, viewpos, lightPos, roughness, f0) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
+		BRDF			 = specularBRDF(color.rgb, normal, viewpos, lightPos, roughness, f0) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
 
 		color.rgb 		*= 0.8;
 
@@ -90,9 +91,7 @@ void main() {
 	}
 
 	gl_FragData[0] = color;
-	#ifdef PBR
-	gl_FragData[1] = vec4(normalMap, 1);
-	#else
-	gl_FragData[1] = vec4(tbn[2], 1);
-	#endif
+	gl_FragData[1] = vec4(normal, 1);
+	gl_FragData[2] = vec4(tbn[0], 1);
+	gl_FragData[3] = vec4(vec3(blockId - 1000), 1);
 }

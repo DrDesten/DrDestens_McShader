@@ -27,8 +27,7 @@ void main() {
 
 	color.rgb = vec3(diffuse + 0.75 * (vol_1 + vol_2)) * glcolor.rgb;
 
-
 	gl_FragData[0] = color; //color
-	gl_FragData[1] = vec4(normal, 1); //normals
-	gl_FragData[2] = vec4(vec3(0), color.a); //block id (none = 0)
+	gl_FragData[1] = vec4(normal, color.a); //normals
+	gl_FragData[2] = vec4(vec3(50), color.a); //block id (none = 0)
 }

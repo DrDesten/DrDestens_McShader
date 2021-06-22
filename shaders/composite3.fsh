@@ -13,17 +13,18 @@
 #include "/lib/skyColor.glsl"
 
 uniform sampler2D depthtex1;
+uniform sampler2D colortex3;
 const bool        colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2 coord;
-in vec2 pixelSize;
 in vec3 lightVector;
+
+uniform vec3 upPosition; 
 
 uniform float near;
 uniform float far;
 uniform float frameTimeCounter;
 uniform int isEyeInWater;
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                     SCREEN SPACE REFLECTION
@@ -33,7 +34,7 @@ vec3 cheapSSR(vec2 coord, vec3 normal, vec3 fallBackColor, int steps, float step
     vec2 pixelPos = coord;
     float depth = getDepth(coord);
 
-    vec2 pixelStep = normalize(normal.xy) * pixelSize * stepsize;
+    vec2 pixelStep = normalize(normal.xy) * stepsize / ScreenSize;
 
     for (int i = 0; i < steps; i++) {
         pixelPos += pixelStep;
@@ -280,7 +281,7 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
     return vec4(getSkyColor3(reflectionRay), 1);
 } */
 
-vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool skipSame) {
+vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
     vec3 clipPos        = screenPos * 2 - 1;
     // Reflect in View Space
     vec3 viewPos        = toView(screenPos * 2 - 1);
@@ -293,7 +294,7 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
     // Project to Screen Space
     vec3 screenSpaceRay = normalize(backToClip(viewReflection) - clipPos);
     
-    float randfac    = Bayer4(coord * ScreenSize);
+    float randfac    = Bayer4(screenPos.xy * ScreenSize);
 
     float zDir       = step(0, screenSpaceRay.z);                                      // Checks if Reflection is pointing towards the camera in the z-direction (depth)
     float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                 // Selects the maximum Z-Distance a ray can travel based on the information
@@ -350,15 +351,65 @@ vec3 universalSSR(vec2 coord, vec3 normal, vec3 screenPos, float roughness, bool
 //                     SCREEN SPACE AMBIENT OCCLUSION
 //////////////////////////////////////////////////////////////////////////////
 
+float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
+    vec3 tangent           = normalize(cross(normal, upPosition));
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+    vec3 viewPos           = toView(screenPos * 2 - 1);
 
+    float linearDepth      = linearizeDepth(screenPos.z, near, far);
+    float ditherTimesSize  = (Bayer4(screenPos.xy * ScreenSize) * 0.8 + 0.2) * size;
+
+    float hits = 0;
+    vec3 sample;
+    for (int i = 0; i < 8; i++) {
+        sample      = half_sphere_8[i] * ditherTimesSize;
+        sample      = TBN * sample;
+        sample     += viewPos;
+        sample      = backToClip(sample) * 0.5 + 0.5;
+    
+        float hitDepth = getDepth(clamp(sample.xy, vec2(0), 1 - 1/ScreenSize));
+
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < 0.05/linearDepth);
+    }
+
+    hits  = 1 - (hits / 8);
+    hits  = sq(hits);
+    return hits;
+}
+
+float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
+    vec3 tangent           = normalize(cross(normal, upPosition));
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+    vec3 viewPos           = toView(screenPos * 2 - 1);
+
+    float linearDepth      = linearizeDepth(screenPos.z, near, far);
+    float ditherTimesSize  = (Bayer4(screenPos.xy * ScreenSize) * 0.8 + 0.2) * size;
+
+    float hits = 0;
+    vec3 sample;
+    for (int i = 0; i < 16; i++) {
+        sample      = half_sphere_16[i] * ditherTimesSize;
+        sample      = TBN * sample;
+        sample     += viewPos;
+        sample      = backToClip(sample) * 0.5 + 0.5;
+    
+        float hitDepth = getDepth(clamp(sample.xy, vec2(0), 1 - 1/ScreenSize));
+
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < 0.05/linearDepth);
+    }
+
+    hits  = 1 - (hits / 16);
+    hits  = sq(hits);
+    return hits;
+}
 
 
 /* DRAWBUFFERS:04 */
 void main() {
     vec3 color;
-    vec3 normal;
-    float depth;
-    float linearDepth   = linearizeDepth(getDepth(coord), near, far);
+    vec3 normal         = getNormal(coord);
+    float depth         = getDepth(coord);
+    float linearDepth   = linearizeDepth(depth, near, far);
     float type          = getType(coord);
 
     float denoise       = 0;
@@ -379,7 +430,6 @@ void main() {
         }
 
         if (type == 1) {
-            normal        = getNormal(coord);
             coordDistort -= 0.5;
 
             // Simple Noise (coord is transformed to [-0.5, 0.5] in order to scale effect correctly)
@@ -391,15 +441,12 @@ void main() {
             color   = getAlbedo_int(coordDistort);
 
         } else {
-
-            normal  = getNormal(coord);
             color   = getAlbedo_int(coordDistort);
         }
 
     #else
         
             color   = getAlbedo(coord);
-            normal  = getNormal(coord);
 
     #endif
 
@@ -409,7 +456,7 @@ void main() {
         #ifdef REFRACTION
             // Adjust the depth coordinates to the distorted coordinates from the refraction effect
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
-            linearDepth = linearizeDepth(getDepth(coordDistort), near, far);
+            linearDepth                  = linearizeDepth(getDepth(coordDistort),             near, far);
         #else
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
         #endif
@@ -427,7 +474,6 @@ void main() {
 
     // SSR for Water
     if (type == 1 && isEyeInWater == 0) {
-        depth     = getDepth(coord);
 
         // Calculate the view Position for the upcoming SSR
         vec3 screenPos = vec3(coord, depth);
@@ -438,7 +484,7 @@ void main() {
 
         float fresnel = customFresnel(viewDirection, normal, 0.02, 2, 3);
 
-        vec3 SSR = universalSSR(coord, normal, screenPos, 0.0, false);
+        vec3 SSR = universalSSR(screenPos, normal, 0.0, false);
         color    = mix(color, SSR.rgb * 0.95, fresnel);
         denoise  = 1;
 
@@ -450,25 +496,44 @@ void main() {
 
     // SSR for other reflective surfaces
     if (type == 2) {
-        depth     = getDepth(coord);
-
+        
         // Calculate the view Position for the upcoming SSR
         vec3 screenPos     = vec3(coord, depth);
         vec3 viewDirection = normalize(toView(screenPos * 2 -1));
 
         float fresnel      = customFresnel(viewDirection, normal, 0.25, 1, 4);
-        vec3  SSR          = universalSSR(coord, normal, screenPos, 0.2, false);
+        vec3  SSR          = universalSSR(screenPos, normal, 0.2, false);
 
         color   = mix(color, SSR, fresnel);
         denoise = 1;
+
     }
 
+
+    //////////////////////////////////////////////////////////
+    //                  SSAO
+    //////////////////////////////////////////////////////////
+
+    #ifdef SSAO
+
+        if (type != 50 && type != 1 && depth != 1) {
+
+            #if   SSAO_QUALITY == 1
+                color *= AmbientOcclusionLOW(vec3(coord, depth), normal, .5);
+            #elif SSAO_QUALITY == 2
+                color *= AmbientOcclusionHIGH(vec3(coord, depth), normal, .5);
+            #endif
+            
+        }
+
+    #endif
+
     // Create some atmosphere
-    color *= (fogColor * 0.5 + 0.5);
+    //color *= (fogColor * 0.5 + 0.5);
 
     //Pass everything forward
     FD0          = vec4(color, 1);
-
+    
     // If there is some thing to be denoised, override the type buffer to "3", the denoise pass.
     if (denoise != 0) { FD1 = vec4(3, 0, 0, 1); } 
     else              { FD1 = vec4(getType(coord), 0, 0, 1); }
