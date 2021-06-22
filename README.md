@@ -16,7 +16,7 @@ DrDestens Minecraft Shader
 <img src="https://user-images.githubusercontent.com/70536771/122890107-af2a8100-d343-11eb-9f85-77ab02ea60cd.png" width="55%"/>
 <img src="https://user-images.githubusercontent.com/70536771/122890124-b2be0800-d343-11eb-9ea9-f55d6fe3f28c.png" width="55%"/>
 
-Realistic Fog
+### Realistic Fog
 
 Preserves the default look and feel of minecraft, even with PBR enabled
 
