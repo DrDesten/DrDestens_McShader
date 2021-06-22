@@ -26,7 +26,7 @@ varying mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:0234 */
+/* DRAWBUFFERS:024 */
 void main() {
 	vec3 normal = tbn[2];
 		
@@ -92,5 +92,5 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[3] = vec4(vec3(blockId - 1000), 1);
+	gl_FragData[2] = vec4(vec3(blockId - 1000), 1);
 }
