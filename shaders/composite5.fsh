@@ -35,7 +35,7 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
     float samplecount = 0.0;
 
     // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_RANDOMIZE
+    #ifdef DOF_DITHER
         float randfac1 = rand11(coord);
         float randfac2 = rand11(coord + 1);
     #endif        
@@ -45,7 +45,7 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
             vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_RANDOMIZE
+            #ifdef DOF_DITHER
             sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * 0.5;
             #endif 
 
@@ -70,7 +70,7 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
     float samplecount = 0.0;
 
     // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_RANDOMIZE
+    #ifdef DOF_DITHER
         float randfac1 = rand(coord) * 2 -1;
         float randfac2 = randfac1;
     #endif
@@ -80,8 +80,8 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
             vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_RANDOMIZE
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * DOF_RANDOMIZE_AMOUNT;
+            #ifdef DOF_DITHER
+            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * DOF_DITHER_AMOUNT;
             #endif 
 
             // I am using texelFetch instead of textur2D, in order to avoid linear interpolation. This increases performance
@@ -128,7 +128,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     #endif
 
-    #ifdef DOF_RANDOMIZE
+    #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
         vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size / sqrt(kernelSize));
     #else

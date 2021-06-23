@@ -29,7 +29,7 @@ uniform int isEyeInWater;
 //                     SCREEN SPACE REFLECTION
 //////////////////////////////////////////////////////////////////////////////
 
-vec3 cheapSSR(vec2 coord, vec3 normal, vec3 fallBackColor, int steps, float stepsize) {
+/* vec3 cheapSSR(vec2 coord, vec3 normal, vec3 fallBackColor, int steps, float stepsize) {
     vec2 pixelPos = coord;
     float depth = getDepth(coord);
 
@@ -100,7 +100,7 @@ vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceTy
 }
 
 
-/* vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
+vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDirection, float surfaceType) {    
     // Reflect view Ray along normals of surface
     vec3 reflectionRay = reflect(viewDirection, normal);
     vec3 viewSpaceReflection = viewPos + reflectionRay;
@@ -295,14 +295,15 @@ vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
     
     float randfac    = Bayer4(screenPos.xy * ScreenSize);
 
-    float zDir       = step(0, screenSpaceRay.z);                                      // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                 // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3 rayStep     = screenSpaceRay * clamp(maxZtravel / screenSpaceRay.z, 0.05, 1); // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float maxZtravel = mix(screenPos.z - 0.56, 1 - screenPos.z, zDir);                       // Selects the maximum Z-Distance a ray can travel based on the information
+    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+
 
     rayStep         *= SSR_DISTANCE / SSR_STEPS;
     vec3 rayPos      = rayStep * randfac + screenPos;
 
-    float depthTolerance = abs(rayStep.z) * SSR_DEPTH_TOLERANCE * 2.5;
+    float depthTolerance = abs(rayStep.z) * SSR_DEPTH_TOLERANCE * 3;
     float hitDepth       = 0;
 
     for (int i = 0; i < SSR_STEPS; i++) {
@@ -315,8 +316,12 @@ vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
         
         hitDepth = getDepth_int(rayPos.xy);
 
-        if (rayPos.z > hitDepth && hitDepth != 1 && hitDepth > 0.56) { // Next: Binary Refinement
+        if (rayPos.z > hitDepth && hitDepth != 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
             if (getType(screenPos.xy) == getType(rayPos.xy) && skipSame) {break;}
+
+            #ifdef SSR_NO_REFINEMENT
+                return getAlbedo(rayPos.xy);
+            #endif
 
             // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
             rayStep      *= 0.5;
@@ -334,7 +339,6 @@ vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
             }
 
             if ((rayPos.z - hitDepth) < depthTolerance) {
-                //float rayLength = log2(length(toView(rayPos * 2 -1) - viewPos));
                 return textureLod(colortex0, rayPos.xy, roughness * 10).rgb;
             } else {
                 break;
@@ -351,7 +355,7 @@ vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
 //////////////////////////////////////////////////////////////////////////////
 
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
-    vec3 tangent           = normalize(cross(normal, upPosition));
+    vec3 tangent           = normalize(cross(normal, vec3(0,0,1))); //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
@@ -361,10 +365,9 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     float hits = 0;
     vec3 sample;
     for (int i = 0; i < 8; i++) {
-        sample      = half_sphere_8[i] * ditherTimesSize;
+        sample      = half_sphere_8[i] * ditherTimesSize + vec3(0,0,0.05); // Adding a small (10cm) z-offset to avoid clipping into the block due to precision errors
         sample      = TBN * sample;
-        sample     += viewPos;
-        sample      = backToClip(sample) * 0.5 + 0.5;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
     
         float hitDepth = getDepth(clamp(sample.xy, vec2(0), 1 - 1/ScreenSize));
 
@@ -377,7 +380,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
-    vec3 tangent           = normalize(cross(normal, upPosition)); //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    vec3 tangent           = normalize(cross(normal, vec3(0,0,1))); //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
@@ -387,7 +390,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     float hits = 0;
     vec3 sample;
     for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize;
+        sample      = half_sphere_16[i] * ditherTimesSize + vec3(0,0,0.05); // Adding a small (10cm) z-offset to avoid clipping into the block due to precision errors
         sample      = TBN * sample;
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
     
@@ -519,7 +522,7 @@ void main() {
             #if   SSAO_QUALITY == 1
                 color *= AmbientOcclusionLOW(vec3(coord, depth), normal, .5);
             #elif SSAO_QUALITY == 2
-                color *= AmbientOcclusionHIGH(vec3(coord, depth), normal, .5);
+                color *= vec3(AmbientOcclusionHIGH(vec3(coord, depth), normal, .5));
             #endif
             
         }

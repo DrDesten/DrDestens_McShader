@@ -63,7 +63,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     );
 
 
-    #ifdef DENOISER_DEBUG
+    #ifdef DENOISE_DEBUG
     for (int i = 0; i < 2; i++) {
         if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
     }
@@ -94,7 +94,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     );
 
 
-    #ifdef DENOISER_DEBUG
+    #ifdef DENOISE_DEBUG
     for (int i = 0; i < 4; i++) {
         if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
     }
@@ -128,7 +128,7 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
         getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
     );
 
-    #ifdef DENOISER_DEBUG
+    #ifdef DENOISE_DEBUG
     for (int i = 0; i < 8; i++) {
         if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
     }
@@ -244,17 +244,17 @@ void main() {
 
     vec2 newcoord = coord;
 
-    #ifdef SSR_DENOISE
+    #ifdef DENOISE
 
         if (getType(newcoord) == 3) {
 
             // Select different despeclers for different denoising qualities
-            #if DENOISER_QUALITY == 3
-                color = DenoiseMeanH(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
-            #elif DENOISER_QUALITY == 2
-                color = DenoiseMeanM(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+            #if DENOISE_QUALITY == 3
+                color = DenoiseMeanH(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
+            #elif DENOISE_QUALITY == 2
+                color = DenoiseMeanM(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
             #else
-                color = DenoiseMeanL(newcoord, DENOISER_THRESHOLD, SSR_DENOISE_AMOUNT);
+                color = DenoiseMeanL(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
             #endif
 
         } else {

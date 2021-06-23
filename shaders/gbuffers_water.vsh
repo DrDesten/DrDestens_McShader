@@ -26,7 +26,7 @@ out mat3 tbn;
 
 void main(){
 
-	#ifdef WAVY_WATER
+	#ifdef WATER_WAVES
 
 		if (mc_Entity.x == 1001 && 1 == 0) {
 			

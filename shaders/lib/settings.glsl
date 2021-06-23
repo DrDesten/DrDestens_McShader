@@ -3,20 +3,22 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
-#define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0]
+#define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0 1000]
 #define SSR_DISTANCE 1.0                // How far reflections go                       [0.5 0.6 0.7 0.8 0.9 1.0]
 #define SSR_FINE_STEPS 3
 #define SSR_STEP_OPTIMIZATION
 
+//#define SSR_NO_REFINEMENT
+
 #define REFRACTION
 #define REFRACTION_AMOUNT 0.03          // Refraction Strength                          [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1]
 
-//#define SSR_DENOISE
-#define SSR_DENOISE_AMOUNT 1.0          // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
+//#define DENOISE
+#define DENOISE_AMOUNT 1.0              // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
 
-#define DENOISER_THRESHOLD 0.5          // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DENOISER_QUALITY   2            // Denoise Quality                   [1 2 3]
-//#define DENOISER_DEBUG
+#define DENOISE_THRESHOLD 0.5           // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define DENOISE_QUALITY   2             // Denoise Quality                   [1 2 3]
+//#define DENOISE_DEBUG
 
 #define SSAO
 #define SSAO_QUALITY 2                  // SSAO Quality                      [1 2]
@@ -28,8 +30,8 @@
 #define DOF_STEPS 3                  // Depth of Field Step Size                                [1 2 3 4 5 6 7 8 9 10]
 #define DOF_STRENGTH 1.0             // Depth of Field Intensity                                [0.25 0.5 1.0 1.5 2.0 2.5 3 3.5]
 
-//#define DOF_RANDOMIZE              // Randomize Samples in order to conceil high step sizes   
-#define DOF_RANDOMIZE_AMOUNT 0.5     // Amount of randomization                                 [0.2 0.3 0.4 0.5 0.6 0.7 0.8]
+//#define DOF_DITHER              // Randomize Samples in order to conceil high step sizes   
+#define DOF_DITHER_AMOUNT 0.5     // Amount of randomization                                 [0.2 0.3 0.4 0.5 0.6 0.7 0.8]
 
 #define DOF_DOWNSAMPLING 0.5         // How much downsampling takes place for the DoF effect    [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define DOF_KERNEL_SIZE 2            // Bokeh Quality                                           [1 2 3 4]           
@@ -76,7 +78,10 @@
 
 //#define FAST_SKY
 
-#define WAVY_WATER
+#define WATER_WAVES
 #define WATER_WAVE_AMOUNT 1.0			// Physical Wave Height 			[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WATER_NORMALS_AMOUNT 1.0		// "Fake" Wave strength     		[0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define WATER_NORMALS_SIZE 1.5          // Size of the Waves                [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
+
+
+

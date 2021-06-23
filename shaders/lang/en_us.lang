@@ -27,10 +27,10 @@ value.DOF_MAXSIZE.1.0=Unlimited
 option.DOF_STRENGTH=DoF Intensity
 option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low Performance impact. Lower = faster.
 
-option.DOF_RANDOMIZE=Dither DoF
+option.DOF_DITHER=Dither DoF
 
-option.DOF_RANDOMIZE_AMOUNT=Jitter Amount
-option.DOF_RANDOMIZE_AMOUNT.comment=Amount of randomization applied to the DoF effect.
+option.DOF_DITHER_AMOUNT=Jitter Amount
+option.DOF_DITHER_AMOUNT.comment=Amount of randomization applied to the DoF effect.
 
 option.DOF_DOWNSAMPLING=DoF Downsampling Amount
 option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
@@ -57,21 +57,22 @@ option.SSR_STEP_OPTIMIZATION.comment=Only for use with low Raytrace Quality. Cau
 
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Influences assumption about how thick a pixel is. No performance impact.
+value.SSR_DEPTH_TOLERANCE.1000=Infinite
 
 option.SSR_DISTANCE=Reflection Distance
 option.SSR_DISTANCE.comment=Modifies the reflection distance. May cause cutoff at low values.
 
-option.SSR_DENOISE=Denoise Reflections
-option.SSR_DENOISE.comment=Removes noise from reflections.
-option.SSR_DENOISE_AMOUNT=Denoise Amount
+option.DENOISE=Denoise Reflections
+option.DENOISE.comment=Removes noise from reflections.
+option.DENOISE_AMOUNT=Denoise Amount
 
-option.DENOISER_QUALITY=Denoise Quality
-value.DENOISER_QUALITY.1=Low
-value.DENOISER_QUALITY.2=Medium
-value.DENOISER_QUALITY.3=High
+option.DENOISE_QUALITY=Denoise Quality
+value.DENOISE_QUALITY.1=Low
+value.DENOISE_QUALITY.2=Medium
+value.DENOISE_QUALITY.3=High
 
-option.DENOISER_THRESHOLD=Denoise threshold
-option.DENOISER_THRESHOLD.comment=Lower = more denoising.
+option.DENOISE_THRESHOLD=Denoise threshold
+option.DENOISE_THRESHOLD.comment=Lower = more denoising.
 
 option.SSR_CHEAP=CheapSSR™
 option.SSR_CHEAP.comment=Fast Approximate Reflections
@@ -86,7 +87,7 @@ option.REFRACTION_AMOUNT=Refraction Strength
 
 screen.WATER=Water
 
-option.WAVY_WATER=Waves
+option.WATER_WAVES=Waves
 option.WATER_WAVE_AMOUNT=Wave Height
 option.WATER_NORMALS_AMOUNT=Bump Amount
 option.WATER_NORMALS_SIZE=Wave Size
