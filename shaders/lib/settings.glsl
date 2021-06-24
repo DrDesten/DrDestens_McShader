@@ -2,6 +2,7 @@
 // Screen Space Raytracing
 /////////////////////////////////////////////////////////////////////////////////////////
 
+#define SCREEN_SPACE_REFLECTION
 #define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
 #define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0 1000]
 #define SSR_DISTANCE 1.0                // How far reflections go                       [0.5 0.6 0.7 0.8 0.9 1.0]
@@ -20,8 +21,9 @@
 #define DENOISE_QUALITY   2             // Denoise Quality                   [1 2 3]
 //#define DENOISE_DEBUG
 
-#define SSAO
+#define SCREEN_SPACE_AMBIENT_OCCLUSION
 #define SSAO_QUALITY 2                  // SSAO Quality                      [1 2]
+#define SSAO_STRENGTH 0.50              // SSAO Strength                     [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Depth of Field
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +48,7 @@
 
 //#define MOTION_BLUR
 #define MOTION_BLUR_STRENGTH 0.50       // [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
-#define MOTION_BLUR_SAMPLES 4
+#define MOTION_BLUR_SAMPLES 4           // [1 4]
 #define MOTION_BLUR_FULL
 
 #define CHROM_ABERRATION 3              // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]

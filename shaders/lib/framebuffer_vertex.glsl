@@ -7,8 +7,16 @@ vec4 vertPos  = gl_Vertex;
 vec4 viewPos  = gl_ModelViewMatrix * vertPos;
 vec4 playerPos = gbufferModelViewInverse * viewPos; 
 */
+
+vec4 vertexViewPosition(){
+    return gl_ModelViewMatrix * gl_Vertex;
+}
+
 vec4 vertexPlayer() {
     return gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex);
+}
+vec4 vertexPlayer(vec4 viewPos) {
+    return gbufferModelViewInverse * viewPos;
 }
 
 vec4 vertexWorldToClip(vec4 vertex) {

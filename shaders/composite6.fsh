@@ -73,6 +73,7 @@ void main() {
 
             // Motion Blur only dependent on player Movement
             vec2  motionBlurVector = coord - movecoord;
+            motionBlurVector      *= float(getDepth(coord) > 0.56);
 
         #else
 

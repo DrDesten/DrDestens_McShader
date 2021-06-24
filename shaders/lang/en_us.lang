@@ -114,12 +114,18 @@ option.MOTION_BLUR_STRENGTH=Motion Blur Intensity
 option.MOTION_BLUR_FULL=Realistic Motion Blur
 option.MOTION_BLUR_FULL.comment=With this option enabled, the camera rotation as well as the distance to the terrain will be taken into account. Otherwise, only player movement affects motion blur.
 
-option.SSAO=SSAO
+option.MOTION_BLUR_SAMPLES=Motion Blur Quality
+value.MOTION_BLUR_SAMPLES.1=Low
+value.MOTION_BLUR_SAMPLES.4=High
+
+option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
 option.SSAO.comment=Screen Space Ambient Occlusion
 
 option.SSAO_QUALITY=SSAO Quality
 value.SSAO_QUALITY.1=Low
 value.SSAO_QUALITY.2=High
+
+option.SSAO_STRENGTH=SSAO Strength
 
 ///////////////////////////////////////////////////////////
 // MATERIALS

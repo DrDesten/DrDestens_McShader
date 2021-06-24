@@ -247,31 +247,8 @@ float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 float mapclamp(float value, float from_min, float from_max, float to_min, float to_max) {
-    value = map(from_min, from_max, to_min, to_max, value);
-    value = clamp(value, to_min, to_max);
-    return value;
+    return clamp(map(from_min, from_max, to_min, to_max, value), to_min, to_max);
 }
-float mapexp(float from_min, float from_max, float to_min, float to_max, float value, float factor) {
-    //map range function (non-linear)
-    value -= from_min;
-    value /= (from_max-from_min);
-
-    if (value > 0) {value = pow(value, factor);}
-    else {value = 0;}
-
-    value *= (to_max - to_min);
-    value += to_min;
-    return value;
-}
-float mapexpNormalized(float from_min, float from_max, float value, float factor) {
-    //map range function (non-linear)
-    value -= from_min;
-    value /= (from_max-from_min);
-
-    if (value > 0) {return pow(value, factor);}
-    else {return 0.0;}
-}
-
 
 vec2 convertPolarCartesian(vec2 coord) {
     return vec2(coord.x * cos(coord.y), coord.x * sin(coord.y));

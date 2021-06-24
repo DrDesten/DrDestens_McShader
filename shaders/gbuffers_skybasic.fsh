@@ -79,5 +79,5 @@ void main() {
     gamma(color);
 
     FD0 = vec4(color, 1.0);
-    FD1 = vec4(0);
+    FD1 = vec4(vec3(0), 1);
 }
