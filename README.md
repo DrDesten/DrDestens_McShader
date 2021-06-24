@@ -1,5 +1,7 @@
 # DrDestens Minecraft Shader
 
+Preserves the default look and feel of minecraft, even with PBR enabled.
+
 Supports versions 1.8.x - 1.16.x (Others may work)
 
 Partial labPBR support
@@ -21,5 +23,6 @@ Partial labPBR support
 
 ### Realistic Fog
 
-Preserves the default look and feel of minecraft, even with PBR enabled
+### Ambient Occlusion
+
 
