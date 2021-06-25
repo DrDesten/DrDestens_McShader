@@ -8,6 +8,7 @@
 #include "/lib/gamma.glsl"
 
 uniform sampler2D depthtex1;
+uniform sampler2D colortex5; // Normals
 
 uniform float frameTimeCounter;
 uniform vec3  upPosition;
@@ -55,14 +56,15 @@ vec3 noiseNormalsOpt(vec2 coord, float strength) {
 /* DRAWBUFFERS:024 */
 
 void main(){
-    vec4 color = texture(colortex0, coord) * glcolor;
+    vec2 screenCoord = (gl_FragCoord.xy / ScreenSize);
+    vec4 color       = texture(colortex0, coord) * glcolor;
 
     vec3 surfaceNormal = tbn[2];
 
     // Reduce opacity and saturation of only water
     if (blockId == 1001) {
-        color.rgb          = mix(color.rgb, vec3(sum(color.rgb) / 3), 0.5);
-        color.a            = 0.11;
+        color.rgb          = vec3(0);
+        color.a            = 0.12;
 
         float surfaceDot   = dot(normalize(viewPos), normalize(surfaceNormal));
         

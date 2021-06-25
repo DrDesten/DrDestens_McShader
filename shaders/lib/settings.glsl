@@ -1,11 +1,12 @@
+#define WATER_EFFECTS
+
 
 // Screen Space Raytracing
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #define SCREEN_SPACE_REFLECTION
-#define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32 48 64]
+#define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32]
 #define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0 1000]
-#define SSR_DISTANCE 1.0                // How far reflections go                       [0.5 0.6 0.7 0.8 0.9 1.0]
 #define SSR_FINE_STEPS 3
 #define SSR_STEP_OPTIMIZATION
 
@@ -22,18 +23,18 @@
 //#define DENOISE_DEBUG
 
 #define SCREEN_SPACE_AMBIENT_OCCLUSION
-#define SSAO_QUALITY 2                  // SSAO Quality                      [1 2]
-#define SSAO_STRENGTH 0.50              // SSAO Strength                     [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define SSAO_QUALITY 1                  // SSAO Quality                      [1 2]
+#define SSAO_STRENGTH 0.75              // SSAO Strength                     [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Depth of Field
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#define DOF_MODE 3                   // Lens Blur Mode                                          [0 3 4]
+#define DOF_MODE 0                   // Lens Blur Mode                                          [0 3 4]
 #define DOF_STEPS 3                  // Depth of Field Step Size                                [1 2 3 4 5 6 7 8 9 10]
 #define DOF_STRENGTH 1.0             // Depth of Field Intensity                                [0.25 0.5 1.0 1.5 2.0 2.5 3 3.5]
 
-//#define DOF_DITHER              // Randomize Samples in order to conceil high step sizes   
-#define DOF_DITHER_AMOUNT 0.5     // Amount of randomization                                 [0.2 0.3 0.4 0.5 0.6 0.7 0.8]
+//#define DOF_DITHER                 // Randomize Samples in order to conceil high step sizes   
+#define DOF_DITHER_AMOUNT 0.5        // Amount of randomization                                 [0.2 0.3 0.4 0.5 0.6 0.7 0.8]
 
 #define DOF_DOWNSAMPLING 0.5         // How much downsampling takes place for the DoF effect    [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define DOF_KERNEL_SIZE 2            // Bokeh Quality                                           [1 2 3 4]           

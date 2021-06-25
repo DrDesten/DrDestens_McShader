@@ -59,9 +59,6 @@ option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Influences assumption about how thick a pixel is. No performance impact.
 value.SSR_DEPTH_TOLERANCE.1000=Infinite
 
-option.SSR_DISTANCE=Reflection Distance
-option.SSR_DISTANCE.comment=Modifies the reflection distance. May cause cutoff at low values.
-
 option.DENOISE=Denoise Reflections
 option.DENOISE.comment=Removes noise from reflections.
 option.DENOISE_AMOUNT=Denoise Amount

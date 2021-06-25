@@ -12,7 +12,7 @@
 #include "/lib/kernels.glsl"
 
 uniform float centerDepthSmooth;
-const float   centerDepthHalflife = 1.0;
+const float   centerDepthHalflife = 1.5;
 
 const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
