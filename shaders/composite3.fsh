@@ -380,7 +380,6 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     hits  = 1 - (hits / 8);
     return sq(hits);
 }
-
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));              //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
@@ -405,7 +404,6 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     hits  = 1 - (hits / 16);
     return sq(hits);
 }
-
 
 /* DRAWBUFFERS:04 */
 void main() {
@@ -465,7 +463,7 @@ void main() {
 
 
     // Absorption
-    if (type == 10 || isEyeInWater != 0) {
+    if (type == 1 || isEyeInWater != 0) {
         #ifdef REFRACTION
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
         #else

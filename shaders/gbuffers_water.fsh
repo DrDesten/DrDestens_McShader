@@ -68,8 +68,8 @@ void main(){
         
         // "Fake" Waves
         vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-        float blend        = clamp(map(abs(surfaceDot), 0.01, 0.2, 5, 1), 1, 5);              // Reducing the normals at small angles to avoid high noise
-        vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1/blend);
+        float blend        = clamp(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1), 0, 1);              // Reducing the normals at small angles to avoid high noise
+        vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
 
         //color.a = 1;
 

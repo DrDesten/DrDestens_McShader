@@ -54,7 +54,7 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
-    vec2 sample   = coord - (blur * 0.5);
+    vec2 sample   = coord;
 
     for (int i = 0; i < samples; i++) {
         col += getAlbedo_int(sample);
@@ -72,20 +72,22 @@ void main() {
         #ifndef MOTION_BLUR_FULL
 
             // Motion Blur only dependent on player Movement
-            vec2  motionBlurVector = coord - movecoord;
+            vec2  motionBlurVector = movecoord - coord;
             motionBlurVector      *= float(getDepth(coord) > 0.56);
 
         #else
 
             // Motion Blur dependent on player Movement and Camera
             vec3  clipPos          = vec3(coord, getDepth(coord)) * 2 - 1;
-            vec2  motionBlurVector = (coord - clamp(previousReproject(clipPos).xy, 0, 1)) * float(clipPos.z > 0.12);
+            vec3  prevCoord        = previousReproject(clipPos);
+            vec2  motionBlurVector = (clamp(prevCoord.xy, -0.25, 1.25) - coord) * float(clipPos.z > 0.12);
             motionBlurVector      *= MOTION_BLUR_STRENGTH;
 
         #endif
 
         float ditherOffset         = (Bayer4(coord * ScreenSize) - 0.5) / (MOTION_BLUR_SAMPLES);
         vec3  color                = vectorBlur(coord + motionBlurVector * ditherOffset, motionBlurVector, MOTION_BLUR_SAMPLES);
+        //color = abs(prevCoord.z - getDepth(coord)).xxx;
 
     #else
 
