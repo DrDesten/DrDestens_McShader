@@ -86,9 +86,9 @@ void main() {
 
 	#endif
 
-	if (blockId == 1005) {
+	/* if (blockId == 1005) {
 		color.rgb *= 4;
-	}
+	} */
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);

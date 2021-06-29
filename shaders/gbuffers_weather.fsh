@@ -15,5 +15,5 @@ void main() {
 	color.a *= 0.15;
 
 	gl_FragData[0] = color; //gcolor
-	gl_FragData[1] = vec4(1); //gcolor
+	gl_FragData[1] = vec4(1); //set type to water
 }

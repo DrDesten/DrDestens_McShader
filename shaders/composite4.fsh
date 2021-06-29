@@ -1,9 +1,10 @@
 #version 130
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                    DENOISE AND OUTLINE
+//                                    DENOISE AND OUTLINE AND FOG
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define STEPS 3
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
@@ -51,7 +52,7 @@ float depthEdgeFast(vec2 coord) {
     return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
-// 2-Sample Dark Priority Despecler
+// 3-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
@@ -78,7 +79,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 4-Sample Dark Priority Despecler
+// 5-Sample Dark Priority Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -109,7 +110,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-// 8-Sample Dark Priority Despecler
+// 9-Sample Dark Priority Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -145,7 +146,7 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
 
 
 
-// 2-Sample Mean Denoiser
+// 3-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
 
@@ -171,7 +172,7 @@ vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
     return closestColor;
 }
 
-// 4-Sample Mean Denoiser
+// 5-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -201,7 +202,7 @@ vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
     return closestColor;
 }
 
-// 8-Sample Mean Denoiser
+// 9-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
     vec2 pixelOffset = pixelSize * amount;
 
@@ -269,13 +270,35 @@ void main() {
 
     #endif
 
+    #ifdef GODRAYS
+        vec2  sun       = backToClip(sunPosition).xy * .5 + .5;
+        sun             = radClamp(sun);
+
+        vec2  ray       = sun - coord;
+        vec2  rayStep   = ray / STEPS;
+        vec2  rayPos    = coord - (Bayer8(coord * ScreenSize) * rayStep);
+
+        float len       = 0;
+        float occlusion = 0;
+        for (int i = 0; i < STEPS; i++ ) {
+            rayPos     += rayStep;
+
+            if (getDepth_int(rayPos) != 1) {
+                occlusion += 1.;
+            }
+        }
+        occlusion /= STEPS;
+
+        color += vec3(clamp(1. - occlusion, 0, 1) * .5);
+        //color = vec3(occlusion);
+    #endif
+
 
     #ifdef FOG
 
         // Fog
         // Increase Fog when looking at sun/moon
-        vec4  sunProjection  = gbufferProjection * vec4(sunPosition, 1.0);
-        vec3  sunScreenSpace = (sunProjection.xyz / sunProjection.w) * 0.5 + 0.5;
+        vec3  sunScreenSpace = backToClip(sunPosition) * .5 + .5;
         float sunDist        = clamp(distance(coord, sunScreenSpace.xy), 0, 1);
         float sunFog         = smoothstep(0.5, 1, 1-sunDist) * 2;
 

@@ -23,8 +23,8 @@ vec2 radClamp(vec2 coord) {
     // Calculate oversize vector by subtracting 1 on each axis from the absulute
     // We just need the length so sing doesnt matter
     vec2 oversize = max(vec2(0), abs(coord) - 0.5);
-    coord /= (length(oversize) + 1);
-    coord = coord + 0.5;
+    coord        /= (length(oversize) + 1);
+    coord         = coord + 0.5;
     return coord;
 }
 vec3 radClamp(vec3 coord) {
@@ -130,6 +130,10 @@ float rand11(float x) {
 }
 float rand11(vec2 x) {
     return rand(x) * 2 - 1;
+}
+
+vec2 N22(vec2 x) {
+    return vec2(rand(x - 5), rand(x + 5));
 }
 
 float noise(vec2 x) {

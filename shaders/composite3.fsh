@@ -23,7 +23,7 @@ uniform vec3 upPosition;
 uniform float near;
 uniform float far;
 uniform float frameTimeCounter;
-uniform int isEyeInWater;
+uniform int   isEyeInWater;
 
 struct position { // A struct for holding positions in different spaces
     vec3 screen;
@@ -355,12 +355,12 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     return vec3(getSkyColor3(viewReflection - viewPos));
 } */
-vec3 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
+vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
     // Reflect in View Space
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return getSkyColor3(viewReflection - pos.view);
+        return vec4(getSkyColor3(viewReflection - pos.view), 0);
     }
 
     // Project to Screen Space
@@ -392,7 +392,7 @@ vec3 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
             if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
-                return getAlbedo(rayPos.xy);
+                return vec4(getAlbedo(rayPos.xy), 1);
             #endif
 
             // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
@@ -411,14 +411,14 @@ vec3 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
             }
 
             if ((rayPos.z - hitDepth) < depthTolerance) {
-                return textureLod(colortex0, rayPos.xy, roughness * 10).rgb;
+                return vec4(textureLod(colortex0, rayPos.xy, roughness * 10).rgb, 1);
             } else {
                 break;
             }
         }
     }
 
-    return vec3(getSkyColor3(viewReflection - pos.view));
+    return vec4(getSkyColor3(viewReflection - pos.view), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -436,7 +436,7 @@ float AmbientOcclusionLOW(position pos, vec3 normal, float size) {
     vec3 sample;
     for (int i = 0; i < 8; i++) {
         sample      = half_sphere_8[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                      // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
         sample      = TBN * sample;
         sample      = backToClip(sample + pos.view) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
@@ -448,6 +448,7 @@ float AmbientOcclusionLOW(position pos, vec3 normal, float size) {
     hits  = 1 - (hits / 8);
     return sq(hits);
 }
+
 float AmbientOcclusionHIGH(position pos, vec3 normal, float size) {
     vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));              //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
@@ -486,6 +487,18 @@ void main() {
     vec3  clipPos       = screenPos * 2 - 1;
     vec3  viewPos       = toView(clipPos);
     vec3  viewDir       = normalize(viewPos);
+
+    #ifdef PIXELIZE
+        vec3 worldPos   = toWorld(toPlayer(viewPos));
+        worldPos        = floor(worldPos * PIXELIZE_SIZE) / PIXELIZE_SIZE;
+
+        viewPos         = backToView(backToPlayer(worldPos));
+        viewDir         = normalize(viewPos);
+        clipPos         = backToClip(viewPos);
+        screenPos       = clipPos * .5 + .5;
+
+        normal          = getNormal(screenPos.xy);
+    #endif
 
     position Positions  = position(screenPos, clipPos, viewPos, viewDir);
 
@@ -527,10 +540,6 @@ void main() {
 
         }
 
-    #else
-        
-            color   = getAlbedo(coord);
-
     #endif
 
 
@@ -539,7 +548,7 @@ void main() {
         #ifdef REFRACTION
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
         #else
-            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
+            float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
         #endif
 
         float absorption;
@@ -562,7 +571,7 @@ void main() {
 
             float fresnel   = customFresnel(viewDir, normal, 0.02, 1, 2);
 
-            vec3 Reflection = universalSSR(Positions, normal, 0.0, false);
+            vec4 Reflection = universalSSR(Positions, normal, 0.0, false);
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
             denoise         = 1;
 
@@ -576,9 +585,9 @@ void main() {
         if (type == 2) {
 
             float fresnel      = customFresnel(viewDir, normal, 0.25, 1, 4);
-            vec3  Reflection   = universalSSR(Positions, normal, 0, false);
+            vec4  Reflection   = universalSSR(Positions, normal, 0, false);
 
-            color              = mix(color, Reflection, fresnel * 0.75);
+            color              = mix(color, Reflection.rgb, fresnel * Reflection.a);
             denoise            = 1;
 
         }
@@ -604,6 +613,8 @@ void main() {
         }
 
     #endif
+
+    //color = screenPos;
 
 
     // Create some atmosphere

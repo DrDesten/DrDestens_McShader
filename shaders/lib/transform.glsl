@@ -25,20 +25,20 @@ vec3 toWorld(vec3 playerpos) { // Playerfeetpos to worldpos
 }
 
 
-vec3 backToPlayer(vec3 worldpos) { // Worldpos to previous playerfeetpos
-    return worldpos + cameraPosition;
+vec3 backToPlayer(vec3 worldpos) { // Worldpos to playerfeetpos
+    return worldpos - cameraPosition;
 }
 
-vec3 backToView(vec3 playerpos) { // previous playerfeetpos to previous viewpos
+vec3 backToView(vec3 playerpos) { // playerfeetpos to viewpos
     return mat3(gbufferModelView) * (playerpos - gbufferModelViewInverse[3].xyz);
 }
 
-vec3 backToClip(vec3 viewpos) { // previous viewpos to previous screen pos
+vec3 backToClip(vec3 viewpos) { // viewpos to clip pos
     vec4 tmp = gbufferProjection * vec4(viewpos, 1.0);
     return tmp.xyz / tmp.w;
 }
 
-vec3 backToScreen(vec3 viewpos) { // previous viewpos to previous screen pos
+vec3 backToScreen(vec3 viewpos) { // viewpos to screen pos
     vec4 tmp = gbufferProjection * vec4(viewpos, 1.0);
     return (tmp.xyz / tmp.w) * 0.5 + 0.5;
 }

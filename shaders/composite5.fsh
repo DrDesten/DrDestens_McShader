@@ -11,6 +11,8 @@
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
+uniform sampler2D depthtex1;
+
 uniform float centerDepthSmooth;
 const float   centerDepthHalflife = 1.5;
 
@@ -227,28 +229,32 @@ vec3 DoF(vec2 coord, float pixeldepth, float size, float stepsize) {
     return vec3(0);
 }
 
-float CoC(float depth) {
-    depth = (depth * 4) - 3;
-    depth *= depth;
-    return depth;
+#define PLANE_DIST 5e-3
+float realCoC(float linearDepth, float centerLinearDepth) {
+    float focallength = 1 / ((1/centerLinearDepth) + (1/PLANE_DIST));
+
+    float zaehler = focallength * (centerLinearDepth - linearDepth);
+    float nenner  = linearDepth * (centerLinearDepth - focallength);
+    return abs(zaehler / nenner);
 }
 
 
 /* DRAWBUFFERS:0 */
 
 void main() {
-    float depth         = getDepth(coord);
+    float depth         = texture(depthtex1, coord).r;
 
     // Disables Depth of Field in the precompiler
     #if DOF_MODE != 0
+ 
+        float linearDepth   = linearizeDepth(depth, near, far);
+        float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
 
         float fovScale      = gbufferProjection[1][1] * 0.7299270073;
 
-        float mappedDepth   = CoC(depth);
-        float lookDepth     = CoC(centerDepthSmooth); //Depth of center pixel (mapped)
-        float blurDepth     = abs(mappedDepth - lookDepth) * DOF_STRENGTH * 0.02 * fovScale; 
+        float Blur = realCoC(linearDepth, clinearDepth) * fovScale * DOF_STRENGTH;
 
-        vec3 color = DoF(coord, depth, blurDepth, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu
+        vec3 color = DoF(coord, depth, Blur, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu
 
     #else
         vec3 color          = getAlbedo(coord);
