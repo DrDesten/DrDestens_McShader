@@ -1,6 +1,6 @@
 #define WATER_EFFECTS
 
-#define PIXELIZE
+//#define PIXELIZE
 #define PIXELIZE_SIZE 16                // Pixel Size for Pixelation Effect             [8 16 32 64 128 256 512 1024]
 
 
@@ -32,7 +32,7 @@
 // Depth of Field
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#define DOF_MODE 1                   // Lens Blur Mode                                          [0 3 4]
+#define DOF_MODE 0                   // Lens Blur Mode                                          [0 3 4]
 #define DOF_STEPS 3                  // Depth of Field Step Size                                [1 2 3 4 5 6 7 8 9 10]
 #define DOF_STRENGTH 1.0             // Depth of Field Intensity                                [0.25 0.5 1.0 1.5 2.0 2.5 3 3.5]
 
@@ -57,11 +57,11 @@
 
 #define CHROM_ABERRATION 3              // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]
 
-#define SATURATION 1.3                  // Saturation               [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5]
+#define SATURATION 1.0                  // Saturation               [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5]
 
 #define GODRAYS
 #define GODRAY_STEPS 5                  // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
-#define GODRAY_STRENGTH 0.25            // [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define GODRAY_STRENGTH 0.50            // [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Misc
 /////////////////////////////////////////////////////////////////////////////////////////

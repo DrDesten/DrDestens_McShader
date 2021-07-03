@@ -11,13 +11,15 @@
 #include "/lib/kernels.glsl"
 #include "/lib/bloom.glsl"
 
+const bool colortex5MipmapEnabled = true;
+
 in vec2 coord;
 
 
 /* DRAWBUFFERS:5 */
 void main() {
-    float blursize = 3 / viewHeight;
-    vec3 color = gBlur_v16_bloom(coord * 0.25, blursize);
+    float blursize = 4 / viewHeight;
+    vec3 color = gBlur_v16_bloom(coord * 0.25, blursize, 2);
 
     color = saturation(color, 0.3);
 

@@ -13,6 +13,7 @@
 uniform int   worldTime;
 uniform vec3  fogColor;
 uniform vec3  sunPosition;
+uniform vec3  moonPosition;
 
 in vec2 coord;
 
@@ -269,31 +270,42 @@ void main() {
     #endif
 
     #ifdef GODRAYS
-        vec4  tmp       = gbufferProjection * vec4(sunPosition, 1.0);
-        vec3  sunScreen = tmp.xyz / tmp.w;
-        vec2  sun       = sunScreen.xy * .5 + .5;
 
-        if (tmp.w > 0) {
+        // Start transforming sunPosition from view space to screen space
+        vec4 tmp;
+        if (worldTime < 13000) {
+            tmp       = gbufferProjection * vec4(sunPosition, 1.0);
+        } else {
+            tmp       = gbufferProjection * vec4(moonPosition, 1.0);
+        }
+
+        if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I dont want that)
+            // Finish screen space transformation
+            vec3 sunScreen    = tmp.xyz / tmp.w;
+            vec2 sun          = sunScreen.xy * .5 + .5;
+
+            // Create ray pointing from the current pixel to the sun
+            vec2 ray          = sun - coord;
+            vec2 rayCorrected = vec2(ray.x, ray.y * (ScreenSize.y / ScreenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
+
+            vec2 rayStep      = ray / GODRAY_STEPS;
+            vec2 rayPos       = coord - (Bayer8(coord * ScreenSize) * rayStep);
+
             float light = 1;
-
-            vec2  ray          = sun - coord;
-            vec2  rayCorrected = vec2(ray.x, ray.y * (ScreenSize.y / ScreenSize.x));
-
-            vec2 rayStep       = ray / GODRAY_STEPS;
-            vec2 rayPos        = coord - (Bayer8(coord * ScreenSize) * rayStep);
-
             for (int i = 0; i < GODRAY_STEPS; i++ ) {
 
-                rayPos        += rayStep;
+                rayPos       += rayStep;
 
-                if (getDepth_int(rayPos) != 1) {
-                    light     -= 1. / GODRAY_STEPS;
+                if (getDepth_int(rayPos) != 1) { // Subtract from light when there is an occlusion
+                    light    -= 1. / GODRAY_STEPS;
                 }
 
             }
 
+            // Exponential falloff (also making it FOV independant)
             light *= exp2(-dot(rayCorrected, rayCorrected) * 10 / fovScale);
-            color += clamp(light * GODRAY_STRENGTH, 0, 1);
+
+            color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
         }
 
     #endif
@@ -301,16 +313,11 @@ void main() {
 
     #ifdef FOG
 
-        // Fog
-        // Increase Fog when looking at sun/moon
-        vec3  sunScreenSpace = backToClip(sunPosition) * .5 + .5;
-        float sunDist        = clamp(distance(coord, sunScreenSpace.xy), 0, 1);
-        float sunFog         = smoothstep(0.5, 1, 1-sunDist) * 2;
-
         // Blend between FogColor and normal color based on sqare distance
-        vec3  playerpos = toPlayerEye(toView(vec3(coord, depth) * 2 - 1));
-        float dist      = dot(playerpos, playerpos) * float(depth != 1);
-        float fog       = clamp(dist * 3e-6 * FOG_AMOUNT * (sunFog + 1), 0, 1);
+        vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
+
+        float dist      = dot(viewPos, viewPos) * float(depth != 1);
+        float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
 
         color           = mix(color, (color * 0.1) + fogColor, fog);
 

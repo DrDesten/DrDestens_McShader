@@ -5,7 +5,7 @@ const int colortex0Format = RGB16F;      // Color
 const int colortex2Format = RGB16_SNORM; // Normals
 
 const int colortex4Format = R16F;        // Colortex4 = blockId
-const int colortex5Format = RGB8;        // Colortex5 = bloom
+const int colortex5Format = RGB16F;        // Colortex5 = bloom
 */
 
 const float sunPathRotation = -40.0;

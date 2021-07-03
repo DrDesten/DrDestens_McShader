@@ -110,7 +110,7 @@ void main() {
 
     //Vignette(color);
 
-    color /= .45 + color;
+    color /= .45 + color; // Temporary Tonemapping
 
     color = invgamma(color);
 

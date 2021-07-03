@@ -17,9 +17,8 @@ in vec2 coord;
 /* DRAWBUFFERS:5 */
 
 void main() {
-    float randfac = 0; // rand11(-coord);
-    float blursize = 12 / viewHeight;
-    vec3 color = gBlur_h6_col(coord, blursize, 5) * 0.2;
+    float blursize = 16 / viewHeight;
+    vec3 color = gBlur_h6_col(coord, blursize, 5);
     
     FD0 = vec4(color, 1);
 }

@@ -120,7 +120,7 @@ void main() {
         vec2 bloomCoord = clamp(coord * 0.05 - (pixelSize * 0.5), 0, 0.05 - 1.5/viewHeight);
         vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
 
-        color += min((bloomColor * bloomColor) * BLOOM_AMOUNT * 25, BLOOM_AMOUNT * 5);
+        color += (bloomColor * bloomColor) * BLOOM_AMOUNT * 5;
     #endif
 
     //Pass everything forward
