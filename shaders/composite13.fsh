@@ -110,6 +110,8 @@ void main() {
 
     //Vignette(color);
 
+    color /= .45 + color;
+
     color = invgamma(color);
 
     FD0 = vec4(color, 1.0);

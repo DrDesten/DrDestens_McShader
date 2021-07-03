@@ -7,6 +7,7 @@ uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousProjection;
 
+float fovScale = gbufferProjection[1][1] * 0.7299270073;
 
 vec3 toView(vec3 clipspace) { // Clippos to viewpos
     vec4 tmp = gbufferProjectionInverse * vec4(clipspace, 1.0);
@@ -18,6 +19,9 @@ vec3 toPlayer(vec3 viewspace) { // Viewpos to Playerfeetpos
 }
 vec3 toPlayerEye(vec3 viewspace) { // Viewpos to Playerfeetpos
     return mat3(gbufferModelViewInverse) * viewspace;
+}
+vec3 playerEyeToFeet(vec3 playereye) {
+    return playereye + gbufferModelViewInverse[3].xyz;
 }
 
 vec3 toWorld(vec3 playerpos) { // Playerfeetpos to worldpos

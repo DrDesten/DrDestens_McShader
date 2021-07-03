@@ -124,6 +124,10 @@ value.SSAO_QUALITY.2=High
 
 option.SSAO_STRENGTH=SSAO Strength
 
+option.GODRAYS=Godrays
+option.GODRAY_STRENGTH=Godray Strength
+option.GODRAY_STEPS=Godray Steps
+
 ///////////////////////////////////////////////////////////
 // MATERIALS
 ///////////////////////////////////////////////////////////

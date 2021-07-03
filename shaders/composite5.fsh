@@ -250,8 +250,6 @@ void main() {
         float linearDepth   = linearizeDepth(depth, near, far);
         float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
 
-        float fovScale      = gbufferProjection[1][1] * 0.7299270073;
-
         float Blur = realCoC(linearDepth, clinearDepth) * fovScale * DOF_STRENGTH;
 
         vec3 color = DoF(coord, depth, Blur, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu

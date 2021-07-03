@@ -36,78 +36,30 @@ struct position { // A struct for holding positions in different spaces
 //                     SCREEN SPACE REFLECTION
 //////////////////////////////////////////////////////////////////////////////
 
-/* 
-vec3 cheapSSR(vec2 coord, vec3 normal, vec3 fallBackColor, int steps, float stepsize) {
-    vec2 pixelPos = coord;
-    float depth = getDepth(coord);
+vec3 cheapSSR1(vec3 viewPos) {
+    vec3 horizon = toPlayerEye(viewPos);
+    horizon.y    = 0;
+    horizon      = playerEyeToFeet(horizon);
+    horizon      = backToView(horizon);
+    horizon      = backToClip(horizon) * .5 + .5;
 
-    vec2 pixelStep = normalize(normal.xy) * stepsize / ScreenSize;
+    float flipAxis = horizon.y;
 
-    for (int i = 0; i < steps; i++) {
-        pixelPos += pixelStep;
-
-        if (clamp(pixelPos, 0, 1) != pixelPos) {
-            break;
-        }
-
-        // Check if out of water
-        if (getType(pixelPos) != 1) {
-            vec2 reflectPos = pixelPos + (pixelPos - coord);
-            float hitdepth = getDepth(reflectPos);
-
-            if (clamp(reflectPos, 0, 1) != reflectPos || getType(reflectPos) == 1 || hitdepth >= 1 || hitdepth < depth) {
-                break;
-            }
-
-            return getAlbedo(reflectPos);
-        }
-    }
-
-    return fallBackColor;
+    vec2 nc = vec2(coord.x, flipAxis * 2 - coord.y);
+    return getAlbedo_int(nc);
 }
 
-vec3 cheapSSR_final(vec2 coord, vec3 normal, vec3 fallBackColor, float surfaceType, float dist, int steps) {
-    vec2 pixelPos = coord;
-    float depth = linearizeDepth(getDepth(coord), near, far);
+vec3 cheapSSR2(vec3 viewPos) {
+    vec3 horizon = toPlayerEye(viewPos);
+    horizon.y   *= -1;
+    horizon      = playerEyeToFeet(horizon);
+    horizon      = backToView(horizon);
+    horizon      = backToClip(horizon) * .5 + .5;
 
-    vec2 marchDirection = normalize(normal.xy);
-
-    // Border position ( for binary search )
-    vec2 increment = marchDirection * dist;
-
-    vec2 b1 = pixelPos + (rand(coord) * increment * 0.0075);
-    vec2 b2 = clamp(increment + pixelPos, 0, 1);
-
-    vec2 sampleCoord;
-    float sampleDepth;
-
-    for (int i = 0; i < steps; i++) {
-        sampleCoord = midpoint(b1, b2);
-        sampleDepth = getDepth(sampleCoord);
-
-        if (getType(sampleCoord) != surfaceType && linearizeDepth(sampleDepth, near, far) + 5 > depth) {
-            //Hit
-            b2 = sampleCoord;
-        } else {
-            //No Hit
-            b1 = sampleCoord;
-        }
-    }
-    if (getType_interpolated(sampleCoord) != surfaceType) {
-        vec2 reflectPos = sampleCoord + (sampleCoord - coord);
-        sampleDepth = getDepth(reflectPos);
-
-        if (clamp(reflectPos, 0, 1) != reflectPos || getType(reflectPos) == surfaceType || sampleDepth == 1.0) {
-            return fallBackColor;
-        }
-
-        return getAlbedo(reflectPos);
-    }
-
-    return fallBackColor;
+    return getAlbedo_int(horizon.xy);
 }
 
-
+/*
 vec3 testSSR(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 viewPos, vec3 viewDir, float surfaceType) {    
     // Reflect view Ray along normals of surface
     vec3 reflectionRay = reflect(viewDir, normal);
@@ -613,8 +565,6 @@ void main() {
         }
 
     #endif
-
-    //color = screenPos;
 
 
     // Create some atmosphere

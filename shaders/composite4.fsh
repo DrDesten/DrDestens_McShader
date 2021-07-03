@@ -4,8 +4,6 @@
 //                                    DENOISE AND OUTLINE AND FOG
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define STEPS 3
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
@@ -271,26 +269,33 @@ void main() {
     #endif
 
     #ifdef GODRAYS
-        vec2  sun       = backToClip(sunPosition).xy * .5 + .5;
-        sun             = radClamp(sun);
+        vec4  tmp       = gbufferProjection * vec4(sunPosition, 1.0);
+        vec3  sunScreen = tmp.xyz / tmp.w;
+        vec2  sun       = sunScreen.xy * .5 + .5;
 
-        vec2  ray       = sun - coord;
-        vec2  rayStep   = ray / STEPS;
-        vec2  rayPos    = coord - (Bayer8(coord * ScreenSize) * rayStep);
+        if (tmp.w > 0) {
+            float light = 1;
 
-        float len       = 0;
-        float occlusion = 0;
-        for (int i = 0; i < STEPS; i++ ) {
-            rayPos     += rayStep;
+            vec2  ray          = sun - coord;
+            vec2  rayCorrected = vec2(ray.x, ray.y * (ScreenSize.y / ScreenSize.x));
 
-            if (getDepth_int(rayPos) != 1) {
-                occlusion += 1.;
+            vec2 rayStep       = ray / GODRAY_STEPS;
+            vec2 rayPos        = coord - (Bayer8(coord * ScreenSize) * rayStep);
+
+            for (int i = 0; i < GODRAY_STEPS; i++ ) {
+
+                rayPos        += rayStep;
+
+                if (getDepth_int(rayPos) != 1) {
+                    light     -= 1. / GODRAY_STEPS;
+                }
+
             }
-        }
-        occlusion /= STEPS;
 
-        color += vec3(clamp(1. - occlusion, 0, 1) * .5);
-        //color = vec3(occlusion);
+            light *= exp2(-dot(rayCorrected, rayCorrected) * 10 / fovScale);
+            color += clamp(light * GODRAY_STRENGTH, 0, 1);
+        }
+
     #endif
 
 
