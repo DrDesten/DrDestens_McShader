@@ -21,16 +21,24 @@ varying vec2 coord;
 varying vec2 mid_coord;
 varying vec4 glcolor;
 
+struct PBR {
+	vec3  color;
+	vec3  normal;
+	float roughness;
+	float fresnel;
+};
+
 varying mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:024 */
+/* DRAWBUFFERS:0231 */
 void main() {
-	vec3 normal = tbn[2];
+	vec3  normal = tbn[2];
+	float reflectiveness = 0;
 		
-	#ifdef PBR
+	#ifdef PHYSICALLY_BASED
 		/* float height 	 = extractHeight(NormalTex(coord));
 		vec3 playerPos	 = toPlayerEye(viewpos);
 		vec3 viewDir 	 = tbn * normalize(viewpos);
@@ -41,6 +49,7 @@ void main() {
 		vec2 spriteSize  = 2.0 * atlasSize * abs(coord - mid_coord.xy);
 
 		vec4 color		= texture2D(texture, newcoord) * glcolor;
+		vec4 colorTex   = color;
 		gamma(color.rgb);
 		float dinamicLight = lmcoord.x * lmcoord.x  * 0.25;
 		color.rgb  *= texture2D(lightmap, lmcoord).rgb + (dinamicLight);
@@ -61,7 +70,7 @@ void main() {
 
 		float roughness  = extractRoughness(normalTex, specularTex);
 		float f0 		 = extractF0(normalTex, specularTex);
-		if (f0 > (230/255)) {f0 = 1;} // Metals
+		if (f0 > 229.5/255) { f0 = 1;}
 		float emission   = extractEmission(normalTex, specularTex);
 
 		vec4 BRDF;
@@ -69,13 +78,12 @@ void main() {
 		color.rgb 		*= emission * 10 + 1;
 		BRDF			 = specularBRDF(color.rgb, normal, viewpos, lightPos, roughness, f0) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
 
-		color.rgb 		*= 0.8;
-
-		// Blend between normal MC rendering and PBR rendering
+		// Blend between normal MC rendering and PHYSICALLY_BASED rendering
 		float blend  = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
 		color.rgb 	 = mix(color.rgb, BRDF.rgb, blend);
-		BRDF.a 		 = mix(0, BRDF.a, blend);
-
+		//BRDF.a 		 = mix(0, BRDF.a, blend);
+		
+		reflectiveness  = BRDF.a * max(1 - 2 * roughness, 0);
 	#else 
 
 		vec4 color = texture2D(texture, coord) * glcolor;
@@ -92,5 +100,6 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(vec3(blockId - 1000), 1);
+	gl_FragData[2] = vec4(blockId - 1000, vec3(1));
+	gl_FragData[3] = vec4(reflectiveness, vec3(1));
 }

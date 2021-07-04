@@ -1,5 +1,18 @@
 #version 130
 
+/*
+const int colortex0Format = RGB16F;      // Color
+const int colortex1Format = R8           // Reflectiveness
+const int colortex2Format = RGB16_SNORM; // Normals
+
+const int colortex3Format = R16F;        // colortex3 = blockId
+const int colortex4Format = RGB16F;      // colortex4 = bloom
+
+const vec4 colortex1ClearColor = vec4(0,0,0,1);
+*/
+
+const float sunPathRotation = -40.0;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,12 +26,11 @@
 #include "/lib/skyColor.glsl"
 
 uniform sampler2D depthtex1;
+uniform sampler2D colortex1;
 const bool        colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2 coord;
 in vec3 lightVector;
-
-uniform vec3 upPosition; 
 
 uniform float near;
 uniform float far;
@@ -425,7 +437,7 @@ float AmbientOcclusionHIGH(position pos, vec3 normal, float size) {
     return sq(hits);
 }
 
-/* DRAWBUFFERS:04 */
+/* DRAWBUFFERS:03 */
 void main() {
     vec3  color         = getAlbedo(coord);
     vec3  normal        = getNormal(coord);
@@ -534,14 +546,12 @@ void main() {
         //////////////////////////////////////////////////////////
 
         // SSR for other reflective surfaces
-        if (type == 2) {
-
-            float fresnel      = customFresnel(viewDir, normal, 0.25, 1, 4);
+        float reflectivenss = texture(colortex1, coord).r;
+        if (reflectivenss > 0.5/255) {
             vec4  Reflection   = universalSSR(Positions, normal, 0, false);
 
-            color              = mix(color, Reflection.rgb, fresnel * Reflection.a);
+            color              = mix(color, Reflection.rgb, reflectivenss * Reflection.a);
             denoise            = 1;
-
         }
 
     #endif

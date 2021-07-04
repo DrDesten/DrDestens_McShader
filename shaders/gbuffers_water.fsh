@@ -8,7 +8,7 @@
 #include "/lib/gamma.glsl"
 
 uniform sampler2D depthtex1;
-uniform sampler2D colortex5; // Normals
+uniform sampler2D colortex4; // Normals
 
 uniform float frameTimeCounter;
 uniform vec3  upPosition;
@@ -137,7 +137,7 @@ vec3 waveNormals(vec2 coord, float strength) {
     n.xy   *= strength;
     return normalize(n);
 }
-/* DRAWBUFFERS:024 */
+/* DRAWBUFFERS:023 */
 
 void main(){
     vec2 screenCoord = (gl_FragCoord.xy / ScreenSize);
@@ -193,5 +193,5 @@ void main(){
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(vec3(blockId - 1000), 1); // Type (colortex4)
+    gl_FragData[2] = vec4(vec3(blockId - 1000), 1); // Type (colortex3)
 }

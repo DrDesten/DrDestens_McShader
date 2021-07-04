@@ -14,7 +14,7 @@
 in vec2 coord;
 
 
-/* DRAWBUFFERS:5 */
+/* DRAWBUFFERS:4 */
 void main() {
     float blursize = 2.5 / viewHeight;
     vec3 color = gBlur_v6_bloom_c(coord * 0.05, blursize, 0.05 - 1.5/viewHeight);

@@ -12,7 +12,7 @@ varying vec3 normal;
 varying vec3 viewPos;
 varying vec4 glcolor;
 
-/* DRAWBUFFERS:024 */
+/* DRAWBUFFERS:023 */
 void main() {
 	vec4 color = texture2D(texture, coord);
 	color.a = step(0.5, color.a);

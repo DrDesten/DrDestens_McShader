@@ -11,25 +11,26 @@ vec4 SpecularTex(vec2 coord) {
 
 
 // NORMAL TEXTURE
-vec3 extractNormal(vec4 n_tex, vec4 s_tex) {
-    return vec3(n_tex.xy, sqrt(1.0 - dot(n_tex.xy, n_tex.xy))) * 2 - 1;
+vec3 extractNormal(vec4 nTex, vec4 sTex) {
+    vec2 n = nTex.xy * 2 - 1;
+    return vec3(n, sqrt(1.0 - dot(n, n)));
 }
-float extractAO(vec4 n_tex, vec4 s_tex) {
-    return n_tex.b;
+float extractAO(vec4 nTex, vec4 sTex) {
+    return nTex.b;
 }
-float extractHeight(vec4 n_tex, vec4 s_tex) {
-    return n_tex.a;
+float extractHeight(vec4 nTex, vec4 sTex) {
+    return nTex.a;
 }
 
 
 // SPECULAR TEXTURE
-float extractRoughness(vec4 n_tex, vec4 s_tex) {
-    return pow(1.0 - s_tex.r, 2.0);
+float extractRoughness(vec4 nTex, vec4 sTex) {
+    return pow(1.0 - sTex.r, 2.0);
 }
-float extractF0(vec4 n_tex, vec4 s_tex) {
-    return s_tex.g;
+float extractF0(vec4 nTex, vec4 sTex) {
+    return sTex.g;
 }
 
-float extractEmission(vec4 n_tex, vec4 s_tex) {
-    return s_tex.a * float(s_tex.a != 1);
+float extractEmission(vec4 nTex, vec4 sTex) {
+    return sTex.a * float(sTex.a != 1);
 }

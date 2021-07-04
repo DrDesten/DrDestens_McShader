@@ -18,7 +18,7 @@ void main() {
     vec3 color = getAlbedo(coord);
     
     vec2 bloomCoord = clamp(coord * 0.25, 0, 0.25 - 1 / viewHeight);
-    vec3 bloomColor = (texture(colortex5, bloomCoord).rgb);
+    vec3 bloomColor = (texture(colortex4, bloomCoord).rgb);
 
     color += (bloomColor * bloomColor) * BLOOM_AMOUNT;
     //color = bloomColor;

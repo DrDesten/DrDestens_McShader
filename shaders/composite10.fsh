@@ -11,11 +11,11 @@
 #include "/lib/kernels.glsl"
 #include "/lib/bloom.glsl"
 
-const bool colortex5MipmapEnabled = true;
+const bool colortex4MipmapEnabled = true;
 
 in vec2 coord;
 
-/* DRAWBUFFERS:5 */
+/* DRAWBUFFERS:4 */
 
 void main() {
     float blursize = 8 / viewHeight;

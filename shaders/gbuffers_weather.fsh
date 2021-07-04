@@ -7,7 +7,7 @@ varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
-/* DRAWBUFFERS:04 */
+/* DRAWBUFFERS:03 */
 void main() {
 	vec4 color = texture2D(texture, coord) * glcolor;
 	color *= texture2D(lightmap, lmcoord);

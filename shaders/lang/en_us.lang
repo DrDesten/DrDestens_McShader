@@ -134,8 +134,8 @@ option.GODRAY_STEPS=Godray Steps
 
 screen.MATERIALS=Physically Based Rendering
 
-option.PBR=PBR
-option.PBR.comment=Enables Physically Based Rendering
+option.PHYSICALLY_BASED=PBR
+option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering
 
 option.PBR_BLEND_MIN=Minimum Amount of PBR
 option.PBR_BLEND_MIN.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. If you increase this value, the PBR effect will be stronger.

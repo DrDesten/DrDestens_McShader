@@ -50,7 +50,7 @@ vec3 rayleigh(float dotp, vec3 coeff) {
 }
 
 
-/* DRAWBUFFERS:04 */
+/* DRAWBUFFERS:03 */
 void main() {
 
     #ifdef FAST_SKY

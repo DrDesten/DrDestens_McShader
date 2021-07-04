@@ -17,7 +17,7 @@ varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
-/* DRAWBUFFERS:024 */
+/* DRAWBUFFERS:023 */
 void main() {
 	vec4 color = texture2D(texture, coord) * glcolor;
 	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);

@@ -1,8 +1,7 @@
 uniform sampler2D colortex0; // Color
 uniform sampler2D colortex2; // Normals
 
-uniform sampler2D colortex4; // Type (BlockID)
-//uniform sampler2D colortex5; // View Direction
+uniform sampler2D colortex3; // Type (BlockID)
 uniform sampler2D depthtex0;
 
 uniform float viewHeight;
@@ -43,10 +42,10 @@ float getDepth_int(in vec2 coord) {
 }
 
 float getType(in vec2 coord) {
-    return texelFetch(colortex4, convertIntCoords(coord, viewWidth, viewHeight), 0).r;
+    return texelFetch(colortex3, convertIntCoords(coord, viewWidth, viewHeight), 0).r;
 }
 float getType_interpolated(in vec2 coord) {
-    return texture(colortex4, coord).r;
+    return texture(colortex3, coord).r;
 }
 
 /* Snipplets for later
