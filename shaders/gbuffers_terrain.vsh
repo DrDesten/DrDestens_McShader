@@ -12,7 +12,7 @@ varying vec2 coord;
 varying vec2 mid_coord;
 varying vec4 glcolor;
 
-varying mat3 tbn;
+flat varying mat3 tbn;
 
 void main() {
 	gl_Position = ftransform();

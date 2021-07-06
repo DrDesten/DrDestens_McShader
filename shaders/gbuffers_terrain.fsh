@@ -5,30 +5,23 @@ uniform int worldTime;
 #include "/lib/transform.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/lighting.glsl"
 #include "/lib/labPBR13.glsl"
+#include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 
+uniform vec3 fogColor;
 uniform ivec2 atlasSize;
 
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
 varying float blockId;
-varying vec3 viewpos;
-varying vec2 lmcoord;
-varying vec2 coord;
-varying vec2 mid_coord;
-varying vec4 glcolor;
+varying vec3  viewpos;
+varying vec2  lmcoord;
+varying vec2  coord;
+varying vec4  glcolor;
 
-struct PBR {
-	vec3  color;
-	vec3  normal;
-	float roughness;
-	float fresnel;
-};
-
-varying mat3 tbn;
+flat varying mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
@@ -37,60 +30,18 @@ varying mat3 tbn;
 void main() {
 	vec3  normal = tbn[2];
 	float reflectiveness = 0;
-		
+
+	vec4 color		   = texture2D(texture, coord) * glcolor;
+	gamma(color.rgb);
+	color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+	
 	#ifdef PHYSICALLY_BASED
-		/* float height 	 = extractHeight(NormalTex(coord));
-		vec3 playerPos	 = toPlayerEye(viewpos);
-		vec3 viewDir 	 = tbn * normalize(viewpos);
-		viewDir			*= (1 - height) * 0.01; */
 
-		vec2 newcoord 	 = coord;
-		
-		vec2 spriteSize  = 2.0 * atlasSize * abs(coord - mid_coord.xy);
+		PBRout Material    = PBRMaterial(coord, color, tbn, viewpos);
 
-		vec4 color		= texture2D(texture, newcoord) * glcolor;
-		vec4 colorTex   = color;
-		gamma(color.rgb);
-		float dinamicLight = lmcoord.x * lmcoord.x  * 0.25;
-		color.rgb  *= texture2D(lightmap, lmcoord).rgb + (dinamicLight);
-
-
-		//////////////////// PBR /////////////////////////////////////
-
-		vec3 lightPos	 = lightPosition();
-
-		vec4 normalTex	 = NormalTex(newcoord);
-		vec4 specularTex = SpecularTex(newcoord);
-
-		#ifdef HEIGHT_AO
-		color.rgb 		*= extractHeight(normalTex, specularTex);
-		#endif
-		normal           = normalize(tbn * extractNormal(normalTex, specularTex));
-		float AO 		 = extractAO(normalTex, specularTex);
-
-		float roughness  = extractRoughness(normalTex, specularTex);
-		float f0 		 = extractF0(normalTex, specularTex);
-		if (f0 > 229.5/255) { f0 = 1;}
-		float emission   = extractEmission(normalTex, specularTex);
-
-		vec4 BRDF;
-		color.rgb 		*= AO;
-		color.rgb 		*= emission * 10 + 1;
-		BRDF			 = specularBRDF(color.rgb, normal, viewpos, lightPos, roughness, f0) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
-
-		// Blend between normal MC rendering and PHYSICALLY_BASED rendering
-		float blend  = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
-		color.rgb 	 = mix(color.rgb, BRDF.rgb, blend);
-		//BRDF.a 		 = mix(0, BRDF.a, blend);
-		
-		reflectiveness  = BRDF.a * max(1 - 2 * roughness, 0);
-	#else 
-
-		vec4 color = texture2D(texture, coord) * glcolor;
-		gamma(color.rgb);
-		
-		float dinamicLight = lmcoord.x * lmcoord.x  * 0.25;
-		color.rgb  *= texture2D(lightmap, lmcoord).rgb + (dinamicLight);
+		color	           = Material.color;
+		normal	   	       = Material.normal;
+		reflectiveness     = Material.reflectiveness;
 
 	#endif
 

@@ -375,7 +375,7 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
             }
 
             if ((rayPos.z - hitDepth) < depthTolerance) {
-                return vec4(textureLod(colortex0, rayPos.xy, roughness * 10).rgb, 1);
+                return vec4(getAlbedo(rayPos.xy), 1);
             } else {
                 break;
             }
@@ -539,6 +539,10 @@ void main() {
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
             denoise         = 1;
 
+            #ifdef SSR_DEBUG
+                color = vec3(fresnel);
+            #endif
+
         }
 
         //////////////////////////////////////////////////////////
@@ -546,12 +550,17 @@ void main() {
         //////////////////////////////////////////////////////////
 
         // SSR for other reflective surfaces
-        float reflectivenss = texture(colortex1, coord).r;
-        if (reflectivenss > 0.5/255) {
+        float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
+        if (reflectiveness > 12.75/255) { // 12.75/255 represents 5% reflectiveness, lower is practically invisible
+
             vec4  Reflection   = universalSSR(Positions, normal, 0, false);
 
-            color              = mix(color, Reflection.rgb, reflectivenss * Reflection.a);
+            color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
             denoise            = 1;
+
+            #ifdef SSR_DEBUG
+                color = vec3(1, 0,0);
+            #endif
         }
 
     #endif
