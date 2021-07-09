@@ -25,7 +25,8 @@ float extractHeight(vec4 nTex, vec4 sTex) {
 
 // SPECULAR TEXTURE
 float extractRoughness(vec4 nTex, vec4 sTex) {
-    return pow(1.0 - sTex.r, 2.0);
+    float tmp = 1. - sTex.r;
+    return tmp*tmp;
 }
 float extractF0(vec4 nTex, vec4 sTex) {
     return sTex.g;

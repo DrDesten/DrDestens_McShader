@@ -16,6 +16,7 @@ uniform vec4 entityColor;
 varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
+varying vec3 tangent;
 
 varying vec4 glcolor;
 
@@ -33,7 +34,7 @@ void main() {
 	vec4 color = texture2D(texture, coord) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
 	gamma(color.rgb);
-	color     *= texture2D(lightmap, lmcoord) + DynamicLight(lmcoord);
+	color.rgb *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 
 	#ifdef PHYSICALLY_BASED
 
@@ -45,7 +46,7 @@ void main() {
 
 	#endif
 
-	gl_FragData[0] = color; //color
+	gl_FragData[0] = vec4(color); //color
 	gl_FragData[1] = vec4(normal, 1); //normal
 	gl_FragData[2] = vec4(vec3(0), 1); //type (none = 0)
 	gl_FragData[3] = vec4(reflectiveness, vec3(1));

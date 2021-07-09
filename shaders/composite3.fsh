@@ -555,8 +555,8 @@ void main() {
 
             vec4  Reflection   = universalSSR(Positions, normal, 0, false);
 
-            color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
             denoise            = 1;
+            color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
 
             #ifdef SSR_DEBUG
                 color = vec3(1, 0,0);

@@ -132,7 +132,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size / sqrt(kernelSize));
+        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size / sqrt(kernelSize * .25));
     #else
         vec2 dither = vec2(0);
     #endif
