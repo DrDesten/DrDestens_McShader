@@ -14,7 +14,6 @@ Partial labPBR support
 <img src="https://user-images.githubusercontent.com/70536771/125116692-61589b80-e0ed-11eb-9a8e-0dc9f6371327.png" width="100%"/>
 
 ### Depth of Field
-<img src="https://user-images.githubusercontent.com/70536771/122890729-3c6dd580-d344-11eb-9e70-f91f5633f65d.png" width="100%"/>
 <img src="https://user-images.githubusercontent.com/70536771/125116761-7af9e300-e0ed-11eb-92d5-5733395a3347.png" width="100%"/>
 
 ### Physically Based Rendering
