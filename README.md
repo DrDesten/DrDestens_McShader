@@ -19,7 +19,7 @@ labPBR support
 <img src="https://user-images.githubusercontent.com/70536771/125116761-7af9e300-e0ed-11eb-92d5-5733395a3347.png" width="100%"/>
 
 ### Physically Based Rendering
-<img src="https://user-images.githubusercontent.com/70536771/122890107-af2a8100-d343-11eb-9f85-77ab02ea60cd.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/125120834-57399b80-e0f3-11eb-8b70-11c5d7997bd9.png" width="100%"/>
 <img src="https://user-images.githubusercontent.com/70536771/125115288-6c123100-e0eb-11eb-852a-38042e077436.png" width="100%"/>
 
 ### Realistic Fog
