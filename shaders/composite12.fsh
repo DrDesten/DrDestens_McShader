@@ -43,15 +43,13 @@ vec3 cheapFXAA(vec2 coord, float threshold) {
     vec3 color          = getAlbedo(coord);
     vec3 color_average  = getAlbedo_int(coord + (pixelSize * 0.5));
 
-    float diff = sum(abs(color - color_average));
+    color = min(color, color_average * (1 + threshold));
+    color = max(color, color_average * (1 - threshold));
 
-    // Branchless if (diff > 0.5) { return color_average; }
-    color -= color * int(diff > threshold);                      // make (0,0,0) if true
-    
     #ifdef FXAA_DEBUG
-        color += vec3(1, 1, 0) * int(diff > threshold); //(color + color_average) * (int(diff > threshold));    // set to color_average
-    #else
-        color += color_average * int(diff > threshold);    // set to color_average
+        if (color != getAlbedo(coord)) {
+            color = vec3(1, 1, 0);
+        }
     #endif
 
     return color;

@@ -10,6 +10,8 @@
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
+uniform sampler2D depthtex1;
+
 uniform int   worldTime;
 uniform vec3  fogColor;
 uniform vec3  sunPosition;
@@ -296,7 +298,7 @@ void main() {
 
                 rayPos       += rayStep;
 
-                if (getDepth_int(rayPos) != 1) { // Subtract from light when there is an occlusion
+                if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
                     light    -= 1. / GODRAY_STEPS;
                 }
 

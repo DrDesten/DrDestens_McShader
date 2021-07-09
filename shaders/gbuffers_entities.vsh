@@ -1,14 +1,22 @@
 #version 120
 
-varying vec3 normal;
+#include "/lib/vertex_transform.glsl"
+
+varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
+
 varying vec4 glcolor;
+
+flat varying mat3 tbn;
 
 void main() {
 	gl_Position = ftransform();
-	normal = normalize(gl_NormalMatrix * gl_Normal);
-	coord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	
+	viewpos = getView();
+	lmcoord = getLmCoord();
+	coord   = getCoord();
+	tbn     = getTBN();
+
 	glcolor = gl_Color;
 }

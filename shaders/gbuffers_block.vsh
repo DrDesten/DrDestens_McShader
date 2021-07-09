@@ -1,16 +1,27 @@
 #version 120
 
+#include "/lib/vertex_transform.glsl"
+
+attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
 
-varying float blockId;
+flat varying float blockId;
+
+varying vec3 viewpos;
 varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
+flat varying mat3 tbn;
+
 void main() {
 	gl_Position = ftransform();
-	coord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+
+	viewpos = getView();
+	lmcoord = getLmCoord();
+	coord   = getCoord();
+	tbn     = getTBN();
+
 	blockId = mc_Entity.x;
 	glcolor = gl_Color;
 }

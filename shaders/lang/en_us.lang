@@ -137,8 +137,8 @@ screen.MATERIALS=Physically Based Rendering
 option.PHYSICALLY_BASED=PBR
 option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering
 
-option.PBR_BLEND_MIN=Minimum Amount of PBR
-option.PBR_BLEND_MIN.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. If you increase this value, the PBR effect will be stronger.
+option.PBR_BLEND_MIN=PBR Blend
+option.PBR_BLEND_MIN.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
 
 option.PBR_BLEND_MAX=Maximum Amount of PBR
 option.PBR_BLEND_MAX.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. This value determines the maximum amount of PBR that will be applied.

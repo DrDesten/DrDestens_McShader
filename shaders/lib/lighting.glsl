@@ -149,11 +149,12 @@ PBRout PBRMaterial(vec2 coord, vec4 color, mat3 tbn, vec3 viewpos) {
 	float emission   = extractEmission(normalTex, specularTex);
 
 	color.rgb 		*= AO;
-	color.rgb 		*= emission * 10 + 1;
+	color.rgb 		*= emission * 5 + 1;
 	vec4 BRDF		 = specularBRDF(color.rgb, normal, viewpos, lightPos, roughness, f0) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
 
 	// Blend between normal MC rendering and PHYSICALLY_BASED rendering
-	float blend      = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
+	    //float blend      = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
+    float blend      = PBR_BLEND_MIN;
 	color.rgb 	     = mix(color.rgb, BRDF.rgb, blend);
 	BRDF.a 	    	 = mix(0, BRDF.a, blend);
 	
@@ -165,5 +166,5 @@ PBRout PBRMaterial(vec2 coord, vec4 color, mat3 tbn, vec3 viewpos) {
 }
 
 float DynamicLight(vec2 lmcoord) {
-    return lmcoord.x * lmcoord.x  * 0.25;
+    return lmcoord.x * lmcoord.x * 0.5;
 }

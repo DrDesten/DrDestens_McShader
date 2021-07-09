@@ -9,16 +9,14 @@ uniform int worldTime;
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 
-uniform vec3 fogColor;
-uniform ivec2 atlasSize;
-
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
-varying float blockId;
+flat varying float blockId;
 varying vec3  viewpos;
 varying vec2  lmcoord;
 varying vec2  coord;
+
 varying vec4  glcolor;
 
 flat varying mat3 tbn;
