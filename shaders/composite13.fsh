@@ -9,7 +9,7 @@ varying vec2 coord;
 
 uniform int frameCounter;
 
-const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 500;
+const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 300;
 
 /* DRAWBUFFERS:0 */
 
@@ -78,14 +78,17 @@ vec3 ChromaticAbberation(vec2 coord, float amount) {
 
 vec3 ChromaticAbberation_HQ(vec2 coord, float amount, int samples) {
     vec3 col;
-    amount = distance(coord, vec2(0.5)) * amount;
+    vec2 tmp = coord - .5;
+    amount = dot(tmp, tmp) * amount;
+
+    float dither = (Bayer4(coord * ScreenSize) * .75 + .5);
 
     //Red Channel
-    col.r     = radialBlur(scaleCoord_f(coord, 1.0 - amount), samples, amount).r;
+    col.r     = radialBlur(scaleCoord_f(coord, 1.0 - amount * dither), samples, amount).r;
     //Green Channel
     col.g     = radialBlur(coord, samples, amount).g;
     //Blue Channel
-    col.b     = radialBlur(scaleCoord_f(coord, 1.0 + amount), samples, amount).b;
+    col.b     = radialBlur(scaleCoord_f(coord, 1.0 + amount * dither), samples, amount).b;
 
     return col;
 }
@@ -102,7 +105,7 @@ void main() {
     #if CHROM_ABERRATION == 0
         vec3 color = getAlbedo(coord);
     #else
-        vec3 color = ChromaticAbberation(coord, chromatic_aberration_amount);
+        vec3 color = ChromaticAbberation_HQ(coord, chromatic_aberration_amount, 5);
     #endif
 
 

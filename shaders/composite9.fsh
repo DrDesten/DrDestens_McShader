@@ -20,8 +20,9 @@ void main() {
     vec2 bloomCoord = clamp(coord * 0.25, 0, 0.25 - 1 / viewHeight);
     vec3 bloomColor = (texture(colortex4, bloomCoord).rgb);
 
-    color += (bloomColor * bloomColor) * BLOOM_AMOUNT;
-    //color = bloomColor;
+    bloomColor /= .5 + bloomColor;
+    bloomColor  = cb(bloomColor);
+    color      += bloomColor * BLOOM_AMOUNT;
 
     FD0 = vec4(color, 1);
 }

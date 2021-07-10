@@ -585,6 +585,8 @@ void main() {
 
     #endif
 
+    //color = normal * .5 + .5;
+
 
     // Create some atmosphere
     //color *= (fogColor * 0.5 + 0.5);
