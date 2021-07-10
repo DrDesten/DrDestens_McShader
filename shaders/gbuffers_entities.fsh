@@ -53,7 +53,7 @@ void main() {
 		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy / vec2(viewWidth, viewHeight));
 		#endif
 
-		PBRout Material    = PBRMaterial(coord, color, tbn, viewpos);
+		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;

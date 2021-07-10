@@ -151,7 +151,8 @@ struct PBRout {
 	float reflectiveness;
 };
 
-PBRout PBRMaterial(vec2 coord, vec4 color, mat3 tbn, vec3 viewpos) {
+PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos) {
+    vec4 origColor   = color;
 
 	vec3 lightPos	 = lightPosition();
 
@@ -178,10 +179,20 @@ PBRout PBRMaterial(vec2 coord, vec4 color, mat3 tbn, vec3 viewpos) {
 	// Blend between normal MC rendering and PHYSICALLY_BASED rendering
 	    //float blend      = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
     float blend      = PBR_BLEND_MIN;
-	color.rgb 	     = mix(color.rgb, BRDF.rgb, blend);
+    float lmblend    = clamp((lmcoord.y - .1) * 10, 0, 1); // No sunlight underground
+
+	color.rgb 	     = mix(color.rgb, BRDF.rgb, blend * lmblend);
 	BRDF.a 	    	 = mix(0, BRDF.a, blend);
 	
 	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
+    #ifdef PBR_REFLECTION_REALISM
+    if (f0 == 1) {
+        reflectiveness = 1;
+        color          = origColor;
+        color.rgb     += BRDF.rgb;
+    }    
+    #endif
+    
 
 	PBRout Material  = PBRout(color, normal, reflectiveness);
 	return Material;

@@ -94,6 +94,8 @@
 
 //#define HEIGHT_AO
 
+//#define PBR_REFLECTION_REALISM
+
 //#define FAST_SKY
 
 #define WATER_WAVES

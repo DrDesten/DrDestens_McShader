@@ -554,9 +554,17 @@ void main() {
         if (reflectiveness > 12.75/255) { // 12.75/255 represents 5% reflectiveness, lower is practically invisible
 
             vec4  Reflection   = universalSSR(Positions, normal, 0, false);
-
             denoise            = 1;
+
+            #ifdef PBR_REFLECTION_REALISM
+            if (reflectiveness > 254.5/255) {
+                color          = mix(color, Reflection.rgb, Reflection.a * sum(color * .333));
+            } else {
+                color          = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
+            }
+            #else
             color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
+            #endif
 
             #ifdef SSR_DEBUG
                 color = vec3(1, 0,0);

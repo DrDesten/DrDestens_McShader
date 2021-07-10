@@ -146,6 +146,9 @@ option.PBR_BLEND_MAX.comment=In order to stay close to minecraft vanilla renderi
 option.HEIGHT_AO=Height as AO
 option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
 
+option.FRAG_NORMALS=Normal Mapping Fix
+option.FRAG_NORMALS.comment=With newer OptiFine versions this might not be necessary. Enable this if normal maps do not show on entities or handheld objects.
+
 
 ///////////////////////////////////////////////////////////
 // MISC

@@ -35,7 +35,7 @@ void main() {
 
 	#ifdef PHYSICALLY_BASED
 
-		PBRout Material    = PBRMaterial(coord, color, tbn, viewpos);
+		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;

@@ -53,6 +53,18 @@ float depthEdgeFast(vec2 coord) {
     return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
+float depthEdge(vec2 coord) {
+    float depth = getDepth(coord);
+    float maxdiff = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int o = -1; o <= 1; o++) {
+            float d = getDepth_int(coord + pixelSize * vec2(i, o) * 1.5);
+            maxdiff = max(maxdiff, abs(d-depth));
+        }
+    }
+    return clamp(sq(maxdiff) * 1e4, 0, 1);
+}
+
 // 3-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = pixelSize.x * amount;
