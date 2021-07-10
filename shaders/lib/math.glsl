@@ -273,7 +273,11 @@ float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float bas
     reflectiveness = clamp(reflectiveness, 0, 1) + baseReflectiveness;
     return reflectiveness;
 }
-float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, int power) {
+float schlickFresnel(vec3 viewDir, vec3 normal, float F0) {
+    float NormalDotView = dot(-viewDir, normal);
+    return F0 + (1.0 - F0) * pow(1.0 - NormalDotView, 5.0);
+}
+float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float power) {
     float reflectiveness = clamp(bias + scale * pow(1.0 + dot(viewRay, normal), power), 0, 1); 
     return reflectiveness;
 }

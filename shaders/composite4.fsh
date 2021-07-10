@@ -50,7 +50,7 @@ float depthEdgeFast(vec2 coord) {
     float depthSurround = getDepth_int((pixelSize * 1.5) + coord) + getDepth_int((pixelSize * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * 1.5, pixelSize.y * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * -1.5, pixelSize.y * 1.5) + coord);
     depthSurround *= 0.25;
 
-    return clamp((abs(depthSurround - depth) * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
+    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
 }
 
 float depthEdge(vec2 coord) {
@@ -58,11 +58,11 @@ float depthEdge(vec2 coord) {
     float maxdiff = 0;
     for (int i = -1; i <= 1; i++) {
         for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(coord + pixelSize * vec2(i, o) * 1.5);
+            float d = getDepth_int(coord + pixelSize * vec2(i, o));
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
-    return clamp(sq(maxdiff) * 1e4, 0, 1);
+    return clamp(pow(maxdiff * 1e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
 
 // 3-Sample Dark Priority Despecler
@@ -338,7 +338,7 @@ void main() {
     #endif
 
     #ifdef OUTLINE
-        color = mix(color, vec3(1), depthEdgeFast(newcoord));
+        color = mix(color, vec3(1), depthEdge(newcoord));
     #endif
 
     //Pass everything forward

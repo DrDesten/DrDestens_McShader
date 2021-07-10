@@ -339,7 +339,7 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
     rayStep         /= SSR_STEPS;
     vec3 rayPos      = rayStep * randfac + pos.screen;
 
-    float depthTolerance = abs(rayStep.z) * SSR_DEPTH_TOLERANCE * 3;
+    float depthTolerance = length(rayStep * vec3(0.2, 0.2, 1)) * SSR_DEPTH_TOLERANCE * 3;
     float hitDepth       = 0;
 
     for (int i = 0; i < SSR_STEPS; i++) {
@@ -506,34 +506,27 @@ void main() {
 
     #endif
 
-
-    // Absorption
-    if (type == 1 || isEyeInWater != 0) {
+    // Absorption Above Water
+    if (type == 1 && isEyeInWater == 0) {
         #ifdef REFRACTION
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
         #else
             float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
         #endif
 
-        float absorption;
-        if (isEyeInWater != 0) {
-            absorption = exp2(-(linearDepth) * 0.2);
-        } else {
-            absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2);
-        }
+        // Height difference between water surface and ocean floor
+        float absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2);
 
         color *= absorption;
-        if (isEyeInWater == 2) {
-            color = mix(fogColor, color, absorption * 0.75);
-        }
     }
+    
 
     #ifdef SCREEN_SPACE_REFLECTION
 
         // SSR for Water
-        if (type == 1 && isEyeInWater == 0) {
+        if (type == 1 && isEyeInWater != -1) {
 
-            float fresnel   = customFresnel(viewDir, normal, 0.02, 1, 2);
+            float fresnel   = customFresnel(viewDir, normal, 0.03, .7, 2);
 
             vec4 Reflection = universalSSR(Positions, normal, 0.0, false);
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
@@ -559,6 +552,7 @@ void main() {
             #ifdef PBR_REFLECTION_REALISM
             if (reflectiveness > 254.5/255) {
                 color          = mix(color, Reflection.rgb, Reflection.a * sum(color * .333));
+                //color          = mix(color, color * Reflection.rgb, Reflection.a);
             } else {
                 color          = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
             }
@@ -572,6 +566,23 @@ void main() {
         }
 
     #endif
+
+    // Absorption Underwater
+    if (isEyeInWater != 0) {
+        #ifdef REFRACTION
+            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
+        #else
+            float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
+        #endif
+
+        // Distance to closest Surface
+        float absorption = exp2(-(linearDepth) * 0.2);
+
+        color *= absorption;
+        if (isEyeInWater == 2) { // Lava
+            color = mix(fogColor, color, absorption * 0.75);
+        }
+    }
 
     #endif // WATER_EFFECTS
 

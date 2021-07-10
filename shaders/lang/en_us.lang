@@ -87,7 +87,7 @@ screen.WATER=Water
 option.WATER_WAVES=Waves
 option.WATER_WAVE_AMOUNT=Wave Height
 option.WATER_NORMALS_AMOUNT=Bump Amount
-option.WATER_NORMALS_SIZE=Wave Size
+option.WATER_NORMALS_SIZE=Bump Size
 
 
 ///////////////////////////////////////////////////////////

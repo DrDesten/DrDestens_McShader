@@ -189,7 +189,7 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos)
     if (f0 == 1) {
         reflectiveness = 1;
         color          = origColor;
-        color.rgb     += BRDF.rgb;
+        color.rgb     += clamp(BRDF.rgb - 1, 0, 1) * lmblend;
     }    
     #endif
     
