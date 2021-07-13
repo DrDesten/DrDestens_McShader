@@ -491,18 +491,11 @@ void main() {
             coordDistort += (noise - 0.5) * (REFRACTION_AMOUNT / linearDepth);
 
             coordDistort += 0.5;
-
-            color         = getAlbedo_int(coordDistort);
-            depth         = getDepth(coordDistort);
-            linearDepth   = linearizeDepth(depth, near, far);
-
-        } else if (isEyeInWater != 0) {
-
-            color         = getAlbedo_int(coordDistort);
-            depth         = getDepth(coordDistort);
-            linearDepth   = linearizeDepth(depth, near, far);
-
         }
+
+        color         = getAlbedo_int(coordDistort);
+        depth         = getDepth_int(coordDistort);
+        linearDepth   = linearizeDepth(depth, near, far);
 
     #endif
 

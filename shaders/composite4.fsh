@@ -17,6 +17,8 @@ uniform vec3  fogColor;
 uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 
+uniform int   isEyeInWater;
+
 in vec2 coord;
 
 flat in vec2 x3_kernel[9];
@@ -333,7 +335,11 @@ void main() {
         float dist      = dot(viewPos, viewPos) * float(depth != 1);
         float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
 
-        color           = mix(color, (color * 0.1) + fogColor, fog);
+        if (isEyeInWater == 5) {
+            color           = mix(color, (color) * fogColor, fog);
+        } else {
+            color           = mix(color, (color * 0.1) + fogColor, fog);
+        }
 
     #endif
 
