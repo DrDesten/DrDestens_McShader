@@ -132,7 +132,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size / sqrt(kernelSize * .25));
+        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
     #else
         vec2 dither = vec2(0);
     #endif
@@ -146,11 +146,11 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     return pixelColor;
 }
 
-vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
+/* vec3 bokehBlur_adaptive_old(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float pixelBlur = size / pixelSize.x;
+    float radius = size / pixelSize.x;
 
-    float lod = log2(pixelBlur) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    float lod = log2(radius) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
@@ -168,16 +168,16 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
         int lowKernelSize = 4;
         vec2[] lowKernel = circle_blur_4;
 
-        int mediumKernelSize = 16;
-        vec2[] mediumKernel = circle_blur_16;
+        int mediumKernelSize = 8;
+        vec2[] mediumKernel = circle_blur_8;
 
         int highKernelSize = 32;
         vec2[] highKernel = circle_blur_32;
 
     // High Quality
     #elif DOF_KERNEL_SIZE >= 3
-        int lowKernelSize = 16;
-        vec2[] lowKernel = circle_blur_16;
+        int lowKernelSize = 8;
+        vec2[] lowKernel = circle_blur_8;
 
         int mediumKernelSize = 32;
         vec2[] mediumKernel = circle_blur_32;
@@ -187,28 +187,74 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
 
     #endif
 
-    if (pixelBlur < 4) { // Under 4 pixel blur 
+    #ifdef DOF_DITHER
+        // Use Bayer Dithering to vary the DoF, helps with small kernels
+        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size * inversesqrt(mediumKernelSize * .25));
+    #else
+        vec2 dither = vec2(0);
+    #endif
+
+    if (radius < 5) { // Under 5 pixel blur 
 
         for (int i = 0; i < lowKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (lowKernel[i] * size), lod).rgb;
+            pixelColor += textureLod(colortex0, coord + (lowKernel[i] * size + dither), lod).rgb;
         }
         pixelColor /= lowKernelSize;
 
-    } else if (pixelBlur < 8) { // under 8 pixel blur
+    } else if (radius < 8) { // under 8 pixel blur
 
         for (int i = 0; i < mediumKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (mediumKernel[i] * size), lod).rgb;
+            pixelColor += textureLod(colortex0, coord + (mediumKernel[i] * size + dither), lod).rgb;
         }
         pixelColor /= mediumKernelSize;
 
     } else { // over 8 pixel blur
 
         for (int i = 0; i < highKernelSize; i++) {
-            pixelColor += textureLod(colortex0, blurOffset(coord, lod) + (highKernel[i] * size), lod).rgb;
+            pixelColor += textureLod(colortex0, coord + (highKernel[i] * size + dither), lod).rgb;
         }
 
         pixelColor /= highKernelSize;
     } 
+
+    return pixelColor;
+} */
+vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
+    vec3 pixelColor = vec3(0);
+    float radius    = size * ScreenSize.x;
+
+    // Low Quality
+    #if DOF_KERNEL_SIZE == 1
+        const float samplesPerRadius = 0.25;
+        const int   minSamples = 4;
+
+    // Medium Quality
+    #elif DOF_KERNEL_SIZE == 2
+        const float samplesPerRadius = 2.0;
+        const int   minSamples = 6;
+
+    // High Quality
+    #elif DOF_KERNEL_SIZE >= 3
+        const float samplesPerRadius = 4.0;
+        const int   minSamples = 8;
+
+    #endif
+
+    float lod   = log2(radius * 8 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    int samples = clamp(int(radius * samplesPerRadius), minSamples, 64); // Circle blur Array has a max of 64 samples
+
+    #ifdef DOF_DITHER
+        // Use Bayer Dithering to vary the DoF, helps with small kernels
+        vec2 intcoord = coord * ScreenSize;
+        vec2 dither   = (vec2(Bayer4(intcoord), Bayer4(intcoord + 1)) - 0.5) * (size * inversesqrt(samples * .25));
+    #else
+        vec2 dither = vec2(0);
+    #endif
+
+    for (int i = 0; i < samples; i++) {
+        pixelColor += textureLod(colortex0, coord + (blue_noise_disk[i] * size + dither), lod).rgb;
+    }
+    pixelColor /= samples;
 
     return pixelColor;
 }

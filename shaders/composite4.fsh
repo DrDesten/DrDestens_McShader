@@ -293,7 +293,7 @@ void main() {
             tmp       = gbufferProjection * vec4(moonPosition, 1.0);
         }
 
-        if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I dont want that)
+        if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
             vec3 sunScreen    = tmp.xyz / tmp.w;
             vec2 sun          = sunScreen.xy * .5 + .5;
@@ -316,7 +316,7 @@ void main() {
 
             }
 
-            // Exponential falloff (also making it FOV independant)
+            // Exponential falloff (also making it FOV independent)
             light *= exp2(-dot(rayCorrected, rayCorrected) * 10 / fovScale);
 
             color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
@@ -327,7 +327,7 @@ void main() {
 
     #ifdef FOG
 
-        // Blend between FogColor and normal color based on sqare distance
+        // Blend between FogColor and normal color based on square distance
         vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
 
         float dist      = dot(viewPos, viewPos) * float(depth != 1);

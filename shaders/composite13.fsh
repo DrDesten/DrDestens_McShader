@@ -98,6 +98,13 @@ vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
 
+vec3 tonemap1(vec3 color, float a) {
+    return color / (a + color);
+}
+vec3 tonemap1_general(vec3 color, float exponent, float factor) {
+    color = pow(color, vec3(exponent));
+    return color / (factor + color);
+}
 
 /* DRAWBUFFERS:0 */
 
@@ -113,7 +120,8 @@ void main() {
 
     //Vignette(color);
 
-    color /= .45 + color; // Temporary Tonemapping
+    color /= .45 + color; // Temporary Tone mapping
+    //color = tonemap1_general(color, 1.7, 0.32);
 
     color = invgamma(color);
 

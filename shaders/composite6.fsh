@@ -18,7 +18,6 @@ uniform float far;
 uniform vec3 sunPosition;
 
 in vec2 coord;
-in vec2 movecoord;
 
 vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
     // Calculate Vector connecting startPos with endPos
@@ -69,25 +68,14 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 void main() {
     #ifdef MOTION_BLUR
 
-        #ifndef MOTION_BLUR_FULL
+        // Motion Blur dependent on player Movement and Camera
+        vec3  clipPos          = vec3(coord, getDepth(coord)) * 2 - 1;
+        vec3  prevCoord        = previousReproject(clipPos);
+        vec2  motionBlurVector = (clamp(prevCoord.xy, -0.2, 1.2) - coord) * float(clipPos.z > 0.12);
+        motionBlurVector      *= MOTION_BLUR_STRENGTH;
 
-            // Motion Blur only dependent on player Movement
-            vec2  motionBlurVector = movecoord - coord;
-            motionBlurVector      *= float(getDepth(coord) > 0.56);
-
-        #else
-
-            // Motion Blur dependent on player Movement and Camera
-            vec3  clipPos          = vec3(coord, getDepth(coord)) * 2 - 1;
-            vec3  prevCoord        = previousReproject(clipPos);
-            vec2  motionBlurVector = (clamp(prevCoord.xy, -0.25, 1.25) - coord) * float(clipPos.z > 0.12);
-            motionBlurVector      *= MOTION_BLUR_STRENGTH;
-
-        #endif
-
-        float ditherOffset         = (Bayer4(coord * ScreenSize) - 0.5) / (MOTION_BLUR_SAMPLES);
-        vec3  color                = vectorBlur(coord + motionBlurVector * ditherOffset, motionBlurVector, MOTION_BLUR_SAMPLES);
-        //color = abs(prevCoord.z - getDepth(coord)).xxx;
+        float ditherOffset     = (Bayer4(coord * ScreenSize) - 0.5) / MOTION_BLUR_SAMPLES;
+        vec3  color            = vectorBlur(motionBlurVector * ditherOffset + coord, motionBlurVector, MOTION_BLUR_SAMPLES);
 
     #else
 
