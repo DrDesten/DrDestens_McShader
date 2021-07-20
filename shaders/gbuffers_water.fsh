@@ -148,7 +148,7 @@ void main(){
     // Reduce opacity and saturation of only water
     if (blockId == 1001) {
         color.rgb          = vec3(0);
-        color.a            = 0.12;
+        color.a            = 0.01;
 
         float surfaceDot   = dot(normalize(viewPos), normalize(surfaceNormal));
         
@@ -184,11 +184,6 @@ void main(){
     }
 
     gamma(color.rgb);
-
-    
-	if (blockId == 1005) {
-		color.rgb = vec3(2);
-	}
 
     
     gl_FragData[0] = color; // Color

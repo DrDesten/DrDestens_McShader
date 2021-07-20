@@ -58,9 +58,10 @@ void main() {
 
 	#endif
 
+	//color.a = min(0.01, color.a);
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(blockId - 1000, vec3(1));
+	gl_FragData[2] = vec4(51, vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, vec3(1));
 }

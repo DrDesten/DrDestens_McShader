@@ -12,7 +12,7 @@ uniform int worldTime;
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
-flat varying float blockId;
+flat varying int blockId;
 varying vec3  viewpos;
 varying vec2  lmcoord;
 varying vec2  coord;
@@ -43,9 +43,13 @@ void main() {
 
 	#endif
 
-	/* if (blockId == 1005) {
-		color.rgb *= 4;
-	} */
+
+	#ifndef PHYSICALLY_BASED
+		if (blockId == 1005) {
+			color.rgb *= 2;
+		}
+	#endif
+
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);

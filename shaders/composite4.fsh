@@ -297,11 +297,11 @@ void main() {
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
-            vec3 sunScreen    = tmp.xyz / tmp.w;
-            vec2 sun          = sunScreen.xy * .5 + .5;
+            vec3 sunClip      = tmp.xyz / tmp.w;
+            vec2 sunScreen    = sunClip.xy * .5 + .5;
 
             // Create ray pointing from the current pixel to the sun
-            vec2 ray          = sun - coord;
+            vec2 ray          = sunScreen - coord;
             vec2 rayCorrected = vec2(ray.x, ray.y * (ScreenSize.y / ScreenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
 
             vec2 rayStep      = ray / GODRAY_STEPS;

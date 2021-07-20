@@ -244,16 +244,17 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     int samples = clamp(int(radius * samplesPerRadius), minSamples, 64); // Circle blur Array has a max of 64 samples
 
     #ifdef DOF_DITHER
-        // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 intcoord = coord * ScreenSize;
-        vec2 dither   = (vec2(Bayer4(intcoord), Bayer4(intcoord + 1)) - 0.5) * (size * inversesqrt(samples * .25));
+        float offset      = Bayer2(coord * ScreenSize) * 32;
+        for (int i = 0; i < samples; i++) {
+            int index     = int(mod(i + offset, 63));
+            pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb;
+        }
     #else
-        vec2 dither = vec2(0);
+        for (int i = 0; i < samples; i++) {
+            pixelColor += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb;
+        }
     #endif
-
-    for (int i = 0; i < samples; i++) {
-        pixelColor += textureLod(colortex0, coord + (blue_noise_disk[i] * size + dither), lod).rgb;
-    }
+    
     pixelColor /= samples;
 
     return pixelColor;

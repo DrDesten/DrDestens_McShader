@@ -5,7 +5,7 @@
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
 
-flat varying float blockId;
+flat varying int blockId;
 varying vec3  viewpos;
 varying vec2  lmcoord;
 varying vec2  coord;
@@ -22,6 +22,6 @@ void main() {
 	coord   = getCoord();
 	tbn     = getTBN();
 
-	blockId = mc_Entity.x;
+	blockId = int(round(mc_Entity.x));
 	glcolor = gl_Color;
 }

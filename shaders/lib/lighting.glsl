@@ -200,5 +200,5 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos)
 }
 
 float DynamicLight(vec2 lmcoord) {
-    return lmcoord.x * lmcoord.x * 0.5;
+    return lmcoord.x * lmcoord.x;
 }

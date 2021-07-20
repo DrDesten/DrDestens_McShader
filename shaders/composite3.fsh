@@ -323,7 +323,7 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
     // Reflect in View Space
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
+    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an to me unknown reason) happens when vieReflection.z is positive
         return vec4(getSkyColor3(viewReflection - pos.view), 0);
     }
 
@@ -344,9 +344,9 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
 
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        if ( rayPos.x < 0 || rayPos.y < 0 || rayPos.x > 1 || rayPos.y > 1 || rayPos.z < 0 || hitDepth == 1) {
+        /* if (clamp(rayPos, 0, 1) != rayPos) {
             break; // Break if out of bounds
-        }
+        } */
 
         rayPos  += rayStep;
         
@@ -377,7 +377,7 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
             if ((rayPos.z - hitDepth) < depthTolerance) {
                 return vec4(getAlbedo(rayPos.xy), 1);
             } else {
-                break;
+                return vec4(getSkyColor3(viewReflection - pos.view), 0);
             }
         }
     }
@@ -482,6 +482,10 @@ void main() {
         if (isEyeInWater != 0) {
             coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
         }
+
+        /* if (abs(type - 51) < .2) {
+            coordDistort += vec2((fbm((coord * 5) - (frameTimeCounter * .1), 2, 30, .25) - 0.5) * 5 * REFRACTION_AMOUNT);
+        } */
 
         if (type == 1) {
             coordDistort -= 0.5;
