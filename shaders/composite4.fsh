@@ -12,6 +12,8 @@
 
 uniform sampler2D depthtex1;
 
+uniform float frameTime; 
+uniform float frameTimeCounter;
 uniform int   worldTime;
 uniform vec3  fogColor;
 uniform vec3  sunPosition;
@@ -346,6 +348,27 @@ void main() {
     #ifdef OUTLINE
         color = mix(color, vec3(1), depthEdge(newcoord));
     #endif
+    
+
+    if (abs(getType(coord) - 51) < .2) {
+        //float vel  = dot((cameraPosition - previousCameraPosition) / frameTime) * .01;
+
+        vec2 seed1 = coord * 6 + vec2(0., frameTimeCounter * .1);
+        vec2 seed2 = coord * 6 + vec2(frameTimeCounter * .1, 0.);
+        vec2 noise = vec2(
+            fbm(seed1, 2, 30, .05) - .5, 
+            fbm(seed2, 2, 30, .05) - .5
+        );
+        noise      = noise + sign(noise) * .1;
+        noise     *= 2;
+        newcoord  += noise;
+
+        /* if (abs(getType(newcoord) - 51) < .2) {
+            newcoord += noise;
+        } */
+
+        color      = getAlbedo_int(newcoord);
+    }
 
     //Pass everything forward
     FD0          = vec4(color, 1);

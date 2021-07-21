@@ -21,6 +21,6 @@ void main() {
 	color.rgb  = color.rgb * 5;
 
 	gl_FragData[0] = color; //gcolor
-	gl_FragData[1] = vec4(0, vec3(1)); // Id
+	gl_FragData[1] = vec4(50, vec3(1)); // Id
 	gl_FragData[2] = vec4(0, vec3(1)); // Reflectance
 }

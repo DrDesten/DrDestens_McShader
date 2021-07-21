@@ -483,10 +483,6 @@ void main() {
             coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
         }
 
-        /* if (abs(type - 51) < .2) {
-            coordDistort += vec2((fbm((coord * 5) - (frameTimeCounter * .1), 2, 30, .25) - 0.5) * 5 * REFRACTION_AMOUNT);
-        } */
-
         if (type == 1) {
             coordDistort -= 0.5;
 
@@ -589,7 +585,7 @@ void main() {
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        if (type != 50 && type != 1 && depth != 1) {
+        if (abs(type - 50) > .2 && type != 1 && depth != 1) {
 
             #if   SSAO_QUALITY == 1
                 color *= AmbientOcclusionLOW(Positions, normal, .5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
