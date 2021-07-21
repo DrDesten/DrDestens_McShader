@@ -2,7 +2,7 @@
 
 Preserves the default look and feel of minecraft, even with PBR enabled.
 
-Supports versions 1.8.x - 1.16.x (Others may work)
+Supports versions 1.8.x and 1.16.x (These are the ones I'm developing on, all inbetween should work too)
 
 labPBR support
  - Make sure your PBR Ressource pack is labPBR, else it won't work correctly
