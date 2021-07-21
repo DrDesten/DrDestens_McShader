@@ -12,7 +12,7 @@ uniform int worldTime;
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
-flat varying int blockId;
+flat varying float blockId;
 varying vec3  viewpos;
 varying vec2  lmcoord;
 varying vec2  coord;
@@ -45,8 +45,8 @@ void main() {
 
 
 	#ifndef PHYSICALLY_BASED
-		if (blockId == 1005) {
-			color.rgb *= 2;
+		if (abs(blockId - 1005) < .2) {
+			color.rgb *= 3;
 		}
 	#endif
 

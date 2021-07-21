@@ -350,7 +350,7 @@ void main() {
     #endif
     
 
-    if (abs(getType(coord) - 51) < .2) {
+    /* if (abs(getType(coord) - 51) < .2) {
         //float vel  = dot((cameraPosition - previousCameraPosition) / frameTime) * .01;
 
         vec2 seed1 = coord * 6 + vec2(0., frameTimeCounter * .1);
@@ -363,12 +363,8 @@ void main() {
         noise     *= 2;
         newcoord  += noise;
 
-        /* if (abs(getType(newcoord) - 51) < .2) {
-            newcoord += noise;
-        } */
-
         color      = getAlbedo_int(newcoord);
-    }
+    } */
 
     //Pass everything forward
     FD0          = vec4(color, 1);

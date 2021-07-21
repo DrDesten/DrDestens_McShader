@@ -253,13 +253,13 @@ vec4 midpoint(vec4 v1, vec4 v2) {
     return (v1 + v2) * 0.5;
 }
 
-float dot(vec2 v) {
+float sqmag(vec2 v) {
     return dot(v, v);
 }
-float dot(vec3 v) {
+float sqmag(vec3 v) {
     return dot(v, v);
 }
-float dot(vec4 v) {
+float sqmag(vec4 v) {
     return dot(v, v);
 }
 
