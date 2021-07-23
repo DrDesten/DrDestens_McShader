@@ -5,7 +5,6 @@
 #include "/lib/vertex_transform.glsl"
 
 uniform float frameTimeCounter;
-uniform vec3 cameraPosition;
 
 attribute vec4 mc_Entity;
 
@@ -38,7 +37,7 @@ void main(){
 			// Appling them (y Direction aka "up")
 			worldPosition.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
 
-			vec4 clipPos = worldToClip(worldPosition - vec4(cameraPosition, 0));
+			vec4 clipPos = playerToClip(worldPosition - vec4(cameraPosition, 0));
 
 			gl_Position = clipPos;
 

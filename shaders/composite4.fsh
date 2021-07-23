@@ -346,7 +346,7 @@ void main() {
     #endif
 
     #ifdef OUTLINE
-        color = mix(color, vec3(1), depthEdge(newcoord));
+        color = mix(color, vec3(1), depthEdge(newcoord) * OUTLINE_BRIGHTNESS);
     #endif
     
 

@@ -1,3 +1,4 @@
+uniform vec3 cameraPosition;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
@@ -37,6 +38,6 @@ vec4 toPlayer(vec4 viewPos) {
     return gbufferModelViewInverse * viewPos;
 }
 
-vec4 worldToClip(vec4 worldPos) {
+vec4 playerToClip(vec4 worldPos) {
     return gl_ProjectionMatrix * (gbufferModelView * worldPos);
 }

@@ -339,7 +339,7 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
 
     
     // Gaussian Blur
-    vec2 pixelStep = ScreenSizeInverse * exp2(currentTile - 1) * scale;
+    vec2 pixelStep = ScreenSizeInverse * exp2(currentTile - 1) * scale * 1.5;
 
     vec3 color = vec3(0);
     for (int x = -2; x <= 2; x++) {
