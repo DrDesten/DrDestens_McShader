@@ -45,8 +45,8 @@ void main() {
 
 	vec4 color = texture2D(texture, coord) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
-	gamma(color.rgb);
 	color.rgb *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+	gamma(color.rgb);
 
 	#ifdef PHYSICALLY_BASED
 		#ifdef FRAG_NORMALS

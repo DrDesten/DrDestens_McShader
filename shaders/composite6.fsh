@@ -134,10 +134,10 @@ void main() {
 
     #ifdef BLOOM
         vec3 bloom = vec3(0);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             bloom += readBloomTile(coord, 4, i, 10 * ScreenSizeInverse.x);
         }
-        bloom /= 5;
+        bloom /= 6;
         color += sq(bloom) * BLOOM_AMOUNT;
 
         //color = readBloomTile(coord, 3, 4, 10 * ScreenSizeInverse.x);

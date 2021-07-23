@@ -30,8 +30,8 @@ void main() {
 	float reflectiveness = 0;
 
 	vec4 color		   = texture2D(texture, coord) * glcolor;
-	gamma(color.rgb);
 	color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+	gamma(color.rgb);
 
 	#ifdef PHYSICALLY_BASED
 

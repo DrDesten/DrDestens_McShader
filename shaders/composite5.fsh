@@ -285,21 +285,6 @@ float realCoC(float linearDepth, float centerLinearDepth) {
     return abs(zaehler / nenner);
 }
 
-vec3 getBloomTiles(vec2 coord, float scale, int tiles) {
-    vec2 bloomCoord = coord * scale;
-    for (int i = 1; i < tiles; i++) {
-
-        // Check if the x-coordinate exceeds 1 (out of bounds)
-        if (bloomCoord.x > 1) {
-            // Bring back by 1 (back into bounds)
-            bloomCoord.x -= 1;
-            // Half the size of the tile
-            bloomCoord   *= 2;
-        }
-
-    }
-    return texture(colortex0, bloomCoord).rgb;
-}
 vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
 
     vec2 bloomCoord = coord * scale;
@@ -391,7 +376,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTilesBlur(coord, 4, 5, 10 / ScreenSize.x);
+        vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / ScreenSize.x);
     #else
         vec3 bloomColor = vec3(0);
     #endif

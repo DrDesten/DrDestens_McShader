@@ -7,11 +7,9 @@
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
 
-uniform sampler2D depthtex1;
-uniform sampler2D colortex4; // Normals
+uniform sampler2D lightmap;
 
 uniform float frameTimeCounter;
-uniform vec3  upPosition;
 
 uniform float far;
 uniform float near;
@@ -20,6 +18,7 @@ uniform int   isEyeInWater;
 flat in float blockId;
 
 in vec2 coord;
+in vec2 lmcoord;
 in vec3 worldPos;
 in vec3 viewPos;
 
@@ -181,6 +180,9 @@ void main(){
         /* float fresnel     = customFresnel(normalize(viewPos), surfaceNormal, 0.02, 2, 3);
         vec4 Sky          = vec4( getSkyColor3( reflect(viewPos, surfaceNormal) ), 1);
         color             = mix(color, Sky, fresnel); */
+
+    } else {
+        color.rgb        *= texture(lightmap, lmcoord).rgb + sq(lmcoord.x);
     }
 
     gamma(color.rgb);

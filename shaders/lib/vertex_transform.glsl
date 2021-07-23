@@ -1,3 +1,6 @@
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+
 attribute vec4 at_tangent;
 
 vec3 getNormal() {
@@ -20,4 +23,20 @@ mat3 getTBN() {
 
 vec3 getView() {
     return (gl_ModelViewMatrix * gl_Vertex).xyz;
+}
+vec4 getView4() {
+    return gl_ModelViewMatrix * gl_Vertex;
+}
+
+vec4 getPlayer() {
+    return gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex);
+}
+
+
+vec4 toPlayer(vec4 viewPos) {
+    return gbufferModelViewInverse * viewPos;
+}
+
+vec4 worldToClip(vec4 worldPos) {
+    return gl_ProjectionMatrix * (gbufferModelView * worldPos);
 }
