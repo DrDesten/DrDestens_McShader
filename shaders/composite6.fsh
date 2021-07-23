@@ -64,15 +64,7 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     return col / float(samples);
 }
 
-vec3 readBloomTile(vec2 coord, float initial_scale, float tile) {
-    vec2 tileLocation = vec2(0);
-    tileLocation.x    = 1 - exp2(-tile);
-    tileLocation     += coord * exp2(-tile - 1);
 
-    tileLocation     /= (initial_scale * .5);
-
-    return texture(colortex4, tileLocation).rgb;
-}
 vec3 readBloomTile(vec2 coord, float initial_scale, float tile, float padding) {
     vec2 tileLocation = vec2(0);
     tileLocation.x    = 1 - exp2(-tile);
@@ -142,14 +134,13 @@ void main() {
 
     #ifdef BLOOM
         vec3 bloom = vec3(0);
-        for (int i = 0; i < 7; i++) {
-            bloom += readBloomTileBlur(coord, 3, i, 10 * ScreenSizeInverse.x);
+        for (int i = 0; i < 5; i++) {
+            bloom += readBloomTile(coord, 4, i, 10 * ScreenSizeInverse.x);
         }
-        bloom /= 7;
-        //color  = bloom;
+        bloom /= 5;
         color += sq(bloom) * BLOOM_AMOUNT;
 
-        //color = readBloomTileBlur(coord, 3, 6, 10 * ScreenSizeInverse.x);
+        //color = readBloomTile(coord, 3, 4, 10 * ScreenSizeInverse.x);
     #endif
 
 

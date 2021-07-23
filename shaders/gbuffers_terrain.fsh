@@ -41,13 +41,12 @@ void main() {
 		normal	   	       = Material.normal;
 		reflectiveness     = Material.reflectiveness;
 
-	#endif
+	#else
 
-
-	#ifndef PHYSICALLY_BASED
 		if (abs(blockId - 1005) < .2) {
-			color.rgb *= 3;
+			color.rgb *= EMISSION_STRENGTH * .5;
 		}
+		
 	#endif
 
 

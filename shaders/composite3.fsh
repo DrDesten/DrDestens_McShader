@@ -470,7 +470,7 @@ float AmbientOcclusionLOW(position pos, vec3 normal, float size) {
     
         float hitDepth = getDepth(sample.xy);
 
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance || sample.z < .8);
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
 
     hits  = 1 - (hits / 8);

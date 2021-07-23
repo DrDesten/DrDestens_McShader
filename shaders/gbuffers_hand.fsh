@@ -56,6 +56,12 @@ void main() {
 		normal	   	       = Material.normal;
 		reflectiveness     = Material.reflectiveness;
 
+	#else
+
+		if (abs(blockId - 1005) < .2) {
+			color.rgb *= EMISSION_STRENGTH * .5;
+		}
+
 	#endif
 
 	//color.a = min(0.01, color.a);

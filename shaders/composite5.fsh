@@ -301,6 +301,7 @@ vec3 getBloomTiles(vec2 coord, float scale, int tiles) {
     return texture(colortex0, bloomCoord).rgb;
 }
 vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
+
     vec2 bloomCoord = coord * scale;
     
     for (int i = 1; i < tiles; i++) {
@@ -313,13 +314,61 @@ vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
             bloomCoord.x -= 1 + padd;
             // Half the size of the tile
             bloomCoord   *= 2;
+        } else {
+            break;
         }
 
     }
     if (bloomCoord != saturate(bloomCoord)) {
         return vec3(0);
     }
+
     return texture(colortex0, bloomCoord).rgb;
+}
+vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
+
+    // Get Tile Coordinates
+    vec2 bloomCoord = coord * scale;
+    
+    int currentTile = -1;
+    for (int i = 1; i < tiles; i++) {
+
+        float padd = padding * exp2(i-1) * scale;
+
+        // Check if the x-coordinate exceeds 1 (out of bounds)
+        if (bloomCoord.x > 1 + padd) {
+            // Bring back by 1 (back into bounds)
+            bloomCoord.x -= 1 + padd;
+            // Half the size of the tile
+            bloomCoord   *= 2;
+        } else {
+            currentTile   = i;
+            break;
+        }
+
+    }
+    if (bloomCoord != saturate(bloomCoord)) {
+        return vec3(0);
+    }
+
+
+    
+    // Gaussian Blur
+    vec2 pixelStep = ScreenSizeInverse * exp2(currentTile - 1) * scale;
+
+    vec3 color = vec3(0);
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+
+            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
+            vec2  offs   = vec2(x, y) * pixelStep;
+
+            color       += texture(colortex0, bloomCoord + offs).rgb * weight;
+
+        }
+    }
+
+    return color;
 }
 
 /* DRAWBUFFERS:04 */
@@ -342,7 +391,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTiles(coord, 3, 7, 10 / ScreenSize.x);
+        vec3 bloomColor = getBloomTilesBlur(coord, 4, 5, 10 / ScreenSize.x);
     #else
         vec3 bloomColor = vec3(0);
     #endif
