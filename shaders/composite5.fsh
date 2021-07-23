@@ -285,8 +285,23 @@ float realCoC(float linearDepth, float centerLinearDepth) {
     return abs(zaehler / nenner);
 }
 
+vec3 getBloomTiles(vec2 coord, float scale, int tiles) {
+    vec2 bloomCoord = coord * scale;
+    for (int i = 1; i < tiles; i++) {
 
-/* DRAWBUFFERS:0 */
+        // Check if the x-coordinate exceeds 1 (out of bounds)
+        if (bloomCoord.x > 1) {
+            // Bring back by 1 (back into bounds)
+            bloomCoord.x -= 1;
+            // Half the size of the tile
+            bloomCoord   *= 2;
+        }
+
+    }
+    return texture(colortex0, bloomCoord).rgb;
+}
+
+/* DRAWBUFFERS:04 */
 
 void main() {
     float depth         = texture(depthtex1, coord).r;
@@ -305,7 +320,13 @@ void main() {
         vec3 color          = getAlbedo(coord);
     #endif
 
+    #ifdef BLOOM
+        vec3 bloomColor = getBloomTiles(coord, 4, 5);
+    #else
+        vec3 bloomColor = vec3(0);
+    #endif
 
     //Pass everything forward
     FD0          = vec4(color,  1);
+    FD1          = vec4(bloomColor, 1);
 }

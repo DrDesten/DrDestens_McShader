@@ -27,7 +27,6 @@ const float sunPathRotation = -40.0;
 
 uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
-const bool        colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2 coord;
 in vec3 lightVector;
@@ -319,7 +318,7 @@ vec4 testSSR_opt(vec2 coord, vec3 normal, vec3 screenPos, vec3 clipPos, vec3 vie
 
     return vec3(getSkyColor3(viewReflection - viewPos));
 } */
-vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
+/* vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     // Reflect in View Space
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
@@ -344,9 +343,9 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
 
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        /* if (clamp(rayPos, 0, 1) != rayPos) {
+        if (clamp(rayPos, 0, 1) != rayPos) {
             break; // Break if out of bounds
-        } */
+        }
 
         rayPos  += rayStep;
         
@@ -378,6 +377,71 @@ vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
                 return vec4(getAlbedo(rayPos.xy), 1);
             } else {
                 return vec4(getSkyColor3(viewReflection - pos.view), 0);
+            }
+        }
+    }
+
+    return vec4(getSkyColor3(viewReflection - pos.view), 0);
+} */
+vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
+    // Reflect in View Space
+    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
+
+    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
+        return vec4(getSkyColor3(viewReflection - pos.view), 0);
+    }
+
+    // Project to Screen Space
+    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
+    
+    float randfac    = Bayer4(pos.screen.xy * ScreenSize);
+
+    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
+    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+
+    rayStep         /= SSR_STEPS;
+    vec3 rayPos      = rayStep * randfac + pos.screen;
+
+    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
+    float hitDepth       = 0;
+
+    for (int i = 0; i < SSR_STEPS; i++) {
+
+        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
+            break; // Break if out of bounds
+        }
+
+        rayPos  += rayStep;
+        
+        hitDepth = getDepth(rayPos.xy);
+
+        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
+            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+
+            #ifdef SSR_NO_REFINEMENT
+                return vec4(getAlbedo_int(rayPos.xy), 1);
+            #endif
+
+            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
+            rayStep      *= 0.5;
+            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
+
+            float condition;
+            for (int o = 0; o < SSR_FINE_STEPS; o++) {
+                hitDepth  = getDepth(rayPos.xy);
+
+                // Branchless version of: If hit, go back half a step, else go forward half a step
+                condition = float(rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance); // 1 if true, 0 if false
+                rayPos   -= rayStep * (condition - 0.5);
+
+                rayStep  *= 0.5;
+            }
+
+            if ((rayPos.z - hitDepth) < depthTolerance) {
+                return vec4(texture(colortex0, rayPos.xy).rgb, 1);
+            } else {
+                break;
             }
         }
     }
@@ -521,7 +585,7 @@ void main() {
 
             float fresnel   = customFresnel(viewDir, normal, 0.03, .7, 2);
 
-            vec4 Reflection = universalSSR(Positions, normal, 0.0, false);
+            vec4 Reflection = universalSSR(Positions, normal, false);
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
             denoise         = 1;
 
@@ -539,7 +603,7 @@ void main() {
         float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
         if (reflectiveness > 12.75/255) { // 12.75/255 represents 5% reflectiveness, lower is practically invisible
 
-            vec4  Reflection   = universalSSR(Positions, normal, 0, false);
+            vec4  Reflection   = universalSSR(Positions, normal, false);
             denoise            = 1;
 
             #ifdef PBR_REFLECTION_REALISM

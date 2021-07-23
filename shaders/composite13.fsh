@@ -8,6 +8,7 @@
 varying vec2 coord;
 
 uniform int frameCounter;
+uniform sampler2D colortex4;
 
 const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 300;
 
@@ -98,12 +99,11 @@ vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
 
-vec3 tonemap1(vec3 color, float a) {
+vec3 reinhard_tonemap(vec3 color, float a) {
     return color / (a + color);
 }
-vec3 tonemap1_general(vec3 color, float exponent, float factor) {
-    color = pow(color, vec3(exponent));
-    return color / (factor + color);
+vec3 exp_tonemap(vec3 color, float a) {
+    return 1 - exp(-color * a);
 }
 
 /* DRAWBUFFERS:0 */
@@ -119,9 +119,10 @@ void main() {
     color = saturation(color, SATURATION);
 
     //Vignette(color);
+    //color = texture(colortex4, coord).rgb;
 
-    color /= .45 + color; // Temporary Tone mapping
-    //color = tonemap1_general(color, 1.7, 0.32);
+    color = reinhard_tonemap(color, .45); // Tone mapping
+    //color = exp_tonemap(color, 1); // Tone mapping
 
     color = invgamma(color);
 

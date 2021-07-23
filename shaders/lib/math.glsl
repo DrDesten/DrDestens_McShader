@@ -263,6 +263,19 @@ float sqmag(vec4 v) {
     return dot(v, v);
 }
 
+float saturate(float a) {
+    return clamp(a, 0.0, 1.0);
+}
+vec2 saturate(vec2 a) {
+    return clamp(a, 0.0, 1.0);
+}
+vec3 saturate(vec3 a) {
+    return clamp(a, 0.0, 1.0);
+}
+vec4 saturate(vec4 a) {
+    return clamp(a, 0.0, 1.0);
+}
+
 float angleBetween(vec3 v1, vec3 v2) {
     return acos(dot(normalize(v1), normalize(v2)));
 }

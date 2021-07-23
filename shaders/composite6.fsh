@@ -15,6 +15,7 @@
 uniform float near;
 uniform float far;
 
+uniform sampler2D colortex4;
 uniform vec3 sunPosition;
 
 in vec2 coord;
@@ -63,6 +64,16 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     return col / float(samples);
 }
 
+vec3 readBloomTile(vec2 coord, float initial_scale, float tile) {
+    vec2 tileLocation = vec2(0);
+    tileLocation.x    = 1 - exp2(-tile);
+    tileLocation     += coord * exp2(-tile - 1);
+
+    tileLocation     /= (initial_scale * .5);
+
+    return texture(colortex4, tileLocation).rgb;
+}
+
 
 /* DRAWBUFFERS:0 */
 void main() {
@@ -82,6 +93,16 @@ void main() {
         vec3  color = getAlbedo(coord);
 
     #endif
+
+    #ifdef BLOOM
+        vec3 bloom = vec3(0);
+        for (int i = 0; i < 5; i++) {
+            bloom += readBloomTile(coord, 4, i);
+        }
+        bloom /= 5;
+        color += sq(bloom) * BLOOM_AMOUNT;
+    #endif
+
 
     //Pass everything forward
     FD0          = vec4(color, 1);
