@@ -2,10 +2,12 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/transform.glsl"
 
 out vec2 coord;
 
 void main() {
-    gl_Position = ftransform();;
-    coord = gl_MultiTexCoord0.st;
+    vec4 clipPos = ftransform();
+    gl_Position  = clipPos;
+    coord        = gl_MultiTexCoord0.st;
 }

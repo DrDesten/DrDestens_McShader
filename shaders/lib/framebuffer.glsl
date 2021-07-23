@@ -12,7 +12,8 @@ uniform float viewWidth;
 #define FD2 gl_FragData[2]
 #define FD3 gl_FragData[3]
 
-vec2 ScreenSize = vec2(viewWidth, viewHeight);
+vec2 ScreenSize        = vec2(viewWidth, viewHeight);
+vec2 ScreenSizeInverse = 1 / ScreenSize;
 
 
 ivec2 convertIntCoords(vec2 coord, float x, float y) {

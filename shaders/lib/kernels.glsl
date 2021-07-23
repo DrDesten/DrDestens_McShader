@@ -285,6 +285,26 @@ const vec2 circle_blur_64[64] = vec2[64](
 
 
 
+const float gaussian_3[3] = float[3](
+    0.25,
+    0.5,
+    0.25
+);
+
+const float gaussian_4[4] = float[4](
+    0.125,
+    0.375,
+    0.375,
+    0.125
+);
+
+const float gaussian_5[5] = float[5](
+    0.0625,
+    0.25,
+    0.375,
+    0.25,
+    0.0625
+);
 
 const float gaussian_6[6] = float[6](
     0.03125,

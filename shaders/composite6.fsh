@@ -73,15 +73,61 @@ vec3 readBloomTile(vec2 coord, float initial_scale, float tile) {
 
     return texture(colortex4, tileLocation).rgb;
 }
+vec3 readBloomTile(vec2 coord, float initial_scale, float tile, float padding) {
+    vec2 tileLocation = vec2(0);
+    tileLocation.x    = 1 - exp2(-tile);
+    tileLocation     += coord * exp2(-tile - 1);
 
+    tileLocation     /= (initial_scale * .5);
+    tileLocation.x   += padding * tile;
+
+    return texture(colortex4, tileLocation).rgb;
+}
+vec3 readBloomTileBlur(vec2 coord, float initial_scale, float tile, float padding) {
+    vec2 tileLocation = vec2(0);
+    tileLocation.x    = 1 - exp2(-tile);
+    tileLocation     += coord * exp2(-tile - 1);
+
+    tileLocation     /= (initial_scale * .5);
+    tileLocation.x   += padding * tile;
+
+    vec3 color = vec3(0);
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+
+            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
+            vec2  offs   = vec2(x, y) * ScreenSizeInverse;
+
+            vec2 sample  = tileLocation + offs;
+            color       += texture(colortex4, sample).rgb * weight;
+
+        }
+    }
+
+    return color;
+}
 
 /* DRAWBUFFERS:0 */
 void main() {
     #ifdef MOTION_BLUR
 
-        // Motion Blur dependent on player Movement and Camera
-        vec3  clipPos          = vec3(coord, getDepth(coord)) * 2 - 1;
-        vec3  prevCoord        = previousReproject(clipPos);
+        #if MOTION_BLUR_QUALITY == 0
+
+            // Motion Blur dependent on player Movement and Camera
+            vec3  clipPos      = vec3(coord, getDepth(coord)) * 2 - 1;
+            vec3  prevCoord    = previousReproject(clipPos);
+
+        #else
+            
+            vec3 clipPos       = vec3(coord * 2 -1, 1);
+            vec3 prevCoord     = toView(clipPos);
+            prevCoord          = toPlayerEye(prevCoord);
+
+            prevCoord          = mat3(gbufferPreviousModelView) * prevCoord;
+            prevCoord          = toPrevScreen(prevCoord);
+
+        #endif
+        
         vec2  motionBlurVector = (clamp(prevCoord.xy, -0.2, 1.2) - coord) * float(clipPos.z > 0.12);
         motionBlurVector      *= MOTION_BLUR_STRENGTH;
 
@@ -96,11 +142,14 @@ void main() {
 
     #ifdef BLOOM
         vec3 bloom = vec3(0);
-        for (int i = 0; i < 5; i++) {
-            bloom += readBloomTile(coord, 4, i);
+        for (int i = 0; i < 7; i++) {
+            bloom += readBloomTileBlur(coord, 3, i, 10 * ScreenSizeInverse.x);
         }
-        bloom /= 5;
+        bloom /= 7;
+        //color  = bloom;
         color += sq(bloom) * BLOOM_AMOUNT;
+
+        //color = readBloomTileBlur(coord, 3, 6, 10 * ScreenSizeInverse.x);
     #endif
 
 

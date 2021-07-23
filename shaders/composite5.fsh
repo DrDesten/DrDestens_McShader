@@ -300,6 +300,27 @@ vec3 getBloomTiles(vec2 coord, float scale, int tiles) {
     }
     return texture(colortex0, bloomCoord).rgb;
 }
+vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
+    vec2 bloomCoord = coord * scale;
+    
+    for (int i = 1; i < tiles; i++) {
+
+        float padd = padding * exp2(i-1) * scale;
+
+        // Check if the x-coordinate exceeds 1 (out of bounds)
+        if (bloomCoord.x > 1 + padd) {
+            // Bring back by 1 (back into bounds)
+            bloomCoord.x -= 1 + padd;
+            // Half the size of the tile
+            bloomCoord   *= 2;
+        }
+
+    }
+    if (bloomCoord != saturate(bloomCoord)) {
+        return vec3(0);
+    }
+    return texture(colortex0, bloomCoord).rgb;
+}
 
 /* DRAWBUFFERS:04 */
 
@@ -321,7 +342,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTiles(coord, 4, 5);
+        vec3 bloomColor = getBloomTiles(coord, 3, 7, 10 / ScreenSize.x);
     #else
         vec3 bloomColor = vec3(0);
     #endif

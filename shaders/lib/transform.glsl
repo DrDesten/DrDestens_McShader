@@ -17,7 +17,7 @@ vec3 toView(vec3 clipspace) { // Clippos to viewpos
 vec3 toPlayer(vec3 viewspace) { // Viewpos to Playerfeetpos
     return mat3(gbufferModelViewInverse) * viewspace + gbufferModelViewInverse[3].xyz;
 }
-vec3 toPlayerEye(vec3 viewspace) { // Viewpos to Playerfeetpos
+vec3 toPlayerEye(vec3 viewspace) { // Viewpos to Playereyepos
     return mat3(gbufferModelViewInverse) * viewspace;
 }
 vec3 playerEyeToFeet(vec3 playereye) {
@@ -56,6 +56,10 @@ vec3 toPrevView(vec3 prevplayerpos) { // previous playerfeetpos to previous view
     return mat3(gbufferPreviousModelView) * (prevplayerpos - gbufferModelViewInverse[3].xyz);
 }
 
+vec3 toPrevClip(vec3 prevviewpos) { // previous viewpos to previous screen pos
+    vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
+    return tmp.xyz / tmp.w;
+}
 vec3 toPrevScreen(vec3 prevviewpos) { // previous viewpos to previous screen pos
     vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
     return (tmp.xyz / tmp.w) * 0.5 + 0.5;
