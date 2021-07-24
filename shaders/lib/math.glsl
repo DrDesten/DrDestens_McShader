@@ -47,6 +47,9 @@ vec3 saturation(vec3 col, float saturation) {
     return mix(vec3(brightness), col, saturation);
 }
 
+float luminance(vec3 color) {
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
+}
 
 vec3 rgb2hsv(vec3 c) {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);

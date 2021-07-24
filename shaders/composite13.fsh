@@ -102,8 +102,20 @@ vec3 luminanceNeutralize(vec3 col) {
 vec3 reinhard_tonemap(vec3 color, float a) {
     return color / (a + color);
 }
-vec3 reinhard2_tonemap(vec3 color, float a) {
+vec3 reinhard_luminance_tonemap(vec3 color, float a) {
+    float l = luminance(color);
+    return color / (a+l);
+}
+vec3 reinhard_jodie_tonemap(vec3 color, float a) {
+    float l   = luminance(color);
+    vec3 tmc  = color / (color + a);
+    return mix(color / (l+a), tmc, tmc);
+}
+vec3 reinhard_sqrt_tonemap(vec3 color, float a) {
     return color / sqrt(color * color + a);
+}
+vec3 unreal_tonemap(vec3 color) {
+  return color / (color + 0.155) * 1.019;
 }
 vec3 exp_tonemap(vec3 color, float a) {
     return 1 - exp(-color * a);
@@ -125,8 +137,23 @@ void main() {
     //color = texture(colortex4, coord).rgb;
 
     //color = reinhard_tonemap(color, .45); // Tone mapping
+    //color = reinhard_jodie_tonemap(color, .4); // Tone mapping
     //color = exp_tonemap(color, 1); // Tone mapping
-    color = reinhard2_tonemap(color, .5); // Tone mapping
+    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
+
+    /* if (coord.x > 0.75) {
+
+    } else if (coord.x > .5) {
+        color = reinhard_jodie_tonemap(color, 1); // Tone mapping
+
+    } else if (coord.x > .25) {
+        color = reinhard_sqrt_tonemap(color, 1); // Tone mapping
+        
+    } else {
+        color = unreal_tonemap(color);
+        gamma(color);
+
+    } */
 
     color = invgamma(color);
 
