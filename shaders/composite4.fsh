@@ -19,6 +19,8 @@ uniform vec3  fogColor;
 uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 
+uniform float isInvisibleSmooth;
+
 uniform int   isEyeInWater;
 
 in vec2 coord;
@@ -253,6 +255,21 @@ vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
     return closestColor;
 }
 
+vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
+    if (length(blur) < ScreenSizeInverse.x) { return getAlbedo(coord); }
+
+    vec3 col      = vec3(0);
+    vec2 blurStep = blur / float(samples);
+    vec2 sample   = coord;
+
+    for (int i = 0; i < samples; i++) {
+        col += getAlbedo_int(sample);
+        sample += blurStep;
+    }
+
+    return col / float(samples);
+}
+
 
 /* DRAWBUFFERS:0 */
 
@@ -350,21 +367,23 @@ void main() {
     #endif
     
 
-    /* if (abs(getType(coord) - 51) < .2) {
-        //float vel  = dot((cameraPosition - previousCameraPosition) / frameTime) * .01;
+    #ifdef HAND_INVISIBILITY_EFFECT
 
-        vec2 seed1 = coord * 6 + vec2(0., frameTimeCounter * .1);
-        vec2 seed2 = coord * 6 + vec2(frameTimeCounter * .1, 0.);
-        vec2 noise = vec2(
-            fbm(seed1, 2, 30, .05) - .5, 
-            fbm(seed2, 2, 30, .05) - .5
-        );
-        noise      = noise + sign(noise) * .1;
-        noise     *= 2;
-        newcoord  += noise;
+        if (abs(getType(coord) - 51) < .2 && isInvisibleSmooth > 0.001) { // Hand invisbility Effect
+            float vel  = sqmag((cameraPosition - previousCameraPosition) / frameTime) * .005;
 
-        color      = getAlbedo_int(newcoord);
-    } */
+            vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
+            vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);
+            vec2 noise = vec2(
+                fbm(seed1, 2, 5, .05), 
+                fbm(seed2, 2, 5, .05)
+            );
+            noise = normalize(noise - .25) * (vel + .05) * isInvisibleSmooth;
+
+            color = vectorBlur(coord + noise, -(noise * Bayer4(coord * ScreenSize)), 5);
+        }
+
+    #endif
 
     //Pass everything forward
     FD0          = vec4(color, 1);
