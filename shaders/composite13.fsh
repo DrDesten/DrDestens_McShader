@@ -102,6 +102,9 @@ vec3 luminanceNeutralize(vec3 col) {
 vec3 reinhard_tonemap(vec3 color, float a) {
     return color / (a + color);
 }
+vec3 reinhard2_tonemap(vec3 color, float a) {
+    return color / sqrt(color * color + a);
+}
 vec3 exp_tonemap(vec3 color, float a) {
     return 1 - exp(-color * a);
 }
@@ -121,8 +124,9 @@ void main() {
     //Vignette(color);
     //color = texture(colortex4, coord).rgb;
 
-    color = reinhard_tonemap(color, .45); // Tone mapping
+    //color = reinhard_tonemap(color, .45); // Tone mapping
     //color = exp_tonemap(color, 1); // Tone mapping
+    color = reinhard2_tonemap(color, .5); // Tone mapping
 
     color = invgamma(color);
 

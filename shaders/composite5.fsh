@@ -356,6 +356,7 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
     return color;
 }
 
+
 /* DRAWBUFFERS:04 */
 
 void main() {

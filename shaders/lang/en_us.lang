@@ -174,3 +174,7 @@ option.FXAA_THRESHOLD=FXAA threshold
 option.FXAA_THRESHOLD.comment=Lower = more anti-aliasing.
 
 option.SSAO_TWO_PASS=Two pass SSAO
+
+option.WAVY_BLOCKS=Wavy Blocks
+
+option.WAVY_LEAVES=Wavy Leaves
