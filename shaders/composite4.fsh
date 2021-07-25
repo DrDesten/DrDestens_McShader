@@ -331,8 +331,14 @@ void main() {
 
                 rayPos       += rayStep;
 
-                if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                    light    -= 1. / GODRAY_STEPS;
+                if (isEyeInWater != 0) {
+                    if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
+                        light    -= 1. / GODRAY_STEPS;
+                    }
+                } else {
+                    if (texture(depthtex0, rayPos).x != 1) { // Subtract from light when there is an occlusion
+                        light    -= 1. / GODRAY_STEPS;
+                    }
                 }
 
             }

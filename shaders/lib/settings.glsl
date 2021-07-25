@@ -20,15 +20,15 @@
 #define REFRACTION_AMOUNT 0.03          // Refraction Strength                          [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1]
 
 //#define DENOISE
-#define DENOISE_AMOUNT 1.0              // Denoise Amount                    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
+#define DENOISE_AMOUNT 1.0              // Denoise Amount                               [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
 
-#define DENOISE_THRESHOLD 0.5           // Denoise sensitivity               [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DENOISE_QUALITY   2             // Denoise Quality                   [1 2 3]
+#define DENOISE_THRESHOLD 0.5           // Denoise sensitivity                          [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define DENOISE_QUALITY   2             // Denoise Quality                              [1 2 3]
 //#define DENOISE_DEBUG
 
 #define SCREEN_SPACE_AMBIENT_OCCLUSION
-#define SSAO_QUALITY 1                  // SSAO Quality                      [1 2]
-#define SSAO_STRENGTH 0.75              // SSAO Strength                     [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define SSAO_QUALITY 1                  // SSAO Quality                                 [1 2]
+#define SSAO_STRENGTH 0.75              // SSAO Strength                                [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 // Depth of Field
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -69,9 +69,6 @@
 
 // Misc
 /////////////////////////////////////////////////////////////////////////////////////////
-
-#define LENS_DISTORT        0.2         // Lens Distorsion          [0.0 0.2 0.35 0.5 0.75 1.0]
-#define LENS_DISTORT_SCALE  1.2         // Lens Distorsion Scaling  [1.0 1.1 1.2 1.3 1.45]
 
 #define OUTLINE
 #define OUTLINE_DISTANCE 1.0            // How far does the outline reach    [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]

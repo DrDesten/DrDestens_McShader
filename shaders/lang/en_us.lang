@@ -163,15 +163,9 @@ option.OUTLINE_BRIGHTNESS=Outline Brightness
 option.FOG=Fog
 option.FOG_AMOUNT=Fog Amount
 
-option.LENS_DISTORT=Lens Distortion
-option.LENS_DISTORT.comment=Lens Distortion Strength.
-value.LENS_DISTORT.0.0=Off
-
-option.LENS_DISTORT_SCALE=Image Scale
-option.LENS_DISTORT_SCALE.comment=Adjust scale of image to correct for Lens Distortion.
-
-option.SSAO_TWO_PASS=Two pass SSAO
-
 option.WAVY_BLOCKS=Wavy Blocks
 
 option.WAVY_LEAVES=Wavy Leaves
+
+option.HAND_INVISIBILITY_EFFECT=Hand Invisibility Effect
+option.HAND_INVISIBILITY_EFFECT.comment=Distorts handheld objects when invisible
