@@ -1,4 +1,4 @@
-# DrDestens Minecraft Shader
+# DrDestens MinecraftShaders
 
 Supports versions 1.8.x and 1.16.x (These are the ones I'm developing on, all inbetween should work too)
 
