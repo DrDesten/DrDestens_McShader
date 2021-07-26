@@ -11,7 +11,7 @@ labPBR support
 
 ### Water Effects
 <img src="https://user-images.githubusercontent.com/70536771/126915076-fc846988-835d-419d-baa5-abb99e6ef9ab.png" width="100%"/>
-<img src="https://user-images.githubusercontent.com/70536771/125116692-61589b80-e0ed-11eb-9a8e-0dc9f6371327.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/126960742-88d08bb4-8c6e-415b-b1a0-3cc8b131aa7a.png" width="100%"/>
 
 ### Depth of Field
 <img src="https://user-images.githubusercontent.com/70536771/126915028-5f016e61-2f29-4d14-8e8d-18ac73adaaec.png" width="100%"/>
