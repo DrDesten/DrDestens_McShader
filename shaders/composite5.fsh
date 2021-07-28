@@ -19,7 +19,6 @@ const float   centerDepthHalflife = 1.5;
 const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2       coord;
-flat in vec2  pixelSize;
 
 uniform int   frameCounter;
 uniform float near;
@@ -28,8 +27,8 @@ uniform float far;
 //Depth of Field
 
 vec3 boxBlur(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= pixelSize.x;
+    if (size <= ScreenSizeInverse.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
+    stepsize *= ScreenSizeInverse.x;
     if (stepsize > size)                   { stepsize = size; } //Prevent blur from clipping due to lange step size
 
     vec3 pixelColor = vec3(0);
@@ -48,7 +47,7 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
             #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * 0.5;
+            sampleCoord += vec2(randfac1, randfac2) * (stepsize - ScreenSizeInverse.x) * 0.5;
             #endif 
 
 
@@ -63,8 +62,8 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
 }
 
 vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
-    if (size <= pixelSize.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= pixelSize.x;
+    if (size <= ScreenSizeInverse.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
+    stepsize *= ScreenSizeInverse.x;
     if (stepsize > size)                         { stepsize = size; } //Prevent blur from clipping due to lange step size
 
     vec3 pixelColor = vec3(0);
@@ -83,12 +82,12 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
             #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - pixelSize.x) * DOF_DITHER_AMOUNT;
+            sampleCoord += vec2(randfac1, randfac2) * (stepsize - ScreenSizeInverse.x) * DOF_DITHER_AMOUNT;
             #endif 
 
             // I am using texelFetch instead of textur2D, in order to avoid linear interpolation. This increases performance
-            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - pixelSize.x);
-            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - pixelSize.y);
+            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - ScreenSizeInverse.x);
+            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - ScreenSizeInverse.y);
             ivec2 intcoords = ivec2(sampleCoord * vec2(viewWidth, viewHeight));
 
             pixelColor += texelFetch(colortex0, intcoords, 0).rgb;
@@ -105,7 +104,7 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
 
 vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float lod = log2(size / pixelSize.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    float lod = log2(size / ScreenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
 
     // Low Quality
@@ -148,7 +147,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
 /* vec3 bokehBlur_adaptive_old(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float radius = size / pixelSize.x;
+    float radius = size / ScreenSizeInverse.x;
 
     float lod = log2(radius) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 

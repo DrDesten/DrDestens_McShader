@@ -266,6 +266,33 @@ float sqmag(vec4 v) {
     return dot(v, v);
 }
 
+
+float sq(float x) {
+    return x * x;
+}
+vec2 sq(vec2 x) {
+    return x * x;
+}
+vec3 sq(vec3 x) {
+    return x * x;
+}
+vec4 sq(vec4 x) {
+    return x * x;
+}
+
+float cb(float x) {
+    return x * x * x;
+}
+vec2 cb(vec2 x) {
+    return x * x * x;
+}
+vec3 cb(vec3 x) {
+    return x * x * x;
+}
+vec4 cb(vec4 x) {
+    return x * x * x;
+}
+
 float saturate(float a) {
     return clamp(a, 0.0, 1.0);
 }
@@ -322,29 +349,11 @@ float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float po
     return reflectiveness;
 }
 
-
-float sq(float x) {
-    return x * x;
-}
-vec2 sq(vec2 x) {
-    return x * x;
-}
-vec3 sq(vec3 x) {
-    return x * x;
-}
-vec4 sq(vec4 x) {
-    return x * x;
-}
-
-float cb(float x) {
-    return x * x * x;
-}
-vec2 cb(vec2 x) {
-    return x * x * x;
-}
-vec3 cb(vec3 x) {
-    return x * x * x;
-}
-vec4 cb(vec4 x) {
-    return x * x * x;
+vec3 pickSunMoon(vec3 sPos, vec3 mPos, int time) {
+    if (time > 12500 && time < 23000) {
+        return mPos;
+    } else {
+        return sPos;
+    }
+    //return sPos;
 }

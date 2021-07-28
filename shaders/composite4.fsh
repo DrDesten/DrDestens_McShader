@@ -28,8 +28,6 @@ in vec2 coord;
 flat in vec2 x3_kernel[9];
 
 
-vec2 pixelSize = vec2(1 / viewWidth, 1 / viewHeight);
-
 float separationDetect(vec2 coord) {
     float edgeColor;
     float edgeColors[4] = float[](0,0,0,0);
@@ -53,7 +51,7 @@ float separationDetect(vec2 coord) {
 float depthEdgeFast(vec2 coord) {
     float depth         = getDepth(coord);
     // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
-    float depthSurround = getDepth_int((pixelSize * 1.5) + coord) + getDepth_int((pixelSize * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * 1.5, pixelSize.y * -1.5) + coord) + getDepth_int(vec2(pixelSize.x * -1.5, pixelSize.y * 1.5) + coord);
+    float depthSurround = getDepth_int((ScreenSizeInverse * 1.5) + coord) + getDepth_int((ScreenSizeInverse * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * 1.5, ScreenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * -1.5, ScreenSizeInverse.y * 1.5) + coord);
     depthSurround *= 0.25;
 
     return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
@@ -64,7 +62,7 @@ float depthEdge(vec2 coord) {
     float maxdiff = 0;
     for (int i = -1; i <= 1; i++) {
         for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(coord + pixelSize * vec2(i, o));
+            float d = getDepth_int(coord + ScreenSizeInverse * vec2(i, o));
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
@@ -73,7 +71,7 @@ float depthEdge(vec2 coord) {
 
 // 3-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = pixelSize.x * amount;
+    float pixelOffsetX = ScreenSizeInverse.x * amount;
 
     vec3 color           = getAlbedo(coord);
 
@@ -100,7 +98,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
 
 // 5-Sample Dark Priority Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = pixelSize * amount;
+    vec2 pixelOffset = ScreenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -131,7 +129,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
 
 // 9-Sample Dark Priority Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = pixelSize * amount;
+    vec2 pixelOffset = ScreenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -167,7 +165,7 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
 
 // 3-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = pixelSize.x * amount;
+    float pixelOffsetX = ScreenSizeInverse.x * amount;
 
     vec3 color           = getAlbedo(coord);
 
@@ -193,7 +191,7 @@ vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
 
 // 5-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = pixelSize * amount;
+    vec2 pixelOffset = ScreenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -223,7 +221,7 @@ vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
 
 // 9-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = pixelSize * amount;
+    vec2 pixelOffset = ScreenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -307,12 +305,8 @@ void main() {
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
-        vec4 tmp;
-        if (worldTime < 13000) {
-            tmp       = gbufferProjection * vec4(sunPosition, 1.0);
-        } else {
-            tmp       = gbufferProjection * vec4(moonPosition, 1.0);
-        }
+        vec3 lightPos = pickSunMoon(sunPosition, moonPosition, worldTime);
+        vec4 tmp      = gbufferProjection * vec4(lightPos, 1.0);
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
