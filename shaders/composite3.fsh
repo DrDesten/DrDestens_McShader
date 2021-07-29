@@ -8,10 +8,11 @@ const int colortex2Format = RGB16_SNORM; // Normals
 const int colortex3Format = R16F;        // colortex3 = blockId
 const int colortex4Format = RGB16F;      // colortex4 = bloom
 
-const vec4 colortex1ClearColor = vec4(0,0,0,1);*/
+const vec4 colortex1ClearColor = vec4(0,0,0,1);
+*/
 
 const float sunPathRotation = -40.0;
-const int   noiseTextureResolution = 512;
+//const int   noiseTextureResolution = 512;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
