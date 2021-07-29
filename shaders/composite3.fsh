@@ -73,13 +73,22 @@ vec3 cheapSSR2(vec3 viewPos) {
     return getAlbedo_int(horizon.xy);
 }
 
+
+/* vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cubemap style"
+    vec3 reflection   = reflect(pos.view, normal);
+    vec4 screenPos    = backToClipW(normalize(reflection)) * .5 + .5;
+
+    //return vec4((playerEye - playerReflection).yyy, 1);
+    if (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
+        return vec4(getSkyColor3(reflection), 0);
+    }
+    return vec4(getAlbedo_int(screenPos.xy), 1);
+} */
 vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cubemap style"
-    vec3 playerEye    = toPlayerEye(pos.view);
-    vec3 playerNormal = toPlayerEye(pos.view + normal) - playerEye;
-    vec3 reflection   = reflect(normalize(playerEye), playerNormal);
-    reflection        = eyeToView(reflection);
+    vec3 reflection   = reflect(pos.view, normal);
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
+    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor3(reflection), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
     if (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
         return vec4(getSkyColor3(reflection), 0);
     }
