@@ -56,6 +56,10 @@ void main() {
 
 	#endif
 
+	#ifdef WORLD_CURVE
+		#include "/lib/world_curve.glsl"
+	#endif
+
 
 	blockId = mc_Entity.x;
 	glcolor = gl_Color;

@@ -23,6 +23,7 @@ varying mat3 tbn;
 
 void main(){
 
+	vec4 clipPos 		= ftransform();
 	vec4 viewPosition   = getView4();
 	vec4 playerPosition = toPlayer(viewPosition);
 	vec4 worldPosition  = playerPosition + vec4(cameraPosition, 0);
@@ -37,21 +38,17 @@ void main(){
 			// Appling them (y Direction aka "up")
 			worldPosition.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
 
-			vec4 clipPos = playerToClip(worldPosition - vec4(cameraPosition, 0));
-
-			gl_Position = clipPos;
-
-		} else {
-
-			gl_Position = ftransform();
+			clipPos = playerToClip(worldPosition - vec4(cameraPosition, 0));
 
 		}
-	
-	#else
-
-		gl_Position = ftransform();
 
 	#endif
+
+	#ifdef WORLD_CURVE
+		#include "/lib/world_curve.glsl"
+	#endif
+
+	gl_Position  = clipPos;
 
 	tbn			 = getTBN();
 	
