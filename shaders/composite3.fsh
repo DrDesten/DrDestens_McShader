@@ -2,16 +2,16 @@
 
 /*
 const int colortex0Format = RGB16F;      // Color
-const int colortex1Format = R8           // Reflectiveness
+const int colortex1Format = R8           // Reflectiveness (and in the future other PBR values)
 const int colortex2Format = RGB16_SNORM; // Normals
 
 const int colortex3Format = R16F;        // colortex3 = blockId
 const int colortex4Format = RGB16F;      // colortex4 = bloom
 
-const vec4 colortex1ClearColor = vec4(0,0,0,1);
-*/
+const vec4 colortex1ClearColor = vec4(0,0,0,1);*/
 
 const float sunPathRotation = -40.0;
+const int   noiseTextureResolution = 512;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
@@ -70,6 +70,19 @@ vec3 cheapSSR2(vec3 viewPos) {
     horizon      = backToClip(horizon) * .5 + .5;
 
     return getAlbedo_int(horizon.xy);
+}
+
+vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cubemap style"
+    vec3 playerEye    = toPlayerEye(pos.view);
+    vec3 playerNormal = toPlayerEye(pos.view + normal) - playerEye;
+    vec3 reflection   = reflect(normalize(playerEye), playerNormal);
+    reflection        = eyeToView(reflection);
+    vec4 screenPos    = backToClipW(reflection) * .5 + .5;
+
+    if (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
+        return vec4(getSkyColor3(reflection), 0);
+    }
+    return vec4(getAlbedo_int(screenPos.xy), 1);
 }
 
 /* vec3 universalSSR(vec3 screenPos, vec3 normal, float roughness, bool skipSame) {
@@ -403,18 +416,6 @@ void main() {
     vec3  viewPos       = toView(clipPos);
     vec3  viewDir       = normalize(viewPos);
 
-    #ifdef PIXELIZE
-        vec3 worldPos   = toWorld(toPlayer(viewPos));
-        worldPos        = floor(worldPos * PIXELIZE_SIZE) / PIXELIZE_SIZE;
-
-        viewPos         = backToView(backToPlayer(worldPos));
-        viewDir         = normalize(viewPos);
-        clipPos         = backToClip(viewPos);
-        screenPos       = clipPos * .5 + .5;
-
-        normal          = getNormal(screenPos.xy);
-    #endif
-
     position Positions  = position(screenPos, clipPos, viewPos, viewDir);
 
     //////////////////////////////////////////////////////////
@@ -472,7 +473,12 @@ void main() {
 
             float fresnel   = customFresnel(viewDir, normal, 0.03, .7, 2);
 
-            vec4 Reflection = universalSSR(Positions, normal, false);
+            #if SSR_MODE == 0
+                vec4 Reflection = universalSSR(Positions, normal, false);
+            #else
+                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            #endif
+
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
             denoise         = 1;
 
@@ -490,7 +496,11 @@ void main() {
         float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
         if (reflectiveness > 12.75/255) { // 12.75/255 represents 5% reflectiveness, lower is practically invisible
 
-            vec4  Reflection   = universalSSR(Positions, normal, false);
+            #if SSR_MODE == 0
+                vec4 Reflection = universalSSR(Positions, normal, false);
+            #else
+                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            #endif
             denoise            = 1;
 
             #ifdef PBR_REFLECTION_REALISM
@@ -549,10 +559,6 @@ void main() {
     #endif
 
     //color = normal * .5 + .5;
-
-
-    // Create some atmosphere
-    //color *= (fogColor * 0.5 + 0.5);
 
     //Pass everything forward
     FD0          = vec4(color, 1);

@@ -49,6 +49,10 @@ value.DOF_KERNEL_SIZE.4=Highest
 
 screen.SSR=Screen Space Reflections
 
+option.SSR_MODE=::
+value.SSR_MODE.0=Raytraced :::
+value.SSR_MODE.1=Cubemap-Like :::
+
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
 
@@ -56,7 +60,7 @@ option.SSR_STEP_OPTIMIZATION=Optimize Raytrace
 option.SSR_STEP_OPTIMIZATION.comment=Only for use with low Raytrace Quality. Causes artifacts when paired with high quality raytracing.
 
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
-option.SSR_DEPTH_TOLERANCE.comment=Influences assumption about how thick a pixel is. No performance impact.
+option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
 value.SSR_DEPTH_TOLERANCE.1000=Infinite
 
 option.DENOISE=Denoise Reflections

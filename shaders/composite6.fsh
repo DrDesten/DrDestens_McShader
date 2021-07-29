@@ -20,34 +20,6 @@ uniform vec3 sunPosition;
 
 in vec2 coord;
 
-vec4 depthIntersectionMarch(vec3 startPos, vec3 endPos, float steps) {
-    // Calculate Vector connecting startPos with endPos
-    vec3 stepDirection = endPos - startPos;
-    // Divide by step amount, to create the correct step size
-    // I am dividing by "steps + 1":
-    // If I would divide by steps, the last rayPos would be endPos (but we already know this point)
-    // Diviting by "steps + 1", the last rayPos is one step before endPos, making endPos the next step, 
-    //     which we can simply assume is the fallback if no intersection is found.
-    stepDirection /= steps + 1;
-
-    vec3 rayPos = startPos;
-    rayPos += stepDirection * pattern_cross2(startPos.xy, 1, viewWidth, viewHeight) * 0.666;
-
-    for (int i = 0; i < steps; i++) {
-        // Incrementing the rayPos
-        rayPos += stepDirection;
-
-        float depth = getDepth_int(rayPos.xy);
-
-        // Checking if the rayPos depth is "behind" the actual depth at that location
-        if (depth + 0.0001 < rayPos.z) {
-            float stepLength = length(rayPos - startPos);
-            return vec4(rayPos.xy, depth, stepLength);
-        }
-    }
-
-    return vec4(endPos, 1);
-}
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     if (length(blur) < ScreenSizeInverse.x) { return getAlbedo(coord); }

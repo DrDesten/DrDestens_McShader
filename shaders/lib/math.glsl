@@ -1,5 +1,8 @@
-const float PI = 3.14159265358979323846;
-const float PHI = 1.61803398874989484820459;
+
+const float TWO_PI  = 6.28318530717958647692;
+const float PI      = 3.14159265358979323846;
+const float HALF_PI = 1.57079632679489661923;
+const float PHI     = 1.61803398874989484820459;
 
 float sinf(float x) {
     x *= 0.159155;
@@ -79,48 +82,6 @@ float Bayer2(vec2 a) {
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
 
-
-float pattern(vec2 seed, float size, float vW, float vH) {
-    // Returns a gradient which repeats
-    // the coords (akak seed) are multiplied by vW / vH in order to make square segments
-    // Then they can be scaled to be bigger/smaller than one pixel.
-    // The fractional component is extracted to repeat them between 0/1
-    // x and y are averaged to create a linear gradient
-    return (fract(seed.x * vW * size) + fract(seed.y * vH * size)) * 0.5;
-}
-float pattern_cross(vec2 seed, float size, float vW, float vH) {
-    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
-    float modX = fract(coord.x * 0.5);
-    float modY = fract(coord.y * 0.5);
-    return float(modX == modY);
-}
-float pattern_cross2(vec2 seed, float size, float vW, float vH) {
-    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
-    float modX1 = mod(coord.x, 3);
-    float modY1 = mod(coord.y, 3);
-    float modX2 = mod(coord.x + 1, 3);
-    return (float(modX1 == modY1)) + (float(modX2 == modY1) * 0.5);
-}
-float pattern_cross_detail3(vec2 seed, float size, float vW, float vH) {
-    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
-    float modX1 = mod(coord.x, 2);
-    float modY1 = mod(coord.y, 2);
-    float modX2 = mod(floor(coord.x * 0.6666666666) * 1.5, 2);
-    float modY2 = mod(floor(coord.y * 0.6666666666) * 1.5, 2);
-    float modX3 = mod(floor(coord.x * 0.3333333333) * 3,   2);
-    float modY3 = mod(floor(coord.y * 0.3333333333) * 3,   2);
-    return (float(modX1 == modY1) + (float(modX2 == modY2) * 0.75) + (float(modX3 == modY3) * 0.5)) * 0.444444444;
-}
-float pattern_cross_detail4(vec2 seed, float size, float vW, float vH) {
-    vec2 coord = floor(vec2(seed.x * vW / size, seed.y * vH / size)) * size;
-    float modX1 = fract(coord.x * 0.5);
-    float modY1 = fract(coord.y * 0.5);
-    float modX2 = fract(floor(coord.x * 0.3333333333) * 1.5);
-    float modY2 = fract(floor(coord.y * 0.3333333333) * 1.5);
-    float modX3 = fract(floor(coord.x * 0.2222222222) * 2.25);
-    float modY3 = fract(floor(coord.y * 0.2222222222) * 2.25);
-    return (float(modX1 == modY1) + (float(modX2 == modY2) * 0.75) + (float(modX3 == modY3) * 0.5)) * 0.444444444;
-}
 
 float rand(float x) {
     return fract(sin(x * 12.9898) * 4375.5453123);
@@ -226,6 +187,9 @@ mat3 rotateAlign( vec3 v1, vec3 v2) {
     return result;
 }
 
+////////////////////////////////////////////////////////////////////////
+// General functions
+
 float mean(vec2 vector) {
     return (vector.x + vector.y) * 0.5;
 }
@@ -330,7 +294,7 @@ float linearizeDepth(float d,float nearPlane,float farPlane) {
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
 }
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
-    //Schlick-Approximation of fresnel
+    //Schlick-Approximation of Fresnel
     float R0 = (1 - refractiveIndex) / (1 + refractiveIndex);
     R0 *= R0;
 
@@ -350,10 +314,5 @@ float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float po
 }
 
 vec3 pickSunMoon(vec3 sPos, vec3 mPos, int time) {
-    if (time > 12500 && time < 23000) {
-        return mPos;
-    } else {
-        return sPos;
-    }
-    //return sPos;
+    return (time > 12500 && time < 23000) ? mPos : sPos;
 }
