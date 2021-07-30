@@ -274,6 +274,15 @@ float angleBetween(vec3 v1, vec3 v2) {
     return acos(dot(normalize(v1), normalize(v2)));
 }
 
+float asinf(float x) { // s(x) = x + x³/8 + x^5/5
+    float x2  = x*x;
+    float x4  = x2*x2;
+    return x + (x2 * x * .125) + (x4 * x * .2);
+}
+float acosf(float x) {
+    return HALF_PI - asinf(x);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////
 //                              OTHER FUNCTIONS
