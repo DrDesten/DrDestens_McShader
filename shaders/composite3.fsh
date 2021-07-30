@@ -379,7 +379,7 @@ float AmbientOcclusionLOW(position pos, vec3 normal, float size) {
         sample      = TBN * sample;
         sample      = backToClip(sample + pos.view) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth(sample.xy);
+        float hitDepth = texture(depthtex1, sample.xy).r;
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
@@ -403,7 +403,7 @@ float AmbientOcclusionHIGH(position pos, vec3 normal, float size) {
         sample      = TBN * sample;
         sample      = backToClip(sample + pos.view) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth(sample.xy);
+        float hitDepth = texture(depthtex1, sample.xy).r;
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
