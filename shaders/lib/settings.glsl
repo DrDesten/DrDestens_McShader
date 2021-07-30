@@ -17,12 +17,6 @@
 #define REFRACTION
 #define REFRACTION_AMOUNT 0.03          // Refraction Strength                          [0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.1]
 
-//#define DENOISE
-#define DENOISE_AMOUNT 1.0              // Denoise Amount                               [0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5]
-
-#define DENOISE_THRESHOLD 0.5           // Denoise sensitivity                          [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
-#define DENOISE_QUALITY   2             // Denoise Quality                              [1 2 3]
-//#define DENOISE_DEBUG
 
 #define SCREEN_SPACE_AMBIENT_OCCLUSION
 #define SSAO_QUALITY 1                  // SSAO Quality                                 [1 2]

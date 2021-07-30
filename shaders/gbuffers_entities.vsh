@@ -17,7 +17,13 @@ flat varying mat3 tbn;
 #endif
 
 void main() {
-	gl_Position = ftransform();
+	vec4 clipPos = ftransform();
+
+	#ifdef WORLD_CURVE
+		#include "/lib/world_curve.glsl"
+	#endif
+
+	gl_Position  = clipPos;
 	
 	viewpos = getView();
 	lmcoord = getLmCoord();

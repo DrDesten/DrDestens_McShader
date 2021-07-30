@@ -9,6 +9,7 @@ const int colortex3Format = R16F;        // colortex3 = blockId
 const int colortex4Format = RGB16F;      // colortex4 = bloom
 
 const vec4 colortex1ClearColor = vec4(0,0,0,1);
+const bool colortex4Clear = false;
 */
 
 const float sunPathRotation = -40.0;
@@ -89,7 +90,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cube
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
     //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor3(reflection), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
-    if (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
+    if (clamp(screenPos.xy, vec2(-.2, -.025), vec2(1.2, 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
         return vec4(getSkyColor3(reflection), 0);
     }
     return vec4(getAlbedo_int(screenPos.xy), 1);

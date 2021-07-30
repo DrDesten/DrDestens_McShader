@@ -28,48 +28,7 @@ in vec2 coord;
 flat in vec2 x3_kernel[9];
 
 
-float separationDetect(vec2 coord) {
-    float edgeColor;
-    float edgeColors[4] = float[](0,0,0,0);
-
-    for (int i = 0; i < 9; i++) {
-        float ccolor = getDepth_int(x3_kernel[i]);
-
-        edgeColors[0] += ccolor * sobel_vertical[i];
-        edgeColors[2] += ccolor * sobel_horizontal[i];
-
-        edgeColors[1] += ccolor * -sobel_vertical[i];
-        edgeColors[3] += ccolor * -sobel_horizontal[i];
-    }
-
-    edgeColor = abs(edgeColors[0]) + abs(edgeColors[1]) + abs(edgeColors[2]) + abs(edgeColors[3]);
-
-    edgeColor = min(edgeColor * 2, 1);
-    return edgeColor;
-}
-
-float depthEdgeFast(vec2 coord) {
-    float depth         = getDepth(coord);
-    // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
-    float depthSurround = getDepth_int((ScreenSizeInverse * 1.5) + coord) + getDepth_int((ScreenSizeInverse * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * 1.5, ScreenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * -1.5, ScreenSizeInverse.y * 1.5) + coord);
-    depthSurround *= 0.25;
-
-    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
-}
-
-float depthEdge(vec2 coord) {
-    float depth = getDepth(coord);
-    float maxdiff = 0;
-    for (int i = -1; i <= 1; i++) {
-        for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(coord + ScreenSizeInverse * vec2(i, o));
-            maxdiff = max(maxdiff, abs(d-depth));
-        }
-    }
-    return clamp(pow(maxdiff * 1e2 * OUTLINE_DISTANCE, 7), 0, 1);
-}
-
-// 3-Sample Dark Priority Despecler
+/* // 3-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = ScreenSizeInverse.x * amount;
 
@@ -161,8 +120,6 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
     return color;
 }
 
-
-
 // 3-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
     float pixelOffsetX = ScreenSizeInverse.x * amount;
@@ -251,6 +208,48 @@ vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
     }
 
     return closestColor;
+} */
+
+
+float separationDetect(vec2 coord) {
+    float edgeColor;
+    float edgeColors[4] = float[](0,0,0,0);
+
+    for (int i = 0; i < 9; i++) {
+        float ccolor = getDepth_int(x3_kernel[i]);
+
+        edgeColors[0] += ccolor * sobel_vertical[i];
+        edgeColors[2] += ccolor * sobel_horizontal[i];
+
+        edgeColors[1] += ccolor * -sobel_vertical[i];
+        edgeColors[3] += ccolor * -sobel_horizontal[i];
+    }
+
+    edgeColor = abs(edgeColors[0]) + abs(edgeColors[1]) + abs(edgeColors[2]) + abs(edgeColors[3]);
+
+    edgeColor = min(edgeColor * 2, 1);
+    return edgeColor;
+}
+
+float depthEdgeFast(vec2 coord) {
+    float depth         = getDepth(coord);
+    // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
+    float depthSurround = getDepth_int((ScreenSizeInverse * 1.5) + coord) + getDepth_int((ScreenSizeInverse * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * 1.5, ScreenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * -1.5, ScreenSizeInverse.y * 1.5) + coord);
+    depthSurround *= 0.25;
+
+    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
+}
+
+float depthEdge(vec2 coord) {
+    float depth = getDepth(coord);
+    float maxdiff = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int o = -1; o <= 1; o++) {
+            float d = getDepth_int(coord + ScreenSizeInverse * vec2(i, o));
+            maxdiff = max(maxdiff, abs(d-depth));
+        }
+    }
+    return clamp(pow(maxdiff * 1e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
@@ -272,35 +271,8 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3 color;
+    vec3 color  = getAlbedo(coord);
     float depth = getDepth(coord);
-
-    vec2 newcoord = coord;
-
-    #ifdef DENOISE
-
-        if (getType(newcoord) == 3) {
-
-            // Select different despeclers for different denoising qualities
-            #if DENOISE_QUALITY == 3
-                color = DenoiseMeanH(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
-            #elif DENOISE_QUALITY == 2
-                color = DenoiseMeanM(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
-            #else
-                color = DenoiseMeanL(newcoord, DENOISE_THRESHOLD, DENOISE_AMOUNT);
-            #endif
-
-        } else {
-
-            color = getAlbedo(newcoord);
-
-        }
-
-    #else
-
-        color = getAlbedo(newcoord);
-
-    #endif
 
     #ifdef GODRAYS
 
@@ -363,7 +335,7 @@ void main() {
     #endif
 
     #ifdef OUTLINE
-        color = mix(color, vec3(1), depthEdge(newcoord) * OUTLINE_BRIGHTNESS);
+        color = mix(color, vec3(1), depthEdge(coord) * OUTLINE_BRIGHTNESS);
     #endif
     
 

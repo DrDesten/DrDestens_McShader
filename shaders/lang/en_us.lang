@@ -51,7 +51,7 @@ screen.SSR=Screen Space Reflections
 
 option.SSR_MODE=::
 value.SSR_MODE.0=Raytraced :::
-value.SSR_MODE.1=Cubemap-Like §f:::
+value.SSR_MODE.1=Cubemap-Like §r:::
 
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
@@ -59,21 +59,6 @@ option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
 value.SSR_DEPTH_TOLERANCE.1000=Infinite
-
-option.DENOISE=Denoise Reflections
-option.DENOISE.comment=Removes noise from reflections.
-option.DENOISE_AMOUNT=Denoise Amount
-
-option.DENOISE_QUALITY=Denoise Quality
-value.DENOISE_QUALITY.1=Low
-value.DENOISE_QUALITY.2=Medium
-value.DENOISE_QUALITY.3=High
-
-option.DENOISE_THRESHOLD=Denoise threshold
-option.DENOISE_THRESHOLD.comment=Lower = more denoising.
-
-option.SSR_CHEAP=CheapSSR™
-option.SSR_CHEAP.comment=Fast Approximate Reflections
 
 option.REFRACTION=Screen Space Refraction
 option.REFRACTION_AMOUNT=Refraction Strength

@@ -1,6 +1,11 @@
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferProjection;
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferPreviousProjection;
 
 attribute vec4 at_tangent;
 
