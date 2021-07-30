@@ -331,12 +331,11 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
         }
 
     }
+    
     if (bloomCoord != saturate(bloomCoord)) {
         return vec3(0);
-    }
+    }  
 
-
-    
     // Gaussian Blur
     vec2 pixelStep = ScreenSizeInverse * exp2(currentTile - 1) * scale * 1.5;
 
@@ -348,11 +347,11 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
             vec2  offs   = vec2(x, y) * pixelStep;
 
             color       += texture(colortex0, bloomCoord + offs).rgb * weight;
-
         }
     }
 
-    return color;
+    return (bloomCoord == clamp(bloomCoord, pixelStep, 1 - pixelStep)) ? color : vec3(0);
+    //return color;
 }
 
 

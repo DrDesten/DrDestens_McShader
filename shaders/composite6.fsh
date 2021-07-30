@@ -112,7 +112,7 @@ void main() {
         bloom /= 6;
         color += (sq(bloom)) * BLOOM_AMOUNT;
 
-        //color = readBloomTile(coord, 3, 4, 10 * ScreenSizeInverse.x);
+        //color = readBloomTile(coord, 1, 0, 10 * ScreenSizeInverse.x);
     #endif
 
 
