@@ -32,7 +32,7 @@ vec3 getAlbedo_int(in vec2 coord) {
 }
 
 vec3 getNormal(in vec2 coord) {
-    return normalize(texture(colortex2, coord).rgb);
+    return texture(colortex2, coord).rgb;
 }
 
 float getDepth(in vec2 coord) {

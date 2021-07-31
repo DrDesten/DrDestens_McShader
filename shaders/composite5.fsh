@@ -350,6 +350,7 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
         }
     }
 
+    // Reduces Bloom artifacts on IntelHD (seems to be a hardware mipmapping issue)
     return (bloomCoord == clamp(bloomCoord, pixelStep, 1 - pixelStep)) ? color : vec3(0);
     //return color;
 }

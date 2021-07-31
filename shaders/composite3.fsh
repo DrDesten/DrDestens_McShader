@@ -90,7 +90,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cube
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
     //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor3(reflection), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
-    if (clamp(screenPos.xy, vec2(-.2, -.025), vec2(1.2, 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
+    if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
         return vec4(getSkyColor3(reflection), 0);
     }
     return vec4(getAlbedo_int(screenPos.xy), 1);
@@ -360,57 +360,6 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     return vec4(getSkyColor3(viewReflection - pos.view), 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//                     SCREEN SPACE AMBIENT OCCLUSION
-//////////////////////////////////////////////////////////////////////////////
-
-float AmbientOcclusionLOW(position pos, vec3 normal, float size) {
-    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));              //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
-
-    float ditherTimesSize  = (Bayer4(pos.screen.xy * ScreenSize) * 0.8 + 0.2) * size;
-    float depthTolerance   = 0.075/-pos.view.z;
-
-    float hits = 0;
-    vec3 sample;
-    for (int i = 0; i < 8; i++) {
-        sample      = half_sphere_8[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + pos.view) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
-    
-        float hitDepth = texture(depthtex1, sample.xy).r;
-
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-    }
-
-    hits  = 1 - (hits / 8);
-    return sq(hits);
-}
-
-float AmbientOcclusionHIGH(position pos, vec3 normal, float size) {
-    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));              //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
-
-    float ditherTimesSize  = (Bayer4(pos.screen.xy * ScreenSize) * 0.8 + 0.2) * size;
-    float depthTolerance   = 0.075/-pos.view.z;
-
-    float hits = 0;
-    vec3 sample;
-    for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                      // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + pos.view) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
-    
-        float hitDepth = texture(depthtex1, sample.xy).r;
-
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-    }
-
-    hits  = 1 - (hits / 16);
-    return sq(hits);
-}
 
 /* DRAWBUFFERS:03 */
 void main() {
@@ -551,23 +500,7 @@ void main() {
 
     #endif // WATER_EFFECTS
 
-    //////////////////////////////////////////////////////////
-    //                  SSAO
-    //////////////////////////////////////////////////////////
-
-    #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
-
-        if (abs(type - 50) > .2 && type != 1 && depth != 1) {
-
-            #if   SSAO_QUALITY == 1
-                color *= AmbientOcclusionLOW(Positions, normal, .5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-            #elif SSAO_QUALITY == 2
-                color *= AmbientOcclusionHIGH(Positions, normal, .5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-            #endif
-            
-        }
-
-    #endif
+    
 
     //color = normal * .5 + .5;
 
