@@ -77,7 +77,7 @@ vec4 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float
     float nenner   = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, normalize(lightVector)), 0.0);
     float specular = zaehler / max(nenner, 0.01);
 
-    vec3  kS = vec3(Fresnel); // Specular Energy
+    vec3  kS = vec3(0); // Specular Energy
     vec3  kD = vec3(1) - kS;  // Diffuse Energy
 
     float NdotL    = max(dot(normal, normalize(lightVector)), 0.0);

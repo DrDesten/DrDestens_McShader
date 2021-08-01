@@ -24,13 +24,12 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float sampleSize) {
 
     float light = 0;
     for (int i = 0; i < 8; i++) {
-        vec2 sample       = blue_noise_disk[i] * size;
-        vec3 sampleNormal = getNormal(sample + screenPos.xy);
+        vec3 sampleNormal = getNormal(blue_noise_disk[i] * size + screenPos.xy);
 
-        float ang = max(dot(normal, sampleNormal), 0);
-        light    += ang;
+        light    += max(dot(normal, sampleNormal), 0);
     }
     light        *= 0.125;
+    light        *= light;
 
     return light;
 }
