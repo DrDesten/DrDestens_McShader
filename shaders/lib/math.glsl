@@ -302,6 +302,10 @@ float linearizeDepth(float d,float nearPlane,float farPlane) {
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
 }
+float linearizeDepthf(float d, float slope) {
+    return 1 / ((-d * slope) + slope);
+}
+
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
     //Schlick-Approximation of Fresnel
     float R0 = (1 - refractiveIndex) / (1 + refractiveIndex);

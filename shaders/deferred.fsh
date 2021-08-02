@@ -19,29 +19,12 @@ in vec2 coord;
 //////////////////////////////////////////////////////////////////////////////
 
 
-/* float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float sampleSize) {
-
-    float size  = sampleSize / max(linearizeDepth(screenPos.z, near, far), 1) * fovScale;
-    size       *= Bayer4(screenPos.xy * ScreenSize) * .9 + .1;
-
-    float light = 0;
-    for (int i = 0; i < 8; i++) {
-        vec3 sampleNormal = getNormal(blue_noise_disk[i] * size + screenPos.xy);
-
-        light    += max(dot(normal, sampleNormal), 0);
-    }
-    light        *= 0.125;
-    light        *= light;
-
-    return light;
-} */
-
 float depthToleranceAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
 float AmbientOcclusionLOW(vec3 screenPos, float sampleSize) {
 
-    float linearDepth = linearizeDepth(screenPos.z, near, far);
+    float linearDepth = linearizeDepthf(screenPos.z, 20);
     float size        = sampleSize / linearDepth * fovScale;
 
     float dither      = Bayer4(screenPos.xy * ScreenSize) * 64;
@@ -50,11 +33,11 @@ float AmbientOcclusionLOW(vec3 screenPos, float sampleSize) {
     for (int i = 0; i < 8; i++) {
         vec2 sample       = blue_noise_disk[ int( mod(i + dither, 64) ) ] * size + screenPos.xy;
 
-        float sampleDepth = linearizeDepth(getDepth_int(sample), near, far);
+        float sampleDepth = linearizeDepthf(getDepth_int(sample), 20);
         float occ         = (linearDepth - sampleDepth);
-        occlusion        += depthToleranceAttenuation(occ, 1);
+        occlusion        += (depthToleranceAttenuation(occ, 1));
     }
-    occlusion = 1 - saturate(occlusion * .3);
+    occlusion = saturate(-occlusion * .3 + 1);
  
     return sq(occlusion);
 }
@@ -102,7 +85,7 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color *= AmbientOcclusionLOW(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color *= AmbientOcclusionLOW(vec3(coord, depth), 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
@@ -114,6 +97,7 @@ void main() {
         }
 
     #endif
+
 
     FD0 = vec4(color, 1.0);
 }
