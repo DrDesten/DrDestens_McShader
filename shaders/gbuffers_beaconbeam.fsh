@@ -1,5 +1,6 @@
 #version 120
 
+#include "/lib/math.glsl"
 #include "/lib/gamma.glsl"
 
 uniform sampler2D texture;
@@ -11,8 +12,9 @@ varying vec4 glcolor;
 void main() {
 
 	vec4 color = texture2D(texture, coord) * glcolor;
+	color.rgb  = color.rgb * 1.5;
 	gamma(color.rgb);
 
-	gl_FragData[0] = color; //gcolor
 
+	gl_FragData[0] = color;
 }

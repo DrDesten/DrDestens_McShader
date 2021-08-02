@@ -9,6 +9,8 @@
 uniform float near;
 uniform float far;
 
+uniform float frameTimeCounter;
+
 in vec2 coord;
 
 
@@ -17,7 +19,7 @@ in vec2 coord;
 //////////////////////////////////////////////////////////////////////////////
 
 
-float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float sampleSize) {
+/* float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float sampleSize) {
 
     float size  = sampleSize / max(linearizeDepth(screenPos.z, near, far), 1) * fovScale;
     size       *= Bayer4(screenPos.xy * ScreenSize) * .9 + .1;
@@ -32,6 +34,29 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float sampleSize) {
     light        *= light;
 
     return light;
+} */
+
+float depthToleranceAttenuation(float depthDiff, float peak) {
+    return peak - abs(depthDiff - peak);
+}
+float AmbientOcclusionLOW(vec3 screenPos, float sampleSize) {
+
+    float linearDepth = linearizeDepth(screenPos.z, near, far);
+    float size        = sampleSize / linearDepth * fovScale;
+
+    float dither      = Bayer4(screenPos.xy * ScreenSize) * 64;
+
+    float occlusion = 0;
+    for (int i = 0; i < 8; i++) {
+        vec2 sample       = blue_noise_disk[ int( mod(i + dither, 64) ) ] * size + screenPos.xy;
+
+        float sampleDepth = linearizeDepth(getDepth_int(sample), near, far);
+        float occ         = (linearDepth - sampleDepth);
+        occlusion        += depthToleranceAttenuation(occ, 1);
+    }
+    occlusion = 1 - saturate(occlusion * .3);
+ 
+    return sq(occlusion);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
@@ -60,10 +85,10 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     return sq(hits);
 }
 
+
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3 color        = getAlbedo_int(coord);
-    vec3 normal       = getNormal(coord);
+    vec3 color        = getAlbedo(coord);
     float depth       = getDepth(coord);
     float type        = getType(coord);
 
@@ -77,10 +102,11 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.25) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color *= AmbientOcclusionLOW(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
+                vec3 normal       = getNormal(coord);
                 color *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #endif

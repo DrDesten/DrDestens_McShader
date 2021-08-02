@@ -11,7 +11,7 @@ varying vec4 glcolor;
 void main() {
 
 	vec4 color = glcolor;
-	color *= texture2D(lightmap, lmcoord);
+	color     *= texture2D(lightmap, lmcoord);
 	gamma(color.rgb);
 
 
