@@ -302,7 +302,7 @@ float linearizeDepth(float d,float nearPlane,float farPlane) {
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
 }
-float linearizeDepthf(float d, float slope) {
+float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / ((-d * slope) + slope);
 }
 

@@ -22,6 +22,7 @@ vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
 	vec2 sinArg  = worldPos.xz + worldPos.y * 5;
 	worldPos.xz += sin((worldPos.xz) + time) * amount;
+	worldPos.y  -= 1e-3; // Prevent Z-Fighting
 	return worldPos;
 }
 

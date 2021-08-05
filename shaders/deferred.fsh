@@ -6,6 +6,8 @@
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 
+uniform sampler2D noisetex;
+
 uniform float near;
 uniform float far;
 
@@ -22,7 +24,7 @@ in vec2 coord;
 float depthToleranceAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
-float AmbientOcclusionLOW(vec3 screenPos, float sampleSize) {
+float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
 
     float linearDepth = linearizeDepthf(screenPos.z, 20);
     float size        = sampleSize / linearDepth * fovScale;
@@ -35,11 +37,37 @@ float AmbientOcclusionLOW(vec3 screenPos, float sampleSize) {
 
         float sampleDepth = linearizeDepthf(getDepth_int(sample), 20);
         float occ         = (linearDepth - sampleDepth);
-        occlusion        += (depthToleranceAttenuation(occ, 1));
+        occlusion        += depthToleranceAttenuation(occ, 1);
     }
     occlusion = saturate(-occlusion * .3 + 1);
  
     return sq(occlusion);
+}
+
+float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
+    vec3 viewPos           = toView(screenPos * 2 - 1);
+
+    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+
+    float ditherTimesSize  = (Bayer4(screenPos.xy * ScreenSize) * 0.8 + 0.2) * size;
+    float depthTolerance   = 0.075/-viewPos.z;
+
+    float hits = 0;
+    vec3 sample;
+    for (int i = 0; i < 8; i++) {
+        sample      = half_sphere_8[i] * ditherTimesSize; 
+        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        sample      = TBN * sample;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
+    
+        float hitDepth = getDepth_int(sample.xy);
+
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+    }
+
+    hits  = -hits * 0.125 + 1;
+    return sq(hits);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
@@ -85,7 +113,8 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color *= AmbientOcclusionLOW(vec3(coord, depth), 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                vec3 normal       = getNormal(coord);
+                color *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
@@ -98,6 +127,7 @@ void main() {
 
     #endif
 
+    //color = texture(noisetex, (coord * ScreenSize) / 512).xyz;  
 
     FD0 = vec4(color, 1.0);
 }

@@ -43,7 +43,7 @@ void main() {
 
 	float reflectiveness = 0;
 
-	vec4 color = texture2D(texture, coord) * glcolor;
+	vec4 color = texture2D(texture, coord, -1) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
 	color.rgb *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 	gamma(color.rgb);
