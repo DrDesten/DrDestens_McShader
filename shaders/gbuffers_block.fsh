@@ -12,6 +12,8 @@ uniform int worldTime;
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
+uniform vec3 fogColor;
+
 flat varying float blockId;
 
 varying vec3  viewpos;
@@ -35,7 +37,7 @@ void main() {
 
 	#ifdef PHYSICALLY_BASED
 
-		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos);
+		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos, fogColor * 0.05);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;

@@ -12,6 +12,8 @@ uniform int worldTime;
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
+uniform vec3 fogColor;
+
 flat varying float blockId;
 varying vec3  viewpos;
 varying vec2  lmcoord;
@@ -30,12 +32,14 @@ void main() {
 	float reflectiveness = 0;
 
 	vec4 color		   = texture2D(texture, coord, -1) * glcolor;
-	color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
-	gamma(color.rgb);
 	
 	#ifdef PHYSICALLY_BASED
 
-		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos);
+		gamma(color.rgb);
+		vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
+		gamma(ambientLight);
+
+		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos, 0.1 * ambientLight + DynamicLight(lmcoord));
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
@@ -43,12 +47,14 @@ void main() {
 
 	#else
 
+		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		gamma(color.rgb);
+
 		if (abs(blockId - 1005) < .2) {
 			color.rgb *= EMISSION_STRENGTH * .5;
 		}
 		
 	#endif
-
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);

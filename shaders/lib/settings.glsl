@@ -10,7 +10,7 @@
 #define SSR_MODE 0                      // Screen Space Reflection Mode                 [0 1]
 #define SSR_STEPS 16                    // Screen Space Reflection Steps                [4 6 8 12 16 32]
 #define SSR_DEPTH_TOLERANCE 1.0         // Modifier to the thickness estimation         [0.5 0.75 1.0 1.25 1.5 1.75 2.0 2.25 2.5 2.75 3.0 3.25 3.5 3.75 4.0 4.25 4.5 4.75 5.0 1000]
-#define SSR_FINE_STEPS 5
+#define SSR_FINE_STEPS 3
 
 //#define SSR_NO_REFINEMENT
 
