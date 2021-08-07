@@ -30,7 +30,7 @@ flat in vec2 x3_kernel[9];
 
 /* // 3-Sample Dark Priority Despecler
 vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = ScreenSizeInverse.x * amount;
+    float pixelOffsetX = screenSizeInverse.x * amount;
 
     vec3 color           = getAlbedo(coord);
 
@@ -57,7 +57,7 @@ vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
 
 // 5-Sample Dark Priority Despecler
 vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = ScreenSizeInverse * amount;
+    vec2 pixelOffset = screenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -88,7 +88,7 @@ vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
 
 // 9-Sample Dark Priority Despecler
 vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = ScreenSizeInverse * amount;
+    vec2 pixelOffset = screenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -122,7 +122,7 @@ vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
 
 // 3-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = ScreenSizeInverse.x * amount;
+    float pixelOffsetX = screenSizeInverse.x * amount;
 
     vec3 color           = getAlbedo(coord);
 
@@ -148,7 +148,7 @@ vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
 
 // 5-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = ScreenSizeInverse * amount;
+    vec2 pixelOffset = screenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -178,7 +178,7 @@ vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
 
 // 9-Sample Closest-to-Average Denoiser
 vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = ScreenSizeInverse * amount;
+    vec2 pixelOffset = screenSizeInverse * amount;
 
     vec3 color           = getAlbedo(coord);
     vec2 coordOffsetPos  = coord + pixelOffset;
@@ -234,7 +234,7 @@ float separationDetect(vec2 coord) {
 float depthEdgeFast(vec2 coord) {
     float depth         = getDepth(coord);
     // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
-    float depthSurround = getDepth_int((ScreenSizeInverse * 1.5) + coord) + getDepth_int((ScreenSizeInverse * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * 1.5, ScreenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(ScreenSizeInverse.x * -1.5, ScreenSizeInverse.y * 1.5) + coord);
+    float depthSurround = getDepth_int((screenSizeInverse * 1.5) + coord) + getDepth_int((screenSizeInverse * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * 1.5, screenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * -1.5, screenSizeInverse.y * 1.5) + coord);
     depthSurround *= 0.25;
 
     return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
@@ -245,7 +245,7 @@ float depthEdge(vec2 coord) {
     float maxdiff = 0;
     for (int i = -1; i <= 1; i++) {
         for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(coord + ScreenSizeInverse * vec2(i, o));
+            float d = getDepth_int(coord + screenSizeInverse * vec2(i, o));
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
@@ -253,7 +253,7 @@ float depthEdge(vec2 coord) {
 }
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
-    if (length(blur) < ScreenSizeInverse.x) { return getAlbedo(coord); }
+    if (length(blur) < screenSizeInverse.x) { return getAlbedo(coord); }
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
@@ -287,10 +287,10 @@ void main() {
 
             // Create ray pointing from the current pixel to the sun
             vec2 ray          = sunScreen - coord;
-            vec2 rayCorrected = vec2(ray.x, ray.y * (ScreenSize.y / ScreenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
+            vec2 rayCorrected = vec2(ray.x, ray.y * (screenSize.y / screenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
 
             vec2 rayStep      = ray / GODRAY_STEPS;
-            vec2 rayPos       = coord - (Bayer8(coord * ScreenSize) * rayStep);
+            vec2 rayPos       = coord - (Bayer8(coord * screenSize) * rayStep);
 
             float light = 1;
             for (int i = 0; i < GODRAY_STEPS; i++ ) {
@@ -352,7 +352,7 @@ void main() {
             );
             noise = normalize(noise - .25) * (vel + .05) * isInvisibleSmooth;
 
-            color = vectorBlur(coord + noise, -(noise * Bayer4(coord * ScreenSize)), 5);
+            color = vectorBlur(coord + noise, -(noise * Bayer4(coord * screenSize)), 5);
         }
 
     #endif

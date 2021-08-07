@@ -27,8 +27,8 @@ uniform float far;
 //Depth of Field
 
 vec3 boxBlur(vec2 coord, float size, float stepsize) {
-    if (size <= ScreenSizeInverse.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= ScreenSizeInverse.x;
+    if (size <= screenSizeInverse.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
+    stepsize *= screenSizeInverse.x;
     if (stepsize > size)                   { stepsize = size; } //Prevent blur from clipping due to lange step size
 
     vec3 pixelColor = vec3(0);
@@ -47,7 +47,7 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
             #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - ScreenSizeInverse.x) * 0.5;
+            sampleCoord += vec2(randfac1, randfac2) * (stepsize - screenSizeInverse.x) * 0.5;
             #endif 
 
 
@@ -62,8 +62,8 @@ vec3 boxBlur(vec2 coord, float size, float stepsize) {
 }
 
 vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
-    if (size <= ScreenSizeInverse.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= ScreenSizeInverse.x;
+    if (size <= screenSizeInverse.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
+    stepsize *= screenSizeInverse.x;
     if (stepsize > size)                         { stepsize = size; } //Prevent blur from clipping due to lange step size
 
     vec3 pixelColor = vec3(0);
@@ -82,13 +82,13 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
 
             // Enable or Disable Coordinate Randomization, making use of precompiler
             #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - ScreenSizeInverse.x) * DOF_DITHER_AMOUNT;
+            sampleCoord += vec2(randfac1, randfac2) * (stepsize - screenSizeInverse.x) * DOF_DITHER_AMOUNT;
             #endif 
 
             // I am using texelFetch instead of textur2D, in order to avoid linear interpolation. This increases performance
-            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - ScreenSizeInverse.x);
-            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - ScreenSizeInverse.y);
-            ivec2 intcoords = ivec2(sampleCoord * vec2(viewWidth, viewHeight));
+            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - screenSizeInverse.x);
+            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - screenSizeInverse.y);
+            ivec2 intcoords = ivec2(sampleCoord * screenSize);
 
             pixelColor += texelFetch(colortex0, intcoords, 0).rgb;
             
@@ -104,7 +104,7 @@ vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
 
 vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float lod = log2(size / ScreenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
 
     // Low Quality
@@ -131,7 +131,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
+        vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
     #else
         vec2 dither = vec2(0);
     #endif
@@ -147,7 +147,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
 /* vec3 bokehBlur_adaptive_old(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float radius = size / ScreenSizeInverse.x;
+    float radius = size / screenSizeInverse.x;
 
     float lod = log2(radius) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
@@ -188,7 +188,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * ScreenSize), Bayer4(coord * ScreenSize + 1)) - 0.5) * (size * inversesqrt(mediumKernelSize * .25));
+        vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(mediumKernelSize * .25));
     #else
         vec2 dither = vec2(0);
     #endif
@@ -220,7 +220,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 } */
 vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float radius    = size * ScreenSize.x;
+    float radius    = size * screenSize.x;
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
@@ -243,7 +243,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     int samples = clamp(int(radius * samplesPerRadius), minSamples, 64); // Circle blur Array has a max of 64 samples
 
     #ifdef DOF_DITHER
-        float offset      = Bayer2(coord * ScreenSize) * 32;
+        float offset      = Bayer2(coord * screenSize) * 32;
         for (int i = 0; i < samples; i++) {
             int index     = int(mod(i + offset, 63));
             pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb;
@@ -260,7 +260,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
 }
 
 vec3 DoF(vec2 coord, float pixeldepth, float size, float stepsize) {
-    if (pixeldepth < 0.56 || size < 0.5 / ScreenSize.x) {return getAlbedo(coord);}
+    if (pixeldepth < 0.56 || size < 0.5 / screenSize.x) {return getAlbedo(coord);}
     size = min(size, DOF_MAXSIZE);
 
     // precompiler instead of runtime check
@@ -337,7 +337,7 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
     }  
 
     // Gaussian Blur
-    vec2 pixelStep = ScreenSizeInverse * exp2(currentTile - 1) * scale * 1.5;
+    vec2 pixelStep = screenSizeInverse * exp2(currentTile - 1) * scale * 1.5;
 
     vec3 color = vec3(0);
     for (int x = -2; x <= 2; x++) {
@@ -376,7 +376,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / ScreenSize.x);
+        vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x);
     #else
         vec3 bloomColor = vec3(0);
     #endif

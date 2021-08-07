@@ -29,7 +29,7 @@ float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
     float linearDepth = linearizeDepthf(screenPos.z, 20);
     float size        = sampleSize / linearDepth * fovScale;
 
-    float dither      = Bayer4(screenPos.xy * ScreenSize) * 64;
+    float dither      = Bayer4(screenPos.xy * screenSize) * 64;
 
     float occlusion = 0;
     for (int i = 0; i < 8; i++) {
@@ -47,10 +47,10 @@ float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
-    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    vec3 tangent           = normalize(vec3(normal.y - normal.z, -normal.x, normal.x));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * ScreenSize) * 0.8 + 0.2) * size;
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -76,7 +76,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * ScreenSize) * 0.8 + 0.2) * size;
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -127,7 +127,7 @@ void main() {
 
     #endif
 
-    //color = texture(noisetex, (coord * ScreenSize) / 512).xyz;  
+    //color = texture(noisetex, (coord * screenSize) / 512).xyz;  
 
     FD0 = vec4(color, 1.0);
 }

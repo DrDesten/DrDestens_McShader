@@ -155,3 +155,6 @@ option.WAVY_LEAVES=Wavy Leaves
 
 option.HAND_INVISIBILITY_EFFECT=Hand Invisibility Effect
 option.HAND_INVISIBILITY_EFFECT.comment=Distorts handheld objects when invisible
+
+option.WORLD_CURVE=World Curvature
+option.WORLD_CURVE_RADIUS=World Radius

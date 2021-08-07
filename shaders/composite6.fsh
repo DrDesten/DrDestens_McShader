@@ -22,7 +22,7 @@ in vec2 coord;
 
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
-    if (length(blur) < ScreenSizeInverse.x) { return getAlbedo(coord); }
+    if (length(blur) < screenSizeInverse.x) { return getAlbedo(coord); }
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
@@ -60,7 +60,7 @@ vec3 readBloomTileBlur(vec2 coord, float initial_scale, float tile, float paddin
         for (int y = -2; y <= 2; y++) {
 
             float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
-            vec2  offs   = vec2(x, y) * ScreenSizeInverse;
+            vec2  offs   = vec2(x, y) * screenSizeInverse;
 
             vec2 sample  = tileLocation + offs;
             color       += texture(colortex4, sample).rgb * weight;
@@ -95,7 +95,7 @@ void main() {
         vec2  motionBlurVector = (clamp(prevCoord.xy, -0.2, 1.2) - coord) * float(clipPos.z > 0.12);
         motionBlurVector      *= MOTION_BLUR_STRENGTH;
 
-        float ditherOffset     = (Bayer4(coord * ScreenSize) - 0.5) / MOTION_BLUR_SAMPLES;
+        float ditherOffset     = (Bayer4(coord * screenSize) - 0.5) / MOTION_BLUR_SAMPLES;
         vec3  color            = vectorBlur(motionBlurVector * ditherOffset + coord, motionBlurVector, MOTION_BLUR_SAMPLES);
 
     #else
@@ -107,12 +107,12 @@ void main() {
     #ifdef BLOOM
         vec3 bloom = vec3(0);
         for (int i = 0; i < 6; i++) {
-            bloom += readBloomTile(coord, 4, i, 10 * ScreenSizeInverse.x);
+            bloom += readBloomTile(coord, 4, i, 10 * screenSizeInverse.x);
         }
         bloom /= 6;
         color += (sq(bloom)) * BLOOM_AMOUNT;
 
-        //color = readBloomTile(coord, 1, 0, 10 * ScreenSizeInverse.x);
+        //color = readBloomTile(coord, 1, 0, 10 * screenSizeInverse.x);
     #endif
 
 

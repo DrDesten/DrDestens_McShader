@@ -139,7 +139,7 @@ vec3 waveNormals(vec2 coord, float strength) {
 /* DRAWBUFFERS:023 */
 
 void main(){
-    vec2 screenCoord = (gl_FragCoord.xy / ScreenSize);
+    vec2 screenCoord = (gl_FragCoord.xy / screenSize);
     vec4 color       = texture(colortex0, coord, -1) * glcolor;
 
     vec3 surfaceNormal = tbn[2];
@@ -164,7 +164,7 @@ void main(){
         /* float absorption;
         if (isEyeInWater == 0) {
             
-            vec2 screenCoord   = (gl_FragCoord.xy / ScreenSize);
+            vec2 screenCoord   = (gl_FragCoord.xy / screenSize);
             float terrainDepth = linearizeDepth(texture(depthtex1, screenCoord).x, near, far);
             float waterDepth   = linearizeDepth(gl_FragCoord.z, near, far);
 
@@ -175,7 +175,7 @@ void main(){
 
         //color.rgb = absorption.xxx;
         //color.rgb = linearizeDepth(gl_FragCoord.z, near, far).xxx * 0.1;
-        //color.rgb = (gl_FragCoord.xy / ScreenSize).yyy; 
+        //color.rgb = (gl_FragCoord.xy / screenSize).yyy; 
 
         /* float fresnel     = customFresnel(normalize(viewPos), surfaceNormal, 0.02, 2, 3);
         vec4 Sky          = vec4( getSkyColor3( reflect(viewPos, surfaceNormal) ), 1);

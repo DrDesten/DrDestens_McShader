@@ -82,7 +82,7 @@ vec3 ChromaticAbberation_HQ(vec2 coord, float amount, int samples) {
     vec2 tmp = coord - .5;
     amount = dot(tmp, tmp) * amount;
 
-    float dither = (Bayer4(coord * ScreenSize) * .75 + .5);
+    float dither = (Bayer4(coord * screenSize) * .75 + .5);
 
     //Red Channel
     col.r     = radialBlur(scaleCoord_f(coord, 1.0 - amount * dither), samples, amount).r;

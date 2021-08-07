@@ -6,7 +6,9 @@ varying vec3 viewPos;
 varying vec4 glcolor;
 
 void main() {
-	gl_Position = ftransform();
+	vec4 clipPos = ftransform();
+
+	gl_Position = clipPos;
 	
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;

@@ -89,7 +89,7 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     vec3 L = normalize(light);
     vec3 H = normalize(V + L);
 
-    float radiance = 2;
+    float radiance = 3;
 
     float k = sq(roughness + 1) / 8;
 
@@ -104,6 +104,7 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     vec3  zaehl = D * G * F;
     float nenn  = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0);
     vec3  spec  = zaehl / max(nenn, 0.001) * specular;
+    spec        = min(spec, 10);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(normal, L), 0.0);
 
@@ -225,7 +226,7 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
 	float emission   = extractEmission(normalTex, specularTex);
 
     // Get PBR Material
-	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, vec3(f0), sunBright) * (lightPos == sunPosition ? 1.0 : 0.3) * lmcoord.y; //Reduce brightness at night and according to minecrafts abient light
+	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, f0, sunBright) * (lightPos == sunPosition ? 1.0 : 0.3) * lmcoord.y; //Reduce brightness at night and according to minecrafts abient light
 
     // Emission and Ambient Light
 	BRDF.rgb 		+= origColor.rgb * emission * 2;
@@ -237,13 +238,6 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
 	BRDF.a 	    	 = mix(0, BRDF.a, blend);
 	
 	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
-    #ifdef PBR_REFLECTION_REALISM
-    if (f0 == 1) {
-        reflectiveness = 1;
-        color          = origColor;
-        color.rgb     += clamp(BRDF.rgb - 1, 0, 1) * lmblend;
-    }    
-    #endif
 
     color.rgb = max(color.rgb, 0); // Preventing Negative values
 

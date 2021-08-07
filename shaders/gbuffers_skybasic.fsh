@@ -59,7 +59,7 @@ void main() {
 
     #else
 
-        vec3 screenPos = vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight), 1);
+        vec3 screenPos = vec3(gl_FragCoord.xy * screenSizeInverse, 1);
         vec3 viewPos = toView(screenPos * 2.0 - 1.0);
 
         vec3 color = getSkyColor3(viewPos); //Get sky

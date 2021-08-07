@@ -1,5 +1,6 @@
 #version 120
 
+#include "/lib/settings.glsl"
 #include "/lib/vertex_transform.glsl"
 
 attribute vec2 mc_midTexCoord;
@@ -15,7 +16,14 @@ varying vec4 glcolor;
 flat varying mat3 tbn;
 
 void main() {
-	gl_Position = ftransform();
+	vec4 clipPos = ftransform();
+	
+	#ifdef WORLD_CURVE
+		#include "/lib/world_curve.glsl"
+	#endif
+
+	gl_Position = clipPos;
+
 
 	viewpos = getView();
 	lmcoord = getLmCoord();

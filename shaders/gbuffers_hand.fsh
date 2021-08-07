@@ -14,8 +14,8 @@ uniform sampler2D texture;
 
 uniform vec3 fogColor;
 
-uniform float viewHeight;
-uniform float viewWidth;
+uniform vec2 screenSize;
+uniform vec2 screenSizeInverse;
 
 flat varying float blockId;
 varying vec3  viewpos;
@@ -47,7 +47,7 @@ void main() {
 
 	#ifdef PHYSICALLY_BASED
 		#ifdef FRAG_NORMALS
-		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy / vec2(viewWidth, viewHeight));
+		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 		#endif
 
 		gamma(color.rgb);
