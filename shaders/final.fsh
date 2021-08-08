@@ -3,6 +3,9 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/kernels.glsl"
+
+uniform int frameCounter;
 
 in vec2 coord;
 

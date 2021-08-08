@@ -1,5 +1,7 @@
 #version 120
 
+#include "/lib/settings.glsl"
+
 varying vec2 coord;
 varying vec3 normal;
 varying vec3 viewPos;
