@@ -3,16 +3,20 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/kernels.glsl"
 #include "/lib/gamma.glsl"
 
 varying vec2 coord;
 
 uniform int frameCounter;
+
 uniform sampler2D colortex4;
+#ifdef TAA
+uniform sampler2D colortex5;
+#endif
 
 const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 300;
 
-/* DRAWBUFFERS:0 */
 
 void Vignette(inout vec3 color) { //Darken Screen Borders
     float dist = distance(coord.st, vec2(0.5));
@@ -95,6 +99,8 @@ vec3 ChromaticAbberation_HQ(vec2 coord, float amount, int samples) {
 }
 
 
+
+
 vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
@@ -123,42 +129,51 @@ vec3 exp_tonemap(vec3 color, float a) {
 
 
 
+#ifdef TAA 
+/* DRAWBUFFERS:05 */
+#else
 /* DRAWBUFFERS:0 */
+#endif
 
 void main() {
-    #if CHROM_ABERRATION == 0
-        vec3 color = getAlbedo(coord);
+    #ifdef TAA
+        vec2 unJitterCoord = coord + blue_noise_disk[int( mod(frameCounter, 64) )] * screenSizeInverse;
     #else
-        vec3 color = ChromaticAbberation_HQ(coord, chromatic_aberration_amount, 5);
+        vec2 unJitterCoord = coord;
     #endif
 
+    #if CHROM_ABERRATION == 0
+        vec3 color = getAlbedo_int(unJitterCoord);
+    #else
+        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromatic_aberration_amount, 5);
+    #endif
 
     color = saturation(color, SATURATION);
 
-    //Vignette(color);
-    //color = texture(colortex4, coord).rgb;
-
-    //color = reinhard_tonemap(color, .45); // Tone mapping
-    //color = reinhard_jodie_tonemap(color, .4); // Tone mapping
-    //color = exp_tonemap(color, 1); // Tone mapping
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
-
-    /* if (coord.x > 0.75) {
-
-    } else if (coord.x > .5) {
-        color = reinhard_jodie_tonemap(color, 1); // Tone mapping
-
-    } else if (coord.x > .25) {
-        color = reinhard_sqrt_tonemap(color, 1); // Tone mapping
-        
-    } else {
-        color = unreal_tonemap(color);
-        gamma(color);
-
-    } */
 
     color = invgamma(color);
 
+    #ifdef TAA 
+
+        vec3  currentFrameColor = color;
+        float depth             = getDepth_int(unJitterCoord);
+
+        vec3  lastFrameColor    = texture(colortex5, coord).rgb;
+        float lastFrameDepth    = pow(texture(colortex5, coord).a, 1./6.);
+
+        float blend = clamp((abs(depth - lastFrameDepth) * 50) + (sqmag(currentFrameColor - lastFrameColor) * 0.5 + 0.1), 0, 1);
+
+        color = mix(lastFrameColor, currentFrameColor, blend);
+        //color = abs(depth - lastFrameDepth) * vec3(50);
+        //color = length(currentFrameColor - lastFrameColor).xxx * 0.01;
+
+    #endif
+
+
     FD0 = vec4(color, 1.0);
+    #ifdef TAA 
+    FD1 = vec4(color, pow(depth, 6));
+    #endif
 }
 

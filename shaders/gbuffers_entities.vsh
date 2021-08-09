@@ -1,7 +1,11 @@
 #version 120
 
 #include "/lib/settings.glsl"
+#include "/lib/kernels.glsl"
 #include "/lib/vertex_transform.glsl"
+
+uniform int  frameCounter;
+uniform vec2 screenSizeInverse;
 
 varying vec3 viewpos;
 varying vec2 lmcoord;
@@ -21,6 +25,10 @@ void main() {
 
 	#ifdef WORLD_CURVE
 		#include "/lib/world_curve.glsl"
+	#endif
+	
+	#ifdef TAA
+		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * clipPos.w * screenSizeInverse * 2;
 	#endif
 
 	gl_Position  = clipPos;

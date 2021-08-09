@@ -2,9 +2,13 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/vertex_transform.glsl"
+#include "/lib/kernels.glsl"
 
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
+
+uniform int  frameCounter;
+uniform vec2 screenSizeInverse;
 
 flat varying float blockId;
 
@@ -20,6 +24,10 @@ void main() {
 	
 	#ifdef WORLD_CURVE
 		#include "/lib/world_curve.glsl"
+	#endif
+	
+	#ifdef TAA
+		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * clipPos.w * screenSizeInverse * 2;
 	#endif
 
 	gl_Position = clipPos;

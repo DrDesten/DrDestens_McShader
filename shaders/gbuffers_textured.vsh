@@ -4,22 +4,28 @@
 #ifdef WORLD_CURVE
 #include "/lib/vertex_transform.glsl"
 #endif
+#include "/lib/kernels.glsl"
+
+uniform int  frameCounter;
+uniform vec2 screenSizeInverse;
 
 varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
 void main() {
+
+	vec4 clipPos = ftransform();
+
 	#ifdef WORLD_CURVE
-
-		vec4 clipPos = ftransform();
 		#include "/lib/world_curve.glsl"
-		gl_Position = clipPos;
-
-	#else
-		gl_Position = ftransform();
 	#endif
 
+	#ifdef TAA
+		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * clipPos.w * screenSizeInverse * 2;
+	#endif
+
+	gl_Position = clipPos;
 
 	coord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;

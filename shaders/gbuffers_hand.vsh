@@ -1,9 +1,13 @@
 #version 120
 
 #include "/lib/settings.glsl"
+#include "/lib/kernels.glsl"
 #include "/lib/vertex_transform.glsl"
 
 attribute vec4 mc_Entity;
+
+uniform int  frameCounter;
+uniform vec2 screenSizeInverse;
 
 flat varying float blockId;
 varying vec3  viewpos;
@@ -20,7 +24,13 @@ flat varying mat3 tbn;
 #endif
 
 void main() {
-	gl_Position = ftransform();
+	vec4 clipPos = ftransform();
+	
+	#ifdef TAA
+		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * clipPos.w * screenSizeInverse * 2;
+	#endif
+
+	gl_Position  = clipPos;
 
 	viewpos = getView();
 	lmcoord = getLmCoord();
