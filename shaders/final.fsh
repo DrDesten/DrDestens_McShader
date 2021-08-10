@@ -5,6 +5,9 @@
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
+uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
+
 uniform int frameCounter;
 
 in vec2 coord;
@@ -33,12 +36,29 @@ vec3 normalAwareBlur(vec2 coord, float size, float stepsize) {
     return color / samples;
 }
 
+vec3 gaussian_3x3(vec2 coord) {
+    vec2 e = vec2(-.5, .5);
+    vec3 color  = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;
+         color += texture(colortex0, screenSizeInverse * e.xx + coord).rgb;
+         color += texture(colortex0, screenSizeInverse * e.yx + coord).rgb;
+         color += texture(colortex0, screenSizeInverse * e.xy + coord).rgb;
+    return color * 0.25;
+}
+
+vec3 sharpen(vec2 coord, float amount, float maximum) {
+    vec3 blurred  = gaussian_3x3(coord);
+    vec3 color    = getAlbedo(coord);
+
+    return clamp((color - blurred) * amount, -maximum, maximum) + color;
+}
+
 void main() {
     vec3 color = getAlbedo(coord);
     
-    /* #ifdef TAA
-        color = getAlbedo_int(coord + blue_noise_disk[int( mod(frameCounter, 64) )] * TAA_JITTER_AMOUNT * screenSizeInverse);
-    #endif */
+    #ifdef TAA
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 25, 0.5, 2);
+        color = sharpen(coord, sharpen_amount, 1.);
+    #endif
 
     // Remove Banding (yay)
     float displayPrecision = 1./255.;

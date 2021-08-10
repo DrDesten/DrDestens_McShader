@@ -102,9 +102,6 @@ vec3 ChromaticAbberation_HQ(vec2 coord, float amount, int samples) {
     return col;
 }
 
-
-
-
 vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
@@ -131,6 +128,22 @@ vec3 exp_tonemap(vec3 color, float a) {
     return 1 - exp(-color * a);
 }
 
+float depthToleranceAttenuation(float depthDiff, float peak) {
+    return peak - abs(depthDiff - peak);
+}
+void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {
+    minColor = vec3(1);
+    maxColor = vec3(0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            vec2 sample = vec2(x, y) * size * screenSizeInverse + coord;
+            vec3 color  = getAlbedo(sample);
+
+            minColor = min(minColor, color);
+            maxColor = max(maxColor, color);
+        }
+    }
+} 
 
 
 #ifdef TAA 
@@ -141,7 +154,7 @@ vec3 exp_tonemap(vec3 color, float a) {
 
 void main() {
     #ifdef TAA
-        vec2 unJitterCoord = coord + blue_noise_disk[int( mod(frameCounter, 64) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 8) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
     #else
         vec2 unJitterCoord = coord;
     #endif
@@ -151,12 +164,6 @@ void main() {
     #else
         vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromatic_aberration_amount, 5);
     #endif
-
-    color = saturation(color, SATURATION);
-
-    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
-
-    color = invgamma(color);
 
     #ifdef TAA 
 
@@ -169,24 +176,35 @@ void main() {
         vec3  lastFrameColor    = texture(colortex5, reprojectPos.xy).rgb;
         float lastFrameDepth    = pow(texture(colortex5, reprojectPos.xy).a, 0.2);
 
+        vec3 lowerThresh, higherThresh;
+        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
 
         // Anti - Ghosting
         //////////////////////////////////////////////////////////////////////
 
-        float depthError  = abs(reprojectPos.z - lastFrameDepth) * 25 /* * float(depth != 1 || lastFrameDepth != 1) */;
+        float depthError  = abs(reprojectPos.z - lastFrameDepth) * 25;
         float boundsError = float(clamp(reprojectPos.xy, 0, 1) != reprojectPos.xy) + float(depth < 0.56) + float(depth == 1 && lastFrameDepth == 1);
-        float colorError  = sqmag(currentFrameColor - lastFrameColor) / linearizeDepthf(depth, 10) * 20;
+        //float colorError  = length(currentFrameColor - lastFrameColor) / linearizeDepthf(depth, 10) * 10;
 
-        float blend = clamp(depthError + colorError + boundsError + 0.2, 0, 1);
+        float spikeError  = float(any( lessThan(lastFrameColor + 0.02, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.02, higherThresh) )) * 0.75;
+        float moveError   = saturate( length( (coord - reprojectPos.xy) * screenSize ) * 0.01 );
 
-        color = mix(lastFrameColor, currentFrameColor, blend);
+        float blend   = clamp(depthError + boundsError + moveError + spikeError + 0.15, 0, 1);
+
+        color         = mix(lastFrameColor, currentFrameColor, blend);
+        vec3 TAAcolor = color;
 
     #endif
+    
+    color = saturation(color, SATURATION);
 
+    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
+
+    color = invgamma(color);
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
-    FD1 = vec4(color, pow(depth, 5));
+    FD1 = vec4(TAAcolor, pow(depth, 5));
     #endif
 }
 

@@ -290,7 +290,11 @@ void main() {
             vec2 rayCorrected = vec2(ray.x, ray.y * (screenSize.y / screenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
 
             vec2 rayStep      = ray / GODRAY_STEPS;
+            #ifndef TAA
             vec2 rayPos       = coord - (Bayer8(coord * screenSize) * rayStep);
+            #else
+            vec2 rayPos       = coord - (fract(Bayer8(coord * screenSize) + frameTimeCounter) * rayStep);
+            #endif
 
             float light = 1;
             for (int i = 0; i < GODRAY_STEPS; i++ ) {

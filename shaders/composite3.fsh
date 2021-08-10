@@ -299,7 +299,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     // Project to Screen Space
     vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
     
-    float randfac    = Bayer4(pos.screen.xy * screenSize);
+    float randfac    = 0; //Bayer4(pos.screen.xy * screenSize);
 
     float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
     float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
