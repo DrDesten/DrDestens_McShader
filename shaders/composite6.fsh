@@ -109,8 +109,7 @@ void main() {
         for (int i = 0; i < 6; i++) {
             bloom += readBloomTile(coord, 4, i, 10 * screenSizeInverse.x);
         }
-        bloom /= 6;
-        color += (sq(bloom)) * BLOOM_AMOUNT;
+        color += bloom / 6.;
 
         //color = readBloomTile(coord, 1, 0, 10 * screenSizeInverse.x);
     #endif

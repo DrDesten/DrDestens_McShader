@@ -3,8 +3,12 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/framebuffer.glsl"
-#include "/lib/kernels.glsl"
 #include "/lib/gamma.glsl"
+
+#ifdef TAA
+#include "/lib/kernels.glsl"
+#include "/lib/transform.glsl"
+#endif
 
 varying vec2 coord;
 
@@ -137,7 +141,7 @@ vec3 exp_tonemap(vec3 color, float a) {
 
 void main() {
     #ifdef TAA
-        vec2 unJitterCoord = coord + blue_noise_disk[int( mod(frameCounter, 64) )] * screenSizeInverse;
+        vec2 unJitterCoord = coord + blue_noise_disk[int( mod(frameCounter, 64) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
     #else
         vec2 unJitterCoord = coord;
     #endif
@@ -158,22 +162,31 @@ void main() {
 
         vec3  currentFrameColor = color;
         float depth             = getDepth_int(unJitterCoord);
+        vec3  screenPos         = vec3(coord, depth);
 
-        vec3  lastFrameColor    = texture(colortex5, coord).rgb;
-        float lastFrameDepth    = pow(texture(colortex5, coord).a, 1./6.);
+        vec3  reprojectPos      = previousReproject(screenPos * 2 - 1);
+        
+        vec3  lastFrameColor    = texture(colortex5, reprojectPos.xy).rgb;
+        float lastFrameDepth    = pow(texture(colortex5, reprojectPos.xy).a, 0.2);
 
-        float blend = clamp((abs(depth - lastFrameDepth) * 50) + (sqmag(currentFrameColor - lastFrameColor) * 0.5 + 0.1), 0, 1);
+
+        // Anti - Ghosting
+        //////////////////////////////////////////////////////////////////////
+
+        float depthError  = abs(reprojectPos.z - lastFrameDepth) * 25 /* * float(depth != 1 || lastFrameDepth != 1) */;
+        float boundsError = float(clamp(reprojectPos.xy, 0, 1) != reprojectPos.xy) + float(depth < 0.56) + float(depth == 1 && lastFrameDepth == 1);
+        float colorError  = sqmag(currentFrameColor - lastFrameColor) / linearizeDepthf(depth, 10) * 20;
+
+        float blend = clamp(depthError + colorError + boundsError + 0.2, 0, 1);
 
         color = mix(lastFrameColor, currentFrameColor, blend);
-        //color = abs(depth - lastFrameDepth) * vec3(50);
-        //color = length(currentFrameColor - lastFrameColor).xxx * 0.01;
 
     #endif
 
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
-    FD1 = vec4(color, pow(depth, 6));
+    FD1 = vec4(color, pow(depth, 5));
     #endif
 }
 

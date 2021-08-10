@@ -37,7 +37,7 @@ void main() {
     vec3 color = getAlbedo(coord);
     
     /* #ifdef TAA
-        color = getAlbedo_int(coord + blue_noise_disk[int( mod(frameCounter, 64) )] * screenSizeInverse);
+        color = getAlbedo_int(coord + blue_noise_disk[int( mod(frameCounter, 64) )] * TAA_JITTER_AMOUNT * screenSizeInverse);
     #endif */
 
     // Remove Banding (yay)

@@ -6,9 +6,9 @@ const int colortex1Format = R8;          // Reflectiveness (and in the future ot
 const int colortex2Format = RGB16_SNORM; // Normals
 
 const int colortex3Format = R16F;        // colortex3 = blockId
-const int colortex4Format = RGB16F;      // colortex4 = bloom
+const int colortex4Format = RGB8;        // colortex4 = bloom
 
-const int colortex5Format = RGBA8;         // TAA
+const int colortex5Format = RGBA16;      // TAA
 
 */
 

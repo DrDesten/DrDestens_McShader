@@ -15,7 +15,7 @@ void main() {
 	vec4 clipPos = ftransform();
 
 	#ifdef TAA
-		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * clipPos.w * screenSizeInverse * 2;
+		clipPos.xy += blue_noise_disk[int( mod(frameCounter, 64) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
 	#endif
 	
 	gl_Position = clipPos;

@@ -60,7 +60,10 @@ vec3 toPrevPlayer(vec3 worldpos) { // Worldpos to previous playerfeetpos
 }
 
 vec3 toPrevView(vec3 prevplayerpos) { // previous playerfeetpos to previous viewpos
-    return mat3(gbufferPreviousModelView) * (prevplayerpos - gbufferModelViewInverse[3].xyz);
+    return mat3(gbufferPreviousModelView) * prevplayerpos + gbufferPreviousModelView[3].xyz;
+}
+vec3 eyeToPrevView(vec3 prevplayereye) { // previous playereyepos to previous viewpos
+    return mat3(gbufferPreviousModelView) * prevplayereye;
 }
 
 vec3 toPrevClip(vec3 prevviewpos) { // previous viewpos to previous screen pos

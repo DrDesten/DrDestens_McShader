@@ -376,7 +376,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x);
+        vec3 bloomColor = sq(getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x)) * BLOOM_AMOUNT;
     #else
         vec3 bloomColor = vec3(0);
     #endif
