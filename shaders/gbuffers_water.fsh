@@ -7,6 +7,7 @@
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
 
+//uniform sampler2D texture;
 uniform sampler2D lightmap;
 
 uniform float frameTimeCounter;
@@ -140,7 +141,7 @@ vec3 waveNormals(vec2 coord, float strength) {
 
 void main(){
     vec2 screenCoord = (gl_FragCoord.xy / screenSize);
-    vec4 color       = texture(colortex0, coord, -1) * glcolor;
+    vec4 color       = texture(colortex0, coord, 0) * glcolor;
 
     vec3 surfaceNormal = tbn[2];
 

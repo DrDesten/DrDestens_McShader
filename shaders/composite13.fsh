@@ -8,16 +8,13 @@
 #ifdef TAA
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
+uniform int frameCounter;
+uniform sampler2D colortex5;
 #endif
 
 varying vec2 coord;
 
-uniform int frameCounter;
-
 uniform sampler2D colortex4;
-#ifdef TAA
-uniform sampler2D colortex5;
-#endif
 
 const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 300;
 
@@ -167,14 +164,18 @@ void main() {
 
     #ifdef TAA 
 
+        float type              = getType(unJitterCoord);
+        float stencil           = abs(type - 51) < 0.1 || abs(type - 52) < 0.1 ? 1.0 : 0.0;
+
         vec3  currentFrameColor = color;
         float depth             = getDepth_int(unJitterCoord);
         vec3  screenPos         = vec3(coord, depth);
 
         vec3  reprojectPos      = previousReproject(screenPos * 2 - 1);
         
-        vec3  lastFrameColor    = texture(colortex5, reprojectPos.xy).rgb;
-        float lastFrameDepth    = pow(texture(colortex5, reprojectPos.xy).a, 0.2);
+        vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
+        vec3  lastFrameColor    = lastFrame.rgb;
+        float lastFrameStencil  = lastFrame.a;
 
         vec3 lowerThresh, higherThresh;
         neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
@@ -182,14 +183,13 @@ void main() {
         // Anti - Ghosting
         //////////////////////////////////////////////////////////////////////
 
-        float depthError  = abs(reprojectPos.z - lastFrameDepth) * 25;
-        float boundsError = float(clamp(reprojectPos.xy, 0, 1) != reprojectPos.xy) + float(depth < 0.56) + float(depth == 1 && lastFrameDepth == 1);
-        //float colorError  = length(currentFrameColor - lastFrameColor) / linearizeDepthf(depth, 10) * 10;
+        float boundsError     = float(saturate(reprojectPos.xy) != reprojectPos.xy);
+        float stencilError    = float((stencil > 0.5) ^^ (lastFrameStencil > 0.5));
+        float spikeError      = float(any( lessThan(lastFrameColor + 0.01, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.01, higherThresh) ));
+        float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25;
+        float moveErrorCoarse = moveErrorFine * 0.04;
 
-        float spikeError  = float(any( lessThan(lastFrameColor + 0.02, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.02, higherThresh) )) * 0.75;
-        float moveError   = saturate( length( (coord - reprojectPos.xy) * screenSize ) * 0.01 );
-
-        float blend   = clamp(depthError + boundsError + moveError + spikeError + 0.15, 0, 1);
+        float blend   = saturate(boundsError + moveErrorCoarse + spikeError + stencilError + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
         vec3 TAAcolor = color;
@@ -204,7 +204,7 @@ void main() {
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
-    FD1 = vec4(TAAcolor, pow(depth, 5));
+    FD1 = vec4(TAAcolor, stencil);
     #endif
 }
 

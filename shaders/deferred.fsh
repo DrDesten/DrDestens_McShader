@@ -44,6 +44,33 @@ float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
     return sq(occlusion);
 }
 
+#ifdef TAA
+float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
+    vec3 viewPos           = toView(screenPos * 2 - 1);
+
+    vec3 tangent           = normalize(vec3(normal.y - normal.z, -normal.x, normal.x));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.9 + 0.1) * size;
+    float depthTolerance   = 0.075/-viewPos.z;
+
+    float hits = 0;
+    vec3 sample;
+    for (int i = 0; i < 4; i++) {
+        sample      = half_sphere_8[i] * ditherTimesSize; 
+        sample.z   += 0.075;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        sample      = TBN * sample;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
+    
+        float hitDepth = getDepth_int(sample.xy);
+
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+    }
+
+    hits  = -hits * 0.25 + 1;
+    return sq(hits);
+}
+#else
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
@@ -69,6 +96,8 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     hits  = -hits * 0.125 + 1;
     return sq(hits);
 }
+#endif
+
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
@@ -103,6 +132,9 @@ void main() {
     float depth       = getDepth(coord);
     float type        = getType(coord);
 
+
+    //color = fract(texture(noisetex, coord * screenSize / 64).rgb + frameTimeCounter * 0.5);
+
     //////////////////////////////////////////////////////////
     //                  SSAO
     //////////////////////////////////////////////////////////
@@ -126,8 +158,6 @@ void main() {
         }
 
     #endif
-
-    //color = texture(noisetex, (coord * screenSize) / 512).xyz;  
 
     FD0 = vec4(color, 1.0);
 }

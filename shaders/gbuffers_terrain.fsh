@@ -31,7 +31,7 @@ void main() {
 	vec3  normal = tbn[2];
 	float reflectiveness = 0;
 
-	vec4 color		   = texture2D(texture, coord, -1) * glcolor;
+	vec4 color		   = texture2D(texture, coord, 0) * glcolor;
 	
 	#ifdef PHYSICALLY_BASED
 

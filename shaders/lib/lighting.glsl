@@ -104,7 +104,7 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     vec3  zaehl = D * G * F;
     float nenn  = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0);
     vec3  spec  = zaehl / max(nenn, 0.001) * specular;
-    spec        = min(spec, 10);
+    spec        = min(spec, 1);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(normal, L), 0.0);
 
