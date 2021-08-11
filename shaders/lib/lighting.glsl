@@ -104,13 +104,18 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     vec3  zaehl = D * G * F;
     float nenn  = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0);
     vec3  spec  = zaehl / max(nenn, 0.001) * specular;
-    spec        = min(spec, 1);
+    spec        = min(spec, 5);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(normal, L), 0.0);
 
     return vec4(BRDF, F);
 }
 
+vec3 simpleSubsurface(vec3 albedo, vec3 normal, vec3 view, vec3 light, float subsurface) {
+    float diff    = dot(normal, normalize(light));
+    float subsurf = clamp(-diff, 0, 1) * subsurface;
+    return subsurf * albedo;
+}
 
 
 // TBN MATRIX CALCULATION ///////////////////////////////////////////////////////////////
@@ -149,6 +154,20 @@ struct PBRout {
 	vec4 color;
 	vec3 normal;
 	float reflectiveness;
+};
+
+struct MaterialInfo {
+    vec3 color;
+    vec3 normal;
+
+    float roughness;
+    vec3  f0;
+    float emission;
+    float AO;
+    float height;
+
+    float subsurface;
+    float porosity;
 };
 
 /* PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos) {
@@ -204,14 +223,14 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
     vec4  origColor  = color;
 
     float sunBright  = lmcoord.y; // Specular Blending Factor
-    sunBright        = clamp(mix(-1.5,1,sunBright), 0, 1);
+    sunBright        = clamp(mix(-1.5,1,sunBright), 0, 1); 
 
 	vec3 lightPos	 = lightPosition();
 	vec4 normalTex	 = NormalTex(coord);
 	vec4 specularTex = SpecularTex(coord);
 
-    vec3  normal_map = extractNormal(normalTex, specularTex);
-	vec3  normal     = normalize(tbn * normal_map);
+    vec3  normalMap  = extractNormal(normalTex, specularTex);
+	vec3  normal     = normalize(tbn * normalMap);
 
 	float AO 		 = extractAO(normalTex, specularTex);
     #ifdef HEIGHT_AO
@@ -220,15 +239,19 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
 	#endif
 
 	float roughness  = extractRoughness(normalTex, specularTex);
-	vec3  f0 		 = vec3(extractF0(normalTex, specularTex));
-	if (f0.x > 229.5/255) { f0 = origColor.rgb;}
+	vec3  f0 		 = !isMetal(normalTex, specularTex) ? vec3(extractF0(normalTex, specularTex)) : origColor.rgb;
+
+    float subsurf    = extractSubsurf(normalTex, specularTex);
+    float porosity   = extractPorosity(normalTex, specularTex);
 
 	float emission   = extractEmission(normalTex, specularTex);
 
     // Get PBR Material
 	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, f0, sunBright) * (lightPos == sunPosition ? 1.0 : 0.3) * lmcoord.y; //Reduce brightness at night and according to minecrafts abient light
+    BRDF.rgb        += simpleSubsurface(color.rgb, normal, viewpos, lightPos, subsurf * sum(ambient));
 
     // Emission and Ambient Light
+    BRDF.rgb        *= AO;
 	BRDF.rgb 		+= origColor.rgb * emission * 2;
     BRDF.rgb        += origColor.rgb * ambient  * AO;
 
@@ -240,6 +263,8 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
 	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
 
     color.rgb = max(color.rgb, 0); // Preventing Negative values
+
+    //color.rgb = vec3(porosity);
 
 	PBRout Material  = PBRout(color, normal, reflectiveness);
 	return Material;

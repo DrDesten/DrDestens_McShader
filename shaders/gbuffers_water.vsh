@@ -5,8 +5,9 @@
 #include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
 
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+uniform int   frameCounter;
+uniform float frameTimeCounter;
+uniform vec2  screenSizeInverse;
 
 attribute vec4 mc_Entity;
 

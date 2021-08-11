@@ -355,15 +355,13 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
 }
 
 
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:0 */
 void main() {
     vec3  color         = getAlbedo(coord);
     vec3  normal        = getNormal(coord);
     float depth         = getDepth(coord);
     float linearDepth   = linearizeDepth(depth, near, far);
     float type          = getType(coord);
-
-    float denoise       = 0;
 
     vec3  screenPos     = vec3(coord, depth);
     vec3  clipPos       = screenPos * 2 - 1;
@@ -434,7 +432,6 @@ void main() {
             #endif
 
             color           = mix(color, Reflection.rgb * 0.95, fresnel);
-            denoise         = 1;
 
             #ifdef SSR_DEBUG
                 color = vec3(fresnel);
@@ -448,14 +445,13 @@ void main() {
 
         // SSR for other reflective surfaces
         float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
-        if (reflectiveness > 12.75/255) { // 12.75/255 represents 5% reflectiveness, lower is practically invisible
+        if (reflectiveness > 5./255) {
 
             #if SSR_MODE == 0
                 vec4 Reflection = universalSSR(Positions, normal, false);
             #else
                 vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
-            denoise            = 1;
 
             #ifdef PBR_REFLECTION_REALISM
             if (reflectiveness > 254.5/255) {
@@ -499,9 +495,5 @@ void main() {
     //color = normal * .5 + .5;
 
     //Pass everything forward
-    FD0          = vec4(color, 1);
-    
-    // If there is some thing to be denoised, override the type buffer to "3", the denoise pass.
-    if (denoise != 0) { FD1 = vec4(3, 0, 0, 1); } 
-    else              { FD1 = vec4(getType(coord), 0, 0, 1); }
+    FD0 = vec4(color, 1);
 }

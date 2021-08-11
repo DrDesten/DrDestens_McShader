@@ -1,10 +1,13 @@
 #version 130
 
+uniform int worldTime;
+
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
-#include "/lib/skyColor.glsl"
+#include "/lib/labPBR13.glsl"
+#include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 
 //uniform sampler2D texture;
@@ -137,13 +140,19 @@ vec3 waveNormals(vec2 coord, float strength) {
     n.xy   *= strength;
     return normalize(n);
 }
+
+#ifndef PHYSICALLY_BASED
 /* DRAWBUFFERS:023 */
+#else
+/* DRAWBUFFERS:0231 */
+#endif
 
 void main(){
     vec2 screenCoord = (gl_FragCoord.xy / screenSize);
     vec4 color       = texture(colortex0, coord, 0) * glcolor;
 
-    vec3 surfaceNormal = tbn[2];
+    vec3  surfaceNormal  = tbn[2];
+    float reflectiveness = 0;
 
     // Reduce opacity and saturation of only water
     if (blockId == 1001) {
@@ -157,39 +166,36 @@ void main(){
         float blend        = clamp(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1), 0, 1);              // Reducing the normals at small angles to avoid high noise
         vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
 
-        //color.a = 1;
-
         surfaceNormal      = normalize(tbn * noiseNormals);
 
-
-        /* float absorption;
-        if (isEyeInWater == 0) {
-            
-            vec2 screenCoord   = (gl_FragCoord.xy / screenSize);
-            float terrainDepth = linearizeDepth(texture(depthtex1, screenCoord).x, near, far);
-            float waterDepth   = linearizeDepth(gl_FragCoord.z, near, far);
-
-            absorption = exp2(-(terrainDepth-waterDepth) * 0.1);
-            color.rgb  = getAlbedo(screenCoord) * absorption;
-
-        } */
-
-        //color.rgb = absorption.xxx;
-        //color.rgb = linearizeDepth(gl_FragCoord.z, near, far).xxx * 0.1;
-        //color.rgb = (gl_FragCoord.xy / screenSize).yyy; 
-
-        /* float fresnel     = customFresnel(normalize(viewPos), surfaceNormal, 0.02, 2, 3);
-        vec4 Sky          = vec4( getSkyColor3( reflect(viewPos, surfaceNormal) ), 1);
-        color             = mix(color, Sky, fresnel); */
-
     } else {
-        color.rgb        *= texture(lightmap, lmcoord).rgb + sq(lmcoord.x);
-    }
 
-    gamma(color.rgb);
+        #ifdef PHYSICALLY_BASED
+
+            gamma(color.rgb);
+            vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
+            gamma(ambientLight);
+
+            PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
+
+            color	           = Material.color;
+            surfaceNormal      = Material.normal;
+            reflectiveness     = Material.reflectiveness;
+
+        #else
+
+            color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+            gamma(color.rgb);
+
+        #endif
+
+    }
 
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
     gl_FragData[2] = vec4(vec3(blockId - 1000), 1); // Type (colortex3)
+    #ifdef PHYSICALLY_BASED
+    gl_FragData[3] = vec4(reflectiveness, vec3(1));
+    #endif
 }
