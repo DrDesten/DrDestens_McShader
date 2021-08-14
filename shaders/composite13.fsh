@@ -16,9 +16,6 @@ varying vec2 coord;
 
 uniform sampler2D colortex4;
 
-const float chromatic_aberration_amount = float(CHROM_ABERRATION) / 300;
-
-
 void Vignette(inout vec3 color) { //Darken Screen Borders
     float dist = distance(coord.st, vec2(0.5));
 
@@ -156,10 +153,10 @@ void main() {
         vec2 unJitterCoord = coord;
     #endif
 
-    #if CHROM_ABERRATION == 0
-        vec3 color = getAlbedo_int(unJitterCoord);
+    #if CHROMATIC_ABERRATION_AMOUNT != 0 && DOF_MODE == 0 
+        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromaticAberration * 0.03333, 5);
     #else
-        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromatic_aberration_amount, 5);
+        vec3 color = getAlbedo_int(unJitterCoord);
     #endif
 
     #ifdef TAA 

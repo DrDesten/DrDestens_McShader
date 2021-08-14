@@ -1,3 +1,17 @@
+struct MaterialInfo {
+    vec4  color;
+    vec3  normal;
+
+    float roughness;
+    vec3  f0;
+    float emission;
+    float AO;
+    float height;
+
+    float subsurface;
+    float porosity;
+};
+
 uniform sampler2D specular;
 uniform sampler2D normals;
 
@@ -32,6 +46,9 @@ float extractRoughness(vec4 nTex, vec4 sTex) {
 float extractF0(vec4 nTex, vec4 sTex) {
     return sTex.g;
 }
+vec3 extractF0(vec4 nTex, vec4 sTex, vec3 albedo) {
+    return sTex.g < 0.9 ? sTex.ggg : albedo;
+}
 bool isMetal(vec4 nTex, vec4 sTex) {
     return sTex.g > 0.9;
 }
@@ -45,4 +62,26 @@ float extractPorosity(vec4 nTex, vec4 sTex) {
 
 float extractEmission(vec4 nTex, vec4 sTex) {
     return sTex.a * float(sTex.a != 1);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
+    vec4 NT = NormalTex(coord);
+    vec4 ST = SpecularTex(coord);
+
+    return MaterialInfo(
+        albedo,
+        extractNormal(NT, ST),
+
+        extractRoughness(NT, ST),
+        extractF0(NT, ST, albedo.rgb),
+        extractEmission(NT, ST),
+        extractAO(NT, ST),
+        extractHeight(NT, ST),
+
+        extractSubsurf(NT, ST),
+        extractPorosity(NT, ST)
+    );
 }

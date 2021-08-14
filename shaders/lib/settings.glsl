@@ -48,7 +48,8 @@
 #define MOTION_BLUR_SAMPLES 4           // [1 4]
 #define MOTION_BLUR_QUALITY 0           // [0 1]
 
-#define CHROM_ABERRATION 0              // Chromatic Aberration     [0 1 2 3 4 5 6 7 8 9 10]
+#define CHROMATIC_ABERRATION_AMOUNT 5   // [0 1 2 3 4 5 6 7 8 9 10]
+const float chromaticAberration = float(CHROMATIC_ABERRATION_AMOUNT) * 0.1;
 
 #define BLOOM 
 #define BLOOM_AMOUNT 0.25               // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00 1.05 1.10 1.15 1.20 1.25 1.30 1.35 1.40 1.45 1.50 1.55 1.60 1.65 1.70 1.75 1.80 1.85 1.90 1.95 2.00 2.05 2.10 2.15 2.20 2.25 2.30 2.35 2.40 2.45 2.50 2.55 2.60 2.65 2.70 2.75 2.80 2.85 2.90 2.95 3.00]
@@ -103,7 +104,7 @@
 #define WATER_NORMALS_SIZE 1.5          // Size of the Waves                [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6 3.7 3.8 3.9 4.0 4.1 4.2 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5.0]
 
 #define WAVY_BLOCKS
-//#define WAVY_LEAVES
+#define WAVY_LEAVES
 
 //#define WORLD_CURVE
 #define WORLD_CURVE_RADIUS 512 //[64 128 256 512 1024 2048 4096]

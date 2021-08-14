@@ -125,6 +125,23 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     return sq(hits);
 }
 
+float AmbientOcclusionOutline(vec3 screenPos, float depthfactor, float sizemultiplier) {
+    float ldepth  = linearizeDepthf(screenPos.z, depthfactor);
+    float AO      = 0;
+    vec2  dither  = vec2(Bayer4(screenSize * screenPos.xy), Bayer4(screenSize * screenPos.xy + 1));
+    vec2  size    = dither * fovScale * (1 - screenPos.z) * sizemultiplier;
+
+    for (int x = -1; x <= 1; x+=2) {
+        for (int y = -1; y <= 1; y+=2) {
+            vec2 sample = vec2(x,y) * size + screenPos.xy;
+
+            float sampleDepth = linearizeDepthf(getDepth_int(sample), depthfactor);
+            AO               += depthToleranceAttenuation(ldepth - sampleDepth, 1);
+        }
+    }
+    return 1 - saturate(AO);;
+}
+
 
 /* DRAWBUFFERS:0 */
 void main() {
@@ -147,6 +164,7 @@ void main() {
 
                 vec3 normal       = getNormal(coord);
                 color *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                //color *= AmbientOcclusionOutline(vec3(coord, depth), 1/near, 2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
@@ -158,6 +176,8 @@ void main() {
         }
 
     #endif
+
+
 
     FD0 = vec4(color, 1.0);
 }

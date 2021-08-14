@@ -176,7 +176,9 @@ void main(){
             vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
             gamma(ambientLight);
 
-            PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
+		    MaterialInfo MatTex = FullMaterial(coord, color);
+
+            PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
 
             color	           = Material.color;
             surfaceNormal      = Material.normal;

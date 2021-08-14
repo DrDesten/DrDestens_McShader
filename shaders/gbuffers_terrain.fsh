@@ -36,14 +36,16 @@ void main() {
 	#ifdef PHYSICALLY_BASED
 
 		gamma(color.rgb);
-		vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
+		vec3 ambientLight   = texture2D(lightmap, lmcoord).rgb;
 		gamma(ambientLight);
 
-		PBRout Material    = PBRMaterial(coord, lmcoord, color, tbn, viewpos, 0.1 * ambientLight + DynamicLight(lmcoord));
+		MaterialInfo MatTex = FullMaterial(coord, color);
 
-		color	           = Material.color;
-		normal	   	       = Material.normal;
-		reflectiveness     = Material.reflectiveness;
+		PBRout Material     = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight + DynamicLight(lmcoord));
+
+		color	            = Material.color;
+		normal	   	        = Material.normal;
+		reflectiveness      = Material.reflectiveness;
 
 	#else
 

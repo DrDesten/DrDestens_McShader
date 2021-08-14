@@ -31,65 +31,19 @@ float G_Smith(vec3 normal, vec3 view, vec3 light, float k) {
 }
 
 // Fresnel function (Schlick)
-float F(float NormalDotView, float F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - NormalDotView, 5.0);
+float F(float cosTheta, float F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
-vec3 F(float NormalDotView, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - NormalDotView, 5.0);
+vec3 F(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
-
-
-/*     // Cook-Torrance Specular BRDF
-    vec4 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float roughness, float F0) {
-        const float PI = 3.14159265359;
-
-        vec3  viewDir             = -normalize(viewPos);
-        float NormDistribution    = D(normal, normalize(viewDir + normalize(lightVector)), roughness);
-        float GeometryObstruction = G(normal, viewDir, lightVector, roughness);
-        float Fresnel             = F(dot(normal, viewDir), F0);
-
-        float zaehler  = NormDistribution * GeometryObstruction * Fresnel;
-        float nenner   = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, normalize(lightVector)), 0.0);
-        float specular = zaehler / max(nenner, 0.01);
-
-        vec3  kS = vec3(0); // Specular Energy
-        vec3  kD = vec3(1) - kS;  // Diffuse Energy
-
-        float NdotL    = max(dot(normal, normalize(lightVector)), 0.0);
-        vec3  radiance = (kD * color / PI + specular) * (NdotL);
-
-        return vec4(max(radiance, 0), Fresnel);
-    }
-
-    // Cook-Torrance Specular BRDF (Metallic)
-    vec4 specularBRDF(vec3 color, vec3 normal, vec3 viewPos, vec3 lightVector, float roughness, vec3 F0) {
-        const float PI = 3.14159265359;
-
-        vec3  viewDir             = -normalize(viewPos);
-        float NormDistribution    = D(normal, normalize(viewDir + normalize(lightVector)), roughness);
-        float GeometryObstruction = G(normal, viewDir, lightVector, roughness);
-        vec3  Fresnel             = F(dot(normal, viewDir), F0);
-
-        vec3  zaehler  = NormDistribution * GeometryObstruction * Fresnel;
-        float nenner   = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, normalize(lightVector)), 0.0);
-        vec3  specular = zaehler / max(nenner, 0.01);
-
-        vec3  kS = Fresnel; // Specular Energy
-        vec3  kD = vec3(1) - kS;  // Diffuse Energy
-
-        float NdotL    = max(dot(normal, normalize(lightVector)), 0.0);
-        vec3  radiance = (kD * (color / PI) + specular) * NdotL;
-
-        return vec4(max(radiance, 0), sum(Fresnel) * .3333333);
-    }
-*/
 
 vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roughness, vec3 f0, float specular) {
     vec3 V = normalize(-viewPos);
     vec3 L = normalize(light);
     vec3 H = normalize(V + L);
 
-    float radiance = 3;
+    float radiance = 5;
 
     float k = sq(roughness + 1) / 8;
 
@@ -156,98 +110,34 @@ struct PBRout {
 	float reflectiveness;
 };
 
-struct MaterialInfo {
-    vec3 color;
-    vec3 normal;
+PBRout PBRMaterial(MaterialInfo tex, vec2 lmcoord, mat3 tbn, vec3 viewpos, vec3 ambient) {
+    
+    vec4  origColor  = tex.color;
+    vec4  color      = tex.color;
 
-    float roughness;
-    vec3  f0;
-    float emission;
-    float AO;
-    float height;
-
-    float subsurface;
-    float porosity;
-};
-
-/* PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos) {
-    vec4 origColor   = color;
+    // Specular Blending Factor (Removes specular highlights in occluded areas)
+    float specBlend  = clamp(mix( -1.5, 1, lmcoord.y ), 0, 1); 
 
 	vec3 lightPos	 = lightPosition();
 
-	vec4 normalTex	 = NormalTex(coord);
-	vec4 specularTex = SpecularTex(coord);
-
-	#ifdef HEIGHT_AO
-		float height = extractHeight(normalTex, specularTex);
-		color.rgb   *= height;
-	#endif
-
-	vec3  normal     = normalize(tbn * extractNormal(normalTex, specularTex));
-	float AO 		 = extractAO(normalTex, specularTex);
-
-	float roughness  = extractRoughness(normalTex, specularTex);
-	float f0 		 = extractF0(normalTex, specularTex);
-	if (f0 > 229.5/255) { f0 = 1;}
-	float emission   = extractEmission(normalTex, specularTex);
-
-	color.rgb 		*= AO;
-	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, vec3(f0)) * (float(lightPos == sunPosition) * 0.9 + 0.1); //Reduce brightness at night
-	BRDF.rgb 		+= origColor.rgb * emission * 2;
-
-	// Blend between normal MC rendering and PHYSICALLY_BASED rendering
-	    //float blend      = clamp(f0 + PBR_BLEND_MIN, 0, PBR_BLEND_MAX);
-    float blend      = PBR_BLEND_MIN;
-    float lmblend    = clamp((lmcoord.y - .1) * 10, 0, 1); // No sunlight underground
-
-	color.rgb 	     = mix(color.rgb, BRDF.rgb, blend * lmblend);
-	BRDF.a 	    	 = mix(0, BRDF.a, blend);
-	
-	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
-    #ifdef PBR_REFLECTION_REALISM
-    if (f0 == 1) {
-        reflectiveness = 1;
-        color          = origColor;
-        color.rgb     += clamp(BRDF.rgb - 1, 0, 1) * lmblend;
-    }    
-    #endif
-    
-
-	PBRout Material  = PBRout(color, normal, reflectiveness);
-	return Material;
-    
-} */
-
-PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos, vec3 ambient) {
-    
-    vec4  origColor  = color;
-
-    float sunBright  = lmcoord.y; // Specular Blending Factor
-    sunBright        = clamp(mix(-1.5,1,sunBright), 0, 1); 
-
-	vec3 lightPos	 = lightPosition();
-	vec4 normalTex	 = NormalTex(coord);
-	vec4 specularTex = SpecularTex(coord);
-
-    vec3  normalMap  = extractNormal(normalTex, specularTex);
+    vec3  normalMap  = tex.normal;
 	vec3  normal     = normalize(tbn * normalMap);
 
-	float AO 		 = extractAO(normalTex, specularTex);
+	float AO 		 = tex.AO;
     #ifdef HEIGHT_AO
-		float height = extractHeight(normalTex, specularTex);
-		AO          *= height;
+		AO          *= tex.height;
 	#endif
 
-	float roughness  = extractRoughness(normalTex, specularTex);
-	vec3  f0 		 = !isMetal(normalTex, specularTex) ? vec3(extractF0(normalTex, specularTex)) : origColor.rgb;
+	float roughness  = tex.roughness;
+	vec3  f0 		 = tex.f0;
 
-    float subsurf    = extractSubsurf(normalTex, specularTex);
-    float porosity   = extractPorosity(normalTex, specularTex);
+    float subsurf    = tex.subsurface;
+    float porosity   = tex.porosity;
 
-	float emission   = extractEmission(normalTex, specularTex);
+	float emission   = tex.emission;
 
     // Get PBR Material
-	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, f0, sunBright) * (lightPos == sunPosition ? 1.0 : 0.3) * lmcoord.y; //Reduce brightness at night and according to minecrafts abient light
+	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, f0, specBlend) * (lightPos == sunPosition ? 1.0 : 0.3) * lmcoord.y; //Reduce brightness at night and according to minecrafts abient light
     BRDF.rgb        += simpleSubsurface(color.rgb, normal, viewpos, lightPos, subsurf * sum(ambient));
 
     // Emission and Ambient Light
@@ -255,16 +145,15 @@ PBRout PBRMaterial(vec2 coord, vec2 lmcoord, vec4 color, mat3 tbn, vec3 viewpos,
 	BRDF.rgb 		+= origColor.rgb * emission * 2;
     BRDF.rgb        += origColor.rgb * ambient  * AO;
 
-	// Blend between normal MC rendering and PHYSICALLY_BASED rendering
+	// Blend between normal MC rendering and PBR rendering
     float blend      = PBR_BLEND_MIN;
 	color.rgb 	     = mix(color.rgb, BRDF.rgb, blend);
 	BRDF.a 	    	 = mix(0, BRDF.a, blend);
 	
 	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
 
-    color.rgb = max(color.rgb, 0); // Preventing Negative values
+    color.rgb = max(color.rgb, 0); // Prevent Negative values
 
-    //color.rgb = vec3(porosity);
 
 	PBRout Material  = PBRout(color, normal, reflectiveness);
 	return Material;

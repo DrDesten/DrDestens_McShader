@@ -24,85 +24,15 @@ uniform int   frameCounter;
 uniform float near;
 uniform float far;
 
+vec3 chromaticAberrationTint(vec2 relPos) {
+    float chromAbb     = relPos.x * chromaticAberration + 0.5;
+    vec3  chromAbbTint = vec3(chromAbb, 0.75 - abs(chromAbb - 0.5), 1 - chromAbb) * 2;
+    return chromAbbTint;
+}
+
 //Depth of Field
 
-vec3 boxBlur(vec2 coord, float size, float stepsize) {
-    if (size <= screenSizeInverse.x * 0.5)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= screenSizeInverse.x;
-    if (stepsize > size)                   { stepsize = size; } //Prevent blur from clipping due to lange step size
-
-    vec3 pixelColor = vec3(0);
-
-    float samplecount = 0.0;
-
-    // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_DITHER
-        float randfac1 = rand11(coord);
-        float randfac2 = rand11(coord + 1);
-    #endif        
-    
-    for (float i = -size; i < size; i += stepsize) {
-        for (float o = -size; o < size; o += stepsize) {
-            vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
-
-            // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - screenSizeInverse.x) * 0.5;
-            #endif 
-
-
-            pixelColor += getAlbedo(sampleCoord);
-            
-            samplecount++;
-        }
-    }
-
-    pixelColor /= samplecount;
-    return pixelColor;
-}
-
-vec3 boxBlur_exp(vec2 coord, float size, float stepsize) {
-    if (size <= screenSizeInverse.x * 0.1 || getDepth(coord) < 0.56)               { return getAlbedo(coord); } //Return unblurred if <1 pixel
-    stepsize *= screenSizeInverse.x;
-    if (stepsize > size)                         { stepsize = size; } //Prevent blur from clipping due to lange step size
-
-    vec3 pixelColor = vec3(0);
-
-    float samplecount = 0.0;
-
-    // Enable or Disable Coordinate Randomization, making use of precompiler
-    #ifdef DOF_DITHER
-        float randfac1 = rand(coord) * 2 -1;
-        float randfac2 = randfac1;
-    #endif
-    
-    for (float i = -size; i < size; i += stepsize) {
-        for (float o = -size; o < size; o += stepsize) {
-            vec2 sampleCoord = vec2(coord.x + i, coord.y + o);
-
-            // Enable or Disable Coordinate Randomization, making use of precompiler
-            #ifdef DOF_DITHER
-            sampleCoord += vec2(randfac1, randfac2) * (stepsize - screenSizeInverse.x) * DOF_DITHER_AMOUNT;
-            #endif 
-
-            // I am using texelFetch instead of textur2D, in order to avoid linear interpolation. This increases performance
-            sampleCoord.x = clamp(sampleCoord.x, 0, 1 - screenSizeInverse.x);
-            sampleCoord.y = clamp(sampleCoord.y, 0, 1 - screenSizeInverse.y);
-            ivec2 intcoords = ivec2(sampleCoord * screenSize);
-
-            pixelColor += texelFetch(colortex0, intcoords, 0).rgb;
-            
-            //pixelColor += getAlbedo(sampleCoord);
-
-            samplecount++;
-        }
-    }
-
-    pixelColor /= samplecount;
-    return pixelColor;
-}
-
-vec3 bokehBlur(vec2 coord, float size, float stepsize) {
+/* vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
     float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
@@ -110,7 +40,7 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
         const int kernelSize = 4;
-        const vec2[] kernel = circle_blur_4;
+        const vec2[] kernel  = circle_blur_4;
 
     // Medium Quality
     #elif DOF_KERNEL_SIZE == 2
@@ -120,12 +50,12 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     // High Quality
     #elif DOF_KERNEL_SIZE == 3
         const int kernelSize = 32;
-        const vec2[] kernel = circle_blur_32;
+        const vec2[] kernel  = circle_blur_32;
 
     // Very High Quality
     #elif DOF_KERNEL_SIZE == 4
         const int kernelSize = 64;
-        const vec2[] kernel = circle_blur_64;
+        const vec2[] kernel  = circle_blur_64;
 
     #endif
 
@@ -143,81 +73,71 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
 
     pixelColor /= kernelSize;
     return pixelColor;
-}
-
-/* vec3 bokehBlur_adaptive_old(vec2 coord, float size, float stepsize) {
+} */
+vec3 bokehBlur(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
-    float radius = size / screenSizeInverse.x;
+    float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
-    float lod = log2(radius) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
-        int lowKernelSize = 4;
-        vec2[] lowKernel = circle_blur_4;
-
-        int mediumKernelSize = 4;
-        vec2[] mediumKernel = circle_blur_4;
-
-        int highKernelSize = 16;
-        vec2[] highKernel = circle_blur_16;
+        const int kernelSize = 4;
+        const vec2[] kernel  = circle_blur_4;
 
     // Medium Quality
     #elif DOF_KERNEL_SIZE == 2
-        int lowKernelSize = 4;
-        vec2[] lowKernel = circle_blur_4;
-
-        int mediumKernelSize = 8;
-        vec2[] mediumKernel = circle_blur_8;
-
-        int highKernelSize = 32;
-        vec2[] highKernel = circle_blur_32;
-
+        const int kernelSize = 16;
+        const vec2[] kernel = circle_blur_16;
+    
     // High Quality
-    #elif DOF_KERNEL_SIZE >= 3
-        int lowKernelSize = 8;
-        vec2[] lowKernel = circle_blur_8;
+    #elif DOF_KERNEL_SIZE == 3
+        const int kernelSize = 32;
+        const vec2[] kernel  = circle_blur_32;
 
-        int mediumKernelSize = 32;
-        vec2[] mediumKernel = circle_blur_32;
-
-        int highKernelSize = 64;
-        vec2[] highKernel = circle_blur_64;
+    // Very High Quality
+    #elif DOF_KERNEL_SIZE == 4
+        const int kernelSize = 64;
+        const vec2[] kernel  = circle_blur_64;
 
     #endif
 
     #ifdef DOF_DITHER
         // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(mediumKernelSize * .25));
+        vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
     #else
         vec2 dither = vec2(0);
     #endif
 
-    if (radius < 5) { // Under 5 pixel blur 
+    #if CHROMATIC_ABERRATION_AMOUNT != 0
 
-        for (int i = 0; i < lowKernelSize; i++) {
-            pixelColor += textureLod(colortex0, coord + (lowKernel[i] * size + dither), lod).rgb;
+        vec3 totalTint = vec3(0);
+        for (int i = 0; i < kernelSize; i++) {
+            vec3  chromAbbTint = chromaticAberrationTint(kernel[i]);
+            vec3  sampleColor  = textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb * chromAbbTint;
+            pixelColor        += sampleColor;
+            totalTint         += chromAbbTint;
         }
-        pixelColor /= lowKernelSize;
+        // Correct color offset.
+        // High effieciency method: get the center of mass of the array
+        // Calculate Chromatic aberration for the center of mass
+        // Correct for this color shift
+        // Current method is only temporary sulution
+        totalTint  /= kernelSize;
+        pixelColor /= totalTint;
 
-    } else if (radius < 8) { // under 8 pixel blur
+    #else
 
-        for (int i = 0; i < mediumKernelSize; i++) {
-            pixelColor += textureLod(colortex0, coord + (mediumKernel[i] * size + dither), lod).rgb;
+        for (int i = 0; i < kernelSize; i++) {
+            pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
         }
-        pixelColor /= mediumKernelSize;
 
-    } else { // over 8 pixel blur
+    #endif
 
-        for (int i = 0; i < highKernelSize; i++) {
-            pixelColor += textureLod(colortex0, coord + (highKernel[i] * size + dither), lod).rgb;
-        }
 
-        pixelColor /= highKernelSize;
-    } 
-
+    pixelColor /= kernelSize;
     return pixelColor;
-} */
+}
+
 vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     vec3 pixelColor = vec3(0);
     float radius    = size * screenSize.x;
@@ -242,19 +162,42 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     float lod   = log2(radius * 8 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
     int samples = clamp(int(radius * samplesPerRadius), minSamples, 64); // Circle blur Array has a max of 64 samples
 
+    #if CHROMATIC_ABERRATION_AMOUNT != 0
+        vec3 totalTint = vec3(0); // Contains the combined tint of all sample pixels, used for color correction
+    #endif
+
     #ifdef DOF_DITHER
         float offset      = Bayer2(coord * screenSize) * 32;
         for (int i = 0; i < samples; i++) {
-            int index     = int(mod(i + offset, 63));
-            pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb;
+            int index     = int(mod(i + offset, 64));
+            #if CHROMATIC_ABERRATION_AMOUNT != 0
+                vec3  chromAbbTint = chromaticAberrationTint(blue_noise_disk[index]);
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb * chromAbbTint;
+                totalTint    += chromAbbTint;
+            #else
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb;
+            #endif
         }
     #else
         for (int i = 0; i < samples; i++) {
-            pixelColor += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb;
+            #if CHROMATIC_ABERRATION_AMOUNT != 0
+                vec3  chromAbbTint = chromaticAberrationTint(blue_noise_disk[i]);
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb * chromAbbTint;
+                totalTint    += chromAbbTint;
+            #else
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb;
+            #endif
         }
     #endif
     
-    pixelColor /= samples;
+    #if CHROMATIC_ABERRATION_AMOUNT != 0
+        // "Normal" Calculation:
+        //totalTint  /= samples; pixelColor /= totalTint; pixelColor /= samples;
+        // Faster version:
+        pixelColor  /= totalTint;
+    #else
+        pixelColor  /= samples;
+    #endif
 
     return pixelColor;
 }
@@ -264,9 +207,7 @@ vec3 DoF(vec2 coord, float pixeldepth, float size, float stepsize) {
     size = min(size, DOF_MAXSIZE);
 
     // precompiler instead of runtime check
-    #if DOF_MODE == 2
-        return boxBlur_exp(coord, size * 0.70710, stepsize);
-    #elif DOF_MODE == 3
+    #if DOF_MODE == 3
         return bokehBlur(coord, size * 1, stepsize);
     #elif DOF_MODE == 4
         return bokehBlur_adaptive(coord, size * 1, stepsize);
@@ -283,6 +224,10 @@ float realCoC(float linearDepth, float centerLinearDepth) {
     float nenner  = linearDepth * (centerLinearDepth - focallength);
     return abs(zaehler / nenner);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//                              BLOOM
+/////////////////////////////////////////////////////////////////////////////////////
 
 vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
 
