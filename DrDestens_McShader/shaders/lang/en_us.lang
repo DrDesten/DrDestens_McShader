@@ -1,0 +1,160 @@
+
+///////////////////////////////////////////////////////////
+// DEPTH OF FIELD
+///////////////////////////////////////////////////////////
+
+screen.DEPTH_OF_FIELD=Depth Of Field
+
+option.DOF_MODE=DoF Type
+option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (usually better performance).
+value.DOF_MODE.0=Off
+value.DOF_MODE.2=Box
+value.DOF_MODE.3=Bokeh
+value.DOF_MODE.4=Adaptive Bokeh
+
+option.DOF_STEPS=DoF Quality
+option.DOF_STEPS.comment=Step size of the box blurs. Significantly influences performance.
+value.DOF_STEPS.1=Pixel Perfect
+
+option.DOF_MAXSIZE=Maximum Blur
+option.DOF_MAXSIZE.comment=Limits the size of the DoF blur. Hides artifacts when using lower quality blur.
+value.DOF_MAXSIZE.0.002=Low
+value.DOF_MAXSIZE.0.005=Medium
+value.DOF_MAXSIZE.0.007=High
+value.DOF_MAXSIZE.0.03=Highest
+value.DOF_MAXSIZE.1.0=Unlimited
+
+option.DOF_STRENGTH=DoF Intensity
+option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low Performance impact. Lower = faster.
+
+option.DOF_DITHER=Dither DoF
+
+option.DOF_DITHER_AMOUNT=Jitter Amount
+option.DOF_DITHER_AMOUNT.comment=Amount of randomization applied to the DoF effect.
+
+option.DOF_DOWNSAMPLING=DoF Downsampling Amount
+option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
+
+option.DOF_KERNEL_SIZE=Bokeh Quality
+option.DOF_KERNEL_SIZE.comment=Significantly affects performance.
+value.DOF_KERNEL_SIZE.1=Low
+value.DOF_KERNEL_SIZE.2=Medium
+value.DOF_KERNEL_SIZE.3=High
+value.DOF_KERNEL_SIZE.4=Highest
+
+
+///////////////////////////////////////////////////////////
+// SCREEN SPACE REFLECTIONS
+///////////////////////////////////////////////////////////
+
+screen.SSR=Screen Space Reflections
+
+option.SSR_MODE=::
+value.SSR_MODE.0=Raytraced :::
+value.SSR_MODE.1=Cubemap-Like §r:::
+
+option.SSR_STEPS=Raytracing Quality
+option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
+
+option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
+option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
+value.SSR_DEPTH_TOLERANCE.1000=Infinite
+
+option.REFRACTION=Screen Space Refraction
+option.REFRACTION_AMOUNT=Refraction Strength
+
+
+///////////////////////////////////////////////////////////
+// WATER
+///////////////////////////////////////////////////////////
+
+screen.WATER=Water
+
+option.WATER_WAVES=Waves
+option.WATER_WAVE_AMOUNT=Wave Height
+option.WATER_NORMALS_AMOUNT=Bump Amount
+option.WATER_NORMALS_SIZE=Bump Size
+
+
+///////////////////////////////////////////////////////////
+// POST-PROCESSING
+///////////////////////////////////////////////////////////
+
+screen.POST_PROCESSING=Post Processing
+
+option.CHROM_ABERRATION=Chromatic Aberration
+option.CHROM_ABERRATION.comment=Color Diffraction at Screen Borders.
+value.CHROM_ABERRATION.0=Off
+
+option.SATURATION=Saturation
+
+option.BLOOM=Bloom
+option.BLOOM_AMOUNT=Bloom Strength
+
+option.MOTION_BLUR=Motion Blur
+option.MOTION_BLUR_STRENGTH=Motion Blur Intensity
+
+option.MOTION_BLUR_FULL=Realistic Motion Blur
+option.MOTION_BLUR_FULL.comment=With this option enabled, the camera rotation as well as the distance to the terrain will be taken into account. Otherwise, only player movement affects motion blur.
+
+option.MOTION_BLUR_SAMPLES=Motion Blur Quality
+value.MOTION_BLUR_SAMPLES.1=Low
+value.MOTION_BLUR_SAMPLES.4=High
+
+option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
+option.SSAO.comment=Screen Space Ambient Occlusion
+
+option.SSAO_QUALITY=SSAO Quality
+value.SSAO_QUALITY.1=Low
+value.SSAO_QUALITY.2=High
+
+option.SSAO_STRENGTH=SSAO Strength
+
+option.GODRAYS=Godrays
+option.GODRAY_STRENGTH=Godray Strength
+option.GODRAY_STEPS=Godray Steps
+
+///////////////////////////////////////////////////////////
+// MATERIALS
+///////////////////////////////////////////////////////////
+
+screen.MATERIALS=Physically Based Rendering
+
+option.PHYSICALLY_BASED=PBR
+option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering
+
+option.PBR_BLEND_MIN=PBR Blend
+option.PBR_BLEND_MIN.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
+
+option.PBR_BLEND_MAX=Maximum Amount of PBR
+option.PBR_BLEND_MAX.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. This value determines the maximum amount of PBR that will be applied.
+
+option.HEIGHT_AO=Height as AO
+option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
+
+option.FRAG_NORMALS=Normal Mapping Fix
+option.FRAG_NORMALS.comment=With newer OptiFine versions this might not be necessary. Enable this if normal maps do not show on entities or handheld objects.
+
+
+///////////////////////////////////////////////////////////
+// MISC
+///////////////////////////////////////////////////////////
+
+screen.MISC=Other Stuff
+
+option.OUTLINE=Outline
+option.OUTLINE_DISTANCE=Outline Distance
+option.OUTLINE_BRIGHTNESS=Outline Brightness
+
+option.FOG=Fog
+option.FOG_AMOUNT=Fog Amount
+
+option.WAVY_BLOCKS=Wavy Blocks
+
+option.WAVY_LEAVES=Wavy Leaves
+
+option.HAND_INVISIBILITY_EFFECT=Hand Invisibility Effect
+option.HAND_INVISIBILITY_EFFECT.comment=Distorts handheld objects when invisible
+
+option.WORLD_CURVE=World Curvature
+option.WORLD_CURVE_RADIUS=World Radius
