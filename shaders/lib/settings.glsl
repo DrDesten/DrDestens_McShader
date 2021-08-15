@@ -94,8 +94,6 @@ const float chromaticAberration = float(CHROMATIC_ABERRATION_AMOUNT) * 0.1;
 
 //#define HEIGHT_AO
 
-//#define PBR_REFLECTION_REALISM
-
 //#define FAST_SKY
 
 #define WATER_WAVES

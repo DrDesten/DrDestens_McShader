@@ -45,7 +45,8 @@ void main() {
 
 	float reflectiveness = 0;
 
-	vec4 color = texture2D(texture, coord, 0) * glcolor;
+	vec4 color = texture2D(texture, coord, 0);
+	color.rgb *= glcolor.rgb * glcolor.a;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
 
 	#ifdef PHYSICALLY_BASED

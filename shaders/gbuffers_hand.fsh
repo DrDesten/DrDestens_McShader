@@ -43,7 +43,8 @@ void main() {
 	#endif
 	float reflectiveness = 0;
 	
-	vec4 color		   = texture2D(texture, coord) * glcolor;
+	vec4 color = texture2D(texture, coord, 0);
+	color.rgb *= glcolor.rgb * glcolor.a;
 
 	#ifdef PHYSICALLY_BASED
 		#ifdef FRAG_NORMALS

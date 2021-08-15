@@ -146,21 +146,24 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     #if DOF_KERNEL_SIZE == 1
         const float samplesPerRadius = 0.25;
         const int   minSamples = 4;
+        const int   maxSamples = 8;
 
     // Medium Quality
     #elif DOF_KERNEL_SIZE == 2
         const float samplesPerRadius = 2.0;
         const int   minSamples = 6;
+        const int   maxSamples = 16;
 
     // High Quality
     #elif DOF_KERNEL_SIZE >= 3
         const float samplesPerRadius = 4.0;
-        const int   minSamples = 8;
+        const int   minSamples = 6;
+        const int   maxSamples = 32;
 
     #endif
 
     float lod   = log2(radius * 8 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-    int samples = clamp(int(radius * samplesPerRadius), minSamples, 64); // Circle blur Array has a max of 64 samples
+    int samples = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
 
     #if CHROMATIC_ABERRATION_AMOUNT != 0
         vec3 totalTint = vec3(0); // Contains the combined tint of all sample pixels, used for color correction
@@ -300,8 +303,11 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
     //return color;
 }
 
-
+#ifdef BLOOM
 /* DRAWBUFFERS:04 */
+#else
+/* DRAWBUFFERS:0 */
+#endif
 
 void main() {
     float depth         = texture(depthtex1, coord).r;
@@ -322,11 +328,11 @@ void main() {
 
     #ifdef BLOOM
         vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x) * BLOOM_AMOUNT;
-    #else
-        vec3 bloomColor = vec3(0);
     #endif
 
     //Pass everything forward
     FD0          = vec4(color,  1);
+    #ifdef BLOOM
     FD1          = vec4(bloomColor, 1);
+    #endif
 }

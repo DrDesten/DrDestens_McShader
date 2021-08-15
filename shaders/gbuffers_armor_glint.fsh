@@ -11,7 +11,8 @@ varying vec4 glcolor;
 
 /* DRAWBUFFERS:0 */
 void main() {
-	vec4 color = texture2D(texture, coord) * glcolor;
+	vec4 color = texture2D(texture, coord, 0);
+	color.rgb *= glcolor.rgb * glcolor.a;
 	color     *= texture2D(lightmap, lmcoord);
 	gamma(color.rgb);
 

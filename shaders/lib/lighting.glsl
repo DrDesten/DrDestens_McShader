@@ -29,6 +29,9 @@ float G_Smith(vec3 normal, vec3 view, vec3 light, float k) {
 	
     return lightObstrction * viewObstruction;
 }
+float G_Phong(vec3 normal, vec3 view, vec3 light) {
+    return clamp(dot(normal, light), 0, 1) * clamp(dot(normal, view), 0, 1);
+}
 
 // Fresnel function (Schlick)
 float F(float cosTheta, float F0) {
@@ -49,7 +52,8 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
 
     float D = NDF_GGX(normal, H, roughness);
     float G = G_Smith(normal, V, L, k);
-    vec3  F = F(max(dot(H, V), 0), f0);
+    //float G = G_Phong(normal, V, L);
+    vec3  F = F(clamp(dot(H, V), 0, 1), f0);
 
     vec3 kS = F;
     vec3 kD = 1 - kS;
@@ -61,8 +65,9 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     spec        = min(spec, 5);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(normal, L), 0.0);
+    //BRDF = vec3(G);
 
-    return vec4(BRDF, F);
+    return vec4(BRDF, (F.r + F.g + F.b) * 0.33333);
 }
 
 vec3 simpleSubsurface(vec3 albedo, vec3 normal, vec3 view, vec3 light, float subsurface) {

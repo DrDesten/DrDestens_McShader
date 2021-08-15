@@ -186,7 +186,7 @@ void main() {
         float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25;
         float moveErrorCoarse = moveErrorFine * 0.04;
 
-        float blend   = saturate(boundsError + moveErrorCoarse + spikeError + stencilError + TAA_BLEND);
+        float blend   = saturate(boundsError + moveErrorCoarse + (spikeError * (moveErrorFine + 0.5)) + stencilError + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
         vec3 TAAcolor = color;

@@ -453,16 +453,7 @@ void main() {
                 vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
-            #ifdef PBR_REFLECTION_REALISM
-            if (reflectiveness > 254.5/255) {
-                color          = mix(color, Reflection.rgb, Reflection.a * sum(color * .333));
-                //color          = mix(color, color * Reflection.rgb, Reflection.a);
-            } else {
-                color          = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
-            }
-            #else
             color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
-            #endif
 
             #ifdef SSR_DEBUG
                 color = vec3(1, 0,0);

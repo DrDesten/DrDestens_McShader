@@ -7,12 +7,14 @@ uniform int worldTime;
 #include "/lib/math.glsl"
 #include "/lib/labPBR13.glsl"
 #include "/lib/lighting.glsl"
+#include "/lib/generatePBR.glsl"
 #include "/lib/gamma.glsl"
 
 uniform sampler2D lightmap;
 uniform sampler2D texture;
 
 uniform vec3 fogColor;
+uniform vec2 atlasSizeInverse;
 
 flat varying float blockId;
 varying vec3  viewpos;
@@ -31,7 +33,7 @@ void main() {
 	vec3  normal = tbn[2];
 	float reflectiveness = 0;
 
-	vec4 color		   = texture2D(texture, coord, 0) * glcolor;
+	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 	
 	#ifdef PHYSICALLY_BASED
 
@@ -40,6 +42,18 @@ void main() {
 		gamma(ambientLight);
 
 		MaterialInfo MatTex = FullMaterial(coord, color);
+		MatTex.AO 		   *= sq(glcolor.a);
+
+		/* vec3 baseColor = texture2D(texture, coord).rgb;
+		vec3 heights = vec3(
+			sum(texture2D(texture, coord, -2).rgb) * 0.333,
+			sum(texture2D(texture, coord + vec2(atlasSizeInverse.x, 0), -2).rgb) * 0.333,
+			sum(texture2D(texture, coord + vec2(0, atlasSizeInverse.y), -2).rgb) * 0.333
+		);
+
+		MatTex.normal       = generateNormals(heights, 1);
+		MatTex.roughness    = generateRoughness(baseColor);
+		MatTex.f0           = vec3(0.04); */
 
 		PBRout Material     = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight + DynamicLight(lmcoord));
 
@@ -49,6 +63,7 @@ void main() {
 
 	#else
 
+		color.rgb 		  *= glcolor.a;
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
 

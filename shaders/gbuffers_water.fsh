@@ -149,7 +149,8 @@ vec3 waveNormals(vec2 coord, float strength) {
 
 void main(){
     vec2 screenCoord = (gl_FragCoord.xy / screenSize);
-    vec4 color       = texture(colortex0, coord, 0) * glcolor;
+	vec4 color       = texture2D(colortex0, coord, 0);
+	color.rgb       *= glcolor.rgb * glcolor.a;
 
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;

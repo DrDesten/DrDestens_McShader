@@ -29,186 +29,187 @@ flat in vec2 x3_kernel[9];
 
 
 /* // 3-Sample Dark Priority Despecler
-vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = screenSizeInverse.x * amount;
+    vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
+        float pixelOffsetX = screenSizeInverse.x * amount;
 
-    vec3 color           = getAlbedo(coord);
+        vec3 color           = getAlbedo(coord);
 
-    vec3 color_surround[2]  = vec3[2](
-        getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
-        getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
-    );
-
-
-    #ifdef DENOISE_DEBUG
-    for (int i = 0; i < 2; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-    }
-    #else
-
-    for (int i = 0; i < 2; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-    }
-
-    #endif
-
-    return color;
-}
-
-// 5-Sample Dark Priority Despecler
-vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = screenSizeInverse * amount;
-
-    vec3 color           = getAlbedo(coord);
-    vec2 coordOffsetPos  = coord + pixelOffset;
-    vec2 coordOffsetNeg  = coord - pixelOffset;
-
-    vec3 color_surround[4]  = vec3[4](
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-    );
+        vec3 color_surround[2]  = vec3[2](
+            getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
+            getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
+        );
 
 
-    #ifdef DENOISE_DEBUG
-    for (int i = 0; i < 4; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-    }
-    #else
-
-    for (int i = 0; i < 4; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-    }
-
-    #endif
-
-    return color;
-}
-
-// 9-Sample Dark Priority Despecler
-vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = screenSizeInverse * amount;
-
-    vec3 color           = getAlbedo(coord);
-    vec2 coordOffsetPos  = coord + pixelOffset;
-    vec2 coordOffsetNeg  = coord - pixelOffset;
-
-    vec3 color_surround[8]  = vec3[8](
-        getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-    );
-
-    #ifdef DENOISE_DEBUG
-    for (int i = 0; i < 8; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-    }
-    #else
-
-    for (int i = 0; i < 8; i++) {
-        if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-    }
-
-    #endif
-
-    return color;
-}
-
-// 3-Sample Closest-to-Average Denoiser
-vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
-    float pixelOffsetX = screenSizeInverse.x * amount;
-
-    vec3 color           = getAlbedo(coord);
-
-    vec3 color_surround[2]  = vec3[2](
-        getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
-        getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
-    );
-    
-    float average     = sum(color+color_surround[0]+color_surround[1]) / 3;
-    float close       = abs(sum(color) - average);
-    vec3 closestColor = color;
-
-    for (int i = 0; i < 2; i++) {
-        float diff = abs(sum(color_surround[i]) - average);
-        if (diff < close) {
-            close        = diff;
-            closestColor = color_surround[i];
+        #ifdef DENOISE_DEBUG
+        for (int i = 0; i < 2; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
         }
-    }
+        #else
 
-    return closestColor;
-}
-
-// 5-Sample Closest-to-Average Denoiser
-vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = screenSizeInverse * amount;
-
-    vec3 color           = getAlbedo(coord);
-    vec2 coordOffsetPos  = coord + pixelOffset;
-    vec2 coordOffsetNeg  = coord - pixelOffset;
-
-    vec3 color_surround[4]  = vec3[4](
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-    );
-
-    float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]) * 0.2;
-    float close       = abs(sum(color) - average);
-    vec3 closestColor = color;
-
-    for (int i = 0; i < 4; i++) {
-        float diff = abs(sum(color_surround[i]) - average);
-        if (diff < close) {
-            close        = diff;
-            closestColor = color_surround[i];
+        for (int i = 0; i < 2; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
         }
+
+        #endif
+
+        return color;
     }
 
-    return closestColor;
-}
+    // 5-Sample Dark Priority Despecler
+    vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
+        vec2 pixelOffset = screenSizeInverse * amount;
 
-// 9-Sample Closest-to-Average Denoiser
-vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
-    vec2 pixelOffset = screenSizeInverse * amount;
+        vec3 color           = getAlbedo(coord);
+        vec2 coordOffsetPos  = coord + pixelOffset;
+        vec2 coordOffsetNeg  = coord - pixelOffset;
 
-    vec3 color           = getAlbedo(coord);
-    vec2 coordOffsetPos  = coord + pixelOffset;
-    vec2 coordOffsetNeg  = coord - pixelOffset;
+        vec3 color_surround[4]  = vec3[4](
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        );
 
-    vec3 color_surround[8]  = vec3[8](
-        getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
-        getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
-        getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-    );
 
-    float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]+color_surround[4]+color_surround[5]+color_surround[6]+color_surround[7]) / 9;
-    float close       = abs(sum(color) - average);
-    vec3 closestColor = color;
-
-    for (int i = 0; i < 8; i++) {
-        float diff = abs(sum(color_surround[i]) - average);
-        if (diff < close) {
-            close = diff;
-            closestColor = color_surround[i];
+        #ifdef DENOISE_DEBUG
+        for (int i = 0; i < 4; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
         }
+        #else
+
+        for (int i = 0; i < 4; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
+        }
+
+        #endif
+
+        return color;
     }
 
-    return closestColor;
-} */
+    // 9-Sample Dark Priority Despecler
+    vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
+        vec2 pixelOffset = screenSizeInverse * amount;
+
+        vec3 color           = getAlbedo(coord);
+        vec2 coordOffsetPos  = coord + pixelOffset;
+        vec2 coordOffsetNeg  = coord - pixelOffset;
+
+        vec3 color_surround[8]  = vec3[8](
+            getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        );
+
+        #ifdef DENOISE_DEBUG
+        for (int i = 0; i < 8; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
+        }
+        #else
+
+        for (int i = 0; i < 8; i++) {
+            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
+        }
+
+        #endif
+
+        return color;
+    }
+
+    // 3-Sample Closest-to-Average Denoiser
+    vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
+        float pixelOffsetX = screenSizeInverse.x * amount;
+
+        vec3 color           = getAlbedo(coord);
+
+        vec3 color_surround[2]  = vec3[2](
+            getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
+            getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
+        );
+        
+        float average     = sum(color+color_surround[0]+color_surround[1]) / 3;
+        float close       = abs(sum(color) - average);
+        vec3 closestColor = color;
+
+        for (int i = 0; i < 2; i++) {
+            float diff = abs(sum(color_surround[i]) - average);
+            if (diff < close) {
+                close        = diff;
+                closestColor = color_surround[i];
+            }
+        }
+
+        return closestColor;
+    }
+
+    // 5-Sample Closest-to-Average Denoiser
+    vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
+        vec2 pixelOffset = screenSizeInverse * amount;
+
+        vec3 color           = getAlbedo(coord);
+        vec2 coordOffsetPos  = coord + pixelOffset;
+        vec2 coordOffsetNeg  = coord - pixelOffset;
+
+        vec3 color_surround[4]  = vec3[4](
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        );
+
+        float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]) * 0.2;
+        float close       = abs(sum(color) - average);
+        vec3 closestColor = color;
+
+        for (int i = 0; i < 4; i++) {
+            float diff = abs(sum(color_surround[i]) - average);
+            if (diff < close) {
+                close        = diff;
+                closestColor = color_surround[i];
+            }
+        }
+
+        return closestColor;
+    }
+
+    // 9-Sample Closest-to-Average Denoiser
+    vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
+        vec2 pixelOffset = screenSizeInverse * amount;
+
+        vec3 color           = getAlbedo(coord);
+        vec2 coordOffsetPos  = coord + pixelOffset;
+        vec2 coordOffsetNeg  = coord - pixelOffset;
+
+        vec3 color_surround[8]  = vec3[8](
+            getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
+            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
+            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
+        );
+
+        float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]+color_surround[4]+color_surround[5]+color_surround[6]+color_surround[7]) / 9;
+        float close       = abs(sum(color) - average);
+        vec3 closestColor = color;
+
+        for (int i = 0; i < 8; i++) {
+            float diff = abs(sum(color_surround[i]) - average);
+            if (diff < close) {
+                close = diff;
+                closestColor = color_surround[i];
+            }
+        }
+
+        return closestColor;
+    }
+*/
 
 
 float separationDetect(vec2 coord) {
