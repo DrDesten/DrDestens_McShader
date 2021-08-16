@@ -16,8 +16,7 @@ varying vec4 glcolor;
 
 /* DRAWBUFFERS:031 */
 void main() {
-	vec4 color = texture2D(texture, coord, 0);
-	color.rgb *= glcolor.rgb * glcolor.a;
+	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb *= texture2D(lightmap, lmcoord).rgb;
 	gamma(color.rgb);
 	
@@ -25,5 +24,5 @@ void main() {
 
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(50, vec3(1)); // Id
-	gl_FragData[2] = vec4(0, vec3(1)); // Reflectance
+	gl_FragData[2] = vec4(0, vec3(1));  // Reflectance
 }

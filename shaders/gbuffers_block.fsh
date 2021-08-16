@@ -32,19 +32,28 @@ void main() {
 	float reflectiveness = 0;
 
 	vec4 color		   = texture2D(texture, coord);
-	color.rgb 		  *= glcolor.rgb * glcolor.a;
-	color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
-	gamma(color.rgb);
+	color.rgb 		  *= glcolor.rgb;
 
 	#ifdef PHYSICALLY_BASED
 
-		MaterialInfo MatTex = FullMaterial(coord, color);
+		gamma(color.rgb);
+		vec3 ambientLight   = texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		gamma(ambientLight);
 
-		PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewpos, fogColor * 0.05);
+		MaterialInfo MatTex = FullMaterial(coord, color);
+		MatTex.AO 		   *= sq(glcolor.a);
+
+		PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
 		reflectiveness     = Material.reflectiveness;
+
+	#else
+
+		color.rgb 		  *= glcolor.a;	
+		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		gamma(color.rgb);
 
 	#endif
 

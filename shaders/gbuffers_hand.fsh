@@ -43,8 +43,7 @@ void main() {
 	#endif
 	float reflectiveness = 0;
 	
-	vec4 color = texture2D(texture, coord, 0);
-	color.rgb *= glcolor.rgb * glcolor.a;
+	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
 	#ifdef PHYSICALLY_BASED
 		#ifdef FRAG_NORMALS
@@ -52,12 +51,13 @@ void main() {
 		#endif
 
 		gamma(color.rgb);
-		vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
+		vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(ambientLight);
 
 		MaterialInfo MatTex = FullMaterial(coord, color);
+		//MatTex.AO 		   *= sq(glcolor.a);
 
-		PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight + DynamicLight(lmcoord));
+		PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
@@ -67,10 +67,6 @@ void main() {
 
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
-
-		if (abs(blockId - 1005) < .2) {
-			color.rgb *= EMISSION_STRENGTH * .5;
-		}
 
 	#endif
 

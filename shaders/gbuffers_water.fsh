@@ -178,6 +178,7 @@ void main(){
             gamma(ambientLight);
 
 		    MaterialInfo MatTex = FullMaterial(coord, color);
+            MatTex.AO 		   *= sq(glcolor.a);
 
             PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
 
