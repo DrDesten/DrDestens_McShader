@@ -15,7 +15,7 @@ void main() {
 	vec4 clipPos = ftransform();
 
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[int( mod(frameCounter, 8) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		clipPos.xy += TAAOffsets[int( mod(frameCounter, 6) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
 	#endif
 	
 	gl_Position = clipPos;

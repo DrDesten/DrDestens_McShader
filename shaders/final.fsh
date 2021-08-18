@@ -56,8 +56,8 @@ void main() {
     vec3 color = getAlbedo(coord);
     
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 50, 0.5, 1);
-        color = sharpen(coord, sharpen_amount, 0.1);
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 50, 1., 1.5);
+        color = sharpen(coord, sharpen_amount, 0.05);
     #endif
 
     // Remove Banding (yay)

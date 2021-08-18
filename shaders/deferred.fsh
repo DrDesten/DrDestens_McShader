@@ -12,6 +12,7 @@ uniform float near;
 uniform float far;
 
 uniform float frameTimeCounter;
+uniform int   frameCounter;
 
 in vec2 coord;
 

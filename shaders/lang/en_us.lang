@@ -6,9 +6,8 @@
 screen.DEPTH_OF_FIELD=Depth Of Field
 
 option.DOF_MODE=DoF Type
-option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (usually better performance).
-value.DOF_MODE.0=Off
-value.DOF_MODE.2=Box
+option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (inconsistent, but mostly better performance).
+value.DOF_MODE.0=OFF
 value.DOF_MODE.3=Bokeh
 value.DOF_MODE.4=Adaptive Bokeh
 
@@ -50,11 +49,11 @@ value.DOF_KERNEL_SIZE.4=Highest
 screen.SSR=Screen Space Reflections
 
 option.SSR_MODE=::
-value.SSR_MODE.0=Raytraced :::
+value.SSR_MODE.0=Raytraced §r:::
 value.SSR_MODE.1=Cubemap-Like §r:::
 
 option.SSR_STEPS=Raytracing Quality
-option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster. Medium Performance impact.
+option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster.
 
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
@@ -71,8 +70,10 @@ option.REFRACTION_AMOUNT=Refraction Strength
 screen.WATER=Water
 
 option.WATER_WAVES=Waves
+option.WATER_WAVES.comment="Physical" Waves. Moves the water surface.
 option.WATER_WAVE_AMOUNT=Wave Height
 option.WATER_NORMALS_AMOUNT=Bump Amount
+option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
 option.WATER_NORMALS_SIZE=Bump Size
 
 
@@ -82,13 +83,14 @@ option.WATER_NORMALS_SIZE=Bump Size
 
 screen.POST_PROCESSING=Post Processing
 
-option.CHROM_ABERRATION=Chromatic Aberration
-option.CHROM_ABERRATION.comment=Color Diffraction at Screen Borders.
-value.CHROM_ABERRATION.0=Off
+option.CHROMATIC_ABERRATION_AMOUNT=Chromatic Aberration
+option.CHROMATIC_ABERRATION_AMOUNT.comment=Color Diffraction. To enable Depth-of-Field-Based Chromatic Aberration, turn on Depth of Field as well.
+value.CHROMATIC_ABERRATION_AMOUNT.0=OFF
 
 option.SATURATION=Saturation
 
 option.BLOOM=Bloom
+option.BLOOM.comment=Creates a glow around bright objects. Looks nice ;).
 option.BLOOM_AMOUNT=Bloom Strength
 
 option.MOTION_BLUR=Motion Blur
@@ -102,7 +104,7 @@ value.MOTION_BLUR_SAMPLES.1=Low
 value.MOTION_BLUR_SAMPLES.4=High
 
 option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
-option.SSAO.comment=Screen Space Ambient Occlusion
+option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Makes cavities dark.
 
 option.SSAO_QUALITY=SSAO Quality
 value.SSAO_QUALITY.1=Low
@@ -114,6 +116,10 @@ option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Steps
 
+option.TAA.comment=Temporal Anti-Aliasing. Smooooth edges and blurry image, take it or leave it. Works nice as noise reduction tho.
+option.TAA_BLEND=TAA Blending Constant
+option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
+
 ///////////////////////////////////////////////////////////
 // MATERIALS
 ///////////////////////////////////////////////////////////
@@ -121,7 +127,7 @@ option.GODRAY_STEPS=Godray Steps
 screen.MATERIALS=Physically Based Rendering
 
 option.PHYSICALLY_BASED=PBR
-option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering
+option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you have a LabPBR compatible Ressource pack.
 
 option.PBR_BLEND_MIN=PBR Blend
 option.PBR_BLEND_MIN.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.

@@ -148,7 +148,7 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
 
 void main() {
     #ifdef TAA
-        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 8) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 6) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
     #else
         vec2 unJitterCoord = coord;
     #endif
