@@ -16,7 +16,7 @@ option.DOF_STEPS.comment=Step size of the box blurs. Significantly influences pe
 value.DOF_STEPS.1=Pixel Perfect
 
 option.DOF_MAXSIZE=Maximum Blur
-option.DOF_MAXSIZE.comment=Limits the size of the DoF blur. Hides artifacts when using lower quality blur.
+option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Hides artifacts when using lower quality blur.
 value.DOF_MAXSIZE.0.002=Low
 value.DOF_MAXSIZE.0.005=Medium
 value.DOF_MAXSIZE.0.007=High
@@ -24,7 +24,7 @@ value.DOF_MAXSIZE.0.03=Highest
 value.DOF_MAXSIZE.1.0=Unlimited
 
 option.DOF_STRENGTH=DoF Intensity
-option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low Performance impact. Lower = faster.
+option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. With Adaptive Bokeh, lower values might be faster.
 
 option.DOF_DITHER=Dither DoF
 
@@ -35,7 +35,7 @@ option.DOF_DOWNSAMPLING=DoF Downsampling Amount
 option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
 
 option.DOF_KERNEL_SIZE=Bokeh Quality
-option.DOF_KERNEL_SIZE.comment=Significantly affects performance.
+option.DOF_KERNEL_SIZE.comment=Quality of the blur. Significantly affects performance.
 value.DOF_KERNEL_SIZE.1=Low
 value.DOF_KERNEL_SIZE.2=Medium
 value.DOF_KERNEL_SIZE.3=High
@@ -53,13 +53,14 @@ value.SSR_MODE.0=Raytraced §r:::
 value.SSR_MODE.1=Cubemap-Like §r:::
 
 option.SSR_STEPS=Raytracing Quality
-option.SSR_STEPS.comment=Number of raytracing iterations. Lower = faster.
+option.SSR_STEPS.comment=Number of raytracing iterations. Lower is faster.
 
 option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
 value.SSR_DEPTH_TOLERANCE.1000=Infinite
 
 option.REFRACTION=Screen Space Refraction
+option.REFRACTION.comment=Distorts things seen through water.
 option.REFRACTION_AMOUNT=Refraction Strength
 
 
@@ -104,7 +105,7 @@ value.MOTION_BLUR_SAMPLES.1=Low
 value.MOTION_BLUR_SAMPLES.4=High
 
 option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
-option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Makes cavities dark.
+option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Makes cavities dark. High performance impact.
 
 option.SSAO_QUALITY=SSAO Quality
 value.SSAO_QUALITY.1=Low
@@ -116,7 +117,7 @@ option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Steps
 
-option.TAA.comment=Temporal Anti-Aliasing. Smooooth edges and blurry image, take it or leave it. Works nice as noise reduction tho.
+option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
 option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
 
@@ -131,9 +132,6 @@ option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure yo
 
 option.PBR_BLEND_MIN=PBR Blend
 option.PBR_BLEND_MIN.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
-
-option.PBR_BLEND_MAX=Maximum Amount of PBR
-option.PBR_BLEND_MAX.comment=In order to stay close to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. The higher the reflectance, the more PBR will be applied. This value determines the maximum amount of PBR that will be applied.
 
 option.HEIGHT_AO=Height as AO
 option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
@@ -164,3 +162,6 @@ option.HAND_INVISIBILITY_EFFECT.comment=Distorts handheld objects when invisible
 
 option.WORLD_CURVE=World Curvature
 option.WORLD_CURVE_RADIUS=World Radius
+
+option.CREDITS=§k###
+value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###

@@ -46,6 +46,11 @@ void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
 	#ifdef PHYSICALLY_BASED
+
+		// Get the Dafault render color, used for PBR Blending
+		vec3 mc_color      = color.rgb * ( texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord) );
+		gamma(mc_color);
+
 		#ifdef FRAG_NORMALS
 		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 		#endif
@@ -57,7 +62,7 @@ void main() {
 		MaterialInfo MatTex = FullMaterial(coord, color);
 		//MatTex.AO 		   *= sq(glcolor.a);
 
-		PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewpos, 0.1 * ambientLight);
+		PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;

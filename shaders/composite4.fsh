@@ -14,6 +14,7 @@ uniform sampler2D depthtex1;
 
 uniform float frameTime; 
 uniform float frameTimeCounter;
+uniform int   frameCounter;
 uniform int   worldTime;
 uniform vec3  fogColor;
 uniform vec3  sunPosition;
@@ -294,7 +295,8 @@ void main() {
             #ifndef TAA
             vec2 rayPos       = coord - (Bayer8(coord * screenSize) * rayStep);
             #else
-            vec2 rayPos       = coord - (fract(Bayer8(coord * screenSize) + frameTimeCounter) * rayStep);
+            vec2 taa_offs     = fract(vec2(frameCounter * 0.2, -frameCounter * 0.2 - 0.5)) * 5 - 10;
+            vec2 rayPos       = coord - (Bayer8(coord * screenSize + taa_offs) * rayStep);
             #endif
 
             float light = 1;

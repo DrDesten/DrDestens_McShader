@@ -149,8 +149,7 @@ vec3 waveNormals(vec2 coord, float strength) {
 
 void main(){
     vec2 screenCoord = (gl_FragCoord.xy / screenSize);
-	vec4 color       = texture2D(colortex0, coord, 0);
-	color.rgb       *= glcolor.rgb * glcolor.a;
+	vec4 color       = texture2D(colortex0, coord, 0) * vec4(glcolor.rgb, 1);
 
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;
@@ -173,6 +172,10 @@ void main(){
 
         #ifdef PHYSICALLY_BASED
 
+		    // Get the Dafault render color, used for PBR Blending
+            vec3 mc_color      = color.rgb * glcolor.a * ( texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord) );
+            gamma(mc_color);
+
             gamma(color.rgb);
             vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb;
             gamma(ambientLight);
@@ -180,7 +183,7 @@ void main(){
 		    MaterialInfo MatTex = FullMaterial(coord, color);
             MatTex.AO 		   *= sq(glcolor.a);
 
-            PBRout Material    = PBRMaterial(MatTex, lmcoord, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
+            PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
 
             color	           = Material.color;
             surfaceNormal      = Material.normal;
@@ -188,6 +191,7 @@ void main(){
 
         #else
 
+	        color.rgb         *= glcolor.a;
             color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
             gamma(color.rgb);
 
