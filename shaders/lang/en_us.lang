@@ -139,6 +139,8 @@ option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
 option.FRAG_NORMALS=Normal Mapping Fix
 option.FRAG_NORMALS.comment=With newer OptiFine versions this might not be necessary. Enable this if normal maps do not show on entities or handheld objects.
 
+option.HARDCODED_METALS=Use Hardcoded Metals
+option.HARDCODED_METALS.comment=If disabled, the shader will use the color for the reflectance data. LabPBR only.
 
 ///////////////////////////////////////////////////////////
 // MISC

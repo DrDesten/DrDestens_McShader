@@ -105,6 +105,14 @@ mat3 cotangentFrame( vec3 N, vec3 p, vec2 coord ) {
 
 }
 
+vec3 nkTof0(vec3 n, vec3 k) {
+    //      (n - 1)² + k²
+    // f0 = -------------
+    //      (n + 1)² + k²
+    vec3 k2 = k*k;
+    return (sq(n - 1) + k2) / (sq(n + 1) + k2);
+}
+
 
 
 
