@@ -6,8 +6,6 @@
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 
-uniform sampler2D noisetex;
-
 uniform float near;
 uniform float far;
 
@@ -45,7 +43,7 @@ float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
     return sq(occlusion);
 }
 
-float AmbientOcclusionEXTRALOW(vec3 screenPos, vec3 normal, float size) {
+/* float AmbientOcclusionEXTRALOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
     vec3 tangent           = normalize(vec3(normal.y - normal.z, -normal.x, normal.x));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
@@ -70,7 +68,7 @@ float AmbientOcclusionEXTRALOW(vec3 screenPos, vec3 normal, float size) {
 
     hits  = -hits * 0.25 + 1;
     return sq(hits);
-}
+} */
 
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
@@ -144,7 +142,7 @@ float AmbientOcclusionOutline(vec3 screenPos, float depthfactor, float sizemulti
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3 color        = getAlbedo(coord);
+    vec3  color       = getAlbedo(coord);
     float depth       = getDepth(coord);
     float type        = getType(coord);
 
@@ -175,10 +173,5 @@ void main() {
 
     #endif
 
-
-    /* vec3 normal       = getNormal(coord);
-    float A0          = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH); */
-
     FD0 = vec4(color, 1.0);
-    //FD0 = vec4(A0, vec3(1.0));
 }

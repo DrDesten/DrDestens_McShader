@@ -130,8 +130,8 @@ screen.MATERIALS=Physically Based Rendering
 option.PHYSICALLY_BASED=PBR
 option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you have a LabPBR compatible Ressource pack.
 
-option.PBR_BLEND_MIN=PBR Blend
-option.PBR_BLEND_MIN.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
+option.PBR_BLEND=PBR Blend
+option.PBR_BLEND.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
 
 option.HEIGHT_AO=Height as AO
 option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion

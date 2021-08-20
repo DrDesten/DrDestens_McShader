@@ -40,20 +40,17 @@ vec3 Fresnel(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roughness, vec3 f0, float specular) {
-    vec3 V = normalize(-viewPos);
-    vec3 L = normalize(light);
+vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     vec3 H = normalize(V + L);
-
-    float NdotH = clamp(dot(normal, H), 0, 1);
+    float NdotH = clamp(dot(N, H), 0, 1);
 
     float radiance = 5;
 
     float k = sq(roughness + 1) / 8;
 
     float D = NDF_GGX(NdotH, roughness);
-    float G = G_Smith(normal, V, L, k);
-    //float G = G_Phong(normal, V, L);
+    float G = G_Smith(N, V, L, k);
+    //float G = G_Phong(N, V, L);
     vec3  F = Fresnel(NdotH, f0);
 
     vec3 kS = F;
@@ -61,20 +58,24 @@ vec4 CookTorrance(vec3 albedo, vec3 normal, vec3 viewPos, vec3 light, float roug
     //kD *= 1 - metallic;
 
     vec3  zaehl = D * G * F;
-    float nenn  = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0);
+    float nenn  = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
     vec3  spec  = zaehl / max(nenn, 0.001) * specular;
     spec        = min(spec, 5);
 
-    vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(normal, L), 0.0);
+    vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(N, L), 0.0);
     
-    float reflectiveness = Fresnel(dot(normal, V), (f0.x + f0.y + f0.z) * 0.33333333333);
+    float reflectiveness = Fresnel(dot(N, V), (f0.r + f0.g + f0.b) * 0.33333333333);
 
     return vec4(BRDF, reflectiveness);
 }
 
-vec3 simpleSubsurface(vec3 albedo, vec3 normal, vec3 view, vec3 light, float subsurface) {
-    float diff    = dot(normal, normalize(light));
-    float subsurf = clamp(-diff, 0, 1) * subsurface;
+vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
+    float through = clamp(dot(V, L), 0, 1);
+    through       = pow(through, 5);
+    float diff    = clamp(-dot(N, L), 0, 1);
+
+    float subsurf = (diff + through) * subsurface * 0.25;
+
     return subsurf * albedo;
 }
 
@@ -125,7 +126,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
     // Specular Blending Factor (Removes specular highlights in occluded areas)
     float specBlend  = clamp(mix( -1.5, 1, lmcoord.y ), 0, 1); 
     // Total BRDF brightness
-    float brightness = pow(lmcoord.y, 5) * tex.AO;
+    float brightness = pow(lmcoord.y, 4) * tex.AO;
 
 	vec3 lightPos	 = lightPosition();
 
@@ -145,18 +146,21 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 
 	float emission   = tex.emission;
 
+    vec3  lightDir   = normalize(lightPos);
+    vec3  viewDir    = normalize(-viewpos);
+
     // Get PBR Material
-	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewpos, lightPos, roughness, f0, specBlend) * (lightPos == sunPosition ? 1.0 : 0.3) * brightness; //Reduce brightness at night and according to minecrafts abient light
-    BRDF.rgb        += simpleSubsurface(color.rgb, normal, viewpos, lightPos, subsurf * sum(ambient));
+	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+    BRDF.rgb        *= (lightPos == sunPosition ? 1.0 : 0.3) * brightness; //Reduce brightness at night and according to minecrafts abient light
+    BRDF.rgb        += simpleSubsurface(color.rgb, normal, viewDir, lightDir, subsurf * brightness);
 
     // Emission and Ambient Light
 	BRDF.rgb 		+= origColor.rgb * emission * 2;
     BRDF.rgb        += origColor.rgb * ambient  * AO;
 
 	// Blend between normal MC rendering and PBR rendering
-    float blend      = PBR_BLEND_MIN;
-	color.rgb 	     = mix(default_render_color, BRDF.rgb, blend);
-	BRDF.a 	    	 = mix(0, BRDF.a, blend);
+	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
+	BRDF.a 	    	 = mix(0, BRDF.a, PBR_BLEND);
 	
 	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
 
