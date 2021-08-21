@@ -3,7 +3,7 @@ uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 
 vec3 lightPosition() {
-    return (worldTime > 13500 && worldTime < 22500) ? moonPosition : sunPosition;
+    return (worldTime > 13000 && worldTime < 22500) ? moonPosition : sunPosition;
 }
 
 float NDF_GGX(float NdotH, float alpha) {
@@ -28,8 +28,15 @@ float G_Smith(vec3 normal, vec3 view, vec3 light, float k) {
 	
     return lightObstrction * viewObstruction;
 }
+float G_Smith(float NdotL, float NdotV, float k) {
+    float lightObstrction = GO_SchlickGGX(NdotL, k);
+    float viewObstruction = GO_SchlickGGX(NdotV, k);
+    return lightObstrction * viewObstruction;
+}
 float G_Phong(vec3 normal, vec3 view, vec3 light) {
-    return clamp(dot(normal, light), 0, 1) * clamp(dot(normal, view), 0, 1);
+    float NdotL = clamp(dot(normal, light), 0, 1);
+    float NdotV = clamp(dot(normal, view),  0, 1);
+    return NdotL * NdotV;
 }
 
 // Fresnel function (Schlick)
@@ -41,15 +48,17 @@ vec3 Fresnel(float cosTheta, vec3 F0) {
 }
 
 vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
-    vec3 H = normalize(V + L);
+    vec3  H     = normalize(V + L);
     float NdotH = clamp(dot(N, H), 0, 1);
+    float NdotL = clamp(dot(N, L), 0, 1);
+    float NdotV = clamp(dot(N, V), 0, 1);
 
     float radiance = 5;
 
     float k = sq(roughness + 1) / 8;
 
     float D = NDF_GGX(NdotH, roughness);
-    float G = G_Smith(N, V, L, k);
+    float G = G_Smith(NdotV, NdotL, k);
     //float G = G_Phong(N, V, L);
     vec3  F = Fresnel(NdotH, f0);
 
@@ -58,13 +67,15 @@ vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     //kD *= 1 - metallic;
 
     vec3  zaehl = D * G * F;
-    float nenn  = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+    float nenn  = 4 * NdotV * NdotL;
     vec3  spec  = zaehl / max(nenn, 0.001) * specular;
     spec        = min(spec, 5);
 
-    vec3  BRDF  = (kD * albedo / PI + spec) * radiance * max(dot(N, L), 0.0);
+    vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
     
-    float reflectiveness = Fresnel(dot(N, V), (f0.r + f0.g + f0.b) * 0.33333333333);
+    float reflectiveness = Fresnel(NdotV, (f0.r + f0.g + f0.b) * 0.33333333333) /* / (spec.g + 1) */;
+
+    //BRDF = vec3(G);
 
     return vec4(BRDF, reflectiveness);
 }
@@ -128,15 +139,15 @@ struct PBRout {
 
 PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, mat3 tbn, vec3 viewpos, vec3 ambient) {
     
+	vec3  lightPos	 = lightPosition();
+
     vec4  origColor  = tex.color;
     vec4  color      = tex.color;
 
     // Specular Blending Factor (Removes specular highlights in occluded areas)
     float specBlend  = clamp(mix( -1.5, 1, lmcoord.y ), 0, 1); 
     // Total BRDF brightness
-    float brightness = pow(lmcoord.y, 4) * tex.AO;
-
-	vec3 lightPos	 = lightPosition();
+    float brightness = sq(sq(lmcoord.y)) * tex.AO * (lightPos == sunPosition ? 1.0 : 0.3);
 
     vec3  normalMap  = tex.normal;
 	vec3  normal     = normalize(tbn * normalMap);
@@ -159,7 +170,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 
     // Get PBR Material
 	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
-    BRDF.rgb        *= (lightPos == sunPosition ? 1.0 : 0.3) * brightness; //Reduce brightness at night and according to minecrafts abient light
+    BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
     BRDF.rgb        += simpleSubsurface(color.rgb, normal, viewDir, lightDir, subsurf * brightness);
 
     // Emission and Ambient Light
@@ -170,7 +181,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
 	BRDF.a 	    	 = mix(0, BRDF.a, PBR_BLEND);
 	
-	float reflectiveness = BRDF.a * max(1 - 2 * roughness, 0);
+	float reflectiveness = BRDF.a * clamp(1 - 2 * roughness, 1, 0);
 
     color.rgb = max(color.rgb, 0); // Prevent Negative values
 
