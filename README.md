@@ -37,7 +37,7 @@ labPBR support
  - Screen Space Reflections
  - Depth of Field
  - Screen Space Ambient Occlusion
- - TAA
+ - Temporal Anti-Aliasing
  - Physically Based Rendering
    - Support for LabPBR 1.3
      - Normals
