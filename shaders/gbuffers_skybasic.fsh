@@ -60,7 +60,7 @@ void main() {
     moonDot        = pow(moonDot, 20) * .5;
 
     vec3 color = getSkyColor4(viewPos); //Get sky
-    color *= 1 + sunDot + moonDot;
+    color     *= 1 + sunDot + moonDot;
 
     /* float dotp = max(dot(normalize(viewPos), normalize(sunPosition)), 0);
     color = rayleigh(dotp, vec3(2, 1, 2));
@@ -72,7 +72,7 @@ void main() {
 
     color.rgb = mix(vec3(0.5,0.5,1), vec3(0.25,0.25,0.5), gradient); */
 
-    gamma(color);
+    gamma(color.rgb);
 
     FD0 = vec4(color, 1.0);
     FD1 = vec4(vec3(0), 1);
