@@ -21,6 +21,7 @@ uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 
 uniform float isInvisibleSmooth;
+uniform float far;
 
 uniform int   isEyeInWater;
 
@@ -317,7 +318,7 @@ void main() {
             }
 
             // Exponential falloff (also making it FOV independent)
-            light *= exp2(-dot(rayCorrected, rayCorrected) * 10 / fovScale);
+            light *= exp2(-sqmag(rayCorrected) * 10 / fovScale);
 
             color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
         }
@@ -325,13 +326,17 @@ void main() {
     #endif
 
 
-    #ifdef FOG
+    #if FOG != 0
 
         // Blend between FogColor and normal color based on square distance
         vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
 
-        float dist      = dot(viewPos, viewPos) * float(depth != 1);
+        float dist      = sqmag(viewPos) * float(depth != 1);
+        #if FOG == 1
         float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
+        #else
+        float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT, 0, 1);
+        #endif
 
         if (isEyeInWater == 5) {
             color           = mix(color, (color) * fogColor, fog);
@@ -348,7 +353,7 @@ void main() {
 
     #ifdef HAND_INVISIBILITY_EFFECT
 
-        if (abs(getType(coord) - 51) < .2 && isInvisibleSmooth > 0.001) { // Hand invisbility Effect
+        if (abs(getType(coord) - 51) < .2 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
             float vel  = sqmag((cameraPosition - previousCameraPosition) / frameTime) * .005;
 
             vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);

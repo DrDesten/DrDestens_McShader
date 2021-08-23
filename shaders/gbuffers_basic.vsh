@@ -4,8 +4,10 @@
 #include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
 
+#ifdef TAA
 uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
+#endif
 
 varying vec2 lmcoord;
 varying vec4 glcolor;

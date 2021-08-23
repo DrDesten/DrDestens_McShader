@@ -13,7 +13,9 @@ uniform int frameCounter;
 uniform vec2 screenSizeInverse;
 
 flat varying float blockId;
+#ifdef PHYSICALLY_BASED
 varying vec3  viewpos;
+#endif
 varying vec2  lmcoord;
 varying vec2  coord;
 
@@ -32,7 +34,9 @@ vec3 wavyPlants(vec3 worldPos, float amount) {
 void main() {
 	vec4 clipPos = ftransform();
 
+	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
+	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN();

@@ -7,12 +7,16 @@
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
 
+#ifdef TAA
 uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
+#endif
 
 flat varying float blockId;
 
+#ifdef PHYSICALLY_BASED
 varying vec3 viewpos;
+#endif
 varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
@@ -33,7 +37,9 @@ void main() {
 	gl_Position = clipPos;
 
 
+	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
+	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN();

@@ -17,7 +17,9 @@ uniform vec3 fogColor;
 uniform vec2 atlasSizeInverse;
 
 flat varying float blockId;
+#ifdef PHYSICALLY_BASED
 varying vec3  viewpos;
+#endif
 varying vec2  lmcoord;
 varying vec2  coord;
 

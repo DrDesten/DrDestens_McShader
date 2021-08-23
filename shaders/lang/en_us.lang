@@ -86,7 +86,7 @@ screen.POST_PROCESSING=Post Processing
 
 option.CHROMATIC_ABERRATION_AMOUNT=Chromatic Aberration
 option.CHROMATIC_ABERRATION_AMOUNT.comment=Color Diffraction. To enable Depth-of-Field-Based Chromatic Aberration, turn on Depth of Field as well.
-value.CHROMATIC_ABERRATION_AMOUNT.0=OFF
+value.CHROMATIC_ABERRATION_AMOUNT.0=§cOFF
 
 option.SATURATION=Saturation
 
@@ -153,6 +153,9 @@ option.OUTLINE_DISTANCE=Outline Distance
 option.OUTLINE_BRIGHTNESS=Outline Brightness
 
 option.FOG=Fog
+value.FOG.0=§cOFF
+value.FOG.1=Normal
+value.FOG.2=Adaptive
 option.FOG_AMOUNT=Fog Amount
 
 option.WAVY_BLOCKS=Wavy Blocks

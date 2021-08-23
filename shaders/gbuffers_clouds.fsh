@@ -21,9 +21,9 @@ void main() {
 	vec3 lightPos = normalize((worldTime < 13000) ? sunPosition : moonPosition);
 
 	// "Volumetrics" (not actually)
-	float passThroughAngle = dot(normalize(viewPos), lightPos);
+	float passThroughAngle = clamp(dot(normalize(viewPos), lightPos), 0, 1);
 	float vol_1 = passThroughAngle * 0.2 + 0.8;
-	float vol_2 = sq(sq(max(passThroughAngle, 0)));
+	float vol_2 = sq(sq(passThroughAngle));
 
 	// diffuse
 	float diffuse = clamp(dot(normal, lightPos), 0, 1);

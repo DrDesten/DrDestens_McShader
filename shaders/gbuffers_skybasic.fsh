@@ -59,7 +59,7 @@ void main() {
     float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
     moonDot        = pow(moonDot, 20) * .5;
 
-    vec3 color = getSkyColor3(viewPos); //Get sky
+    vec3 color = getSkyColor4(viewPos); //Get sky
     color *= 1 + sunDot + moonDot;
 
     /* float dotp = max(dot(normalize(viewPos), normalize(sunPosition)), 0);

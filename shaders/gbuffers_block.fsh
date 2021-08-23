@@ -16,7 +16,9 @@ uniform vec3 fogColor;
 
 flat varying float blockId;
 
-varying vec3  viewpos;
+#ifdef PHYSICALLY_BASED
+varying vec3 viewpos;
+#endif
 varying vec2  lmcoord;
 varying vec2  coord;
 varying vec4  glcolor;

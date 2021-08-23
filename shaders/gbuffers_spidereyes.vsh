@@ -3,8 +3,10 @@
 #include "/lib/settings.glsl"
 #include "/lib/kernels.glsl"
 
+#ifdef TAA
 uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
+#endif
 
 varying vec2 coord;
 varying vec4 glcolor;

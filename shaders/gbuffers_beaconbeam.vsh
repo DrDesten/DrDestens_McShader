@@ -6,8 +6,10 @@
 #include "/lib/vertex_transform.glsl"
 #endif
 
+#ifdef TAA
 uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
+#endif
 
 varying vec3 normal;
 varying vec2 coord;

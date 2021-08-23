@@ -147,7 +147,7 @@ vec3 getSkyColor2(vec3 viewPos) {
 
 vec3 getSkyColor3(vec3 viewPos) {
     vec3 eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-    vec3 dir = normalize(eyePlayerPos); //Get view direction in world space (chech ;position in bot channel to understand what eyePlayerPos is
+    vec3 dir = normalize(eyePlayerPos);
     dir.y = max(dir.y, 0);
     
     float ang = fract(worldTime / 24000.0 - 0.25);
@@ -203,4 +203,20 @@ vec3 getSkyColor3(vec3 viewPos) {
     }
 
     return mix(fogColor, sky_up, dir.y + sky_bias); //Get sky
+}
+
+vec3 getSkyColor4(vec3 viewPos) {
+    vec3 eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
+    vec3 dir = normalize(eyePlayerPos);
+    dir.y    = clamp(dir.y, 0, 1);
+    
+    float mixfac = cos((worldTime / 24000. + 0.25) * TWO_PI) * 0.5 + 0.5;
+
+    //Day
+    const vec3 sky_up_day   = vec3(0.1, 0.4, 1.0); //Color of upper part of sky
+    //Night
+    const vec3 sky_up_night = vec3(0.1, 0.1, 0.2); //Color of upper part of sky
+    
+    vec3 sky_up = mix(sky_up_day, sky_up_night, mixfac);
+    return mix(fogColor, sky_up, dir.y); //Get sky
 }

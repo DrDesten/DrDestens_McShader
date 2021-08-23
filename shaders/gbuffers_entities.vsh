@@ -4,10 +4,14 @@
 #include "/lib/kernels.glsl"
 #include "/lib/vertex_transform.glsl"
 
+#ifdef TAA
 uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
+#endif
 
+#ifdef PHYSICALLY_BASED
 varying vec3 viewpos;
+#endif
 varying vec2 lmcoord;
 varying vec2 coord;
 
@@ -33,7 +37,9 @@ void main() {
 
 	gl_Position  = clipPos;
 	
+	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
+	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	#ifdef FRAG_NORMALS
