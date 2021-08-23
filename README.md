@@ -22,9 +22,9 @@ labPBR support
 
 ### Ambient Occlusion
 On:
-<img src="https://user-images.githubusercontent.com/70536771/126914993-9df7fb36-895f-4bde-ab06-ddae3bb903f6.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/126914993-9df7fb36-895f-4bde-ab06-ddae3bb903f6.png" width="50%"/>
 Off:
-<img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="50%"/>
 
 
 ### Full Feature List:
@@ -34,22 +34,22 @@ Off:
  - Screen Space Ambient Occlusion
  - TAA
  - Physically Based Rendering
-  - Support for LabPBR 1.3
-   - Normals
-   - Roughness
-   - Reflectance
-   - Emission
-   - Ambient Occlusion
-   - Metals
-   - Subsurface Scattering
+   - Support for LabPBR 1.3
+     - Normals
+     - Roughness
+     - Reflectance
+     - Emission
+     - Ambient Occlusion
+     - Metals
+     - Subsurface Scattering
  - Various Water Effects
-  - Waves and Bump
-  - Refraction
-  - Absorption
+   - Waves and Bump
+   - Refraction
+   - Absorption
  - Godrays
  - Bloom
  - Motion Blur
  - Chromatic Aberration
-  - When paired with DoF realistic Focus-Dependant CA
+   - When paired with DoF realistic Focus-Dependant CA
  - Smooth sky gradient
 
