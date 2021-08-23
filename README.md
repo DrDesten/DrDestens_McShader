@@ -21,11 +21,16 @@ labPBR support
 <img src="https://user-images.githubusercontent.com/70536771/125115288-6c123100-e0eb-11eb-852a-38042e077436.png" width="100%"/>
 
 ### Ambient Occlusion
-On:
-<img src="https://user-images.githubusercontent.com/70536771/126914993-9df7fb36-895f-4bde-ab06-ddae3bb903f6.png" width="50%"/>
-Off:
-<img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="50%"/>
-
+<table>
+ <td>
+  On:
+  <img src="https://user-images.githubusercontent.com/70536771/126914993-9df7fb36-895f-4bde-ab06-ddae3bb903f6.png" width="100%"/>
+ </td>
+ <td>
+  Off:
+  <img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="100%"/>
+ </td>
+</table>
 
 ### Full Feature List:
 
