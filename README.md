@@ -27,3 +27,29 @@ Off:
 <img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="100%"/>
 
 
+### Full Feature List:
+
+ - Screen Space Reflections
+ - Depth of Field
+ - Screen Space Ambient Occlusion
+ - TAA
+ - Physically Based Rendering
+  - Support for LabPBR 1.3
+   - Normals
+   - Roughness
+   - Reflectance
+   - Emission
+   - Ambient Occlusion
+   - Metals
+   - Subsurface Scattering
+ - Various Water Effects
+  - Waves and Bump
+  - Refraction
+  - Absorption
+ - Godrays
+ - Bloom
+ - Motion Blur
+ - Chromatic Aberration
+  - When paired with DoF realistic Focus-Dependant CA
+ - Smooth sky gradient
+
