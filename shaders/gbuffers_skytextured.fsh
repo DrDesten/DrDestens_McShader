@@ -13,7 +13,7 @@ void main() {
 	vec4 color = texture2D(texture, coord, 0);
 	color.rgb *= glcolor.rgb * glcolor.a;
 
-	color.rgb *= 1 + (0.5 * float(color.r > 0.5));
+	color.rgb *= 1 + (float(color.r > 0.5));
 	
     gamma(color.rgb);
 

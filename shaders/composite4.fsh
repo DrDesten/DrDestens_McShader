@@ -240,15 +240,14 @@ float depthEdgeFast(vec2 coord) {
     float depthSurround = getDepth_int((screenSizeInverse * 1.5) + coord) + getDepth_int((screenSizeInverse * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * 1.5, screenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * -1.5, screenSizeInverse.y * 1.5) + coord);
     depthSurround *= 0.25;
 
-    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, OUTLINE_BRIGHTNESS);
+    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, 1);
 }
 
-float depthEdge(vec2 coord) {
-    float depth = getDepth(coord);
+float depthEdge(vec2 coord, float depth) {
     float maxdiff = 0;
     for (int i = -1; i <= 1; i++) {
         for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(coord + screenSizeInverse * vec2(i, o));
+            float d = getDepth_int(screenSizeInverse * vec2(i, o) + coord);
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
@@ -256,14 +255,14 @@ float depthEdge(vec2 coord) {
 }
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
-    if (length(blur) < screenSizeInverse.x) { return getAlbedo(coord); }
+    if (sqmag(blur) < sq(screenSizeInverse.x)) { return getAlbedo(coord); }
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
     vec2 sample   = coord;
 
     for (int i = 0; i < samples; i++) {
-        col += getAlbedo_int(sample);
+        col    += getAlbedo_int(sample);
         sample += blurStep;
     }
 
@@ -274,7 +273,7 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3 color  = getAlbedo(coord);
+    vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
 
     #ifdef GODRAYS
@@ -307,18 +306,18 @@ void main() {
 
                 if (isEyeInWater != 0) {
                     if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1. / GODRAY_STEPS;
+                        light    -= 1.5 / GODRAY_STEPS;
                     }
                 } else {
                     if (texture(depthtex0, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1. / GODRAY_STEPS;
+                        light    -= 1.5 / GODRAY_STEPS;
                     }
                 }
 
             }
 
             // Exponential falloff (also making it FOV independent)
-            light *= exp2(-sqmag(rayCorrected) * 10 / fovScale);
+            light *= exp2(-sqmag(rayCorrected / fovScale) * 10);
 
             color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
         }
@@ -347,7 +346,7 @@ void main() {
     #endif
 
     #ifdef OUTLINE
-        color = mix(color, vec3(1), depthEdge(coord) * OUTLINE_BRIGHTNESS);
+        color = mix(color, vec3(1), depthEdge(coord, depth) * OUTLINE_BRIGHTNESS);
     #endif
     
 

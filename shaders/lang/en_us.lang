@@ -11,10 +11,6 @@ value.DOF_MODE.0=OFF
 value.DOF_MODE.3=Bokeh
 value.DOF_MODE.4=Adaptive Bokeh
 
-option.DOF_STEPS=DoF Quality
-option.DOF_STEPS.comment=Step size of the box blurs. Significantly influences performance.
-value.DOF_STEPS.1=Pixel Perfect
-
 option.DOF_MAXSIZE=Maximum Blur
 option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Hides artifacts when using lower quality blur.
 value.DOF_MAXSIZE.0.002=Low
@@ -27,9 +23,6 @@ option.DOF_STRENGTH=DoF Intensity
 option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. With Adaptive Bokeh, lower values might be faster.
 
 option.DOF_DITHER=Dither DoF
-
-option.DOF_DITHER_AMOUNT=Jitter Amount
-option.DOF_DITHER_AMOUNT.comment=Amount of randomization applied to the DoF effect.
 
 option.DOF_DOWNSAMPLING=DoF Downsampling Amount
 option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
@@ -142,6 +135,8 @@ option.FRAG_NORMALS.comment=With newer OptiFine versions this might not be neces
 option.HARDCODED_METALS=Use Hardcoded Metals
 option.HARDCODED_METALS.comment=If disabled, the shader will use the color for the reflectance data. LabPBR only.
 
+option.SUBSURAFCE_SCATTERING=Subsurface Scattering
+
 ///////////////////////////////////////////////////////////
 // MISC
 ///////////////////////////////////////////////////////////
@@ -150,7 +145,6 @@ screen.MISC=Other Stuff
 
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
-option.OUTLINE_BRIGHTNESS=Outline Brightness
 
 option.FOG=Fog
 value.FOG.0=§cOFF
@@ -169,4 +163,5 @@ option.WORLD_CURVE=World Curvature
 option.WORLD_CURVE_RADIUS=World Radius
 
 option.CREDITS=§k###
-value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
+//value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
+value.CREDITS.0=§r by DrDesten §r§k:###

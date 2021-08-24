@@ -74,7 +74,7 @@ vec3 chromaticAberrationTint(vec2 relPos) {
     pixelColor /= kernelSize;
     return pixelColor;
 } */
-vec3 bokehBlur(vec2 coord, float size, float stepsize) {
+vec3 bokehBlur(vec2 coord, float size) {
     vec3 pixelColor = vec3(0);
     float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
@@ -121,7 +121,6 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
             pixelColor        += sampleColor;
             totalTint         += chromAbbTint;
         }
-        totalTint  /= kernelSize;
         pixelColor /= totalTint;
 
     #else
@@ -129,15 +128,14 @@ vec3 bokehBlur(vec2 coord, float size, float stepsize) {
         for (int i = 0; i < kernelSize; i++) {
             pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
         }
+        pixelColor /= kernelSize;
 
     #endif
 
-
-    pixelColor /= kernelSize;
     return pixelColor;
 }
 
-vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
+vec3 bokehBlur_adaptive(vec2 coord, float size) {
     vec3 pixelColor = vec3(0);
     float radius    = size * screenSize.x;
 
@@ -161,7 +159,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
 
     #endif
 
-    float lod   = log2(radius * 8 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    float lod   = log2(radius * 4 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
     int samples = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
 
     #if CHROMATIC_ABERRATION_AMOUNT != 0
@@ -204,15 +202,15 @@ vec3 bokehBlur_adaptive(vec2 coord, float size, float stepsize) {
     return pixelColor;
 }
 
-vec3 DoF(vec2 coord, float pixeldepth, float size, float stepsize) {
+vec3 DoF(vec2 coord, float pixeldepth, float size) {
     if (pixeldepth < 0.56 || size < 0.5 / screenSize.x) {return getAlbedo(coord);}
     size = min(size, DOF_MAXSIZE);
 
     // precompiler instead of runtime check
     #if DOF_MODE == 3
-        return bokehBlur(coord, size * 1, stepsize);
+        return bokehBlur(coord, size);
     #elif DOF_MODE == 4
-        return bokehBlur_adaptive(coord, size * 1, stepsize);
+        return bokehBlur_adaptive(coord, size);
     #endif
 
     return vec3(0);
@@ -319,7 +317,7 @@ void main() {
 
         float Blur = realCoC(linearDepth, clinearDepth) * fovScale * DOF_STRENGTH;
 
-        vec3 color = DoF(coord, depth, Blur, DOF_STEPS); // DOF_MODE, DOF_STEPS -> Settings Menu
+        vec3 color = DoF(coord, depth, Blur);
 
     #else
         vec3 color          = getAlbedo(coord);

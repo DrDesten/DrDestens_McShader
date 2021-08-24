@@ -327,5 +327,5 @@ float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float po
 }
 
 vec3 pickSunMoon(vec3 sPos, vec3 mPos, int time) {
-    return (time > 12500 && time < 23000) ? mPos : sPos;
+    return (time > 13000 && time < 23000) ? mPos : sPos;
 }

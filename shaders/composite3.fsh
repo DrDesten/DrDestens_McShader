@@ -9,7 +9,6 @@ const int colortex3Format = R16F;        // colortex3 = blockId
 const int colortex4Format = RGB8;        // colortex4 = bloom
 
 const int colortex5Format = RGBA16;      // TAA
-
 */
 
 const vec4 colortex1ClearColor = vec4(0,0,0,1);
@@ -18,7 +17,7 @@ const bool colortex4Clear      = false;
 const bool colortex5Clear      = false;
 
 const float sunPathRotation = -40.0;
-const int   noiseTextureResolution = 64;
+//const int   noiseTextureResolution = 64;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
@@ -34,7 +33,6 @@ const int   noiseTextureResolution = 64;
 
 uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
-//uniform sampler2D noisetex;
 
 in vec2 coord;
 in vec3 lightVector;
@@ -53,16 +51,6 @@ struct position { // A struct for holding positions in different spaces
     vec3 vdir;
 };
 
-/* float getNoise1(vec2 coord) {
-    return texture(noisetex, coord).x;
-}
-vec2  getNoise2(vec2 coord) {
-    return texture(noisetex, coord).xy;
-}
-vec3  getNoise3(vec2 coord) {
-    return texture(noisetex, coord).xyz;
-} */
-
 //////////////////////////////////////////////////////////////////////////////
 //                     SCREEN SPACE REFLECTION
 //////////////////////////////////////////////////////////////////////////////
@@ -71,6 +59,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cube
     vec3 reflection   = reflect(pos.view, normal);
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
+    //return vec4(getSkyColor4_gamma(reflection), 0);
     //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor4_gamma(reflection), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
     if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
         return vec4(getSkyColor4_gamma(reflection), 0);
@@ -211,9 +200,9 @@ void main() {
     #ifdef SCREEN_SPACE_REFLECTION
 
         // SSR for Water
-        if (type == 1 && isEyeInWater != -1) {
+        if (type == 1) {
 
-            float fresnel   = customFresnel(viewDir, normal, 0.03, .7, 2);
+            float fresnel   = customFresnel(viewDir, normal, 0.05, 1, 3);
 
             #if SSR_MODE == 0
                 vec4 Reflection = universalSSR(Positions, normal, false);
@@ -254,14 +243,8 @@ void main() {
 
     // Absorption Underwater
     if (isEyeInWater != 0) {
-        #ifdef REFRACTION
-            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
-        #else
-            float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
-        #endif
-
         // Distance to closest Surface
-        float absorption = exp2(-(linearDepth) * 0.2);
+        float absorption = exp2(linearDepth * -0.2);
 
         color *= absorption;
         if (isEyeInWater == 2) { // Lava
