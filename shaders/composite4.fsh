@@ -337,11 +337,7 @@ void main() {
         float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT, 0, 1);
         #endif
 
-        if (isEyeInWater == 5) {
-            color           = mix(color, (color) * fogColor, fog);
-        } else {
-            color           = mix(color, (color * 0.1) + fogColor, fog);
-        }
+        color           = mix(color, fogColor, fog);
 
     #endif
 
