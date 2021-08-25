@@ -40,7 +40,7 @@ float getDepth_int(in vec2 coord) {
 }
 
 float getType(in vec2 coord) {
-    return texelFetch(colortex3, convertIntCoords(coord, screenSize), 0).r;
+    return floor(texelFetch(colortex3, convertIntCoords(coord, screenSize), 0).r + 0.5);
 }
 float getType_int(in vec2 coord) {
     return texture(colortex3, coord).r;

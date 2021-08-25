@@ -11,7 +11,7 @@ uniform vec2  screenSizeInverse;
 
 attribute vec4 mc_Entity;
 
-flat varying float blockId;
+varying float blockId;
 
 varying vec2 coord;
 varying vec2 lmcoord;

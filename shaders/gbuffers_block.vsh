@@ -12,7 +12,7 @@ uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
 #endif
 
-flat varying float blockId;
+varying float blockId;
 
 #ifdef PHYSICALLY_BASED
 varying vec3 viewpos;
@@ -21,7 +21,7 @@ varying vec2 lmcoord;
 varying vec2 coord;
 varying vec4 glcolor;
 
-flat varying mat3 tbn;
+varying mat3 tbn;
 
 void main() {
 	vec4 clipPos = ftransform();

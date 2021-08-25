@@ -190,6 +190,10 @@ mat3 rotateAlign( vec3 v1, vec3 v2) {
 ////////////////////////////////////////////////////////////////////////
 // General functions
 
+bool closeTo(float a, float b, float epsilon) {
+    return abs(a-b) < epsilon;
+}
+
 float mean(vec2 vector) {
     return (vector.x + vector.y) * 0.5;
 }

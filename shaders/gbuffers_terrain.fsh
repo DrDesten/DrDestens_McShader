@@ -16,7 +16,7 @@ uniform sampler2D texture;
 uniform vec3 fogColor;
 uniform vec2 atlasSizeInverse;
 
-flat varying float blockId;
+varying float blockId;
 #ifdef PHYSICALLY_BASED
 varying vec3  viewpos;
 #endif
@@ -25,7 +25,7 @@ varying vec2  coord;
 
 varying vec4  glcolor;
 
-flat varying mat3 tbn;
+varying mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
@@ -34,6 +34,7 @@ flat varying mat3 tbn;
 void main() {
 	vec3  normal = tbn[2];
 	float reflectiveness = 0;
+	int   id = int(blockId + 0.5);
 
 	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 	
@@ -73,7 +74,7 @@ void main() {
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
 
-		if (abs(blockId - 1005) < .2) {
+		if (id == 1005) {
 			color.rgb *= EMISSION_STRENGTH * .5;
 		}
 		
@@ -81,6 +82,6 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(blockId - 1000, vec3(1));
+	gl_FragData[2] = vec4(id - 1000, vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, vec3(1));
 }

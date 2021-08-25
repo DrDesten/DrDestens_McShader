@@ -11,7 +11,6 @@ uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
 #endif
 
-flat varying float blockId;
 #ifdef PHYSICALLY_BASED
 varying vec3 viewpos;
 #endif
@@ -22,9 +21,9 @@ varying vec4 glcolor;
 
 // Switch on or off Fragment based normal mapping
 #ifdef FRAG_NORMALS
-flat varying vec3 N;
+varying vec3 N;
 #else
-flat varying mat3 tbn;
+varying mat3 tbn;
 #endif
 
 void main() {
@@ -47,6 +46,5 @@ void main() {
 	tbn     = getTBN();
 	#endif
 
-	blockId = mc_Entity.x;
 	glcolor = gl_Color;
 }

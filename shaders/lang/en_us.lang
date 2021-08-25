@@ -13,10 +13,9 @@ value.DOF_MODE.4=Adaptive Bokeh
 
 option.DOF_MAXSIZE=Maximum Blur
 option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Hides artifacts when using lower quality blur.
-value.DOF_MAXSIZE.0.002=Low
-value.DOF_MAXSIZE.0.005=Medium
-value.DOF_MAXSIZE.0.007=High
-value.DOF_MAXSIZE.0.03=Highest
+value.DOF_MAXSIZE.0.005=Low
+value.DOF_MAXSIZE.0.007=Medium
+value.DOF_MAXSIZE.0.03=High
 value.DOF_MAXSIZE.1.0=Unlimited
 
 option.DOF_STRENGTH=DoF Intensity

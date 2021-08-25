@@ -12,7 +12,7 @@ uniform int frameCounter;
 
 uniform vec2 screenSizeInverse;
 
-flat varying float blockId;
+varying float blockId;
 #ifdef PHYSICALLY_BASED
 varying vec3  viewpos;
 #endif
@@ -21,7 +21,7 @@ varying vec2  coord;
 
 varying vec4 glcolor;
 
-flat varying mat3 tbn;
+varying mat3 tbn;
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
@@ -32,6 +32,7 @@ vec3 wavyPlants(vec3 worldPos, float amount) {
 }
 
 void main() {
+
 	vec4 clipPos = ftransform();
 
 	#ifdef PHYSICALLY_BASED
@@ -77,4 +78,5 @@ void main() {
 	blockId = mc_Entity.x;
 	glcolor = gl_Color;
 	gl_Position  = clipPos;
+
 }

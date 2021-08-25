@@ -17,7 +17,6 @@ uniform vec3 fogColor;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-flat varying float blockId;
 #ifdef PHYSICALLY_BASED
 varying vec3  viewpos;
 #endif
@@ -28,9 +27,9 @@ varying vec4  glcolor;
 
 // Switch on or off Fragment based normal mapping
 #ifdef FRAG_NORMALS
-	flat varying vec3 N;
+	varying vec3 N;
 #else
-	flat varying mat3 tbn;
+	varying mat3 tbn;
 	// tbn[0] = tangent vector
 	// tbn[1] = binomial vector
 	// tbn[2] = normal vector

@@ -5,14 +5,14 @@
 //////////////////////////////////////////////////////
 
 
-const vec2 circle_blur_polar_4[4] = vec2[4](
+const vec2 circle_blur_polar_4[4] = vec2[](
     vec2(0.3535533905932738, 0),
     vec2(0.6123724356957945, 2.399963229728653),
     vec2(0.7905694150420949, 4.799926459457306),
     vec2(0.9354143466934853, 7.199889689185959)
 );
 
-const vec2 circle_blur_polar_8[8] = vec2[8](
+const vec2 circle_blur_polar_8[8] = vec2[](
     vec2(0.25, 0),
     vec2(0.43301270189221924, 2.399963229728653),
     vec2(0.5590169943749475, 4.799926459457306),
@@ -23,7 +23,7 @@ const vec2 circle_blur_polar_8[8] = vec2[8](
     vec2(0.9682458365518541, 16.799742608100573)
 );
 
-const vec2 circle_blur_polar_16[16] = vec2[16](
+const vec2 circle_blur_polar_16[16] = vec2[](
     vec2(0.1767766952966369, 0),
     vec2(0.30618621784789724, 2.399963229728653),
     vec2(0.39528470752104744, 4.799926459457306),
@@ -42,7 +42,7 @@ const vec2 circle_blur_polar_16[16] = vec2[16](
     vec2(0.9842509842514764, 35.999448445929794)
 );
 
-const vec2 circle_blur_polar_32[32] = vec2[32](
+const vec2 circle_blur_polar_32[32] = vec2[](
     vec2(0.125, 0),
     vec2(0.21650635094610962, 2.399963229728653),
     vec2(0.2795084971874737, 4.799926459457306),
@@ -77,7 +77,7 @@ const vec2 circle_blur_polar_32[32] = vec2[32](
     vec2(0.9921567416492214, 74.39886012158824)
 );
 
-const vec2 circle_blur_polar_64[64] = vec2[64](
+const vec2 circle_blur_polar_64[64] = vec2[](
     vec2(0.08838834764831845, 0),
     vec2(0.15309310892394862, 2.399963229728653),
     vec2(0.19764235376052372, 4.799926459457306),
@@ -145,7 +145,7 @@ const vec2 circle_blur_polar_64[64] = vec2[64](
 );
 
 const vec2 circle_blur_4_com = vec2(0.13506688960319177, 0.09211370200809937);
-const vec2 circle_blur_4[4] = vec2[4](
+const vec2 circle_blur_4[4] = vec2[](
     vec2(0.3535533905932738, 0),
     vec2(-0.451544375875096, 0.4136516367857983),
     vec2(0.06911610404911818, -0.7875423570583817),
@@ -153,7 +153,7 @@ const vec2 circle_blur_4[4] = vec2[4](
 );
 
 const vec2 circle_blur_8_com = vec2(-0.042147349214412086, -0.03798942536906266);
-const vec2 circle_blur_8[8] = vec2[8](
+const vec2 circle_blur_8[8] = vec2[](
     vec2(0.25, 0),
     vec2(-0.31929009018792764, 0.2924958774201527),
     vec2(0.048872465862326464, -0.556876541147619),
@@ -165,7 +165,7 @@ const vec2 circle_blur_8[8] = vec2[8](
 );
 
 const vec2 circle_blur_16_com = vec2(-0.01315976141684847, -0.027087114076591513);
-const vec2 circle_blur_16[16] = vec2[16](
+const vec2 circle_blur_16[16] = vec2[](
     vec2(0.1767766952966369, 0),
     vec2(-0.225772187937548, 0.20682581839289915),
     vec2(0.03455805202455909, -0.39377117852919086),
@@ -185,7 +185,7 @@ const vec2 circle_blur_16[16] = vec2[16](
 );
 
 const vec2 circle_blur_32_com = vec2(0.004355734895225814, -0.015554431411765695);
-const vec2 circle_blur_32[32] = vec2[32](
+const vec2 circle_blur_32[32] = vec2[](
     vec2(0.125, 0),
     vec2(-0.15964504509396382, 0.14624793871007635),
     vec2(0.024436232931163232, -0.2784382705738095),
@@ -221,7 +221,7 @@ const vec2 circle_blur_32[32] = vec2[32](
 );
 
 const vec2 circle_blur_64_com = vec2(0.008719207487050712, 0.0005732549414365655);
-const vec2 circle_blur_64[64] = vec2[64](
+const vec2 circle_blur_64[64] = vec2[](
     vec2(0.08838834764831845, 0),
     vec2(-0.112886093968774, 0.10341290919644958),
     vec2(0.017279026012279545, -0.19688558926459543),
@@ -290,20 +290,20 @@ const vec2 circle_blur_64[64] = vec2[64](
 
 
 
-const float gaussian_3[3] = float[3](
+const float gaussian_3[3] = float[](
     0.25,
     0.5,
     0.25
 );
 
-const float gaussian_4[4] = float[4](
+const float gaussian_4[4] = float[](
     0.125,
     0.375,
     0.375,
     0.125
 );
 
-const float gaussian_5[5] = float[5](
+const float gaussian_5[5] = float[](
     0.0625,
     0.25,
     0.375,
@@ -311,7 +311,7 @@ const float gaussian_5[5] = float[5](
     0.0625
 );
 
-const float gaussian_6[6] = float[6](
+const float gaussian_6[6] = float[](
     0.03125,
     0.15625,
     0.3125,
@@ -320,7 +320,7 @@ const float gaussian_6[6] = float[6](
     0.03125
 );
 
-const float gaussian_10[10] = float[10](
+const float gaussian_10[10] = float[](
     0.001953125,
     0.017578125,
     0.0703125,
@@ -333,7 +333,7 @@ const float gaussian_10[10] = float[10](
     0.001953125
 );
 
-const float gaussian_16[16] = float[16](
+const float gaussian_16[16] = float[](
     0.000030517578125,
     0.000457763671875,
     0.003204345703125,
@@ -357,7 +357,7 @@ const float gaussian_16[16] = float[16](
 //              SSAO KERNELS
 //////////////////////////////////////////////////////
 
-const vec3 half_sphere_8[8] = vec3[8](
+const vec3 half_sphere_8[8] = vec3[](
     vec3(0.4841229182759271, 0, 0.875),
     vec3(-0.5756083959600474, 0.5273044419500952, 0.625),
     vec3(0.08104581592239497, -0.923475270768781, 0.375),
@@ -368,7 +368,7 @@ const vec3 half_sphere_8[8] = vec3[8](
     vec3(-0.22313565385811115, -0.42963412338560025, 0.875)
 );
 
-const vec3 half_sphere_16[16] = vec3[16](
+const vec3 half_sphere_16[16] = vec3[](
     vec3(0.34798527267687634, 0, 0.9375),
     vec3(-0.42985743923670755, 0.3937846263287336, 0.8125),
     vec3(0.0634871954735437, -0.7234038471081724, 0.6875),
@@ -393,7 +393,7 @@ const vec3 half_sphere_16[16] = vec3[16](
 //////////////////////////////////////////////////////
 
 // This kernel is progressive. Any sample count will return an even spread of noise
-const vec2 blue_noise_disk[64] = vec2[64](
+const vec2 blue_noise_disk[64] = vec2[](
     vec2(0.478712,0.875764),
     vec2(-0.337956,-0.793959),
     vec2(-0.955259,-0.028164),
@@ -473,7 +473,7 @@ const float sobel_vertical[9] = float[](
 );
 
 
-const vec2 TAAOffsets[6] = vec2[6](
+const vec2 TAAOffsets[6] = vec2[](
     vec2(-0.25, -0.25),
     vec2(-0.25,  0.25),
     vec2( 0.0,    0.0),

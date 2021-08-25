@@ -19,7 +19,7 @@ uniform float far;
 uniform float near;
 uniform int   isEyeInWater;
 
-flat in float blockId;
+in float blockId;
 
 in vec2 coord;
 in vec2 lmcoord;
@@ -153,9 +153,10 @@ void main(){
 
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;
+    int   id = int(blockId + 0.5);
 
     // Reduce opacity and saturation of only water
-    if (blockId == 1001) {
+    if (id == 1001) {
         color.rgb          = vec3(0);
         color.a            = 0.01;
 
@@ -202,7 +203,7 @@ void main(){
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(vec3(blockId - 1000), 1); // Type (colortex3)
+    gl_FragData[2] = vec4(vec3(id - 1000), 1); // Type (colortex3)
     #ifdef PHYSICALLY_BASED
     gl_FragData[3] = vec4(reflectiveness, vec3(1));
     #endif
