@@ -8,6 +8,7 @@
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
+#include "/lib/gamma.glsl"
 #include "/lib/kernels.glsl"
 
 uniform sampler2D depthtex1;
@@ -327,17 +328,19 @@ void main() {
 
     #if FOG != 0
 
-        // Blend between FogColor and normal color based on square distance
-        vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
+        if (abs(getType(coord) - 50) > .2) {
+            // Blend between FogColor and normal color based on square distance
+            vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
 
-        float dist      = sqmag(viewPos) * float(depth != 1);
-        #if FOG == 1
-        float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
-        #else
-        float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT, 0, 1);
-        #endif
+            float dist      = sqmag(viewPos) * float(depth != 1);
+            #if FOG == 1
+            float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
+            #else
+            float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT, 0, 1);
+            #endif
 
-        color           = mix(color, fogColor, fog);
+            color           = mix(color, pow(fogColor, vec3(GAMMA)), fog);
+        }
 
     #endif
 

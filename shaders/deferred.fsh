@@ -10,6 +10,8 @@ uniform float near;
 uniform float far;
 uniform float aspectRatio;
 
+uniform vec3  fogColor;
+
 uniform float frameTimeCounter;
 uniform int   frameCounter;
 
@@ -113,47 +115,6 @@ float AmbientOcclusionOutline(vec3 screenPos, float depthfactor, float sizemulti
     return 1 - saturate(AO);;
 }
 
-vec2 OffsetDist(float x) {
-	float n = fract(x * 8.0) * 3.1415;
-    return vec2(cos(n), sin(n)) * x;
-}
-
-float AmbientOcclusion(float dither) {
-	float ao = 0.0;
-	
-	float depth = texture(depthtex0, coord).r;
-	if(depth >= 1.0) return 1.0;
-
-	float hand = float(depth < 0.56);
-	depth = linearizeDepth(depth, near, far);
-
-	float currentStep = 0.2 * dither + 0.2;
-
-	float radius = 0.35;
-	float fovScale = gbufferProjection[1][1] / 1.37;
-	float distScale = max((far - near) * depth + near, 5.0);
-	vec2  scale = radius * vec2(1.0 / aspectRatio, 1.0) * fovScale / distScale;
-	float mult = (0.7 / radius) * (far - near) * (hand > 0.5 ? 1024.0 : 1.0);
-
-	for(int i = 0; i < 4; i++) {
-		vec2 offset = OffsetDist(currentStep) * scale;
-		float angle = 0.0, dist = 0.0;
-
-		for(int i = 0; i < 2; i++){
-			float sampleDepth = linearizeDepth(texture(depthtex0, coord + offset).r, near, far);
-			float sample = (depth - sampleDepth) * mult;
-			angle += clamp(0.5 - sample, 0.0, 1.0);
-			dist += clamp(0.25 * sample - 1.0, 0.0, 1.0);
-			offset = -offset;
-		}
-		
-		ao += clamp(angle + dist, 0.0, 1.0);
-		currentStep += 0.2;
-	}
-	ao *= 0.25;
-	
-	return ao;
-}
 
 // Spins A point around the origin (negate for full coverage)
 vec2 spiralOffset(float x, float expansion) {
@@ -161,6 +122,7 @@ vec2 spiralOffset(float x, float expansion) {
     return vec2(cos(n), sin(n)) * x;
 }
 
+// Based on BSL's AO implementation
 float BSLAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0 || screenPos.z < 0.56) {return 1.0;};
     float ldFactor = 1/near;
@@ -177,7 +139,7 @@ float BSLAO(vec3 screenPos, float radius) {
 
         for (int o = 0; o < 2; o++) {
             float sdepth = linearizeDepthf(getDepth_int(screenPos.xy + offs), ldFactor);
-            occlusion   += clamp((depth - sdepth) * 8, 0, 1);
+            occlusion   += clamp((depth - sdepth) * 8, -1, 1);
             offs         = -offs;
         }
 
@@ -185,7 +147,7 @@ float BSLAO(vec3 screenPos, float radius) {
     }
     occlusion *= 0.125;
 
-    return clamp(1.5 - 1.5 * occlusion, 0, 1);
+    return clamp(1 - occlusion, 0, 1);
 }
 
 float BSLAO2(vec3 screenPos, float radius) {
@@ -249,7 +211,7 @@ void main() {
     #endif
 
     //color = 1 - vec3(AmbientOcclusion(Bayer4(coord * screenSize)));
-    //color = vec3(BSLAO2(vec3(coord, depth), 0.2));
+    //color = vec3(BSLAO(vec3(coord, depth), 0.03));
 
     FD0 = vec4(color, 1.0);
 }
