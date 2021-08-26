@@ -20,7 +20,6 @@ const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 in vec2       coord;
 
-uniform int   frameCounter;
 uniform float near;
 uniform float far;
 

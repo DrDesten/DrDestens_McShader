@@ -12,8 +12,8 @@
 #include "/lib/kernels.glsl"
 
 uniform sampler2D depthtex1;
+uniform sampler2D colortex1;
 
-uniform float frameTime; 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
 uniform int   worldTime;
@@ -22,12 +22,12 @@ uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 
 uniform float isInvisibleSmooth;
+uniform float near;
 uniform float far;
 
 uniform int   isEyeInWater;
 
 in vec2 coord;
-
 flat in vec2 x3_kernel[9];
 
 
@@ -277,6 +277,32 @@ void main() {
     vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
 
+    #ifdef PARRALAX_OCCLUSION
+        vec3 normal  = getNormal(coord);
+        float height = texture(colortex1, coord).g;
+
+        vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
+        vec3 playerPos    = toPlayerEye(viewPos);
+        vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
+
+        playerPos += playerNormal * (1 - height) * 0.25;
+
+        vec3  POMPos    = backToScreen(eyeToView(playerPos));
+
+        float POMdepth  = getDepth_int(POMPos.xy);
+        float LPOMdepth = linearizeDepth(POMdepth, near, far);
+        float POMexpect = linearizeDepth(POMPos.z, near, far);
+        float Ldepth    = linearizeDepth(depth, near, far);
+
+        bool error = depth < 0.56 || depth >= 1 || POMdepth < 0.56 || abs(LPOMdepth - POMexpect) > (abs(POMexpect - Ldepth) + 0.2);
+        if (!error) {
+            color = getAlbedo_int(POMPos.xy);
+        }
+        //color = vec3(abs(LPOMdepth - Ldepth));
+        //color = vec3(abs(LPOMdepth - POMexpect));
+        //color = vec3(abs(LPOMdepth - POMexpect) > (abs(POMexpect - Ldepth) + 0.2));
+    #endif
+
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
@@ -328,7 +354,7 @@ void main() {
 
     #if FOG != 0
 
-        if (abs(getType(coord) - 50) > .2) {
+        if (getType(coord) != 50) {
             // Blend between FogColor and normal color based on square distance
             vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
 
@@ -352,7 +378,6 @@ void main() {
     #ifdef HAND_INVISIBILITY_EFFECT
 
         if (abs(getType(coord) - 51) < .2 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
-            float vel  = sqmag((cameraPosition - previousCameraPosition) / frameTime) * .005;
 
             vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
             vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);
@@ -360,7 +385,7 @@ void main() {
                 fbm(seed1, 2, 5, .05), 
                 fbm(seed2, 2, 5, .05)
             );
-            noise = normalize(noise - .25) * (vel + .05) * isInvisibleSmooth;
+            noise = normalize(noise - .25) * isInvisibleSmooth * 0.05;
 
             color = vectorBlur(coord + noise, -(noise * Bayer4(coord * screenSize)), 5);
         }

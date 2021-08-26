@@ -34,9 +34,14 @@ varying mat3 tbn;
 void main() {
 	vec3  normal = tbn[2];
 	float reflectiveness = 0;
-	int   id = int(blockId + 0.5);
+	float height 		 = 1;
+	float id = floor(blockId + 0.5);
 
 	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
+	
+	#ifdef WHITE_WORLD
+	color.rgb = vec3(1);
+	#endif
 	
 	#ifdef PHYSICALLY_BASED
 
@@ -65,8 +70,10 @@ void main() {
 		PBRout Material     = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	            = Material.color;
-		normal	   	        = Material.normal;
+		//normal	   	        = Material.normal;
 		reflectiveness      = Material.reflectiveness;
+
+		height 				= MatTex.height;
 
 	#else
 
@@ -83,5 +90,5 @@ void main() {
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(id - 1000, vec3(1));
-	gl_FragData[3] = vec4(reflectiveness, vec3(1));
+	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
 }

@@ -14,8 +14,6 @@ uniform sampler2D colortex5;
 
 varying vec2 coord;
 
-uniform sampler2D colortex4;
-
 void Vignette(inout vec3 color) { //Darken Screen Borders
     float dist = distance(coord.st, vec2(0.5));
 
@@ -139,7 +137,6 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
     }
 } 
 
-
 #ifdef TAA 
 /* DRAWBUFFERS:05 */
 #else
@@ -161,8 +158,8 @@ void main() {
 
     #ifdef TAA 
 
-        float type              = getType(unJitterCoord);
-        float stencil           = abs(type - 51) < 0.1 || abs(type - 52) < 0.1 ? 1.0 : 0.0;
+        float type              = floor(getType(unJitterCoord) + 0.5);
+        float stencil           = type == 51 || type == 52 ? 1.0 : 0.0;
 
         vec3  currentFrameColor = color;
         float depth             = getDepth_int(unJitterCoord);

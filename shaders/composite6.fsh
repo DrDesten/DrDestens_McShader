@@ -1,8 +1,7 @@
 #version 130
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                      MOTION BLUR
+//                                      MOTION BLUR AND BLOOM
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -12,11 +11,7 @@
 #include "/lib/framebuffer.glsl"
 #include "/lib/kernels.glsl"
 
-uniform float near;
-uniform float far;
-
 uniform sampler2D colortex4;
-uniform vec3 sunPosition;
 
 in vec2 coord;
 

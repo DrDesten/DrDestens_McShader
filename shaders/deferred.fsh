@@ -7,12 +7,10 @@
 #include "/lib/framebuffer.glsl"
 
 uniform float near;
-uniform float far;
 uniform float aspectRatio;
 
 uniform vec3  fogColor;
 
-uniform float frameTimeCounter;
 uniform int   frameCounter;
 
 in vec2 coord;

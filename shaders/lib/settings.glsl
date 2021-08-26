@@ -106,6 +106,8 @@ const float chromaticAberrationBasic = float(CHROMATIC_ABERRATION_AMOUNT) * 0.00
 //#define WORLD_CURVE
 #define WORLD_CURVE_RADIUS 512 //[64 128 256 512 1024 2048 4096]
 
+//#define WHITE_WORLD
+
 #define CREDITS 0
 #ifdef CREDITS
 #endif

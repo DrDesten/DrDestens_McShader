@@ -65,6 +65,6 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(int(blockId - 999.5), vec3(1));
+	gl_FragData[2] = vec4(floor(blockId - 999.5), vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, vec3(1));
 }

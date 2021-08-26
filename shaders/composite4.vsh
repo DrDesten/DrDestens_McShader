@@ -1,6 +1,5 @@
 #version 130
 
-uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
 out vec2 coord;

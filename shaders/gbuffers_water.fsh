@@ -153,7 +153,7 @@ void main(){
 
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;
-    int   id = int(blockId + 0.5);
+    float id = floor(blockId + 0.5);
 
     // Reduce opacity and saturation of only water
     if (id == 1001) {
@@ -191,6 +191,10 @@ void main(){
             reflectiveness     = Material.reflectiveness;
 
         #else
+
+            #ifdef WHITE_WORLD
+            color.rgb = vec3(1);
+            #endif
 
 	        color.rgb         *= glcolor.a;
             color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);

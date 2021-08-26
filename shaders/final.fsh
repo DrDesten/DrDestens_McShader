@@ -8,8 +8,6 @@
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 
-uniform int frameCounter;
-
 in vec2 coord;
 
 /* 

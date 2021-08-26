@@ -2,7 +2,7 @@
 
 /*
 const int colortex0Format = RGB16F;      // Color
-const int colortex1Format = R8;          // Reflectiveness (and in the future other PBR values)
+const int colortex1Format = RG8;          // Reflectiveness (and in the future other PBR values)
 const int colortex2Format = RGB16_SNORM; // Normals
 
 const int colortex3Format = R16F;        // colortex3 = blockId
@@ -35,14 +35,11 @@ uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
 
 in vec2 coord;
-in vec3 lightVector;
 
 uniform float near;
 uniform float far;
 uniform float frameTimeCounter;
 uniform int   isEyeInWater;
-
-uniform float isInvisibleSmooth;
 
 struct position { // A struct for holding positions in different spaces
     vec3 screen;
@@ -222,6 +219,8 @@ void main() {
         //                  OTHER REFLECTIVE SURFACES
         //////////////////////////////////////////////////////////
 
+        #ifdef PHYSICALLY_BASED
+
         // SSR for other reflective surfaces
         float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
         if (reflectiveness > 5./255) {
@@ -238,6 +237,8 @@ void main() {
                 color = vec3(1, 0,0);
             #endif
         }
+
+        #endif
 
     #endif
 
