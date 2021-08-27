@@ -136,6 +136,9 @@ option.HARDCODED_METALS.comment=If disabled, the shader will use the color for t
 
 option.SUBSURAFCE_SCATTERING=Subsurface Scattering
 
+option.PARALLAX_OCCLUSION=Parallax Occlusion Mapping
+option.PARALLAX_OCCLUSION.comment=Adds additional detail to blocks using the height map. Low performance impact. Can create artifacts at screen borders.
+
 ///////////////////////////////////////////////////////////
 // MISC
 ///////////////////////////////////////////////////////////

@@ -13,6 +13,7 @@
 
 uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
+uniform sampler2D colortex4;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
@@ -270,6 +271,27 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     return col / float(samples);
 }
 
+float mapHeight(float height, float maxVal) {
+    return sq(height) * -maxVal + maxVal;
+}
+float mapHeightSimple(float height, float maxVal) {
+    return height * -maxVal + maxVal;
+}
+
+vec2 clampCoord(vec2 coord) { //Scales Coordinates from Screen Center
+    coord.st -= 0.5; //Make 0/0 center of screen
+
+    //Fix Borders (mirror)
+    //If the coordinates exeed maximum (x-Axis):
+    if (coord.s > 0.5) {coord.s = 1 - coord.s;}
+    if (coord.s < -0.5) {coord.s = -1 - coord.s;}
+    //If the coordinates exeed maximum (y-Axis):
+    if (coord.t > 0.5) {coord.t = 1 - coord.t;}
+    if (coord.t < -0.5) {coord.t = -1 - coord.t;}
+
+    coord.st += 0.5; //Reverse translation
+    return coord;
+}
 
 /* DRAWBUFFERS:0 */
 
@@ -277,30 +299,35 @@ void main() {
     vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
 
-    #ifdef PARRALAX_OCCLUSION
-        vec3 normal  = getNormal(coord);
-        float height = texture(colortex1, coord).g;
+    #ifdef PARALLAX_OCCLUSION
+    #ifdef PHYSICALLY_BASED
 
-        vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
-        vec3 playerPos    = toPlayerEye(viewPos);
-        vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
+        if (depth > 0.56 && depth < 0.998) {
+            vec3  normal = texture(colortex4, coord).rgb * 2 - 1;
+            float height = texture(colortex1, coord).g;
+            height       = mapHeight(height, 0.05);
 
-        playerPos += playerNormal * (1 - height) * 0.25;
+            vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
+            vec3 playerPos    = toPlayerEye(viewPos);
+            vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
 
-        vec3  POMPos    = backToScreen(eyeToView(playerPos));
+            vec3 playerPOM = playerPos + (playerNormal * height);
 
-        float POMdepth  = getDepth_int(POMPos.xy);
-        float LPOMdepth = linearizeDepth(POMdepth, near, far);
-        float POMexpect = linearizeDepth(POMPos.z, near, far);
-        float Ldepth    = linearizeDepth(depth, near, far);
+            vec3  POMPos   = backToScreen(eyeToView(playerPOM));
+            float POMdepth = getDepth_int(POMPos.xy);
 
-        bool error = depth < 0.56 || depth >= 1 || POMdepth < 0.56 || abs(LPOMdepth - POMexpect) > (abs(POMexpect - Ldepth) + 0.2);
-        if (!error) {
-            color = getAlbedo_int(POMPos.xy);
+            bool error = POMdepth < 0.56 || sqmag(playerPos) > 500;
+            if (!error) {
+                color  = getAlbedo_int(clampCoord(POMPos.xy));
+                color *= POMdepth < 1 ? texture(colortex1, POMPos.xy).g : 1;
+
+                #ifdef POM_DEBUG
+                color  = vec3(texture(colortex1, POMPos.xy).g);
+                #endif
+            }
         }
-        //color = vec3(abs(LPOMdepth - Ldepth));
-        //color = vec3(abs(LPOMdepth - POMexpect));
-        //color = vec3(abs(LPOMdepth - POMexpect) > (abs(POMexpect - Ldepth) + 0.2));
+
+    #endif
     #endif
 
     #ifdef GODRAYS

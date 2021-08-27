@@ -30,12 +30,16 @@ varying mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
+#ifdef PARALLAX_OCCLUSION
+/* DRAWBUFFERS:02314 */
+#else
 /* DRAWBUFFERS:0231 */
+#endif
 void main() {
-	vec3  normal = tbn[2];
+	vec3  normal         = tbn[2];
 	float reflectiveness = 0;
 	float height 		 = 1;
-	float id = floor(blockId + 0.5);
+	float id		     = floor(blockId + 0.5);
 
 	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 	
@@ -70,9 +74,8 @@ void main() {
 		PBRout Material     = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	            = Material.color;
-		//normal	   	        = Material.normal;
+		normal	   	        = Material.normal;
 		reflectiveness      = Material.reflectiveness;
-
 		height 				= MatTex.height;
 
 	#else
@@ -91,4 +94,8 @@ void main() {
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(id - 1000, vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	
+	#ifdef PARALLAX_OCCLUSION
+	gl_FragData[4] = vec4(tbn[2] * 0.5 + 0.5, 1); // Since the Bloom Buffer is only in use in composite5/6, I can use it for POM
+	#endif
 }

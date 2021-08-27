@@ -2,7 +2,7 @@
 
 /*
 const int colortex0Format = RGB16F;      // Color
-const int colortex1Format = RG8;          // Reflectiveness (and in the future other PBR values)
+const int colortex1Format = RG8;         // Reflectiveness, Height (and in the future other PBR values)
 const int colortex2Format = RGB16_SNORM; // Normals
 
 const int colortex3Format = R16F;        // colortex3 = blockId
@@ -13,11 +13,11 @@ const int colortex5Format = RGBA16;      // TAA
 
 const vec4 colortex1ClearColor = vec4(0,0,0,1);
 const bool colortex3Clear      = false;
-const bool colortex4Clear      = false;
+//const bool colortex4Clear      = false;
+const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 const bool colortex5Clear      = false;
 
 const float sunPathRotation = -40.0;
-//const int   noiseTextureResolution = 64;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
