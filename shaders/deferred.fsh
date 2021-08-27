@@ -195,7 +195,7 @@ void main() {
 
                 //vec3 normal = getNormal(coord);
                 //color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                color      *= BSLAO(vec3(coord, depth), 0.02) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= BSLAO(vec3(coord, depth), 0.015) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 

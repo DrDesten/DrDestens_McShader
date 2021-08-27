@@ -272,7 +272,7 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 }
 
 float mapHeight(float height, float maxVal) {
-    return sq(height) * -maxVal + maxVal;
+    return cb(height) * -maxVal + maxVal;
 }
 float mapHeightSimple(float height, float maxVal) {
     return height * -maxVal + maxVal;
@@ -293,6 +293,13 @@ vec2 clampCoord(vec2 coord) { //Scales Coordinates from Screen Center
     return coord;
 }
 
+float customLength(vec2 vec, float power) {
+    return pow(pow(abs(vec.x), power) + pow(abs(vec.y), power), 1/power);
+}
+float customLengthPow(vec2 vec, float power) {
+    return pow(abs(vec.x), power) + pow(abs(vec.y), power);
+}
+
 /* DRAWBUFFERS:0 */
 
 void main() {
@@ -307,16 +314,21 @@ void main() {
             float height = texture(colortex1, coord).g;
             height       = mapHeight(height, 0.05);
 
+            /* float distToEdge = saturate(1 - customLength(coord * 2 - 1, 5));
+            height          *= distToEdge; */
+
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
             vec3 playerPos    = toPlayerEye(viewPos);
             vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
+
+            //height *= saturate(dot(normalize(-viewPos), normal) * 10);
 
             vec3 playerPOM = playerPos + (playerNormal * height);
 
             vec3  POMPos   = backToScreen(eyeToView(playerPOM));
             float POMdepth = getDepth_int(POMPos.xy);
 
-            bool error = POMdepth < 0.56 || sqmag(playerPos) > 500;
+            bool error = POMdepth < 0.56 || POMPos.z > POMdepth + 0.005 || sqmag(playerPos) > 500;
             if (!error) {
                 color  = getAlbedo_int(clampCoord(POMPos.xy));
                 color *= POMdepth < 1 ? texture(colortex1, POMPos.xy).g : 1;
@@ -325,6 +337,7 @@ void main() {
                 color  = vec3(texture(colortex1, POMPos.xy).g);
                 #endif
             }
+
         }
 
     #endif
@@ -404,7 +417,7 @@ void main() {
 
     #ifdef HAND_INVISIBILITY_EFFECT
 
-        if (abs(getType(coord) - 51) < .2 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
+        if (getType(coord) == 51 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
 
             vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
             vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);

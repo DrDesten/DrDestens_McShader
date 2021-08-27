@@ -31,9 +31,13 @@ varying mat3 tbn;
 // tbn[2] = normal vector
 
 #ifdef PARALLAX_OCCLUSION
-/* DRAWBUFFERS:02314 */
+ #ifdef PHYSICALLY_BASED
+  /* DRAWBUFFERS:02314 */
+ #else
+  /* DRAWBUFFERS:0231 */
+ #endif
 #else
-/* DRAWBUFFERS:0231 */
+ /* DRAWBUFFERS:0231 */
 #endif
 void main() {
 	vec3  normal         = tbn[2];
@@ -96,6 +100,8 @@ void main() {
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
 	
 	#ifdef PARALLAX_OCCLUSION
+	#ifdef PHYSICALLY_BASED
 	gl_FragData[4] = vec4(tbn[2] * 0.5 + 0.5, 1); // Since the Bloom Buffer is only in use in composite5/6, I can use it for POM
+	#endif
 	#endif
 }
