@@ -8,6 +8,7 @@
 #include "/lib/gamma.glsl"
 
 in vec2 coord;
+in vec3 viewpos;
 
 const vec3 rgbWaveLengths = vec3(680, 550, 440);
 const vec3 rgbCoefficients = vec3(5.8e-6, 13.5e-6, 33.1e-6);
@@ -50,16 +51,14 @@ vec3 rayleigh(float dotp, vec3 coeff) {
 /* DRAWBUFFERS:03 */
 void main() {
 
-    vec3  screenPos = vec3(gl_FragCoord.xy * screenSizeInverse, 1);
-    vec3  viewPos  = toView(screenPos * 2.0 - 1.0);
-    vec3  viewDir  = normalize(viewPos);
+    vec3  viewDir  = normalize(viewpos);
     
     float sunDot   = clamp(dot(viewDir, normalize(sunPosition)), 0, 1);
     sunDot         = pow(sunDot, 15) * .5;
     float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
     moonDot        = pow(moonDot, 20) * .25;
 
-    vec3 color = getSkyColor4(viewPos); //Get sky
+    vec3 color = getSkyColor4(viewpos); //Get sky
     color     *= 1 + sunDot + moonDot;
 
     /* float dotp = max(dot(normalize(viewPos), normalize(sunPosition)), 0);

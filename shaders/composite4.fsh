@@ -272,24 +272,26 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 }
 
 float mapHeight(float height, float maxVal) {
-    return cb(height) * -maxVal + maxVal;
+    return sq(sq(height)) * -maxVal + maxVal;
 }
 float mapHeightSimple(float height, float maxVal) {
     return height * -maxVal + maxVal;
 }
 
-vec2 clampCoord(vec2 coord) { //Scales Coordinates from Screen Center
-    coord.st -= 0.5; //Make 0/0 center of screen
+vec2 mirrorClamp(vec2 coord) { //Repeats texcoords while mirroring them (without branching)
 
-    //Fix Borders (mirror)
-    //If the coordinates exeed maximum (x-Axis):
-    if (coord.s > 0.5) {coord.s = 1 - coord.s;}
-    if (coord.s < -0.5) {coord.s = -1 - coord.s;}
-    //If the coordinates exeed maximum (y-Axis):
-    if (coord.t > 0.5) {coord.t = 1 - coord.t;}
-    if (coord.t < -0.5) {coord.t = -1 - coord.t;}
+    // Determines whether an axis has to be flipped or not
+    vec2 reversal = mod(floor(coord), vec2(2));
+    vec2 add      = reversal;
+    vec2 mult     = -reversal * 2 + 1;
 
-    coord.st += 0.5; //Reverse translation
+    coord         = fract(coord);
+    // Flips the axis
+    // Flip:    1 - coord = -1 * coord + 1
+    // No Flip:     coord =  1 * coord + 0
+    // Using these expressions I can make the flipping branchless
+    coord         = mult * coord + add;
+
     return coord;
 }
 
@@ -300,28 +302,27 @@ float customLengthPow(vec2 vec, float power) {
     return pow(abs(vec.x), power) + pow(abs(vec.y), power);
 }
 
+vec2 warpCoord(vec2 co) {
+    return -1 / (exp(4 * (co-0.5)) + 1) + 1;
+}
+
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3  color = getAlbedo(coord);
+    vec3  color = getAlbedo(mirrorClamp(coord));
     float depth = getDepth(coord);
 
-    #ifdef PARALLAX_OCCLUSION
-    #ifdef PHYSICALLY_BASED
+    #ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
             vec3  normal = texture(colortex4, coord).rgb * 2 - 1;
             float height = texture(colortex1, coord).g;
-            height       = mapHeight(height, 0.05);
-
-            /* float distToEdge = saturate(1 - customLength(coord * 2 - 1, 5));
-            height          *= distToEdge; */
+            height       = mapHeight(height, POM_DEPTH);
+            height      *= sq(depth / 0.56 - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
             vec3 playerPos    = toPlayerEye(viewPos);
             vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
-
-            //height *= saturate(dot(normalize(-viewPos), normal) * 10);
 
             vec3 playerPOM = playerPos + (playerNormal * height);
 
@@ -330,17 +331,20 @@ void main() {
 
             bool error = POMdepth < 0.56 || POMPos.z > POMdepth + 0.005 || sqmag(playerPos) > 500;
             if (!error) {
-                color  = getAlbedo_int(clampCoord(POMPos.xy));
+                color  = getAlbedo_int(mirrorClamp(POMPos.xy));
                 color *= POMdepth < 1 ? texture(colortex1, POMPos.xy).g : 1;
 
                 #ifdef POM_DEBUG
-                color  = vec3(texture(colortex1, POMPos.xy).g);
+                color  = vec3(height);
                 #endif
             }
 
+            depth  = POMdepth;
+
+        } else if (depth <= 0.56) {
+            color *= texture(colortex1, coord).g;
         }
 
-    #endif
     #endif
 
     #ifdef GODRAYS

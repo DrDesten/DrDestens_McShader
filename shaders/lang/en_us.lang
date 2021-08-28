@@ -138,6 +138,9 @@ option.SUBSURAFCE_SCATTERING=Subsurface Scattering
 
 option.PARALLAX_OCCLUSION=Parallax Occlusion Mapping
 option.PARALLAX_OCCLUSION.comment=Adds additional detail to blocks using the height map. Low performance impact. Can create artifacts at screen borders.
+option.POM_DEPTH=POM Amount
+option.POM_DEPTH.comment=Specifies how deep the POM goes. Values over 0.15 result in severe artifacts.
+
 
 ///////////////////////////////////////////////////////////
 // MISC

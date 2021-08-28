@@ -1,5 +1,6 @@
 #version 120
 
+#include "/lib/settings.glsl"
 #include "/lib/gamma.glsl"
 
 uniform sampler2D texture;
@@ -10,10 +11,11 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:0 */
 
 void main() {
-	vec4 color = texture2D(texture, coord, 0);
-	color.rgb *= glcolor.rgb * glcolor.a;
+	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
+	#ifdef BLOOM
 	color.rgb *= 1 + (float(color.r > 0.5));
+	#endif
 	
     gamma(color.rgb);
 

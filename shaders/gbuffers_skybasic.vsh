@@ -1,12 +1,14 @@
-#version 130
+#version 120
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 
-out vec2 coord;
+varying vec2 coord;
+varying vec3 viewpos;
 
 void main() {
     gl_Position = ftransform();
 
-    coord = gl_MultiTexCoord0.xy;
+    viewpos = mat3(gl_ModelViewMatrix) * gl_Vertex.xyz;
+    coord   = gl_MultiTexCoord0.xy;
 }
