@@ -6,6 +6,7 @@
 
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
+attribute vec4 at_tangent;
 
 #ifdef TAA
 uniform int  frameCounter;
@@ -42,7 +43,7 @@ void main() {
 	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
-	tbn     = getTBN();
+	tbn     = getTBN(at_tangent);
 
 	blockId = mc_Entity.x;
 	glcolor = gl_Color;

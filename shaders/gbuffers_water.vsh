@@ -10,6 +10,7 @@ uniform float frameTimeCounter;
 uniform vec2  screenSizeInverse;
 
 attribute vec4 mc_Entity;
+attribute vec4 at_tangent;
 
 varying float blockId;
 
@@ -57,7 +58,7 @@ void main(){
 
 	gl_Position  = clipPos;
 
-	tbn			 = getTBN();
+	tbn			 = getTBN(at_tangent);
 	
 	worldPos	 = worldPosition.xyz + gbufferModelViewInverse[3].xyz;
 	viewPos      = viewPosition.xyz;

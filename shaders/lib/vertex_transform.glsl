@@ -1,13 +1,6 @@
 uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView;
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferPreviousProjection;
-
-attribute vec4 at_tangent;
 
 vec3 getNormal() {
     return normalize(gl_NormalMatrix * gl_Normal);
@@ -21,14 +14,14 @@ vec2 getLmCoord() {
     return (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 }
 
-mat3 getTBN() {
-	vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
-    vec3 tangent = normalize(gl_NormalMatrix * (at_tangent.xyz / at_tangent.w));
+mat3 getTBN(vec4 tangentAttribute) {
+	vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 tangent = normalize(gl_NormalMatrix * (tangentAttribute.xyz / tangentAttribute.w));
 	return mat3(tangent, cross(tangent, normal), normal);
 }
 
 vec3 getView() {
-    return (gl_ModelViewMatrix * gl_Vertex).xyz;
+    return mat3(gl_ModelViewMatrix) * gl_Vertex.xyz;
 }
 vec4 getView4() {
     return gl_ModelViewMatrix * gl_Vertex;

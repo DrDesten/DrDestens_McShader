@@ -76,7 +76,8 @@ vec3 chromaticAberrationTint(vec2 relPos) {
 vec3 bokehBlur(vec2 coord, float size) {
     vec3 pixelColor = vec3(0);
     float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-
+    float depth = getDepth(coord);
+    vec3  color = getAlbedo(coord);
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
@@ -108,7 +109,7 @@ vec3 bokehBlur(vec2 coord, float size) {
         // Use Bayer Dithering to vary the DoF, helps with small kernels
         vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
     #else
-        vec2 dither = vec2(0);
+        const vec2 dither = vec2(0);
     #endif
 
     #if CHROMATIC_ABERRATION_AMOUNT != 0
@@ -125,7 +126,13 @@ vec3 bokehBlur(vec2 coord, float size) {
     #else
 
         for (int i = 0; i < kernelSize; i++) {
+            #ifdef DOF_DEPTH_REJECTION
+            float sampleDepth = getDepth_int(coord + (kernel[i] * size + dither));
+            float weight      = float( depth - 0.01 > sampleDepth || sampleDepth < 0.56);
+            pixelColor        += mix(textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb, pixelColor/(i+1) , weight);
+            #else
             pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
+            #endif
         }
         pixelColor /= kernelSize;
 
@@ -158,8 +165,8 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
 
     #endif
 
-    float lod   = log2(radius * 4 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-    int samples = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
+    float lod     = log2(radius * 4 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    int   samples = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
 
     #if CHROMATIC_ABERRATION_AMOUNT != 0
         vec3 totalTint = vec3(0); // Contains the combined tint of all sample pixels, used for color correction
@@ -170,7 +177,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
         for (int i = 0; i < samples; i++) {
             int index     = int(mod(i + offset, 64));
             #if CHROMATIC_ABERRATION_AMOUNT != 0
-                vec3  chromAbbTint = chromaticAberrationTint(blue_noise_disk[index]);
+                vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[index]);
                 pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
             #else
@@ -180,7 +187,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
     #else
         for (int i = 0; i < samples; i++) {
             #if CHROMATIC_ABERRATION_AMOUNT != 0
-                vec3  chromAbbTint = chromaticAberrationTint(blue_noise_disk[i]);
+                vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[i]);
                 pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
             #else

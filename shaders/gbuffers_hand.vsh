@@ -5,6 +5,7 @@
 #include "/lib/vertex_transform.glsl"
 
 attribute vec4 mc_Entity;
+attribute vec4 at_tangent;
 
 #ifdef TAA
 uniform int  frameCounter;
@@ -43,7 +44,7 @@ void main() {
 	#ifdef FRAG_NORMALS
 	N  		= getNormal();
 	#else
-	tbn     = getTBN();
+	tbn     = getTBN(at_tangent);
 	#endif
 
 	glcolor = gl_Color;
