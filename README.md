@@ -4,7 +4,7 @@ Supports versions 1.8.x to 1.17.x (I usually develop on 1.8.9 and 1.16.5)
 
 labPBR support
  - Make sure your PBR Ressource pack is labPBR, else it won't work correctly
- - Supports Normals, Roughness, Reflectance, Emission, AO, Hardcoded Metals, Subsurface Scattering
+ - Supports Normals, Roughness, Reflectance, Emission, AO, Hardcoded Metals, Subsurface Scattering, Height
  - Does not Support Porosity
 
 ## Features:
@@ -38,6 +38,7 @@ labPBR support
  - Depth of Field
  - Screen Space Ambient Occlusion
  - Temporal Anti-Aliasing
+ - Parallax Occlusion Mapping
  - Physically Based Rendering
    - Support for LabPBR 1.3
      - Normals
@@ -47,14 +48,21 @@ labPBR support
      - Ambient Occlusion
      - Metals
      - Subsurface Scattering
+     - Height
  - Various Water Effects
    - Waves and Bump
    - Refraction
    - Absorption
  - Godrays
  - Bloom
+ - Waving Leaves and Grass
  - Motion Blur
  - Chromatic Aberration
    - When paired with DoF realistic Focus-Dependant CA
+ - World Curvature
  - Smooth sky gradient
+ - Outline
+ - Custom Fog
+ - White World
+ - Saturation
 
