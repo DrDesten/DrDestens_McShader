@@ -181,7 +181,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
 	BRDF.a 	    	 = mix(0, BRDF.a, PBR_BLEND);
 	
-	float reflectiveness = BRDF.a * clamp(0.9 - 2 * roughness, 0, 1);
+	float reflectiveness = BRDF.a * clamp(0.9 - 2 * (roughness + emission), 0, 1);
 
     color.rgb = max(color.rgb, 0); // Prevent Negative values
 

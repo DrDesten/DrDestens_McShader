@@ -23,7 +23,7 @@ void main() {
 	gl_Position = clipPos;
 	
 	normal  = normalize(gl_NormalMatrix * gl_Normal);
-	viewPos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	viewPos = mat3(gl_ModelViewMatrix) * gl_Vertex.xyz;
 	
 	coord   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	glcolor = gl_Color;

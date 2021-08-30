@@ -6,7 +6,7 @@
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 
-uniform float near;
+uniform float nearInverse;
 uniform float aspectRatio;
 
 uniform vec3  fogColor;
@@ -123,14 +123,13 @@ vec2 spiralOffset(float x, float expansion) {
 // Based on BSL's AO implementation
 float BSLAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0 || screenPos.z < 0.56) {return 1.0;};
-    float ldFactor = 1/near;
 
     #ifdef TAA
     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
     #else
     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     #endif 
-    float depth  = linearizeDepthf(screenPos.z, ldFactor);
+    float depth  = linearizeDepthf(screenPos.z, nearInverse);
 
     float size   = clamp(aspectRatio * radius * gbufferProjection[1][1] * 1/depth, 0.01, 0.2);
 
@@ -140,7 +139,7 @@ float BSLAO(vec3 screenPos, float radius) {
         vec2 offs = spiralOffset(sample + dither, 8) * size;
 
         for (int o = 0; o < 2; o++) {
-            float sdepth = linearizeDepthf(getDepth_int(screenPos.xy + offs), ldFactor);
+            float sdepth = linearizeDepthf(getDepth_int(screenPos.xy + offs), nearInverse);
             occlusion   += clamp((depth - sdepth) * 4, -1, 1);
             offs         = -offs;
         }

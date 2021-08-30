@@ -1,5 +1,5 @@
-uniform sampler2D texture; // Color
-uniform sampler2D lightmap; // ightmap
+uniform sampler2D texture;  // Color
+uniform sampler2D lightmap; // lightmap
 
 #define FD0 gl_FragData[0]
 #define FD1 gl_FragData[1]

@@ -1,9 +1,9 @@
 #version 130
 
+uniform mat4 gbufferModelViewInverse;
+
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/framebuffer.glsl"
-#include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
 
@@ -73,6 +73,6 @@ void main() {
 
     gamma(color.rgb);
 
-    FD0 = vec4(color, 1.0);
-    FD1 = vec4(vec3(0), 1);
+    gl_FragData[0] = vec4(color, 1.0);
+    gl_FragData[1] = vec4(vec3(0), 1);
 }

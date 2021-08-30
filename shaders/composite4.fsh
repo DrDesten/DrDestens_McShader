@@ -23,8 +23,8 @@ uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 
 uniform float isInvisibleSmooth;
-uniform float near;
 uniform float far;
+uniform float aspectRatio;
 
 uniform int   isEyeInWater;
 
@@ -315,10 +315,10 @@ void main() {
     #ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
-            vec3  normal = texture(colortex4, coord).rgb * 2 - 1;
-            float height = texture(colortex1, coord).g;
-            height       = mapHeight(height, POM_DEPTH);
-            height      *= sq(depth / 0.56 - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
+            vec3  normal    = texture(colortex4, coord).rgb * 2 - 1;
+            float rawHeight = texture(colortex1, coord).g;
+            float height    = mapHeight(rawHeight, POM_DEPTH);
+            height         *= sq(depth / 0.56 - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
             vec3 playerPos    = toPlayerEye(viewPos);
@@ -332,7 +332,7 @@ void main() {
             bool error = POMdepth < 0.56 || POMPos.z > POMdepth + 0.005 || sqmag(playerPos) > 500;
             if (!error) {
                 color  = getAlbedo_int(mirrorClamp(POMPos.xy));
-                color *= POMdepth < 1 ? texture(colortex1, POMPos.xy).g : 1;
+                color *= rawHeight;
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);
@@ -360,7 +360,7 @@ void main() {
 
             // Create ray pointing from the current pixel to the sun
             vec2 ray          = sunScreen - coord;
-            vec2 rayCorrected = vec2(ray.x, ray.y * (screenSize.y / screenSize.x)); // Aspect Ratio corrected ray for accurate exponential decay
+            vec2 rayCorrected = vec2(ray.x * aspectRatio, ray.y); // Aspect Ratio corrected ray for accurate exponential decay
 
             vec2 rayStep      = ray / GODRAY_STEPS;
             #ifndef TAA

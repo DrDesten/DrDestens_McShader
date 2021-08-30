@@ -22,6 +22,7 @@ vec2 blurOffset(vec2 coord, float lod) {
 
 
 vec3 getAlbedo(in vec2 coord) {
+    //return texture(colortex0, coord).rgb;
     return texelFetch(colortex0, convertIntCoords(coord, screenSize), 0).rgb;
 }
 vec3 getAlbedo_int(in vec2 coord) {
