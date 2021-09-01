@@ -88,7 +88,16 @@ vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
 
     return subsurf * albedo;
 }
+vec3 simpleSubsurface2(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
+    float diffExpand = dot(N, L);
+    diffExpand      *= diffExpand;
+    diffExpand       = diffExpand * 0.15 + 0.1;
 
+    float through = clamp(dot(-V, L), 0, 1);
+    through       = pow(through, 10) * 0.75;
+
+    return (diffExpand + through) * subsurface * albedo;
+}
 
 // TBN MATRIX CALCULATION ///////////////////////////////////////////////////////////////
 mat3 cotangentFrame( vec3 N, vec3 p, vec2 coord ) {
@@ -170,7 +179,8 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
     BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
     #ifdef SUBSURAFCE_SCATTERING
     if (subsurf > 0.1) {
-        BRDF.rgb    += simpleSubsurface(color.rgb, normal, viewDir, lightDir, subsurf * brightness);
+        vec3 SSSc   = simpleSubsurface2(color.rgb, normal, viewDir, lightDir, subsurf) * brightness;
+        BRDF.rgb   += SSSc;
     }
     #endif
 

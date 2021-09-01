@@ -333,11 +333,10 @@ void main() {
             if (!error) {
 
                 color  = getAlbedo_int(POMPos.xy);
-                //color *= texture(colortex1, POMPos.xy).g;
+                color *= texture(colortex1, POMPos.xy).g;
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);
-                color  = vec3(1,0,0);
                 #endif
 
             }
