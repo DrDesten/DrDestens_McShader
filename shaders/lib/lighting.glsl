@@ -2,6 +2,8 @@
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 
+uniform float lightBrightness;
+
 vec3 lightPosition() {
     return (worldTime > 13000 && worldTime < 22500) ? moonPosition : sunPosition;
 }
@@ -153,7 +155,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
     // Specular Blending Factor (Removes specular highlights in occluded areas)
     float specBlend  = clamp(mix( -1.5, 1, lmcoord.y ), 0, 1); 
     // Total BRDF brightness
-    float brightness = sq(sq(lmcoord.y)) * tex.AO * (lightPos == sunPosition ? 1.0 : 0.3);
+    float brightness = sq(sq(lmcoord.y)) * tex.AO * lightBrightness;
 
     vec3  normalMap  = tex.normal;
 	vec3  normal     = normalize(tbn * normalMap);
