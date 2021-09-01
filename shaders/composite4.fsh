@@ -309,15 +309,14 @@ vec2 warpCoord(vec2 co) {
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3  color = getAlbedo(mirrorClamp(coord));
+    vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
 
     #ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
             vec3  normal    = texture(colortex4, coord).rgb * 2 - 1;
-            float rawHeight = texture(colortex1, coord).g;
-            float height    = mapHeight(rawHeight, POM_DEPTH);
+            float height    = mapHeight(texture(colortex1, coord).g, POM_DEPTH);
             height         *= sq(depth / 0.56 - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
@@ -327,18 +326,21 @@ void main() {
             vec3 playerPOM = playerPos + (playerNormal * height);
 
             vec3  POMPos   = backToScreen(eyeToView(playerPOM));
+            POMPos.xy      = mirrorClamp(POMPos.xy);
             float POMdepth = getDepth_int(POMPos.xy);
 
-            bool error = POMdepth < 0.56 || POMPos.z > POMdepth + 0.005 || sqmag(playerPos) > 500;
+            bool error = POMdepth < 0.56 /* || POMPos.z > POMdepth + 0.005 */ || sqmag(playerPos) > 500;
             if (!error) {
-                color  = getAlbedo_int(mirrorClamp(POMPos.xy));
-                color *= rawHeight;
+
+                color  = getAlbedo_int(POMPos.xy);
+                //color *= texture(colortex1, POMPos.xy).g;
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);
+                color  = vec3(1,0,0);
                 #endif
-            }
 
+            }
             depth  = POMdepth;
 
         } else if (depth <= 0.56) {
