@@ -61,16 +61,6 @@ void main() {
     vec3 color = getSkyColor4(viewpos); //Get sky
     color     *= 1 + sunDot + moonDot;
 
-    /* float dotp = max(dot(normalize(viewPos), normalize(sunPosition)), 0);
-    color = rayleigh(dotp, vec3(2, 1, 2));
-
-    vec2 si = sphereIntersect(vec3(0,6371000 + (cameraPosition.y * 100),0), normalize(toPlayerEye(viewPos)), vec3(0,0,0), 6471000);
-    si = max(si, vec2(0));
-    float gradient = max(si.y, si.x) / 10000000;
-    gradient = clamp(gradient, 0, 1);
-
-    color.rgb = mix(vec3(0.5,0.5,1), vec3(0.25,0.25,0.5), gradient); */
-
     gamma(color.rgb);
 
     gl_FragData[0] = vec4(color, 1.0);

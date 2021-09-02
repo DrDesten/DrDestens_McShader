@@ -57,7 +57,7 @@ void main() {
 
 		gamma(color.rgb);
 		vec3 ambientLight  = texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
-		gamma(ambientLight);
+		//gamma(ambientLight);
 
 		MaterialInfo MatTex = FullMaterial(coord, color);
 		//MatTex.AO 		   *= sq(glcolor.a);

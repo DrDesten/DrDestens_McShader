@@ -180,14 +180,14 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
     BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
     #ifdef SUBSURAFCE_SCATTERING
-    if (subsurf > 0.1) {
+    if (subsurf >= 0.1) {
         vec3 SSSc   = simpleSubsurface2(color.rgb, normal, viewDir, lightDir, subsurf) * brightness;
         BRDF.rgb   += SSSc;
     }
     #endif
 
     // Emission and Ambient Light
-	BRDF.rgb 		 += color.rgb * ((ambient * AO) + emission);
+	BRDF.rgb 		 += color.rgb * ((ambient * AO * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
 
 	// Blend between normal MC rendering and PBR rendering
 	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);

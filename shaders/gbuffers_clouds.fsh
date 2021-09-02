@@ -5,6 +5,7 @@
 
 uniform sampler2D texture;
 
+uniform float lightBrightness;
 uniform vec3  sunPosition;
 uniform vec3  moonPosition;
 uniform int   worldTime;
@@ -17,6 +18,7 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:0231 */
 void main() {
 	vec4 color = texture2D(texture, coord);
+	color.rgb *= glcolor.rgb * lightBrightness;
 
 	vec3 lightPos = normalize((worldTime < 13000) ? sunPosition : moonPosition);
 
@@ -28,7 +30,7 @@ void main() {
 	// diffuse
 	float diffuse = clamp(dot(normal, lightPos), 0, 1);
 
-	color.rgb = vec3(diffuse + 0.75 * (vol_1 + vol_2)) * glcolor.rgb;
+	color.rgb *= vec3(diffuse + 0.75 * (vol_1 + vol_2));
 
 	gl_FragData[0] = color; //color
 	gl_FragData[1] = vec4(normal, 1);   //normals
