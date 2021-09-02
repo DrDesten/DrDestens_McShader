@@ -10,7 +10,7 @@ uniform mat4 gbufferModelViewInverse;
 in vec2 coord;
 in vec3 viewpos;
 
-const vec3 rgbWaveLengths = vec3(680, 550, 440);
+const vec3 rgbWaveLengths  = vec3(680, 550, 440);
 const vec3 rgbCoefficients = vec3(5.8e-6, 13.5e-6, 33.1e-6);
 
 float densityRayleigh(float height) {

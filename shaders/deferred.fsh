@@ -90,29 +90,44 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+        //hits += saturate(depthToleranceAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
     }
 
     hits  = -hits * 0.0625 + 1;
     return sq(hits);
 }
 
-float AmbientOcclusionOutline(vec3 screenPos, float depthfactor, float sizemultiplier) {
-    float ldepth  = linearizeDepthf(screenPos.z, depthfactor);
-    float AO      = 0;
-    vec2  dither  = vec2(Bayer4(screenSize * screenPos.xy), Bayer4(screenSize * screenPos.xy + 1));
-    vec2  size    = dither * fovScale * (1 - screenPos.z) * sizemultiplier;
+vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
+    vec3 viewPos           = toView(screenPos * 2 - 1);
 
-    for (int x = -1; x <= 1; x+=2) {
-        for (int y = -1; y <= 1; y+=2) {
-            vec2 sample = vec2(x,y) * size + screenPos.xy;
+    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
 
-            float sampleDepth = linearizeDepthf(getDepth_int(sample), depthfactor);
-            AO               += depthToleranceAttenuation(ldepth - sampleDepth, 1);
-        }
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    float depthTolerance   = 0.075/-viewPos.z;
+
+    float occlusion = 0;
+    vec3  ssgi      = vec3(0);
+    vec3  sample;
+    for (int i = 0; i < 16; i++) {
+        sample      = half_sphere_16[i] * ditherTimesSize; 
+        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        sample      = TBN * sample;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                   // Converting Sample to screen space, since normals are in view space
+    
+        float expectDepth = linearizeDepthf(sample.z, nearInverse);
+        float hitDepth    = linearizeDepthf(getDepth_int(sample.xy), nearInverse);
+        float weight      = (float(hitDepth > 0.5) * 0.75 + 0.25) * saturate(depthToleranceAttenuation(expectDepth - hitDepth, 1) * 4);
+
+        occlusion += weight;
+        ssgi      += getAlbedo_int(sample.xy) * weight * (1 / ditherTimesSize) * float(hitDepth > 0.5);
     }
-    return 1 - saturate(AO);;
-}
 
+    ssgi     *= 0.0625;
+    ssgi      = sq(ssgi);
+    occlusion = sq(-occlusion * 0.0625 + 1);
+    return vec4(ssgi, occlusion);
+}
 
 // Spins A point around the origin (negate for full coverage)
 vec2 spiralOffset(float x, float expansion) {
@@ -175,7 +190,14 @@ void main() {
             #elif SSAO_QUALITY == 2
 
                 vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+
+                #ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
+                    vec4 ssao_gi = AmbientOcclusionHIGH_SSGI(vec3(coord, depth), normal, 1);
+                    color       += ssao_gi.rgb;
+                    color       *= ssao_gi.a * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                #else
+                    color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                #endif
 
             #endif
             

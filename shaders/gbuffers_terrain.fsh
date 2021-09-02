@@ -85,7 +85,7 @@ void main() {
 		gamma(color.rgb);
 
 		if (id == 1005) {
-			color.rgb *= EMISSION_STRENGTH * .5;
+			color.rgb *= 1 + sum(color.rgb) * 0.1 + EMISSION_STRENGTH * 0.05;
 		}
 		
 	#endif
