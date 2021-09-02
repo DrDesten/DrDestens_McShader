@@ -141,6 +141,7 @@ option.PARALLAX_OCCLUSION.comment=Adds additional detail to blocks using the hei
 option.POM_DEPTH=POM Amount
 option.POM_DEPTH.comment=Specifies how deep the POM goes. Values over 0.15 result in severe artifacts.
 
+option.PBR_AMBIENT_LIGHT_MULTIPLIER=Ambient light multiplier
 
 ///////////////////////////////////////////////////////////
 // MISC
