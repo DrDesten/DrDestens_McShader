@@ -103,7 +103,11 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
     vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
     mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    #ifdef TAA
+     float ditherTimesSize  = (fract(Bayer16(screenPos.xy * screenSize) + frameCounter * 0.1243457) * 0.8 + 0.2) * size;
+    #else
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    #endif
     float depthTolerance   = 0.075/-viewPos.z;
 
     float occlusion = 0;
@@ -124,7 +128,7 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
     }
 
     ssgi     *= 0.0625;
-    ssgi      = sq(ssgi);
+    ssgi      = sq(ssgi) * 0.5;
     occlusion = sq(-occlusion * 0.0625 + 1);
     return vec4(ssgi, occlusion);
 }

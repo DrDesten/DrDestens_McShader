@@ -83,6 +83,8 @@ const float chromaticAberrationBasic = float(CHROMATIC_ABERRATION_AMOUNT) * 0.00
 // PBR
 /////////////////////////////////////////////////////////////////////////////////////////
 
+#define PBR_FORMAT 1            // [1 2]
+
 //#define PHYSICALLY_BASED
 #define FRAG_NORMALS            // Calculates the TBN matrix in the fragment instead of in the vertex shader (more performance intensive, but fixes at_tangent not working for some elements of the game)
 

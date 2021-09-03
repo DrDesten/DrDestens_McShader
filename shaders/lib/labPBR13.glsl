@@ -15,6 +15,20 @@ struct MaterialInfo {
 uniform sampler2D specular;
 uniform sampler2D normals;
 
+// TEXTURE READOUTS
+vec4 NormalTex(vec2 coord) {
+    return texture2D(normals, coord);
+}
+vec4 SpecularTex(vec2 coord) {
+    return texture2D(specular, coord);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PBR_FORMAT == 1
+//////////////////////////////////// LAB PBR //////////////////////////////////////////////////////////
+
+
 /* const vec3 metalsF0[8] = vec3[8](
     vec3(0.7323620366092286, 0.7167327174985388, 0.7091896461414436), // Iron
     vec3(1.0539195094529696, 1.027785864151901,  0.6520659895749682), // Gold
@@ -35,15 +49,6 @@ const vec3 metalsF0[8] = vec3[8](
     vec3(0.8426306452778194, 0.8253700126733226, 0.7968226770078278), // Platinum
     vec3(1.0,                1.0               , 1.0               )  // Silver
 );
-
-// TEXTURE READOUTS
-vec4 NormalTex(vec2 coord) {
-    return texture2D(normals, coord);
-}
-vec4 SpecularTex(vec2 coord) {
-    return texture2D(specular, coord);
-}
-
 
 // NORMAL TEXTURE
 vec3 extractNormal(vec4 nTex, vec4 sTex) {
@@ -98,7 +103,7 @@ float extractEmission(vec4 nTex, vec4 sTex) {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
     vec4 NT = NormalTex(coord);
@@ -118,3 +123,69 @@ MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
         extractPorosity(NT, ST)
     );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+#elif PBR_FORMAT == 2 
+//////////////////////////////////// OLD PBR //////////////////////////////////////////////////////////
+
+
+
+// NORMAL TEXTURE
+vec3 extractNormal(vec4 nTex, vec4 sTex) {
+    return nTex.xyz * 2 - 1;
+}
+float extractAO(vec4 nTex, vec4 sTex) {
+    return 1.0;
+}
+float extractHeight(vec4 nTex, vec4 sTex) {
+    return nTex.a;
+}
+
+
+// SPECULAR TEXTURE
+float extractRoughness(vec4 nTex, vec4 sTex) {
+    float tmp = 1. - sTex.r;
+    return tmp*tmp;
+}
+
+float extractF0(vec4 nTex, vec4 sTex) {
+    return sTex.g * 0.96 + 0.04;
+}
+vec3 extractF0(vec4 nTex, vec4 sTex, vec3 albedo) {
+    return (sTex.g * 0.96) * albedo + 0.04;
+}
+
+float extractSubsurf(vec4 nTex, vec4 sTex) {
+    return 0.0;
+}
+float extractPorosity(vec4 nTex, vec4 sTex) {
+    return 0.0;
+}
+
+float extractEmission(vec4 nTex, vec4 sTex) {
+    return sTex.b;
+}
+
+
+//////////////////////////////////////////////////////////
+
+MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
+    vec4 NT = NormalTex(coord);
+    vec4 ST = SpecularTex(coord);
+
+    return MaterialInfo(
+        albedo,
+        extractNormal(NT, ST),
+
+        extractRoughness(NT, ST),
+        extractF0(NT, ST, albedo.rgb),
+        extractEmission(NT, ST),
+        extractAO(NT, ST),
+        extractHeight(NT, ST),
+
+        extractSubsurf(NT, ST),
+        extractPorosity(NT, ST)
+    );
+}
+
+#endif
