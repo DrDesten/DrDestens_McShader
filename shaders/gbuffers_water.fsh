@@ -24,7 +24,7 @@ in float blockId;
 in vec2 coord;
 in vec2 lmcoord;
 in vec3 worldPos;
-in vec3 viewPos;
+in vec3 viewDir;
 
 in vec4 glcolor;
 in mat3 tbn;
@@ -148,7 +148,6 @@ vec3 waveNormals(vec2 coord, float strength) {
 #endif
 
 void main(){
-    vec2 screenCoord = (gl_FragCoord.xy / screenSize);
 	vec4 color       = texture2D(colortex0, coord, 0) * vec4(glcolor.rgb, 1);
 
     vec3  surfaceNormal  = tbn[2];
@@ -160,14 +159,18 @@ void main(){
         color.rgb          = vec3(0);
         color.a            = 0.01;
 
-        float surfaceDot   = dot(normalize(viewPos), normalize(surfaceNormal));
-        
-        // "Fake" Waves
-        vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-        float blend        = clamp(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1), 0, 1);              // Reducing the normals at small angles to avoid high noise
-        vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+        #ifdef WATER_NORMALS
 
-        surfaceNormal      = normalize(tbn * noiseNormals);
+            float surfaceDot   = dot(viewDir, surfaceNormal);
+            
+            // "Fake" Waves
+            vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
+            float blend        = clamp(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1), 0, 1);              // Reducing the normals at small angles to avoid high noise
+            vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+
+            surfaceNormal      = normalize(tbn * noiseNormals);
+
+        #endif
 
     } else {
 
@@ -184,7 +187,7 @@ void main(){
 		    MaterialInfo MatTex = FullMaterial(coord, color);
             MatTex.AO 		   *= sq(glcolor.a);
 
-            PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewPos, 0.1 * ambientLight + DynamicLight(lmcoord));
+            PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewDir, 0.1 * ambientLight + DynamicLight(lmcoord));
 
             color	           = Material.color;
             surfaceNormal      = Material.normal;

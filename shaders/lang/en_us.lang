@@ -65,6 +65,8 @@ screen.WATER=Water
 option.WATER_WAVES=Waves
 option.WATER_WAVES.comment="Physical" Waves. Moves the water surface.
 option.WATER_WAVE_AMOUNT=Wave Height
+
+option.WATER_NORMALS=Bump Mapping
 option.WATER_NORMALS_AMOUNT=Bump Amount
 option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
 option.WATER_NORMALS_SIZE=Bump Size
@@ -118,6 +120,10 @@ option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this va
 ///////////////////////////////////////////////////////////
 
 screen.MATERIALS=Physically Based Rendering
+
+option.PBR_FORMAT=PBR Format
+value.PBR_FORMAT.1=LabPBR 1.3
+value.PBR_FORMAT.2=OldPBR
 
 option.PHYSICALLY_BASED=PBR
 option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you have a LabPBR compatible Ressource pack.

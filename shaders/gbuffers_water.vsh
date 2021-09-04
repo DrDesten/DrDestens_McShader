@@ -17,7 +17,7 @@ varying float blockId;
 varying vec2 coord;
 varying vec2 lmcoord;
 varying vec3 worldPos;
-varying vec3 viewPos;
+varying vec3 viewDir;
 
 varying vec4 glcolor;
 varying mat3 tbn;
@@ -30,7 +30,7 @@ void main(){
 	vec4 clipPos 		= ftransform();
 	vec4 viewPosition   = getView4();
 	vec4 playerPosition = toPlayer(viewPosition);
-	vec4 worldPosition  = playerPosition + vec4(cameraPosition, 0);
+	vec4 worldPosition  = vec4(playerPosition.xyz + cameraPosition, playerPosition.w);
 
 	#ifdef WATER_WAVES
 
@@ -42,7 +42,7 @@ void main(){
 			// Appling them (y Direction aka "up")
 			worldPosition.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
 
-			clipPos = playerToClip(worldPosition - vec4(cameraPosition, 0));
+			clipPos = playerToClip(vec4(worldPosition.xyz - cameraPosition, worldPosition.w));
 
 		}
 
@@ -60,8 +60,8 @@ void main(){
 
 	tbn			 = getTBN(at_tangent);
 	
-	worldPos	 = worldPosition.xyz + gbufferModelViewInverse[3].xyz;
-	viewPos      = viewPosition.xyz;
+	worldPos	 = worldPosition.xyz;
+	viewDir      = normalize(viewPosition.xyz);
 
 	blockId 	 = mc_Entity.x;
     coord 		 = getCoord();

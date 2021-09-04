@@ -7,11 +7,11 @@ vec3 getNormal() {
 }
 
 vec2 getCoord() {
-    return (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    return mat2(gl_TextureMatrix[0]) * gl_MultiTexCoord0.xy + gl_TextureMatrix[0][3].xy;
 }
 
 vec2 getLmCoord() {
-    return (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    return mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.xy + gl_TextureMatrix[1][3].xy;
 }
 
 mat3 getTBN(vec4 tangentAttribute) {
