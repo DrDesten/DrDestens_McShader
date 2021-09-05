@@ -1,6 +1,7 @@
 #version 120
 
 #include "/lib/settings.glsl"
+#include "/lib/vertex_transform_simple.glsl"
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
@@ -22,9 +23,8 @@ void main() {
 	
 	gl_Position = clipPos;
 	
-	normal  = normalize(gl_NormalMatrix * gl_Normal);
-	viewPos = mat3(gl_ModelViewMatrix) * gl_Vertex.xyz + gl_ModelViewMatrix[3].xyz;
-	
-	coord   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	normal  = getNormal();
+	viewPos = getView();
+	coord   = getCoord();
 	glcolor = gl_Color;
 }

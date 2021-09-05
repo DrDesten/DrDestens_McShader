@@ -2,13 +2,16 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/kernels.glsl"
+
 #ifdef WORLD_CURVE
-#include "/lib/vertex_transform.glsl"
+ #include "/lib/vertex_transform.glsl"
+#else
+ #include "/lib/vertex_transform_simple.glsl"
 #endif
 
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform int  frameCounter;
+ uniform vec2 screenSizeInverse;
 #endif
 
 varying vec3 normal;
@@ -28,8 +31,7 @@ void main() {
 
 	gl_Position = clipPos;
 	
-	normal = normalize(gl_NormalMatrix * gl_Normal);
-
-	coord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	normal  = getNormal();
+	coord   = getCoord();
 	glcolor = gl_Color;
 }

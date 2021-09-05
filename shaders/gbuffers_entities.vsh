@@ -2,7 +2,12 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/kernels.glsl"
-#include "/lib/vertex_transform.glsl"
+
+#ifdef WORLD_CURVE
+ #include "/lib/vertex_transform.glsl"
+#else
+ #include "/lib/vertex_transform_simple.glsl"
+#endif
 
 attribute vec4 at_tangent;
 

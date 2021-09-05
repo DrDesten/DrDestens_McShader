@@ -1,8 +1,13 @@
 #version 120
 
 #include "/lib/settings.glsl"
-#include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
+
+#ifdef WORLD_CURVE
+ #include "/lib/vertex_transform.glsl"
+#else
+ #include "/lib/vertex_transform_simple.glsl"
+#endif
 
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;

@@ -1,12 +1,17 @@
 #version 120
 
 #include "/lib/settings.glsl"
-#include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
 
+#ifdef WORLD_CURVE
+ #include "/lib/vertex_transform.glsl"
+#else
+ #include "/lib/vertex_transform_simple.glsl"
+#endif
+
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform int  frameCounter;
+ uniform vec2 screenSizeInverse;
 #endif
 
 varying vec2 lmcoord;
@@ -25,6 +30,6 @@ void main() {
 
 	gl_Position = clipPos;
 
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	lmcoord = getLmCoord();
 	glcolor = gl_Color;
 }

@@ -287,6 +287,18 @@ float acosf(float x) {
     return HALF_PI - asinf(x);
 }
 
+vec3 arbitraryTangent(vec3 normal) {
+    // Equivalent to: normalize( cross(normal, vec3(0,0,1)) )
+    return vec3(normal.y, -normal.x, 0) * (1 / sqrt( sqmag( vec2(normal.y, normal.x) ) ));
+}
+
+mat3 arbitraryTBN(vec3 normal) {
+    // Equivalent to: cross(normal, vec3(0,0,1))
+    vec3 tangent  = vec3(normal.y, -normal.x, 0);
+    // Equivalent to: cross(normal, tangent)
+    vec3 binomial = vec3(-normal.x * normal.z, normal.x * normal.z, (normal.y * normal.y) + (normal.x * normal.x));
+    return mat3(normalize(tangent), normalize(binomial), normal);
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 //                              OTHER FUNCTIONS
@@ -317,8 +329,7 @@ float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float bas
 
     float cosAngle = dot(viewRay, normal);
     float reflectiveness = R0 + ( (1 - R0) * pow(1 - cosAngle, 5) );
-    reflectiveness = 1 - reflectiveness;
-    reflectiveness = clamp(reflectiveness, 0, 1) + baseReflectiveness;
+    reflectiveness = clamp(1 - reflectiveness, 0, 1) + baseReflectiveness;
     return reflectiveness;
 }
 float schlickFresnel(vec3 viewDir, vec3 normal, float F0) {

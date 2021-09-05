@@ -1,6 +1,7 @@
 #version 120
 
 #include "/lib/settings.glsl"
+#include "/lib/vertex_transform_simple.glsl"
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
@@ -19,6 +20,6 @@ void main() {
 	#endif
 
 	gl_Position = clipPos;
-	coord       = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	coord       = getCoord();
 	glcolor     = gl_Color;
 }

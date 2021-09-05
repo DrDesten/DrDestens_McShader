@@ -108,8 +108,8 @@ mat3 cotangentFrame( vec3 N, vec3 p, vec2 coord ) {
     // Constructs the TBN (Tangent-Binomial-Normal) Matrix without Tangent
 
     // get edge vectors of the pixel triangle 
-    vec3 dp1 = dFdx( p );
-    vec3 dp2 = dFdy( p );
+    vec3 dp1  = dFdx( p );
+    vec3 dp2  = dFdy( p );
     vec2 duv1 = dFdx( coord );
     vec2 duv2 = dFdy( coord );
 
@@ -120,7 +120,7 @@ mat3 cotangentFrame( vec3 N, vec3 p, vec2 coord ) {
     vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;   
     
     // construct a scale-invariant frame 
-    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+    float invmax = 1 / sqrt( max( dot(T,T), dot(B,B) ) );
 
     return mat3( T * invmax, B * invmax, N );
 

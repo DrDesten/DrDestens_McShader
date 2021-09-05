@@ -6,7 +6,7 @@ uniform int worldTime;
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
-#include "/lib/labPBR13.glsl"
+#include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 

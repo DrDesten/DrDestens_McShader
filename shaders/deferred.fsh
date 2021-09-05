@@ -24,31 +24,10 @@ in vec2 coord;
 float depthToleranceAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
-float AmbientOcclusionLOW_test1(vec3 screenPos, float sampleSize) {
-
-    float linearDepth = linearizeDepthf(screenPos.z, 20);
-    float size        = sampleSize / linearDepth * fovScale;
-
-    float dither      = Bayer4(screenPos.xy * screenSize) * 64;
-
-    float occlusion = 0;
-    for (int i = 0; i < 8; i++) {
-        vec2 sample       = blue_noise_disk[ int( mod(i + dither, 64) ) ] * size + screenPos.xy;
-
-        float sampleDepth = linearizeDepthf(getDepth_int(sample), 20);
-        float occ         = (linearDepth - sampleDepth);
-        occlusion        += depthToleranceAttenuation(occ, 1);
-    }
-    occlusion = saturate(-occlusion * .3 + 1);
- 
-    return sq(occlusion);
-}
 
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
-
-    vec3 tangent           = normalize(vec3(normal.y - normal.z, -normal.x, normal.x));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+    mat3 TBN               = arbitraryTBN(normal);
 
     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
     float depthTolerance   = 0.075/-viewPos.z;
@@ -72,9 +51,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
-
-    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+    mat3 TBN               = arbitraryTBN(normal);
 
     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
     float depthTolerance   = 0.075/-viewPos.z;
@@ -99,16 +76,14 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
 vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
-
-    vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+    mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer16(screenPos.xy * screenSize) + frameCounter * 0.1243457) * 0.8 + 0.2) * size;
     #else
      float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
     #endif
-    float depthTolerance   = 0.075/-viewPos.z;
+    float sizeInverse      = 1/ditherTimesSize;
 
     float occlusion = 0;
     vec3  ssgi      = vec3(0);
@@ -124,7 +99,7 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
         float weight      = (float(hitDepth > 0.5) * 0.75 + 0.25) * saturate(depthToleranceAttenuation(expectDepth - hitDepth, 1) * 4);
 
         occlusion += weight;
-        ssgi      += getAlbedo_int(sample.xy) * weight * (1 / ditherTimesSize) * float(hitDepth > 0.5);
+        ssgi      += getAlbedo_int(sample.xy) * weight * sizeInverse * float(hitDepth > 0.5);
     }
 
     ssgi     *= 0.0625;
@@ -132,6 +107,38 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
     occlusion = sq(-occlusion * 0.0625 + 1);
     return vec4(ssgi, occlusion);
 }
+/* vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
+    vec3 viewPos           = toView(screenPos * 2 - 1);
+
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    float depthTolerance   = 0.075/-viewPos.z;
+
+    //vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    vec3 tangent           = normalize(cross(normal, vec3(Bayer8(screenPos.xy * screenSize + vec2(3, -8)) * 2 - 1,
+                                                          Bayer8(screenPos.xy * screenSize) * 2 - 1,
+                                                          Bayer8(screenPos.xy * screenSize + vec2(-5, 1)) * 2 - 1 )));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
+    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
+
+    float occlusion = 0;
+    vec3  ssgi      = vec3(0);
+    vec3  sample;
+    for (int i = 0; i < 16; i++) {
+        sample      = half_sphere_16[i] * ditherTimesSize; 
+        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        sample      = TBN * sample;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
+    
+        float hitDepth = getDepth_int(sample.xy);
+        float hit      = float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+
+        occlusion += hit;
+        ssgi       = getAlbedo_int((sample.xy - screenPos.xy) * 2 + screenPos.xy) * hit;
+    }
+
+    occlusion  = sq(-occlusion * 0.0625 + 1);
+    //ssgi      *= 0.0625;
+    return vec4(ssgi, occlusion);
+} */
 
 // Spins A point around the origin (negate for full coverage)
 vec2 spiralOffset(float x, float expansion) {

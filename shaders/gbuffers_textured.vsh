@@ -1,10 +1,13 @@
 #version 120
 
 #include "/lib/settings.glsl"
+#include "/lib/kernels.glsl"
+
 #ifdef WORLD_CURVE
 #include "/lib/vertex_transform.glsl"
+#else
+#include "/lib/vertex_transform_simple.glsl"
 #endif
-#include "/lib/kernels.glsl"
 
 #ifdef TAA
 uniform int  frameCounter;
@@ -29,7 +32,7 @@ void main() {
 
 	gl_Position = clipPos;
 
-	coord   = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+	coord   = getCoord();
+	lmcoord = getLmCoord();
 	glcolor = gl_Color;
 }

@@ -481,7 +481,7 @@ const vec2 TAAOffsets[6] = vec2[](
     vec2( 0.25, -0.25),
     vec2( 0.0,    0.0)
 );
-/* const vec2 TAAOffsets[6] = vec2[6](
+/* const vec2 TAAOffsets[6] = vec2[](
     vec2( 0.0, -0.25),
     vec2( 0.0,  0.25),
     vec2( 0.0,   0.0),

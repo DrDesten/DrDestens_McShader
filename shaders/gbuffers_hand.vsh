@@ -2,7 +2,7 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/kernels.glsl"
-#include "/lib/vertex_transform.glsl"
+#include "/lib/vertex_transform_simple.glsl"
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;

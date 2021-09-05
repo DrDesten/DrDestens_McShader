@@ -5,7 +5,7 @@ uniform int worldTime;
 #include "/lib/transform.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/labPBR13.glsl"
+#include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/gamma.glsl"
@@ -81,11 +81,12 @@ void main() {
 	#else
 
 		color.rgb 		  *= glcolor.a;
+		vec3 tmp 		   = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
 
 		if (id == 1005) {
-			color.rgb *= 1 + sum(color.rgb) * 0.1 + EMISSION_STRENGTH * 0.05;
+			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
 		}
 		
 	#endif
