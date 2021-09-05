@@ -156,8 +156,15 @@ void main(){
 
     // Reduce opacity and saturation of only water
     if (id == 1001) {
-        color.rgb          = vec3(0);
-        color.a            = 0.01;
+
+        #ifdef WATER_TEXTURE_VISIBLE
+         gamma(color.rgb);
+        #else
+
+            color.rgb          = vec3(0);
+            color.a            = 0.01;
+
+        #endif
 
         #ifdef WATER_NORMALS
 
