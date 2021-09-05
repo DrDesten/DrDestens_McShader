@@ -51,6 +51,9 @@ option.SSR_DEPTH_TOLERANCE=Thickness Estimation Modifier
 option.SSR_DEPTH_TOLERANCE.comment=Increase this if the reflection blind spots annoy you. Influences assumption about how thick a pixel is. No performance impact.
 value.SSR_DEPTH_TOLERANCE.1000=Infinite
 
+option.SSR_REFLECTION_THRESHOLD=Reflection Threshold
+option.SSR_REFLECTION_THRESHOLD.comment=PBR only. Sets the minimum required reflectiveness in order for SSR to enable. Higher values may introduce reflection cutoffs.
+
 option.REFRACTION=Screen Space Refraction
 option.REFRACTION.comment=Distorts things seen through water.
 option.REFRACTION_AMOUNT=Refraction Strength

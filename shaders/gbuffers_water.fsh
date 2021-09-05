@@ -203,6 +203,8 @@ void main(){
             color	           = Material.color;
             surfaceNormal      = Material.normal;
             reflectiveness     = Material.reflectiveness;
+            
+    	    reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.2);
 
         #else
 

@@ -34,11 +34,19 @@ vec3 radClamp(vec3 coord) {
     // Center at 0,0
     coord = coord - 0.5;
     // Calculate oversize vector by subtracting 1 on each axis from the absulute
-    // We just need the length so sing doesnt matter
+    // We just need the length so sign doesnt matter
     vec3 oversize = max(vec3(0), abs(coord) - 0.5);
     coord /= (length(oversize) + 1);
     coord = coord + 0.5;
     return coord;
+}
+
+
+float smoothCutoff(float x, float cutoff, float taper) {
+    if (x > cutoff + taper) {return x;}
+    float a   = cutoff / (taper*taper*taper);
+    float tmp = (x - cutoff - taper);
+    return clamp( (a * tmp) * (tmp * tmp) + x ,0,1);
 }
 
 
