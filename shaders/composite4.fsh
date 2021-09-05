@@ -278,22 +278,6 @@ float mapHeightSimple(float height, float maxVal) {
     return height * -maxVal + maxVal;
 }
 
-vec2 mirrorClamp(vec2 coord) { //Repeats texcoords while mirroring them (without branching)
-
-    // Determines whether an axis has to be flipped or not
-    vec2 reversal = mod(floor(coord), vec2(2));
-    vec2 add      = reversal;
-    vec2 mult     = -reversal * 2 + 1;
-
-    coord         = fract(coord);
-    // Flips the axis
-    // Flip:    1 - coord = -1 * coord + 1
-    // No Flip:     coord =  1 * coord + 0
-    // Using these expressions I can make the flipping branchless
-    coord         = mult * coord + add;
-
-    return coord;
-}
 
 float customLength(vec2 vec, float power) {
     return pow(pow(abs(vec.x), power) + pow(abs(vec.y), power), 1/power);
@@ -396,7 +380,6 @@ void main() {
 
     #endif
 
-
     #if FOG != 0
 
         if (getType(coord) != 50) {
@@ -407,7 +390,7 @@ void main() {
             #if FOG == 1
             float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
             #else
-            float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT, 0, 1);
+            float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT * 5, 0, 1);
             #endif
 
             color           = mix(color, pow(fogColor, vec3(GAMMA)), fog);

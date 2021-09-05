@@ -83,12 +83,16 @@ void main() {
 
 	#else
 
-		color.rgb 		  *= glcolor.a;
 		vec3 tmp 		   = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
+		color.rgb 		  *= glcolor.a;
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
 
-		if (id == 1005) {
+		/* if (id == 1005) {
+			//color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
+			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
+		} */
+		if (lmcoord.x > 14.5/15.) {
 			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
 		}
 		

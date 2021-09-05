@@ -40,6 +40,22 @@ vec3 radClamp(vec3 coord) {
     coord = coord + 0.5;
     return coord;
 }
+vec2 mirrorClamp(vec2 coord) { //Repeats texcoords while mirroring them (without branching)
+
+    // Determines whether an axis has to be flipped or not
+    vec2 reversal = mod(floor(coord), vec2(2));
+    vec2 add      = reversal;
+    vec2 mult     = -reversal * 2 + 1;
+
+    coord         = fract(coord);
+    // Flips the axis
+    // Flip:    1 - coord = -1 * coord + 1
+    // No Flip:     coord =  1 * coord + 0
+    // Using these expressions I can make the flipping branchless
+    coord         = mult * coord + add;
+
+    return coord;
+}
 
 
 float smoothCutoff(float x, float cutoff, float taper) {

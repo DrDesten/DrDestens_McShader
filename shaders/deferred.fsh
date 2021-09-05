@@ -6,6 +6,10 @@
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 
+#ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
+const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
+#endif
+
 uniform float nearInverse;
 uniform float aspectRatio;
 
@@ -75,70 +79,31 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 }
 
 vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
+    float sampleSize  = size / linearDepth * fovScale;
 
-    #ifdef TAA
-     float ditherTimesSize  = (fract(Bayer16(screenPos.xy * screenSize) + frameCounter * 0.1243457) * 0.8 + 0.2) * size;
-    #else
-     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
-    #endif
-    float sizeInverse      = 1/ditherTimesSize;
+    float ao      = 0;
+    vec3  ssgi    = vec3(0);
+    float dither  = fract(Bayer16(screenPos.xy * screenSize) + frameCounter * 0.1);
+    float iDither = dither * 63;
 
-    float occlusion = 0;
-    vec3  ssgi      = vec3(0);
-    vec3  sample;
     for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                   // Converting Sample to screen space, since normals are in view space
-    
-        float expectDepth = linearizeDepthf(sample.z, nearInverse);
-        float hitDepth    = linearizeDepthf(getDepth_int(sample.xy), nearInverse);
-        float weight      = (float(hitDepth > 0.5) * 0.75 + 0.25) * saturate(depthToleranceAttenuation(expectDepth - hitDepth, 1) * 4);
+        int  index   = int( mod(iDither + float(i), 64) );
+        vec2 sample  = blue_noise_disk[ index ] * dither * sampleSize;
+        vec2 sSample = sample + screenPos.xy;
 
-        occlusion += weight;
-        ssgi      += getAlbedo_int(sample.xy) * weight * sizeInverse * float(hitDepth > 0.5);
+        float sampleDepth  = getDepth_int(sSample);
+        float sampleDepthL = linearizeDepthf(sampleDepth, nearInverse);
+
+        //ao += saturate(depthToleranceAttenuation(linearDepth - sampleDepthL, size));
+        ao   += saturate(linearDepth - sampleDepthL);
+        ssgi += texture2D(colortex0, mirrorClamp(sample * 3 + screenPos.xy), -3).rgb * saturate(1 - abs(sampleDepthL - linearDepth)) / sqmag(blue_noise_disk[index]);
     }
 
-    ssgi     *= 0.0625;
-    ssgi      = sq(ssgi) * 0.5;
-    occlusion = sq(-occlusion * 0.0625 + 1);
-    return vec4(ssgi, occlusion);
+    ao    = 1 - (ao / 16);
+    ssgi  = saturate(sq(ssgi * 0.02));
+    return vec4(ssgi, ao);
 }
-/* vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
-
-    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
-    float depthTolerance   = 0.075/-viewPos.z;
-
-    //vec3 tangent           = normalize(cross(normal, vec3(0,0,1)));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    vec3 tangent           = normalize(cross(normal, vec3(Bayer8(screenPos.xy * screenSize + vec2(3, -8)) * 2 - 1,
-                                                          Bayer8(screenPos.xy * screenSize) * 2 - 1,
-                                                          Bayer8(screenPos.xy * screenSize + vec2(-5, 1)) * 2 - 1 )));               //Simply Creating A orthogonal vector to the normals, actual tangent doesnt really matter
-    mat3 TBN               = mat3(tangent, cross(tangent, normal), normal);
-
-    float occlusion = 0;
-    vec3  ssgi      = vec3(0);
-    vec3  sample;
-    for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
-    
-        float hitDepth = getDepth_int(sample.xy);
-        float hit      = float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-
-        occlusion += hit;
-        ssgi       = getAlbedo_int((sample.xy - screenPos.xy) * 2 + screenPos.xy) * hit;
-    }
-
-    occlusion  = sq(-occlusion * 0.0625 + 1);
-    //ssgi      *= 0.0625;
-    return vec4(ssgi, occlusion);
-} */
 
 // Spins A point around the origin (negate for full coverage)
 vec2 spiralOffset(float x, float expansion) {
@@ -203,7 +168,7 @@ void main() {
                 vec3 normal = getNormal(coord);
 
                 #ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
-                    vec4 ssao_gi = AmbientOcclusionHIGH_SSGI(vec3(coord, depth), normal, 1);
+                    vec4 ssao_gi = AmbientOcclusionHIGH_SSGI(vec3(coord, depth), normal, 0.5);
                     color       += ssao_gi.rgb;
                     color       *= ssao_gi.a * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
                 #else
