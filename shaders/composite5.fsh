@@ -328,7 +328,7 @@ void main() {
     #else
         vec3 color          = getAlbedo(coord);
     #endif
-q
+
     #ifdef BLOOM
         vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x) * BLOOM_AMOUNT;
     #endif

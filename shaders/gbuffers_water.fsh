@@ -1,12 +1,14 @@
 #version 130
 
 uniform int worldTime;
+uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/framebuffer.glsl"
 #include "/lib/unpackPBR.glsl"
+#include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 
@@ -158,7 +160,7 @@ void main(){
     if (id == 1001) {
 
         #ifdef WATER_TEXTURE_VISIBLE
-         gamma(color.rgb);
+         color.rgb = sq(color.rgb * texture2D(lightmap, lmcoord).rgb) * 0.75;
         #else
 
             color.rgb          = vec3(0);
@@ -176,6 +178,14 @@ void main(){
             vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
 
             surfaceNormal      = normalize(tbn * noiseNormals);
+
+            /* vec3 heights = vec3(
+                sq(mean(texture(colortex0, coord))),
+                sq(mean(texture(colortex0, coord + vec2(atlasSizeInverse.x * 0.2, 0)))),
+                sq(mean(texture(colortex0, coord + vec2(0,-atlasSizeInverse.y * 0.2))))
+            );
+            vec3 normalMap = generateNormals(heights, 1);
+            surfaceNormal  = normalize(tbn * normalMap); */
 
         #endif
 
