@@ -1,35 +1,29 @@
-#version 130
+#version 120
 
 uniform int worldTime;
-uniform vec2 atlasSizeInverse;
+//uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/transform.glsl"
-#include "/lib/framebuffer.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
 
-//uniform sampler2D texture;
+uniform sampler2D texture;
 uniform sampler2D lightmap;
 
 uniform float frameTimeCounter;
 
-uniform float far;
-uniform float near;
-uniform int   isEyeInWater;
+varying float blockId;
 
-in float blockId;
+varying vec2 coord;
+varying vec2 lmcoord;
+varying vec3 worldPos;
+varying vec3 viewDir;
 
-in vec2 coord;
-in vec2 lmcoord;
-in vec3 worldPos;
-in vec3 viewDir;
-
-in vec4 glcolor;
-in mat3 tbn;
+varying vec4 glcolor;
+varying mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
@@ -150,7 +144,7 @@ vec3 waveNormals(vec2 coord, float strength) {
 #endif
 
 void main(){
-	vec4 color       = texture2D(colortex0, coord, 0) * vec4(glcolor.rgb, 1);
+	vec4 color       = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;
@@ -180,9 +174,9 @@ void main(){
             surfaceNormal      = normalize(tbn * noiseNormals);
 
             /* vec3 heights = vec3(
-                sq(mean(texture(colortex0, coord))),
-                sq(mean(texture(colortex0, coord + vec2(atlasSizeInverse.x * 0.2, 0)))),
-                sq(mean(texture(colortex0, coord + vec2(0,-atlasSizeInverse.y * 0.2))))
+                sq(mean(texture2D(texture, coord))),
+                sq(mean(texture2D(texture, coord + vec2(atlasSizeInverse.x * 0.2, 0)))),
+                sq(mean(texture2D(texture, coord + vec2(0,-atlasSizeInverse.y * 0.2))))
             );
             vec3 normalMap = generateNormals(heights, 1);
             surfaceNormal  = normalize(tbn * normalMap); */
