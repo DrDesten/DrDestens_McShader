@@ -31,48 +31,6 @@ vec3 chromaticAberrationTint(vec2 relPos) {
 
 //Depth of Field
 
-/* vec3 bokehBlur(vec2 coord, float size, float stepsize) {
-    vec3 pixelColor = vec3(0);
-    float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-
-
-    // Low Quality
-    #if DOF_KERNEL_SIZE == 1
-        const int kernelSize = 4;
-        const vec2[] kernel  = circle_blur_4;
-
-    // Medium Quality
-    #elif DOF_KERNEL_SIZE == 2
-        const int kernelSize = 16;
-        const vec2[] kernel = circle_blur_16;
-    
-    // High Quality
-    #elif DOF_KERNEL_SIZE == 3
-        const int kernelSize = 32;
-        const vec2[] kernel  = circle_blur_32;
-
-    // Very High Quality
-    #elif DOF_KERNEL_SIZE == 4
-        const int kernelSize = 64;
-        const vec2[] kernel  = circle_blur_64;
-
-    #endif
-
-    #ifdef DOF_DITHER
-        // Use Bayer Dithering to vary the DoF, helps with small kernels
-        vec2 dither = (vec2(Bayer4(coord * screenSize), Bayer4(coord * screenSize + 1)) - 0.5) * (size * inversesqrt(kernelSize * .25));
-    #else
-        vec2 dither = vec2(0);
-    #endif
-
-    for (int i = 0; i < kernelSize; i++) {
-        pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
-    }
-
-
-    pixelColor /= kernelSize;
-    return pixelColor;
-} */
 vec3 bokehBlur(vec2 coord, float size) {
     vec3 pixelColor = vec3(0);
     float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)

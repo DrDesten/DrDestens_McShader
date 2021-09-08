@@ -22,26 +22,9 @@ void Vignette(inout vec3 color) { //Darken Screen Borders
     color.rgb *= 1 - dist;
 }
 
-vec2 scaleCoord(vec2 coord, float scale) { //Scales Coordinates from Screen Center
-    coord.st -= 0.5f; //Make 0/0 center of screen
-
-    coord.st *= scale; //Scaling, divide to make larger number scale in
-
-    //Fix Borders (mirror)
-    //If the coordinates exeed maximum (x-Axis):
-    if (coord.s > 0.5) {coord.s = 1 - coord.s;}
-    if (coord.s < -0.5) {coord.s = -1 - coord.s;}
-    //If the coordinates exeed maximum (y-Axis):
-    if (coord.t > 0.5) {coord.t = 1 - coord.t;}
-    if (coord.t < -0.5) {coord.t = -1 - coord.t;}
-
-
-    coord.st += 0.5f; //Reverse translation
-    return coord;
-}
-
 vec2 scaleCoord_f(vec2 coord, float scale) { //Scales Coordinates from Screen Center
-    coord = (coord * scale) - (0.5 * (scale - 1));
+    //coord = (coord * scale) - (0.5 * (scale - 1));
+    coord = scale * (coord - 0.5) + 0.5;
     return clamp(coord, 0, 0.999999);
 }
 
@@ -49,22 +32,23 @@ vec2 lensDistorsion(vec2 coord, float scale, float distorsion) { //Distorts Imag
     float dist = distance(coord, vec2(0.5));
     dist = pow(dist, 2);
 
-    coord = scaleCoord(coord, scale - (dist*distorsion));
+    coord = mirrorClamp(coord * (scale - (dist*distorsion)));
 
     return coord;
 }
 
-vec3 radialBlur(vec2 coord, int samples, float amount) {
-    vec3 col = vec3(0);
-    for (int i = 0; i < samples; i++) {
-        col += getAlbedo(scaleCoord_f(coord, 1 - ((float(i) / float(samples)) * amount)));
+vec3 radialBlur(vec2 coord, float samples, float amount) {
+    vec3  col  = vec3(0);
+    float sInv = 1 / samples;
+    float mult = sInv * amount;
+    for (float i = 0; i < samples; i++) {
+        col += getAlbedo(scaleCoord_f(coord, (-i * mult) + 1));
     }
-    return col / float(samples);
+    return col * sInv;
 }
 
 vec3 ChromaticAbberation(vec2 coord, float amount) {
     vec3 col;
-
     amount = distance(coord, vec2(0.5)) * amount;
 
     //Red Channel
@@ -79,8 +63,7 @@ vec3 ChromaticAbberation(vec2 coord, float amount) {
 
 vec3 ChromaticAbberation_HQ(vec2 coord, float amount, int samples) {
     vec3 col;
-    vec2 tmp = coord - .5;
-    amount = dot(tmp, tmp) * amount;
+    amount = sqmag(coord - 0.5) * amount;
 
     float dither = (Bayer4(coord * screenSize) * .75 + .5);
 
