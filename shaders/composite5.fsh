@@ -218,7 +218,7 @@ vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
 
     return texture(colortex0, bloomCoord).rgb;
 }
-vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
+/* vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
 
     // Get Tile Coordinates
     vec2 bloomCoord = coord * scale;
@@ -262,6 +262,37 @@ vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
     // Reduces Bloom artifacts on IntelHD (seems to be a hardware mipmapping issue)
     return (bloomCoord == clamp(bloomCoord, pixelStep, 1 - pixelStep)) ? color : vec3(0);
     //return color;
+} */
+vec3 getBloomTilesBlur(vec2 coord, float tiles, float padding) {
+
+    float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
+    // Log2(x) returns the exponent necessary to get to the coordinate.
+    // we use 1-x because we want to start from the left
+    // invert because the exponents are negative
+    // ceil() to get the tile number
+
+    float xOffset    = 1 - exp2( floor( log2(2 - 2 * coord.x) ) ); // Tbh I'm not even sure how this works (but it does)
+    float tileScale  = exp2( currentTile ); // 2^tile gives us the scaling factor for each tile
+    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
+
+    if (tileCoords != saturate(tileCoords)) {
+        return vec3(0);
+    }
+
+    vec2 stepSize = screenSizeInverse * tileScale * 1.5;
+    vec3 color    = vec3(0);
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            
+            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
+            vec2  offs   = vec2(x, y) * stepSize;
+
+            color       += textureLod(colortex0, tileCoords + offs, floor(currentTile + 0.5)).rgb * weight;
+
+        }
+    }
+
+    return color;
 }
 
 #ifdef BLOOM
@@ -288,7 +319,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        vec3 bloomColor = getBloomTilesBlur(coord, 4, 6, 10 / screenSize.x) * BLOOM_AMOUNT;
+        vec3 bloomColor = getBloomTilesBlur(coord, 6, 10 / screenSize.x) * BLOOM_AMOUNT;
     #endif
 
     //Pass everything forward
