@@ -28,3 +28,24 @@ vec3 getSkyColor4_gamma(vec3 viewPos) {
     vec3 color = getSkyColor4(viewPos);
     return pow(color, vec3(2.2));
 }
+
+vec3 getSkyColor5(vec3 viewPos, float rain) {
+    vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
+    float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
+    
+    float daynight = -sin(worldTime / 24000. * TWO_PI) * 0.5 + 0.5;                  // Smooth day-to-night transition curve
+    //float sunset   =  pow( cos(worldTime / 24000. * TWO_PI * 2) * 0.5 + 0.5, 20 );  // Sunset curve (power adjusts the sunset length)
+
+    //Day
+    const vec3 sky_up_day   = vec3(0.1, 0.35, 1.0); //Color of upper part of sky
+    //Night
+    const vec3 sky_up_night = vec3(0.1, 0.13, 0.25); //Color of upper part of sky
+    
+    vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
+    sky_up      = mix(sky_up, fogColor * 0.5, rain);
+    return mix(fogColor, sky_up, viewHeight); //Get sky
+}
+vec3 getSkyColor5_gamma(vec3 viewPos, float rain) {
+    vec3 color = getSkyColor5(viewPos, rain);
+    return pow(color, vec3(2.2));
+}

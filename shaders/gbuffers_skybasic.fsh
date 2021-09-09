@@ -7,6 +7,9 @@ uniform mat4 gbufferModelViewInverse;
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
 
+uniform float wetness; 
+uniform float rainStrength; 
+
 in vec2 coord;
 in vec3 viewpos;
 
@@ -58,10 +61,12 @@ void main() {
     float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
     moonDot        = pow(moonDot, 20) * .25;
 
-    vec3 color = getSkyColor4(viewpos); //Get sky
+    vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
     color     *= 1 + sunDot + moonDot;
 
     gamma(color.rgb);
+
+    //color.rgb = vec3(rainStrength);
 
     gl_FragData[0] = vec4(color, 1.0);
     gl_FragData[1] = vec4(0, vec3(1));

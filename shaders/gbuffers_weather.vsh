@@ -21,7 +21,7 @@ void main() {
 	#endif
 
 	gl_Position = clipPos;
-
+	
 	coord   = getCoord();
 	lmcoord = getLmCoord();
 	glcolor = gl_Color;

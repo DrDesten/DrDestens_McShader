@@ -5,6 +5,9 @@
 
 uniform sampler2D texture;
 
+uniform float rainStrength;
+uniform vec3  fogColor;
+
 uniform float lightBrightness;
 uniform vec3  sunPosition;
 uniform vec3  moonPosition;
@@ -30,7 +33,9 @@ void main() {
 	// diffuse
 	float diffuse = clamp(dot(normal, lightPos), 0, 1);
 
-	color.rgb *= vec3(diffuse + 0.75 * (vol_1 + vol_2));
+	color.rgb *= diffuse + 0.75 * (vol_1 + vol_2);
+
+	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
 	gl_FragData[0] = color; //color
 	gl_FragData[1] = vec4(normal, 1);   //normals

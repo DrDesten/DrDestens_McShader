@@ -223,7 +223,7 @@ void main() {
 
         // SSR for other reflective surfaces
         float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
-        if (reflectiveness > 0.5/255) {
+        if (reflectiveness > 0.6/255) {
 
             //reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
 
