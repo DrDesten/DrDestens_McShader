@@ -271,8 +271,8 @@ vec3 getBloomTilesBlur(vec2 coord, float tiles, float padding) {
     // invert because the exponents are negative
     // ceil() to get the tile number
 
-    float xOffset    = 1 - exp2( floor( log2(2 - 2 * coord.x) ) ); // Tbh I'm not even sure how this works (but it does)
-    float tileScale  = exp2( currentTile ); // 2^tile gives us the scaling factor for each tile
+    float xOffset    = 1 - exp2( 1 - currentTile ); // Tbh I'm not even sure how this works (but it does)
+    float tileScale  = exp2( currentTile );         // 2^tile gives us the scaling factor for each tile
     vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
 
     if (tileCoords != saturate(tileCoords)) {

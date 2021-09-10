@@ -85,10 +85,10 @@ void main() {
     #ifdef BLOOM
 
         vec3 bloom = vec3(0);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             bloom += readBloomTile(coord, i, 10 * screenSizeInverse.x);
         }
-        bloom  = bloom / (5. * BLOOM_AMOUNT);
+        bloom  = bloom / (7. * BLOOM_AMOUNT);
         bloom  = sq(bloom) * BLOOM_AMOUNT;
         color += bloom;
 

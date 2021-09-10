@@ -139,10 +139,11 @@ void main() {
         vec3 color = getAlbedo_int(unJitterCoord);
     #endif
 
+
     #ifdef TAA 
 
         float type              = floor(getType(unJitterCoord) + 0.5);
-        float stencil           = type == 51 || type == 52 ? 1.0 : 0.0;
+        float stencil           = float(type == 51 || type == 52);
 
         vec3  currentFrameColor = color;
         float depth             = getDepth_int(unJitterCoord);
@@ -152,7 +153,9 @@ void main() {
         
         vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
         vec3  lastFrameColor    = lastFrame.rgb;
-        float lastFrameStencil  = lastFrame.a;
+
+        float movementPotential = max(lastFrame.a, stencil);
+        float lastFrameStencil  = float(lastFrame.a > .01); // The stencil shows what was at some point a moveable object. Lower values correspond to previous points in time
 
         vec3 lowerThresh, higherThresh;
         neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
@@ -166,7 +169,7 @@ void main() {
         float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25;
         float moveErrorCoarse = moveErrorFine * 0.04;
 
-        float blend   = saturate(boundsError + moveErrorCoarse + (spikeError * (moveErrorFine + 0.5)) + stencilError + TAA_BLEND);
+        float blend   = saturate(boundsError + moveErrorCoarse + spikeError * (moveErrorFine + lastFrameStencil) + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
         vec3 TAAcolor = color;
@@ -181,7 +184,7 @@ void main() {
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
-    FD1 = vec4(TAAcolor, stencil);
+    FD1 = vec4(TAAcolor, stencil + movementPotential * 0.5);
     #endif
 }
 
