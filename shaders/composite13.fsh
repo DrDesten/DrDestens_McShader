@@ -164,12 +164,11 @@ void main() {
         //////////////////////////////////////////////////////////////////////
 
         float boundsError     = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float stencilError    = float((stencil > 0.5) ^^ (lastFrameStencil > 0.5));
         float spikeError      = float(any( lessThan(lastFrameColor + 0.01, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.01, higherThresh) ));
-        float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25;
+        float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25; 
         float moveErrorCoarse = moveErrorFine * 0.04;
 
-        float blend   = saturate(boundsError + moveErrorCoarse + spikeError * (moveErrorFine + lastFrameStencil) + TAA_BLEND);
+        float blend   = saturate(boundsError + moveErrorCoarse + spikeError + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
         vec3 TAAcolor = color;
@@ -181,6 +180,8 @@ void main() {
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
 
     color = invgamma(color);
+
+    //color = vec3(moveErrorFine);
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 

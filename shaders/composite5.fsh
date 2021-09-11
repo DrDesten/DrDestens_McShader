@@ -34,8 +34,15 @@ vec3 chromaticAberrationTint(vec2 relPos) {
 vec3 bokehBlur(vec2 coord, float size) {
     vec3 pixelColor = vec3(0);
     float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-    float depth = getDepth(coord);
-    vec3  color = getAlbedo(coord);
+
+    #ifdef DOF_DEPTH_REJECTION
+        float depth   = getDepth(coord);
+        float lDepth  = linearizeDepth(depth, near, far);
+        float lcDepth = linearizeDepth(centerDepthSmooth, near, far);
+
+        pixelColor    = textureLod(colortex0, coord, lod + 1).rgb;
+    #endif
+
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
@@ -86,8 +93,8 @@ vec3 bokehBlur(vec2 coord, float size) {
         for (int i = 0; i < kernelSize; i++) {
             #ifdef DOF_DEPTH_REJECTION
             float sampleDepth = getDepth_int(coord + (kernel[i] * size + dither));
-            float weight      = float( depth - 0.01 > sampleDepth || sampleDepth < 0.56);
-            pixelColor        += mix(textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb, pixelColor/(i+1) , weight);
+            float weight      = saturate(abs(depth - sampleDepth) * 100) * saturate(abs(lDepth - lcDepth));
+            pixelColor       += mix(textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb, pixelColor / max(i, 1) , weight);
             #else
             pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
             #endif
@@ -218,51 +225,6 @@ vec3 getBloomTiles(vec2 coord, float scale, int tiles, float padding) {
 
     return texture(colortex0, bloomCoord).rgb;
 }
-/* vec3 getBloomTilesBlur(vec2 coord, float scale, int tiles, float padding) {
-
-    // Get Tile Coordinates
-    vec2 bloomCoord = coord * scale;
-    
-    int currentTile = -1;
-    for (int i = 1; i < tiles; i++) {
-
-        float padd = padding * exp2(i-1) * scale;
-
-        // Check if the x-coordinate exceeds 1 (out of bounds)
-        if (bloomCoord.x > 1 + padd) {
-            // Bring back by 1 (back into bounds)
-            bloomCoord.x -= 1 + padd;
-            // Half the size of the tile
-            bloomCoord   *= 2;
-        } else {
-            currentTile   = i;
-            break;
-        }
-
-    }
-    
-    if (bloomCoord != saturate(bloomCoord)) {
-        return vec3(0);
-    }  
-
-    // Gaussian Blur
-    vec2 pixelStep = screenSizeInverse * exp2(currentTile - 1) * scale * 1.5;
-
-    vec3 color = vec3(0);
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-
-            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
-            vec2  offs   = vec2(x, y) * pixelStep;
-
-            color       += texture(colortex0, bloomCoord + offs).rgb * weight;
-        }
-    }
-
-    // Reduces Bloom artifacts on IntelHD (seems to be a hardware mipmapping issue)
-    return (bloomCoord == clamp(bloomCoord, pixelStep, 1 - pixelStep)) ? color : vec3(0);
-    //return color;
-} */
 vec3 getBloomTilesBlur(vec2 coord, float tiles, float padding) {
 
     float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
