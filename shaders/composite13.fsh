@@ -164,7 +164,7 @@ void main() {
         //////////////////////////////////////////////////////////////////////
 
         float boundsError     = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float spikeError      = float(any( lessThan(lastFrameColor + 0.01, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.01, higherThresh) ));
+        float spikeError      = float(any( lessThan(lastFrameColor + 0.005, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.005, higherThresh) ));
         float moveErrorFine   = length( (coord - reprojectPos.xy) * screenSize ) * 0.25; 
         float moveErrorCoarse = moveErrorFine * 0.04;
 
@@ -180,8 +180,6 @@ void main() {
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
 
     color = invgamma(color);
-
-    //color = vec3(moveErrorFine);
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 

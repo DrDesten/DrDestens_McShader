@@ -11,8 +11,10 @@ varying vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
-	#ifdef BLOOM
-	color.rgb *= 1 + (float(color.r > 0.5));
+	#ifdef OVERWORLD
+	 #ifdef BLOOM
+	  color.rgb *= 1 + (float(color.r > 0.5));
+	 #endif
 	#endif
 	
     gamma(color.rgb);

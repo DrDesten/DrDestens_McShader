@@ -38,6 +38,7 @@ in vec2 coord;
 uniform float near;
 uniform float far;
 uniform float frameTimeCounter;
+uniform float rainStrength;
 uniform int   isEyeInWater;
 
 struct position { // A struct for holding positions in different spaces
@@ -55,10 +56,10 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cube
     vec3 reflection   = reflect(pos.view, normal);
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
-    //return vec4(getSkyColor4_gamma(reflection), 0);
-    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor4_gamma(reflection), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
+    //return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
+    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor5_gamma(reflection, rainStrength), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
     if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
-        return vec4(getSkyColor4_gamma(reflection), 0);
+        return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
     }
     return vec4(getAlbedo_int(screenPos.xy), 1);
 }
@@ -68,7 +69,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getSkyColor4_gamma(viewReflection - pos.view), 0);
+        return vec4(getSkyColor5_gamma(viewReflection - pos.view, rainStrength), 0);
     }
 
     // Project to Screen Space
@@ -126,7 +127,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
         }
     }
 
-    return vec4(getSkyColor4_gamma(viewReflection - pos.view), 0);
+    return vec4(getSkyColor5_gamma(viewReflection - pos.view, rainStrength), 0);
 }
 
 

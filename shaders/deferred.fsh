@@ -122,7 +122,7 @@ float BSLAO(vec3 screenPos, float radius) {
     #endif 
     float depth  = linearizeDepthf(screenPos.z, nearInverse);
 
-    float size   = clamp(aspectRatio * radius * gbufferProjection[1][1] * 1/depth, 0.01, 0.2);
+    float size   = clamp(aspectRatio * radius * gbufferProjection[1][1] * 1/depth, 0.001, 0.2);
 
     float occlusion = 0.0;
     float sample    = 0.3 + dither;

@@ -315,11 +315,14 @@ void main() {
             POMPos.xy      = mirrorClamp(POMPos.xy);
             float POMdepth = getDepth_int(POMPos.xy);
 
-            bool error = POMdepth < 0.56 /* || POMPos.z > POMdepth + 0.005 */ || sqmag(playerPos) > 500;
+            float distSQ   = sqmag(playerPos);
+            bool error = POMdepth < 0.56 /* || POMPos.z > POMdepth + 0.005 */ || distSQ > 500;
             if (!error) {
 
                 color  = getAlbedo_int(POMPos.xy);
-                color *= texture(colortex1, POMPos.xy).g;
+
+                float distFade = saturate(map(distSQ, 300, 500, 1, 0.2));
+                color *= texture(colortex1, POMPos.xy).g * distFade + (1 - distFade);
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);
@@ -334,6 +337,7 @@ void main() {
 
     #endif
 
+    #ifdef OVERWORLD
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
@@ -364,22 +368,23 @@ void main() {
 
                 if (isEyeInWater != 0) {
                     if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1.5 / GODRAY_STEPS;
+                        light    -= 1. / GODRAY_STEPS;
                     }
                 } else {
                     if (texture(depthtex0, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1.5 / GODRAY_STEPS;
+                        light    -= 1. / GODRAY_STEPS;
                     }
                 }
 
             }
 
             // Exponential falloff (also making it FOV independent)
-            light *= exp2(-sqmag(rayCorrected / fovScale) * 10);
+            light *= exp2(-sqmag(rayCorrected / fovScale) * 5);
 
             color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
         }
 
+    #endif
     #endif
 
     #if FOG != 0
@@ -391,9 +396,9 @@ void main() {
             float dist      = sqmag(viewPos) * float(depth < 1);
 
             #if FOG == 1
-             float fog       = clamp(dist * 3e-6 * FOG_AMOUNT, 0, 1);
+             float fog       = saturate(dist * 3e-6 * FOG_AMOUNT);
             #else
-             float fog       = clamp(dist / sq(far * 2) * FOG_AMOUNT * 5, 0, 1);
+             float fog       = saturate((FOG_AMOUNT * dist) / sq(far));
             #endif
 
             color           = mix(color, getSkyColor5_gamma(viewPos, rainStrength), fog);

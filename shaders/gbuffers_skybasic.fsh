@@ -51,15 +51,23 @@ vec3 rayleigh(float dotp, vec3 coeff) {
 /* DRAWBUFFERS:03 */
 void main() {
 
-    vec3  viewDir  = normalize(viewpos);
-    
-    float sunDot   = clamp(dot(viewDir, normalize(sunPosition)), 0, 1);
-    sunDot         = pow(sunDot, 15) * .5;
-    float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
-    moonDot        = pow(moonDot, 20) * .25;
+    #ifdef OVERWORLD
 
-    vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
-    color     *= 1 + sunDot + moonDot;
+        vec3  viewDir  = normalize(viewpos);
+        
+        float sunDot   = clamp(dot(viewDir, normalize(sunPosition)), 0, 1);
+        sunDot         = pow(sunDot, 15) * .5;
+        float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
+        moonDot        = pow(moonDot, 20) * .25;
+
+        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
+        color     *= 1 + sunDot + moonDot;
+
+    #elif defined END
+
+        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
+
+    #endif
 
     gamma(color.rgb);
 
