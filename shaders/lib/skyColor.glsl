@@ -36,6 +36,15 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
         const vec3 nether_sky = vec3(1,0,0);
         return fogColor;
 
+    #elif defined END 
+
+        vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
+        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
+
+        const vec3 end_sky_up   = vec3(0.2,0,0.3);
+        const vec3 end_sky_down = vec3(0.05,0,0.1);
+        return mix(end_sky_down, end_sky_up, viewHeight);
+
     #else
 
         vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;

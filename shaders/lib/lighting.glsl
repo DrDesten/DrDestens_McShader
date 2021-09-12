@@ -80,6 +80,17 @@ vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
 
     return vec4(BRDF, reflectiveness);
 }
+vec4 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+    float NdotL = clamp(dot(N, L), 0, 1);
+    float NdotV = clamp(dot(N, V), 0, 1);
+
+    float radiance = 5;
+    vec3  BRDF     = (albedo / PI) * radiance * NdotL;
+    
+    float reflectiveness = Fresnel(NdotV, (f0.r + f0.g + f0.b) * 0.33333333333);
+
+    return vec4(BRDF, reflectiveness);
+}
 
 vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
     float through = clamp(dot(-V, L), 0, 1);
@@ -177,13 +188,19 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
     vec3  viewDir    = normalize(-viewpos);
 
     // Get PBR Material
-	vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+    #ifdef OVERWORLD
+	 vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+    #else
+	 vec4 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+    #endif
+
     BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
+    
     #ifdef SUBSURAFCE_SCATTERING
-    if (subsurf >= 0.1) {
+     if (subsurf >= 0.1) {
         vec3 SSSc   = simpleSubsurface2(color.rgb, normal, viewDir, lightDir, subsurf) * brightness;
         BRDF.rgb   += SSSc;
-    }
+     }
     #endif
 
     // Emission and Ambient Light
