@@ -174,12 +174,15 @@ void main() {
         vec3 TAAcolor = color;
 
     #endif
-    
-    color = saturation(color, SATURATION);
+
 
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
 
     color = invgamma(color);
+
+    color = contrast(color, 0);
+
+    color = saturation(color, SATURATION);
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
