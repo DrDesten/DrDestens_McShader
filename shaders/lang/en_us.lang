@@ -40,9 +40,9 @@ value.DOF_KERNEL_SIZE.4=Highest
 
 screen.SSR=Screen Space Reflections
 
-option.SSR_MODE=::
-value.SSR_MODE.0=Raytraced §r:::
-value.SSR_MODE.1=Cubemap-Like §r:::
+option.SSR_MODE=Reflection Mode
+value.SSR_MODE.0=Raytraced
+value.SSR_MODE.1=Cubemap-Like
 
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower is faster.
@@ -87,8 +87,6 @@ option.CHROMATIC_ABERRATION_AMOUNT=Chromatic Aberration
 option.CHROMATIC_ABERRATION_AMOUNT.comment=Color Diffraction. To enable Depth-of-Field-Based Chromatic Aberration, turn on Depth of Field as well.
 value.CHROMATIC_ABERRATION_AMOUNT.0=§cOFF
 
-option.SATURATION=Saturation
-
 option.BLOOM=Bloom
 option.BLOOM.comment=Creates a glow around bright objects. Looks nice ;).
 option.BLOOM_AMOUNT=Bloom Strength
@@ -112,9 +110,6 @@ value.SSAO_QUALITY.2=High
 
 option.SSAO_STRENGTH=SSAO Strength
 
-option.GODRAYS=Godrays
-option.GODRAY_STRENGTH=Godray Strength
-option.GODRAY_STEPS=Godray Steps
 
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
@@ -154,6 +149,36 @@ option.POM_DEPTH.comment=Specifies how deep the POM goes. Values over 0.15 resul
 
 option.PBR_AMBIENT_LIGHT_MULTIPLIER=Ambient light multiplier
 
+
+///////////////////////////////////////////////////////////
+// ATMOSPHERICS
+///////////////////////////////////////////////////////////
+
+screen.ATMOSPHERE=Atmospherics
+
+option.GODRAYS=Godrays
+option.GODRAY_STRENGTH=Godray Strength
+option.GODRAY_STEPS=Godray Steps
+
+option.FOG=Fog
+value.FOG.0=§cOFF
+value.FOG.1=Normal
+value.FOG.2=Adaptive
+option.FOG_AMOUNT=Fog Amount
+
+
+///////////////////////////////////////////////////////////
+// CAMERA
+///////////////////////////////////////////////////////////
+
+screen.CAMERA=Camera and Tonemapping
+
+option.EXPOSURE=Exposure
+
+
+option.SATURATION=Saturation
+
+
 ///////////////////////////////////////////////////////////
 // MISC
 ///////////////////////////////////////////////////////////
@@ -163,11 +188,6 @@ screen.MISC=Other Stuff
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
 
-option.FOG=Fog
-value.FOG.0=§cOFF
-value.FOG.1=Normal
-value.FOG.2=Adaptive
-option.FOG_AMOUNT=Fog Amount
 
 option.WAVY_BLOCKS=Wavy Blocks
 
