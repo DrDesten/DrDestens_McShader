@@ -346,8 +346,7 @@ void main() {
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
-            vec3 sunClip      = tmp.xyz / tmp.w;
-            vec2 sunScreen    = sunClip.xy * .5 + .5;
+            vec2 sunScreen    = (tmp.xy / tmp.w) * .5 + .5;
 
             // Create ray pointing from the current pixel to the sun
             vec2 ray          = sunScreen - coord;
@@ -398,7 +397,7 @@ void main() {
             #if FOG == 1
              float fog       = saturate(dist * 3e-6 * FOG_AMOUNT);
             #else
-             float fog       = saturate((FOG_AMOUNT * dist) / sq(far));
+             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
             #endif
 
             color           = mix(color, getSkyColor5_gamma(viewPos, rainStrength), fog);

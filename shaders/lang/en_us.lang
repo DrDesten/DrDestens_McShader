@@ -38,7 +38,7 @@ value.DOF_KERNEL_SIZE.4=Highest
 // SCREEN SPACE REFLECTIONS
 ///////////////////////////////////////////////////////////
 
-screen.SSR=Screen Space Reflections
+screen.SSR=Reflections
 
 option.SSR_MODE=Reflection Mode
 value.SSR_MODE.0=Raytraced
@@ -75,7 +75,6 @@ option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Adde
 option.WATER_NORMALS_SIZE=Bump Size
 
 option.WATER_TEXTURE_VISIBLE=Water Texture
-
 
 ///////////////////////////////////////////////////////////
 // POST-PROCESSING
@@ -175,6 +174,11 @@ screen.CAMERA=Camera and Tonemapping
 
 option.EXPOSURE=Exposure
 
+option.TONEMAP=Tonemapping
+value.TONEMAP.1=Custom Reinhard
+value.TONEMAP.2=Unreal
+
+option.CONTRAST=Contrast
 
 option.SATURATION=Saturation
 
@@ -198,6 +202,8 @@ option.HAND_INVISIBILITY_EFFECT.comment=Distorts handheld objects when invisible
 
 option.WORLD_CURVE=World Curvature
 option.WORLD_CURVE_RADIUS=World Radius
+
+option.WHITE_WORLD=White World
 
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###

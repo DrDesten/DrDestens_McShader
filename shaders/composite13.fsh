@@ -81,6 +81,9 @@ vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
 
+// TONEMAPPING
+/////////////////////////////////////////////////////////////////////////////////////////
+
 vec3 reinhard_tonemap(vec3 color, float a) {
     return color / (a + color);
 }
@@ -96,12 +99,18 @@ vec3 reinhard_jodie_tonemap(vec3 color, float a) {
 vec3 reinhard_sqrt_tonemap(vec3 color, float a) {
     return color / sqrt(color * color + a);
 }
+
+
 vec3 unreal_tonemap(vec3 color) {
   return color / (color + 0.155) * 1.019;
 }
+
+
 vec3 exp_tonemap(vec3 color, float a) {
     return 1 - exp(-color * a);
 }
+
+
 
 float depthToleranceAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
@@ -176,13 +185,19 @@ void main() {
     #endif
 
 
+    #if TONEMAP == 1
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
-
     color = invgamma(color);
+    #elif TONEMAP == 2
+    color = unreal_tonemap(color * EXPOSURE); // Tone mapping
+    #endif
 
-    color = contrast(color, 0);
-
-    color = saturation(color, SATURATION);
+    #if CONTRAST != 0
+    color = contrast(color, contrastValue);
+    #endif
+    #if SATURATION != 50
+    color = saturation(color, saturationValue);
+    #endif
 
     FD0 = vec4(color, 1.0);
     #ifdef TAA 
