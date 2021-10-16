@@ -4,22 +4,6 @@ const float PI      = 3.14159265358979323846;
 const float HALF_PI = 1.57079632679489661923;
 const float PHI     = 1.61803398874989484820459;
 
-float sinf(float x) {
-    x *= 0.159155;
-    x -= floor(x);
-    float xx = x * x;
-    float y = -6.87897;
-    y = y * xx + 33.7755;
-    y = y * xx - 72.5257;
-    y = y * xx + 80.5874;
-    y = y * xx - 41.2408;
-    y = y * xx + 6.28077;
-    return x * y;
-}
-float cosf(float x) {
-    return sinf(x + 1.5708);
-}
-
 vec2 radClamp(vec2 coord) {
     // Center at 0,0
     coord = coord - 0.5;
@@ -45,7 +29,7 @@ vec2 mirrorClamp(vec2 coord) { //Repeats texcoords while mirroring them (without
     // Determines whether an axis has to be flipped or not
     vec2 reversal = mod(floor(coord), vec2(2));
     vec2 add      = reversal;
-    vec2 mult     = -reversal * 2 + 1;
+    vec2 mult     = reversal * -2 + 1;
 
     coord         = fract(coord);
     // Flips the axis
@@ -70,7 +54,7 @@ float smoothCutoff(float x, float cutoff, float taper) {
 
 float Bayer2(vec2 a) {
     a = floor(a);
-    return fract(a.x / 2. + a.y * a.y * .75);
+    return fract(a.x * .5 + a.y * a.y * .75);
 }
 #define Bayer4(a)   (Bayer2 (0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer8(a)   (Bayer4 (0.5 * (a)) * 0.25 + Bayer2(a))
@@ -146,8 +130,8 @@ float fbm(vec2 x, int n, float scale, float falloff) {
 // Vector-specific functions
 
 mat3 rotateAxisAngle(vec3 u, float angleRadians) {
-    float sinA = sinf( angleRadians );
-    float cosA = cosf( angleRadians );
+    float sinA = sin( angleRadians );
+    float cosA = cos( angleRadians );
     float oneMinusCosA = 1.0f - cosA;
 
     return mat3( (u.x * u.x * oneMinusCosA) + cosA,
@@ -285,7 +269,7 @@ float acosf(float x) {
 
 vec3 arbitraryTangent(vec3 normal) {
     // Equivalent to: normalize( cross(normal, vec3(0,0,1)) )
-    return vec3(normal.y, -normal.x, 0) * (1 / sqrt( sqmag( vec2(normal.y, normal.x) ) ));
+    return vec3(normal.y, -normal.x, 0) * (1 / sqrt( sqmag( normal.xy ) ));
 }
 
 mat3 arbitraryTBN(vec3 normal) {
@@ -351,6 +335,9 @@ float linearizeDepth(float d,float nearPlane,float farPlane) {
 float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / ((-d * slope) + slope);
 }
+float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
+    return -1 / (ld * slope) + 1;
+}
 
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
     //Schlick-Approximation of Fresnel
@@ -373,4 +360,14 @@ float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float po
 
 vec3 pickSunMoon(vec3 sPos, vec3 mPos, int time) {
     return (time > 13000 && time < 23000) ? mPos : sPos;
+}
+
+// Spins A point around the origin (negate for full coverage)
+vec2 spiralOffset(float x, float expansion) {
+    float n = fract(x * expansion) * PI;
+    return vec2(cos(n), sin(n)) * x;
+}
+vec2 spiralOffset_full(float x, float expansion) {
+    float n = fract(x * expansion) * TWO_PI;
+    return vec2(cos(n), sin(n)) * x;
 }
