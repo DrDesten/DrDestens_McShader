@@ -118,37 +118,7 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
 }
 
 vec4 SSAO_GI(vec3 screenPos, vec3 normal, float radius) {
-    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return vec4(0,0,0,1); };
-
-    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
-    float ldepth = linearizeDepthf(screenPos.z, nearInverse);
-    //float radZ   = ( linearizeDepthfInverse(radius * 0.005 + ldepth, nearInverse) - linearizeDepthfInverse(radius * -0.005 + ldepth, nearInverse) ) * 100;
-    float radZ    = (radius / ldepth) * 0.5;
-    vec2  rad     = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
-
-    float sample      = 0.2 + dither;
-    float occlusion   = 0.0;
-    for (int i = 0; i < 16; i++) {
-
-        vec2 offs = spiralOffset_full(sample, 4.5) * rad;
-
-        float sdepth = getDepth_int(screenPos.xy + offs);
-        float diff   = screenPos.z - sdepth;
-
-        occlusion   += clamp(diff / radZ, -1, 1) * cubicAttenuation2(diff, radZ);
-
-        sample += (radius / 16);
-
-    }
-
-    occlusion = pow(1 - saturate(occlusion / 8), 5);
-
-    return vec4(occlusion);
-}
-
-// Really Fast SSAO™
-float SSAO(vec3 screenPos, float radius) {
-    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return 1.0; };
+    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return vec4(0,0,0,1.0); };
 
     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     float ldepth = linearizeDepthf(screenPos.z, nearInverse);
@@ -156,6 +126,52 @@ float SSAO(vec3 screenPos, float radius) {
     float radZ   = (radius / ldepth) * 0.5;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
     float dscale = 4 / radZ;
+
+    float sample      = 0.2 + dither;
+    float increment   = radius * 0.125;
+    float occlusion   = 0.0;
+    vec3  gi = vec3(0);
+    for (int i = 0; i < 16; i++) {
+
+        vec2 offs   = spiralOffset_full(sample, 4.5) * rad;
+        vec2 sCoord = screenPos.xy + offs;
+
+        float sdepth = getDepth_int(sCoord);
+        float diff   = screenPos.z - sdepth;
+
+        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
+        
+        if (diff < 0 /* && mod(float(i), 2.0) == 0 */) { // Hit
+            vec3 albedo  = getAlbedo_int(sCoord);
+
+            float lightStrength = cubicAttenuation2(diff, radZ);
+            gi += albedo * lightStrength;
+        }
+
+        sample += increment;
+
+    }
+
+    occlusion = sq(1 - saturate(occlusion / 16));
+    gi /= 16;
+
+    return vec4(gi, occlusion);
+}
+
+// Really Fast™ SSAO
+float SSAO(vec3 screenPos, float radius) {
+    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return 1.0; };
+
+    #ifdef TAA
+     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
+    #else
+     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+    #endif
+    float ldepth = linearizeDepthf(screenPos.z, nearInverse);
+
+    float radZ   = (radius / ldepth) * 0.5;
+    vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
+    float dscale = 8 / radZ;
 
     float sample      = 0.2 + dither;
     float increment   = radius * 0.125;
@@ -252,7 +268,8 @@ void main() {
     //color = 1 - vec3(AmbientOcclusion(Bayer4(coord * screenSize)));
     //color = vec3(BSLAO(vec3(coord, depth), 0.1));
 
-    //color = SSAO_GI(vec3(coord, depth), vec3(1), 1).rgb;
+    //vec4 sgi = SSAO_GI(vec3(coord, depth), getNormal(coord), .5);
+    //color = (color + sgi.rgb) * sgi.a;
     //color = vec3(SSAO(vec3(coord, depth), 1));
 
     FD0 = vec4(color, 1.0);
