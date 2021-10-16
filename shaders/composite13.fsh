@@ -112,7 +112,7 @@ vec3 exp_tonemap(vec3 color, float a) {
 
 
 
-float depthToleranceAttenuation(float depthDiff, float peak) {
+float PeakAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
 void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {

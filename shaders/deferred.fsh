@@ -25,8 +25,20 @@ in vec2 coord;
 //////////////////////////////////////////////////////////////////////////////
 
 
-float depthToleranceAttenuation(float depthDiff, float peak) {
+float peakAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
+}
+float linearAttenuation(float depthDiff, float cutoff, float slope) {
+    return saturate((cutoff - depthDiff) * slope);
+}
+float cubicAttenuation(float depthDiff, float cutoff) {
+    float tmp = depthDiff / cutoff;
+    return saturate(-tmp * tmp + 1);
+}
+float cubicAttenuation2(float depthDiff, float cutoff) {
+    depthDiff = min(cutoff, depthDiff);
+    float tmp = (depthDiff - cutoff) / cutoff;
+    return saturate(tmp * tmp);
 }
 
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
@@ -71,7 +83,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-        //hits += saturate(depthToleranceAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
+        //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
     }
 
     hits  = -hits * 0.0625 + 1;
@@ -95,7 +107,7 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
         float sampleDepth  = getDepth_int(sSample);
         float sampleDepthL = linearizeDepthf(sampleDepth, nearInverse);
 
-        //ao += saturate(depthToleranceAttenuation(linearDepth - sampleDepthL, size));
+        //ao += saturate(peakAttenuation(linearDepth - sampleDepthL, size));
         ao   += saturate(linearDepth - sampleDepthL);
         ssgi += texture2D(colortex0, mirrorClamp(sample * 3 + screenPos.xy), -3).rgb * saturate(1 - abs(sampleDepthL - linearDepth)) / sqmag(blue_noise_disk[index]);
     }
@@ -105,10 +117,65 @@ vec4 AmbientOcclusionHIGH_SSGI(vec3 screenPos, vec3 normal, float size) {
     return vec4(ssgi, ao);
 }
 
-// Spins A point around the origin (negate for full coverage)
-vec2 spiralOffset(float x, float expansion) {
-    float n = fract(x * expansion) * PI;
-    return vec2(cos(n), sin(n)) * x;
+vec4 SSAO_GI(vec3 screenPos, vec3 normal, float radius) {
+    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return vec4(0,0,0,1); };
+
+    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+    float ldepth = linearizeDepthf(screenPos.z, nearInverse);
+    //float radZ   = ( linearizeDepthfInverse(radius * 0.005 + ldepth, nearInverse) - linearizeDepthfInverse(radius * -0.005 + ldepth, nearInverse) ) * 100;
+    float radZ    = (radius / ldepth) * 0.5;
+    vec2  rad     = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
+
+    float sample      = 0.2 + dither;
+    float occlusion   = 0.0;
+    for (int i = 0; i < 16; i++) {
+
+        vec2 offs = spiralOffset_full(sample, 4.5) * rad;
+
+        float sdepth = getDepth_int(screenPos.xy + offs);
+        float diff   = screenPos.z - sdepth;
+
+        occlusion   += clamp(diff / radZ, -1, 1) * cubicAttenuation2(diff, radZ);
+
+        sample += (radius / 16);
+
+    }
+
+    occlusion = pow(1 - saturate(occlusion / 8), 5);
+
+    return vec4(occlusion);
+}
+
+// Really Fast SSAO™
+float SSAO(vec3 screenPos, float radius) {
+    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return 1.0; };
+
+    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+    float ldepth = linearizeDepthf(screenPos.z, nearInverse);
+
+    float radZ   = (radius / ldepth) * 0.5;
+    vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
+    float dscale = 4 / radZ;
+
+    float sample      = 0.2 + dither;
+    float increment   = radius * 0.125;
+    float occlusion   = 0.0;
+    for (int i = 0; i < 8; i++) {
+
+        vec2 offs = spiralOffset_full(sample, 4.5) * rad;
+
+        float sdepth = getDepth_int(screenPos.xy + offs);
+        float diff   = screenPos.z - sdepth;
+
+        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
+
+        sample += increment;
+
+    }
+
+    occlusion = sq(1 - saturate(occlusion * 0.125));
+
+    return occlusion;
 }
 
 // Based on BSL's AO implementation
@@ -127,7 +194,7 @@ float BSLAO(vec3 screenPos, float radius) {
     float occlusion = 0.0;
     float sample    = 0.3 + dither;
     for (int i = 0; i < 4; i++) {
-        vec2 offs = spiralOffset(sample + dither, 8) * size;
+        vec2 offs = spiralOffset(sample, 8) * size;
 
         for (int o = 0; o < 2; o++) {
             float sdepth = linearizeDepthf(getDepth_int(screenPos.xy + offs), nearInverse);
@@ -161,7 +228,8 @@ void main() {
 
                 //vec3 normal = getNormal(coord);
                 //color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                color      *= BSLAO(vec3(coord, depth), 0.1) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                //color      *= BSLAO(vec3(coord, depth), 0.1) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color        *= SSAO(vec3(coord, depth), 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
@@ -183,6 +251,9 @@ void main() {
 
     //color = 1 - vec3(AmbientOcclusion(Bayer4(coord * screenSize)));
     //color = vec3(BSLAO(vec3(coord, depth), 0.1));
+
+    //color = SSAO_GI(vec3(coord, depth), vec3(1), 1).rgb;
+    //color = vec3(SSAO(vec3(coord, depth), 1));
 
     FD0 = vec4(color, 1.0);
 }

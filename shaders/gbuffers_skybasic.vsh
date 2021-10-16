@@ -1,5 +1,3 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 
