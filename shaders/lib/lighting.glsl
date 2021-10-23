@@ -57,7 +57,7 @@ vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     float NdotL = clamp(dot(N, L), 0, 1);
     float NdotV = clamp(dot(N, V), 0, 1);
 
-    float radiance = 5;
+    float radiance = 7;
 
     float k = sq(roughness + 1) / 8;
 

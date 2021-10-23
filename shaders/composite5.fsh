@@ -25,7 +25,7 @@ uniform float far;
 uniform float aspectRatio;
 
 vec3 chromaticAberrationTint(vec2 relPos) {
-    float chromAbb     = relPos.x * chromaticAberration + 0.5;
+    float chromAbb     = relPos.x * chromaticAberrationDoF + 0.5;
     vec3  chromAbbTint = vec3(chromAbb, 0.75 - abs(chromAbb - 0.5), 1 - chromAbb) * 2;
     return chromAbbTint;
 }
@@ -80,7 +80,7 @@ vec3 bokehBlur(vec2 coord, float size) {
 
     vec2 blurDisk = vec2(size, size * aspectRatio);
 
-    #if CHROMATIC_ABERRATION_AMOUNT != 0
+    #if DOF_CHROMATIC_ABERRATION != 0
 
         vec3 totalTint = vec3(0);
         for (int i = 0; i < kernelSize; i++) {
@@ -137,7 +137,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
     int   samples  = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
     vec2  blurDisk = vec2(size, size * aspectRatio);
 
-    #if CHROMATIC_ABERRATION_AMOUNT != 0
+    #if DOF_CHROMATIC_ABERRATION != 0
         vec3 totalTint = vec3(0); // Contains the combined tint of all sample pixels, used for color correction
     #endif
 
@@ -145,7 +145,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
         float offset      = Bayer2(coord * screenSize) * 32;
         for (int i = 0; i < samples; i++) {
             int index     = int(mod(i + offset, 64));
-            #if CHROMATIC_ABERRATION_AMOUNT != 0
+            #if DOF_CHROMATIC_ABERRATION != 0
                 vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[index]);
                 pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * blurDisk), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
@@ -155,7 +155,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
         }
     #else
         for (int i = 0; i < samples; i++) {
-            #if CHROMATIC_ABERRATION_AMOUNT != 0
+            #if DOF_CHROMATIC_ABERRATION != 0
                 vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[i]);
                 pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * blurDisk), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
@@ -165,7 +165,7 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
         }
     #endif
     
-    #if CHROMATIC_ABERRATION_AMOUNT != 0
+    #if DOF_CHROMATIC_ABERRATION != 0
         // "Normal" Calculation:
         //totalTint  /= samples; pixelColor /= totalTint; pixelColor /= samples;
         // Faster version:

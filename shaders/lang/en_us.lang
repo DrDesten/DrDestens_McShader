@@ -33,6 +33,10 @@ value.DOF_KERNEL_SIZE.2=Medium
 value.DOF_KERNEL_SIZE.3=High
 value.DOF_KERNEL_SIZE.4=Highest
 
+option.DOF_CHROMATIC_ABERRATION=DoF Chromatic Aberration
+option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction. It is advised to only turn one Chromatic Aberration effect on.
+value.DOF_CHROMATIC_ABERRATION.0=§cOFF
+
 
 ///////////////////////////////////////////////////////////
 // SCREEN SPACE REFLECTIONS
@@ -82,9 +86,9 @@ option.WATER_TEXTURE_VISIBLE=Water Texture
 
 screen.POST_PROCESSING=Post Processing
 
-option.CHROMATIC_ABERRATION_AMOUNT=Chromatic Aberration
-option.CHROMATIC_ABERRATION_AMOUNT.comment=Color Diffraction. To enable Depth-of-Field-Based Chromatic Aberration, turn on Depth of Field as well.
-value.CHROMATIC_ABERRATION_AMOUNT.0=§cOFF
+option.CHROMATIC_ABERRATION=Chromatic Aberration
+option.CHROMATIC_ABERRATION.comment=Color Diffraction.
+value.CHROMATIC_ABERRATION.0=§cOFF
 
 option.BLOOM=Bloom
 option.BLOOM.comment=Creates a glow around bright objects. Looks nice ;).

@@ -41,12 +41,14 @@
 
 //#define DOF_DEPTH_REJECTION
 
+#define DOF_CHROMATIC_ABERRATION 5   // [0 1 2 3 4 5 6 7 8 9 10]
+const float chromaticAberrationDoF = float(DOF_CHROMATIC_ABERRATION) * 0.1;
+
 // Post-Processing
 /////////////////////////////////////////////////////////////////////////////////////////
 
-#define CHROMATIC_ABERRATION_AMOUNT 5   // [0 1 2 3 4 5 6 7 8 9 10]
-const float chromaticAberration      = float(CHROMATIC_ABERRATION_AMOUNT) * 0.1;
-const float chromaticAberrationBasic = float(CHROMATIC_ABERRATION_AMOUNT) * 0.0033333333;
+#define CHROMATIC_ABERRATION 0          // [0 1 2 3 4 5 6 7 8 9 10]
+const float chromaticAberrationSimple = float(CHROMATIC_ABERRATION) * 0.0033333333;
 
 //#define TAA
 #define TAA_BLEND 0.20                  // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75]

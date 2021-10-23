@@ -142,8 +142,8 @@ void main() {
         vec2 unJitterCoord = coord;
     #endif
 
-    #if CHROMATIC_ABERRATION_AMOUNT != 0 && DOF_MODE == 0 
-        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromaticAberrationBasic, 5);
+    #if CHROMATIC_ABERRATION != 0 && DOF_MODE == 0 
+        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromaticAberrationSimple, 5);
     #else
         vec3 color = getAlbedo_int(unJitterCoord);
     #endif
