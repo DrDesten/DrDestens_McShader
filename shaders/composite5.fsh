@@ -22,6 +22,7 @@ in vec2       coord;
 
 uniform float near;
 uniform float far;
+uniform float aspectRatio;
 
 vec3 chromaticAberrationTint(vec2 relPos) {
     float chromAbb     = relPos.x * chromaticAberration + 0.5;
@@ -32,8 +33,8 @@ vec3 chromaticAberrationTint(vec2 relPos) {
 //Depth of Field
 
 vec3 bokehBlur(vec2 coord, float size) {
-    vec3 pixelColor = vec3(0);
-    float lod = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
+    vec3  pixelColor = vec3(0);
+    float lod        = log2(size / screenSizeInverse.x) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
 
     #ifdef DOF_DEPTH_REJECTION
         float depth   = getDepth(coord);
@@ -77,12 +78,14 @@ vec3 bokehBlur(vec2 coord, float size) {
         const vec2 dither = vec2(0);
     #endif
 
+    vec2 blurDisk = vec2(size, size * aspectRatio);
+
     #if CHROMATIC_ABERRATION_AMOUNT != 0
 
         vec3 totalTint = vec3(0);
         for (int i = 0; i < kernelSize; i++) {
             vec3  chromAbbTint = chromaticAberrationTint(kernel[i]);
-            vec3  sampleColor  = textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb * chromAbbTint;
+            vec3  sampleColor  = textureLod(colortex0, coord + (kernel[i] * blurDisk + dither), lod).rgb * chromAbbTint;
             pixelColor        += sampleColor;
             totalTint         += chromAbbTint;
         }
@@ -92,11 +95,11 @@ vec3 bokehBlur(vec2 coord, float size) {
 
         for (int i = 0; i < kernelSize; i++) {
             #ifdef DOF_DEPTH_REJECTION
-            float sampleDepth = getDepth_int(coord + (kernel[i] * size + dither));
+            float sampleDepth = getDepth_int(coord + (kernel[i] * blurDisk + dither));
             float weight      = saturate(abs(depth - sampleDepth) * 100) * saturate(abs(lDepth - lcDepth));
-            pixelColor       += mix(textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb, pixelColor / max(i, 1) , weight);
+            pixelColor       += mix(textureLod(colortex0, coord + (kernel[i] * blurDisk + dither), lod).rgb, pixelColor / max(i, 1) , weight);
             #else
-            pixelColor += textureLod(colortex0, coord + (kernel[i] * size + dither), lod).rgb;
+            pixelColor += textureLod(colortex0, coord + (kernel[i] * blurDisk + dither), lod).rgb;
             #endif
         }
         pixelColor /= kernelSize;
@@ -107,8 +110,8 @@ vec3 bokehBlur(vec2 coord, float size) {
 }
 
 vec3 bokehBlur_adaptive(vec2 coord, float size) {
-    vec3 pixelColor = vec3(0);
-    float radius    = size * screenSize.x;
+    vec3  pixelColor = vec3(0);
+    float radius     = size * screenSize.x;
 
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
@@ -130,8 +133,9 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
 
     #endif
 
-    float lod     = log2(radius * 4 / minSamples) * DOF_DOWNSAMPLING; // Level of detail for Mipmapped Texture (higher -> less pixels)
-    int   samples = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
+    float lod      = log2(radius * 4 / minSamples) * DOF_DOWNSAMPLING;              // Level of detail for Mipmapped Texture (higher -> less pixels)
+    int   samples  = clamp(int(radius * samplesPerRadius), minSamples, maxSamples); // Circle blur Array has a max of 64 samples
+    vec2  blurDisk = vec2(size, size * aspectRatio);
 
     #if CHROMATIC_ABERRATION_AMOUNT != 0
         vec3 totalTint = vec3(0); // Contains the combined tint of all sample pixels, used for color correction
@@ -143,20 +147,20 @@ vec3 bokehBlur_adaptive(vec2 coord, float size) {
             int index     = int(mod(i + offset, 64));
             #if CHROMATIC_ABERRATION_AMOUNT != 0
                 vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[index]);
-                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb * chromAbbTint;
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * blurDisk), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
             #else
-                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * size), lod).rgb;
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[index] * blurDisk), lod).rgb;
             #endif
         }
     #else
         for (int i = 0; i < samples; i++) {
             #if CHROMATIC_ABERRATION_AMOUNT != 0
                 vec3 chromAbbTint = chromaticAberrationTint(blue_noise_disk[i]);
-                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb * chromAbbTint;
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * blurDisk), lod).rgb * chromAbbTint;
                 totalTint    += chromAbbTint;
             #else
-                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * size), lod).rgb;
+                pixelColor   += textureLod(colortex0, coord + (blue_noise_disk[i] * blurDisk), lod).rgb;
             #endif
         }
     #endif
