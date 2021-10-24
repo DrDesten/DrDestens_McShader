@@ -88,7 +88,7 @@ screen.POST_PROCESSING=Post Processing
 
 option.CHROMATIC_ABERRATION=Chromatic Aberration
 option.CHROMATIC_ABERRATION.comment=Color Diffraction.
-value.CHROMATIC_ABERRATION.0=§cOFF
+value.CHROMATIC_ABERRATION.0=OFF
 
 option.BLOOM=Bloom
 option.BLOOM.comment=Creates a glow around bright objects. Looks nice ;).
@@ -109,7 +109,8 @@ option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Ma
 
 option.SSAO_QUALITY=SSAO Quality
 value.SSAO_QUALITY.1=Low
-value.SSAO_QUALITY.2=High
+value.SSAO_QUALITY.2=Medium
+value.SSAO_QUALITY.3=High
 
 option.SSAO_STRENGTH=SSAO Strength
 
@@ -168,6 +169,14 @@ value.FOG.0=§cOFF
 value.FOG.1=Normal
 value.FOG.2=Adaptive
 option.FOG_AMOUNT=Fog Amount
+
+screen.SKY_OPTIONS=Sky Options
+option.SKY_DAY_R=Sky Day §cR
+option.SKY_DAY_G=Sky Day §aG
+option.SKY_DAY_B=Sky Day §9B
+option.SKY_NIGHT_R=Sky Night §cR
+option.SKY_NIGHT_G=Sky Night §aG
+option.SKY_NIGHT_B=Sky Night §9B
 
 
 ///////////////////////////////////////////////////////////

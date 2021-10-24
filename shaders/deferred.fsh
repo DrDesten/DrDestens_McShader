@@ -45,7 +45,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -171,7 +171,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     float radZ   = (radius / ldepth) * 0.5;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
-    float dscale = 8 / radZ;
+    float dscale = 20 / radZ;
 
     float sample      = 0.2 + dither;
     float increment   = radius * 0.125;
@@ -189,7 +189,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = sq(1 - saturate(occlusion * 0.125));
+    occlusion = (sq(1 - saturate(occlusion * 0.125)));
 
     return occlusion;
 }
@@ -199,9 +199,9 @@ float BSLAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0 || screenPos.z < 0.56) {return 1.0;};
 
     #ifdef TAA
-    float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
+     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
     #else
-    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     #endif 
     float depth  = linearizeDepthf(screenPos.z, nearInverse);
 
@@ -231,7 +231,6 @@ void main() {
     float depth       = getDepth(coord);
     float type        = getType(coord);
 
-
     //////////////////////////////////////////////////////////
     //                  SSAO
     //////////////////////////////////////////////////////////
@@ -242,12 +241,14 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                //vec3 normal = getNormal(coord);
-                //color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                //color      *= BSLAO(vec3(coord, depth), 0.1) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                color        *= SSAO(vec3(coord, depth), 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color        *= SSAO(vec3(coord, depth), 0.35) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
+
+                vec3 normal = getNormal(coord);
+                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+
+            #elif SSAO_QUALITY == 3
 
                 vec3 normal = getNormal(coord);
 
@@ -264,13 +265,6 @@ void main() {
         }
 
     #endif
-
-    //color = 1 - vec3(AmbientOcclusion(Bayer4(coord * screenSize)));
-    //color = vec3(BSLAO(vec3(coord, depth), 0.1));
-
-    //vec4 sgi = SSAO_GI(vec3(coord, depth), getNormal(coord), .5);
-    //color = (color + sgi.rgb) * sgi.a;
-    //color = vec3(SSAO(vec3(coord, depth), 1));
 
     FD0 = vec4(color, 1.0);
 }
