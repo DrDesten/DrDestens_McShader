@@ -1,6 +1,7 @@
 //requires: uniform int worldTime;
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
+//uniform vec3 lightPosition;
 
 uniform float lightBrightness;
 
@@ -71,8 +72,8 @@ vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
 
     vec3  zaehl = D * G * F;
     float nenn  = 4 * NdotV * NdotL;
-    vec3  spec  = zaehl / max(nenn, 0.001) * specular;
-    spec        = min(spec, 5);
+    vec3  spec  = zaehl / max(nenn, 0.01) * specular;
+    spec        = min(spec, 7);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
     

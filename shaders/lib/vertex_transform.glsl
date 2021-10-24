@@ -14,13 +14,6 @@ vec2 getLmCoord() {
     return mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.xy + gl_TextureMatrix[1][3].xy;
 }
 
-float getID(vec4 entityAttribute) {
-    return entityAttribute.x - 1000;
-}
-float getID(int entityId) {
-    return float(entityId - 1000);
-}
-
 mat3 getTBN(vec4 tangentAttribute) {
 	vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
     vec3 tangent = normalize(gl_NormalMatrix * (tangentAttribute.xyz / tangentAttribute.w));
@@ -38,6 +31,7 @@ vec4 getPlayer() {
     return gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex);
 }
 
+
 vec4 toPlayer(vec4 viewPos) {
     return gbufferModelViewInverse * viewPos;
 }
@@ -45,4 +39,3 @@ vec4 toPlayer(vec4 viewPos) {
 vec4 playerToClip(vec4 playerPos) {
     return gl_ProjectionMatrix * (gbufferModelView * playerPos);
 }
-
