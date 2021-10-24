@@ -7,7 +7,7 @@ uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousProjection;
 
-float fovScale = gbufferProjection[1][1] * 0.7299270073;
+float fovScale = gbufferProjection[1][1];
 
 vec3 toView(vec3 clipspace) { // Clippos to viewpos
     vec4 tmp = gbufferProjectionInverse * vec4(clipspace, 1.0);
@@ -70,6 +70,11 @@ vec3 toPrevClip(vec3 prevviewpos) { // previous viewpos to previous screen pos
     vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
     return tmp.xyz / tmp.w;
 }
+vec4 toPrevClipW(vec3 prevviewpos) { // previous viewpos to previous screen pos
+    vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
+    return vec4(tmp.xyz / tmp.w, tmp.w);
+}
+
 vec3 toPrevScreen(vec3 prevviewpos) { // previous viewpos to previous screen pos
     vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
     return (tmp.xyz / tmp.w) * 0.5 + 0.5;
@@ -93,32 +98,8 @@ vec3 previousReprojectClip(vec3 clipPos) {
     pos      = toPlayer(pos);
     pos      = toWorld(pos);
 
-    // Project to previous Screen Space
+    // Project to previous Clip Space
     pos      = toPrevPlayer(pos);
     pos      = toPrevView(pos);
     return     toPrevClip(pos);
-}
-
-vec3 screenSpaceMovement(vec3 clipPos) {
-    // Project to World Space
-    vec3 pos = toView(clipPos);
-    pos      = toPlayer(pos);
-    pos      = toWorld(pos);
-
-    // Project to previous Screen Space
-    pos      = toPrevPlayer(pos);
-    pos      = backToView(pos);
-    return     backToScreen(pos);
-}
-vec3 screenSpaceMovement(vec3 clipPos, vec3 weight) {
-    // Project to Player Space
-    vec3 pos = toView(clipPos);
-    pos      = toPlayer(pos);
-
-    // Calculate World Space
-    pos      += (cameraPosition - previousCameraPosition) * 1;
-
-    // Project to previous Screen Space
-    pos      = backToView(pos);
-    return     backToScreen(pos);
 }

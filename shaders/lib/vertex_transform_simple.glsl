@@ -10,6 +10,13 @@ vec2 getLmCoord() {
     return mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.xy + gl_TextureMatrix[1][3].xy;
 }
 
+float getID(vec4 entityAttribute) {
+    return entityAttribute.x - 1000;
+}
+float getID(int entityId) {
+    return float(entityId - 1000);
+}
+
 mat3 getTBN(vec4 tangentAttribute) {
 	vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
     vec3 tangent = normalize(gl_NormalMatrix * (tangentAttribute.xyz / tangentAttribute.w));
