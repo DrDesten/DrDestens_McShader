@@ -45,7 +45,11 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #ifdef TAA
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+    #else
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #endif
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -69,7 +73,11 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.8 + 0.2) * size;
+    #ifdef TAA
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+    #else
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #endif
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -163,9 +171,9 @@ float SSAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return 1.0; };
 
     #ifdef TAA
-     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
+     float dither = fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
     #else
-     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+     float dither = Bayer4(screenPos.xy * screenSize) * 0.2;
     #endif
     float ldepth = linearizeDepthf(screenPos.z, nearInverse);
 

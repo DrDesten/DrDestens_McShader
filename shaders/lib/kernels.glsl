@@ -473,14 +473,14 @@ const float sobel_vertical[9] = float[](
 );
 
 
-const vec2 TAAOffsets[6] = vec2[](
+/* const vec2 TAAOffsets[6] = vec2[](
     vec2(-0.25, -0.25),
     vec2(-0.25,  0.25),
     vec2( 0.0,    0.0),
     vec2( 0.25,  0.25),
     vec2( 0.25, -0.25),
     vec2( 0.0,    0.0)
-);
+); */
 /* const vec2 TAAOffsets[6] = vec2[](
     vec2( 0.0, -0.25),
     vec2( 0.0,  0.25),
@@ -489,3 +489,14 @@ const vec2 TAAOffsets[6] = vec2[](
     vec2( 0.25,  0.0),
     vec2( 0.0,   0.0)
 ); */
+/* const vec2 TAAOffsets[3] = vec2[](
+    vec2( 0.0, 0.0),
+    vec2( 0.5, 0.5),
+    vec2( 0.0, 0.5)
+); */
+const vec2 TAAOffsets[4] = vec2[](
+    vec2( 0.25, 0.25),
+    vec2( 0.25, -.25),
+    vec2( -.25, 0.25),
+    vec2( -.25, -.25)
+);

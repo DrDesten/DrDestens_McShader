@@ -19,7 +19,7 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:0231 */
 void main() {
 	vec4 color = texture2D(texture, coord);
-	color.rgb *= glcolor.rgb * lightBrightness;
+	color.rgb *= glcolor.rgb * (1 - sq(1 - lightBrightness));
 
 	vec3 lightPos = normalize(lightPosition);
 
@@ -32,6 +32,7 @@ void main() {
 	float diffuse = clamp(dot(normal, lightPos), 0, 1);
 
 	color.rgb *= diffuse + 0.75 * (vol_1 + vol_2);
+	color.a   *= vol_1 * 0.5 + 0.5;
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
