@@ -7,7 +7,7 @@ const int colortex2Format = RGB16_SNORM; // Normals
 const int colortex3Format = R16F;        // colortex3 = blockId
 const int colortex4Format = RGB8;        // colortex4 = bloom
 
-const int colortex5Format = RGBA16;      // TAA
+const int colortex5Format = RGB16;      // TAA
 */
 
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
