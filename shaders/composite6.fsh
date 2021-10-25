@@ -15,6 +15,7 @@ uniform sampler2D colortex4;
 
 in vec2 coord;
 
+uniform float blindness; 
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     if (length(blur) < screenSizeInverse.x) { return getAlbedo(coord); }
@@ -93,7 +94,6 @@ void main() {
         color += bloom;
 
     #endif
-
 
     //Pass everything forward
     FD0          = vec4(color, 1);

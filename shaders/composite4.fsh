@@ -25,6 +25,8 @@ uniform vec3  moonPosition; */
 uniform float rainStrength;
 
 uniform float isInvisibleSmooth;
+uniform float blindness;
+
 uniform float far;
 uniform float aspectRatio;
 
@@ -426,6 +428,12 @@ void main() {
         }
 
     #endif
+
+    if (blindness > 0) { // Handling Blindness
+        float dist = sqmag(toView(vec3(coord, getDepth(coord)) * 2 - 1));
+        color     /= sq(dist * blindness + 1);
+    }
+
 
     //Pass everything forward
     FD0          = vec4(color, 1);

@@ -257,8 +257,6 @@ void main() {
 
     #endif // WATER_EFFECTS
 
-    //color = normal * .5 + .5;
-
     //Pass everything forward
     FD0 = vec4(color, 1);
 }
