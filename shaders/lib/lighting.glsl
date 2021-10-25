@@ -1,17 +1,5 @@
-//requires: uniform int worldTime;
-uniform vec3 sunPosition;
-uniform vec3 moonPosition;
-//uniform vec3 lightPosition;
-
+uniform vec3  lightPosition;
 uniform float lightBrightness;
-
-vec3 lightPosition() {
-    return (worldTime > 13000 && worldTime < 22500) ? moonPosition : sunPosition;
-}
-vec3 lightPosition(out bool daynight) {
-    daynight = !(worldTime > 13000 && worldTime < 22500);
-    return daynight ? sunPosition : moonPosition;
-}
 
 float NDF_GGX(float NdotH, float alpha) {
     float a2     = alpha * alpha;
@@ -161,7 +149,7 @@ struct PBRout {
 
 PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, mat3 tbn, vec3 viewpos, vec3 ambient) {
     
-	vec3  lightPos	 = lightPosition();
+	vec3  lightPos	 = lightPosition;
     vec4  color      = tex.color;
 
     // Specular Blending Factor (Removes specular highlights in occluded areas)

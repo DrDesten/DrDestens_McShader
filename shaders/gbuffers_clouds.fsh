@@ -9,9 +9,7 @@ uniform float rainStrength;
 uniform vec3  fogColor;
 
 uniform float lightBrightness;
-uniform vec3  sunPosition;
-uniform vec3  moonPosition;
-uniform int   worldTime;
+uniform vec3  lightPosition;
 
 varying vec2 coord;
 varying vec3 normal;
@@ -23,7 +21,7 @@ void main() {
 	vec4 color = texture2D(texture, coord);
 	color.rgb *= glcolor.rgb * lightBrightness;
 
-	vec3 lightPos = normalize((worldTime < 13000) ? sunPosition : moonPosition);
+	vec3 lightPos = normalize(lightPosition);
 
 	// "Volumetrics" (not actually)
 	float passThroughAngle = clamp(dot(normalize(viewPos), lightPos), 0, 1);

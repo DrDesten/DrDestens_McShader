@@ -6,7 +6,10 @@ uniform mat4 gbufferModelViewInverse;
 #include "/lib/gamma.glsl"
 
 uniform float wetness; 
-uniform float rainStrength; 
+uniform float rainStrength;
+
+uniform vec3  sunPosition;
+uniform vec3  moonPosition;
 
 in vec3 viewpos;
 
@@ -55,9 +58,9 @@ void main() {
 
         vec3  viewDir  = normalize(viewpos);
         
-        float sunDot   = clamp(dot(viewDir, normalize(sunPosition)), 0, 1);
+        float sunDot   = saturate(dot(viewDir, normalize(sunPosition)));
         sunDot         = pow(sunDot, 15) * .5;
-        float moonDot  = clamp(dot(viewDir, normalize(moonPosition)), 0, 1);
+        float moonDot  = saturate(dot(viewDir, normalize(moonPosition)));
         moonDot        = pow(moonDot, 20) * .25;
 
         vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky

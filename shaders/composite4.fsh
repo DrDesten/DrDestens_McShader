@@ -24,6 +24,8 @@ uniform vec3  sunPosition;
 uniform vec3  moonPosition; */
 uniform float rainStrength;
 
+uniform vec3  lightPosition;
+
 uniform float isInvisibleSmooth;
 uniform float blindness;
 
@@ -343,7 +345,7 @@ void main() {
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
-        vec3 lightPos = pickSunMoon(sunPosition, moonPosition, worldTime);
+        vec3 lightPos = lightPosition;
         vec4 tmp      = gbufferProjection * vec4(lightPos, 1.0);
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
