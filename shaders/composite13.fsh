@@ -158,7 +158,7 @@ void main() {
         float depth             = getDepth_int(unJitterCoord);
         vec3  screenPos         = vec3(coord, depth);
 
-        vec3  reprojectPos      = previousReproject(screenPos * 2 - 1);
+        vec3  reprojectPos      = reprojectTAA(screenPos);
         
         vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
         vec3  lastFrameColor    = lastFrame.rgb;

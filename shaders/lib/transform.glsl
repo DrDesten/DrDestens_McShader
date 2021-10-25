@@ -99,6 +99,20 @@ vec3 previousReprojectClip(vec3 clipPos) {
     return     toPrevClip(pos);
 }
 
+vec3 reprojectTAA(vec3 screenPos) {
+    if (screenPos.z < 0.56) {return screenPos;}
+
+    // Project to World Space
+    vec3 pos = toView(screenPos * 2 - 1);
+    pos      = toPlayer(pos);
+    pos      = toWorld(pos);
+
+    // Project to previous Screen Space
+    pos      = toPrevPlayer(pos);
+    pos      = toPrevView(pos);
+    return     toPrevScreen(pos);
+}
+
 vec3 screenSpaceMovement(vec3 clipPos) {
     // Project to World Space
     vec3 pos = toView(clipPos);
