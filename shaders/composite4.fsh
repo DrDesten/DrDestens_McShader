@@ -425,8 +425,13 @@ void main() {
 
     #endif
 
-    #ifdef OUTLINE
-        color = mix(color, vec3(1), depthEdge(coord, depth) * OUTLINE_BRIGHTNESS);
+    #if OUTLINE != 0
+        float outline = depthEdge(coord, depth);
+        #if OUTLINE == 1
+         color = mix(color, vec3(1), outline * OUTLINE_BRIGHTNESS);
+        #else
+         color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
+        #endif
     #endif
     
 

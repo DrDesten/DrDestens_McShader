@@ -41,7 +41,7 @@ void main() {
 	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 	
 	#ifdef WHITE_WORLD
-	color.rgb = vec3(1);
+	 color.rgb = vec3(1);
 	#endif
 	
 	#ifdef PHYSICALLY_BASED

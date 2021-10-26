@@ -204,6 +204,9 @@ screen.MISC=Other Stuff
 
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
+value.OUTLINE.0=§cOFF
+value.OUTLINE.1=Normal
+value.OUTLINE.2=Rainbow
 
 
 option.WAVY_BLOCKS=Wavy Blocks
