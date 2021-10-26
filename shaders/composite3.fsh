@@ -130,13 +130,16 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     return vec4(getSkyColor5_gamma(viewReflection - pos.view, rainStrength), 0);
 }
 
-
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3  color         = getAlbedo(coord);
+    #ifndef REFRACTION
+     vec3  color                  = getAlbedo(coord);
+     float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
+    #endif
+
+    float depth                  = getDepth(coord);
+    float linearDepth            = linearizeDepth(depth, near, far);
     vec3  normal        = getNormal(coord);
-    float depth         = getDepth(coord);
-    float linearDepth   = linearizeDepth(depth, near, far);
     float type          = getType(coord);
 
     vec3  screenPos     = vec3(coord, depth);
@@ -173,20 +176,15 @@ void main() {
             coordDistort += 0.5;
         }
 
-        color         = getAlbedo_int(coordDistort);
-        depth         = getDepth_int(coordDistort);
-        linearDepth   = linearizeDepth(depth, near, far);
+        vec3  color                  = getAlbedo_int(coordDistort);
+              depth                  = getDepth_int(coordDistort);
+              linearDepth            = linearizeDepth(depth, near, far);
+        float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
 
     #endif
 
     // Absorption Above Water
     if (type == 1 && isEyeInWater == 0) {
-        #ifdef REFRACTION
-            float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
-        #else
-            float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
-        #endif
-
         // Height difference between water surface and ocean floor
         float absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2);
 

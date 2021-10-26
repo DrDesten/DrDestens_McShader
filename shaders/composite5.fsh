@@ -261,6 +261,41 @@ vec3 getBloomTilesBlur(vec2 coord, float tiles, float padding) {
     return color;
 }
 
+vec3 getBloomTilesBlur_opt(vec2 coord, float tiles, float padding) {
+
+    float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
+    // Log2(x) returns the exponent necessary to get to the coordinate.
+    // we use 1-x because we want to start from the left
+    // invert because the exponents are negative
+    // ceil() to get the tile number
+
+    float xOffset    = 1 - exp2( 1 - currentTile ); // Tbh I'm not even sure how this works (but it does)
+    float tileScale  = exp2( currentTile );         // 2^tile gives us the scaling factor for each tile
+    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
+    tileCoords       = floor(tileCoords * screenSize) * screenSizeInverse;
+
+    if (tileCoords != saturate(tileCoords)) {
+        return vec3(0);
+    }
+
+    float lod      = floor(currentTile + 0.5);
+    vec2  stepSize = screenSizeInverse * (tileScale * 2);
+    vec2  offset   = screenSizeInverse * (tileScale * 0.5);
+    vec3  color    = vec3(0);
+    for (int x = -1; x <= 2; x++) {
+        for (int y = -1; y <= 2; y++) {
+            
+            float weight = gaussian_4[x + 1] * gaussian_4[y + 1];
+            vec2  offs   = vec2(x, y) * stepSize - offset;
+
+            color       += textureLod(colortex0, tileCoords + offs, lod).rgb * weight;
+
+        }
+    }
+
+    return color;
+}
+
 #ifdef BLOOM
 /* DRAWBUFFERS:04 */
 #else
@@ -270,7 +305,6 @@ vec3 getBloomTilesBlur(vec2 coord, float tiles, float padding) {
 void main() {
     float depth         = texture(depthtex1, coord).r;
 
-    // Disables Depth of Field in the precompiler
     #if DOF_MODE != 0
  
         float linearDepth   = linearizeDepth(depth, near, far);
@@ -281,7 +315,7 @@ void main() {
         vec3 color = DoF(coord, depth, Blur);
 
     #else
-        vec3 color          = getAlbedo(coord);
+        vec3 color = getAlbedo(coord);
     #endif
 
     #ifdef BLOOM

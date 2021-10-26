@@ -345,8 +345,7 @@ void main() {
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
-        vec3 lightPos = lightPosition;
-        vec4 tmp      = gbufferProjection * vec4(lightPos, 1.0);
+        vec4 tmp      = gbufferProjection * vec4(lightPosition, 1.0);
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
@@ -399,7 +398,7 @@ void main() {
             float dist      = sqmag(viewPos) * float(depth < 1);
 
             #if FOG == 1
-             float fog       = saturate(dist * 3e-6 * FOG_AMOUNT);
+             float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
             #else
              float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
             #endif

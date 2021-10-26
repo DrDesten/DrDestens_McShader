@@ -86,12 +86,14 @@ void main() {
     #ifdef BLOOM
 
         vec3 bloom = vec3(0);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 6; i++) {
             bloom += readBloomTile(coord, i, 10 * screenSizeInverse.x);
         }
-        bloom  = bloom / (8. * BLOOM_AMOUNT);
+        bloom  = bloom / (6. * BLOOM_AMOUNT);
         bloom  = sq(bloom) * BLOOM_AMOUNT;
         color += bloom;
+        //color = readBloomTile(coord, 2, 10 * screenSizeInverse.x);
+        //color = texture(colortex4, coord).rgb;
 
     #endif
 

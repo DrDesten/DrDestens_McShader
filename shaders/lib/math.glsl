@@ -241,6 +241,10 @@ vec4 cb(vec4 x) {
     return x * x * x;
 }
 
+float logn(float base, float res) {
+    return log2(res) / log2(base);
+}
+
 float saturate(float a) {
     return clamp(a, 0.0, 1.0);
 }
