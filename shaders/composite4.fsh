@@ -242,24 +242,41 @@ float separationDetect(vec2 coord) {
     return edgeColor;
 }
 
-float depthEdgeFast(vec2 coord) {
+/* float depthEdgeFast(vec2 coord) {
     float depth         = getDepth(coord);
     // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
     float depthSurround = getDepth_int((screenSizeInverse * 1.5) + coord) + getDepth_int((screenSizeInverse * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * 1.5, screenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * -1.5, screenSizeInverse.y * 1.5) + coord);
     depthSurround *= 0.25;
 
     return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, 1);
-}
+} */
 
 float depthEdge(vec2 coord, float depth) {
-    float maxdiff = 0;
-    for (int i = -1; i <= 1; i++) {
-        for (int o = -1; o <= 1; o++) {
-            float d = getDepth_int(screenSizeInverse * vec2(i, o) + coord);
+    float maxdiff  = 0;
+    for (int x = 0; x <= 2; x++) {
+        for (int y = 0; y <= 2; y++) {
+            float d = texelFetch(depthtex0, ivec2(saturate(coord) * (screenSize - 2)) + ivec2(x, y), 0).x;
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
-    return clamp(pow(maxdiff * 1e2 * OUTLINE_DISTANCE, 7), 0, 1);
+    return clamp(pow(maxdiff * 2e2 * OUTLINE_DISTANCE, 7), 0, 1);
+}
+float depthEdgeFast(vec2 coord, float depth) { // Essentially the same speed
+    ivec2 intcoord = ivec2(coord * screenSize);
+    float maxdiff  = 0;
+    for (int x = -1; x <= 1; x++) {
+        ivec2 c = intcoord; //ivec2(saturate(coord) * (screenSize - 2)) + 1;
+        c.x    += x;
+        float d = texelFetch(depthtex0, c, 0).x;
+        maxdiff = max(maxdiff, abs(d-depth));
+    }
+    for (int y = -1; y <= 1; y++) {
+        ivec2 c = intcoord; //ivec2(saturate(coord) * (screenSize - 2)) + 1;
+        c.y    += y;
+        float d = texelFetch(depthtex0, c, 0).x;
+        maxdiff = max(maxdiff, abs(d-depth));
+    }
+    return clamp(pow(maxdiff * 2e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
@@ -431,7 +448,7 @@ void main() {
     #endif
 
     if (blindness > 0) { // Handling Blindness
-        float dist = sqmag(toView(vec3(coord, getDepth(coord)) * 2 - 1));
+        float dist = sqmag(toView(vec3(coord, depth) * 2 - 1));
         color     /= sq(dist * blindness + 1);
     }
 

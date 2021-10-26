@@ -12,6 +12,7 @@ const int colortex5Format = RGB16;      // TAA
 
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
 //const bool colortex3Clear      = false;
+const vec4 colortex3ClearColor = vec4(0,0,0,0);
 //const bool colortex4Clear      = false;
 const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 const bool colortex5Clear      = false;
