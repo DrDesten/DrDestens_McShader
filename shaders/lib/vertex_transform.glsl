@@ -39,3 +39,10 @@ vec4 toPlayer(vec4 viewPos) {
 vec4 playerToClip(vec4 playerPos) {
     return gl_ProjectionMatrix * (gbufferModelView * playerPos);
 }
+
+float getID(vec4 entityAttribute) {
+    return entityAttribute.x - 1000;
+}
+float getID(int entityId) {
+    return float(entityId - 1000);
+}

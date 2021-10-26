@@ -5,13 +5,11 @@ uniform int worldTime;
 #include "/lib/transform.glsl"
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/gamma.glsl"
-
-uniform sampler2D lightmap;
-uniform sampler2D texture;
 
 uniform vec3 fogColor;
 uniform vec2 atlasSizeInverse;
@@ -39,7 +37,6 @@ void main() {
 	vec3  normal         = tbn[2];
 	float reflectiveness = 0;
 	float height 		 = 1;
-	float id		     = floor(blockId + 0.5);
 
 	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 	
@@ -100,7 +97,7 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(id - 1000, vec3(1));
+	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
 	
 	#ifdef POM_ENABLED

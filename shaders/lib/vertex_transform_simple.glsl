@@ -22,3 +22,10 @@ vec3 getView() {
 vec4 getView4() {
     return gl_ModelViewMatrix * gl_Vertex;
 }
+
+float getID(vec4 entityAttribute) {
+    return entityAttribute.x - 1000;
+}
+float getID(int entityId) {
+    return float(entityId - 1000);
+}

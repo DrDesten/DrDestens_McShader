@@ -63,7 +63,7 @@ void main(){
 	worldPos	 = worldPosition.xyz;
 	viewDir      = normalize(viewPosition.xyz);
 
-	blockId 	 = mc_Entity.x;
+	blockId 	 = getID(mc_Entity);
     coord 		 = getCoord();
 	lmcoord      = getLmCoord();
 	glcolor 	 = gl_Color;

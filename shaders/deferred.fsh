@@ -4,7 +4,7 @@
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/framebuffer.glsl"
+#include "/lib/composite_basics.glsl"
 
 #ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
 const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping

@@ -4,12 +4,10 @@ uniform int worldTime;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
-
-uniform sampler2D lightmap;
-uniform sampler2D texture;
 
 uniform vec3 fogColor;
 
@@ -39,6 +37,10 @@ void main() {
 
 	vec4 color		   = texture2D(texture, coord);
 	color.rgb 		  *= glcolor.rgb;
+
+	#ifdef WHITE_WORLD
+	 color.rgb = vec3(1);
+	#endif
 
 	#ifdef PHYSICALLY_BASED
 
@@ -73,7 +75,7 @@ void main() {
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(floor(blockId - 999.5), vec3(1));
+	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
 
 	#ifdef POM_ENABLED

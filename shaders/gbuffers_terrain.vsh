@@ -76,7 +76,7 @@ void main() {
 	#endif
 
 
-	blockId     = mc_Entity.x;
+	blockId     = getID(mc_Entity);
 	glcolor     = gl_Color;
 	gl_Position = clipPos;
 

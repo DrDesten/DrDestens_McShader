@@ -6,10 +6,8 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/gbuffers_basics.glsl"
 #include "/lib/gamma.glsl"
-
-uniform sampler2D lightmap;
-uniform sampler2D texture;
 
 varying vec2 lmcoord;
 varying vec2 coord;
@@ -25,6 +23,6 @@ void main() {
 	color.rgb  = tmp * EMISSION_STRENGTH + color.rgb;
 
 	gl_FragData[0] = color; //gcolor
-	gl_FragData[1] = vec4(50, vec3(1)); // Id
+	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
 	gl_FragData[2] = vec4(0, vec3(1));  // Reflectance
 }

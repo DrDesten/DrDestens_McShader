@@ -50,6 +50,6 @@ void main() {
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
 
-	blockId = mc_Entity.x;
+	blockId = getID(mc_Entity);
 	glcolor = gl_Color;
 }

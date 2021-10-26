@@ -2,7 +2,7 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/framebuffer.glsl"
+#include "/lib/composite_basics.glsl"
 #include "/lib/gamma.glsl"
 
 #ifdef TAA

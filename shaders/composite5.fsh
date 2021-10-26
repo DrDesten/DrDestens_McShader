@@ -8,7 +8,7 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/framebuffer.glsl"
+#include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
 
 uniform sampler2D depthtex1;

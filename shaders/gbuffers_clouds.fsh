@@ -2,8 +2,7 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-
-uniform sampler2D texture;
+#include "/lib/gbuffers_basics.glsl"
 
 uniform float rainStrength;
 uniform vec3  fogColor;
@@ -37,6 +36,6 @@ void main() {
 
 	gl_FragData[0] = color; //color
 	gl_FragData[1] = vec4(normal, 1);   //normals
-	gl_FragData[2] = vec4(vec3(50), 1); //block id (50, SSAO mask)
+	gl_FragData[2] = vec4(codeID(50), vec3(1)); //block id (50, SSAO mask)
 	gl_FragData[3] = vec4(0, vec3(1));  // Reflectance
 }

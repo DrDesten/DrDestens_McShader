@@ -1,17 +1,13 @@
-
-
 uniform int worldTime;
 //uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
+#include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/gamma.glsl"
-
-uniform sampler2D texture;
-uniform sampler2D lightmap;
 
 uniform float frameTimeCounter;
 
@@ -144,14 +140,13 @@ vec3 waveNormals(vec2 coord, float strength) {
 #endif
 
 void main(){
-	vec4 color       = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
-
     vec3  surfaceNormal  = tbn[2];
     float reflectiveness = 0;
-    float id = floor(blockId + 0.5);
+	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
+    float id             = floor(blockId + 0.5);
 
     // Reduce opacity and saturation of only water
-    if (id == 1001) {
+    if (id == 1) {
 
         #ifdef WATER_TEXTURE_VISIBLE
          color.rgb = sq(color.rgb * texture2D(lightmap, lmcoord).rgb) * 0.75;
@@ -223,7 +218,7 @@ void main(){
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(vec3(id - 1000), 1); // Type (colortex3)
+    gl_FragData[2] = vec4(codeID(id), vec3(1)); // Type (colortex3)
     #ifdef PHYSICALLY_BASED
     gl_FragData[3] = vec4(reflectiveness, vec3(1));
     #endif

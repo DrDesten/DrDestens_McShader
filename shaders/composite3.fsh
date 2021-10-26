@@ -4,7 +4,7 @@ const int colortex0Format = RGB16F;      // Color
 const int colortex1Format = RG8;         // Reflectiveness, Height (and in the future other PBR values)
 const int colortex2Format = RGB16_SNORM; // Normals
 
-const int colortex3Format = R16F;        // colortex3 = blockId
+const int colortex3Format = R8;        // colortex3 = blockId
 const int colortex4Format = RGB8;        // colortex4 = bloom
 
 const int colortex5Format = RGB16;      // TAA
@@ -26,7 +26,7 @@ const float sunPathRotation = -40.0;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/framebuffer.glsl"
+#include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
@@ -255,6 +255,9 @@ void main() {
     }
 
     #endif // WATER_EFFECTS
+
+    /* color = vec3(texture(colortex3, coord).r);
+    color = vec3(type * 0.1); */
 
     //Pass everything forward
     FD0 = vec4(color, 1);

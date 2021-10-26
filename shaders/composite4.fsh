@@ -7,7 +7,7 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/framebuffer.glsl"
+#include "/lib/composite_basics.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/gamma.glsl"
 #include "/lib/kernels.glsl"
