@@ -13,10 +13,10 @@ const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the e
 const vec3 sky_up_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);   //Color of upper part of sky at noon
 const vec3 sky_up_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B); //Color of upper part of sky at midnight
 
-const vec3 sunset_color = vec3(1.0, 0.3, 0.0);
+const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 
-const vec3 end_sky_up   = vec3(0.2, 0, 0.3);  // Color of the upper sky in the end
-const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the end
+const vec3 end_sky_up   = vec3(END_SKY_UP_R, END_SKY_UP_G, END_SKY_UP_B);  // Color of the upper sky in the end
+const vec3 end_sky_down = vec3(END_SKY_DOWN_R, END_SKY_DOWN_G, END_SKY_DOWN_B); // Color of the lower sky in the end
 
 vec3 getSkyColor4(vec3 viewPos) {
     vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
@@ -40,7 +40,12 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
     #elif defined END 
 
         vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
+        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.55 + 0.45, 0, 1);
+
+        float offset       = noise(vec2(atan(abs(eyePlayerPos.z / eyePlayerPos.x))) * PI);
+        offset            *= 1 - sq(viewHeight * 2 - 1);
+        offset             = offset * 0.1 - 0.05;
+        viewHeight         = saturate(viewHeight + offset);
 
         return mix(end_sky_down, end_sky_up, viewHeight);
 

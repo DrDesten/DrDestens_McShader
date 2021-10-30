@@ -49,6 +49,12 @@ float smoothCutoff(float x, float cutoff, float taper) {
     return clamp( (a * tmp) * (tmp * tmp) + x ,0,1);
 }
 
+float angle(vec2 v) {
+    float ang = HALF_PI - atan(v.x / v.y);
+    if(v.y < 0) {ang = ang + PI;}
+    return ang;
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Randomization and Dither Patterns
 
@@ -92,6 +98,16 @@ float noise(vec2 x) {
 
     vec2 u = f * f * (3.0 - 2.0 * f);
 	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+float noise(float x) {
+    float i = floor(x);
+    float f = fract(x);
+
+	// Two connecting points
+	float a = rand(i);
+    float b = rand(i + 1.0);
+
+	return smoothstep(a, b, f);
 }
 
 float fbm(vec2 x, int n) {

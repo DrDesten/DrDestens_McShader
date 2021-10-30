@@ -170,6 +170,8 @@ value.FOG.1=Normal
 value.FOG.2=Adaptive
 option.FOG_AMOUNT=Fog Amount
 
+option.SKY_SUNSET=Sunset
+
 screen.SKY_OPTIONS=Sky Options
 option.SKY_DAY_R=Sky Day §cR
 option.SKY_DAY_G=Sky Day §aG
@@ -177,6 +179,16 @@ option.SKY_DAY_B=Sky Day §9B
 option.SKY_NIGHT_R=Sky Night §cR
 option.SKY_NIGHT_G=Sky Night §aG
 option.SKY_NIGHT_B=Sky Night §9B
+option.SKY_SUNSET_R=Sky Sunset §cR
+option.SKY_SUNSET_G=Sky Sunset §aG
+option.SKY_SUNSET_B=Sky Sunset §9B
+
+option.END_SKY_UP_R=End Sky Upper §cR
+option.END_SKY_UP_G=End Sky Upper §aG
+option.END_SKY_UP_B=End Sky Upper §9B
+option.END_SKY_DOWN_R=End Sky Lower §cR
+option.END_SKY_DOWN_G=End Sky Lower §aG
+option.END_SKY_DOWN_B=End Sky Lower §9B
 
 
 ///////////////////////////////////////////////////////////
