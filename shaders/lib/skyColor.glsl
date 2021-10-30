@@ -1,5 +1,5 @@
 uniform float daynight;
-//uniform float sunset;
+uniform float sunset;
 
 uniform vec3 fogColor;
 
@@ -12,6 +12,8 @@ const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the e
 
 const vec3 sky_up_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);   //Color of upper part of sky at noon
 const vec3 sky_up_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B); //Color of upper part of sky at midnight
+
+const vec3 sunset_color = vec3(1.0, 0.3, 0.0);
 
 const vec3 end_sky_up   = vec3(0.2, 0, 0.3);  // Color of the upper sky in the end
 const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the end
@@ -49,7 +51,14 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
 
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
         sky_up      = mix(sky_up, fogColor * 0.5, rain);
-        return mix(fogColor, sky_up, viewHeight); //Get sky
+
+        #ifdef SKY_SUNSET
+         vec3 sky_down = mix(fogColor, sunset_color, sunset);
+         sky_down      = mix(sky_down, fogColor, rain);
+         return mix(sky_down, sky_up, viewHeight); //Get sky
+        #else
+         return mix(fogColor, sky_up, viewHeight); //Get sky
+        #endif
 
     #endif
 
@@ -57,4 +66,16 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
 vec3 getSkyColor5_gamma(vec3 viewPos, float rain) {
     vec3 color = getSkyColor5(viewPos, rain);
     return pow(color, vec3(2.2));
+}
+
+
+vec3 getFogColor(vec3 viewPos, float rain, int eyeWater) {
+    if (eyeWater == 0) {
+        return getSkyColor5(viewPos, rain);
+    } else {
+        return fogColor;
+    }
+}
+vec3 getFogColor_gamma(vec3 viewPos, float rain, int eyeWater) {
+    return pow(getFogColor(viewPos, rain, eyeWater), vec3(2.2));
 }
