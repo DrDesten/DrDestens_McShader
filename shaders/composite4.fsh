@@ -252,15 +252,17 @@ float separationDetect(vec2 coord) {
 } */
 
 float depthEdge(vec2 coord, float depth) {
+    depth = texelFetch(depthtex0, ivec2(clamp(coord * screenSize - 2, vec2(0), screenSize)), 0).x;
     float maxdiff  = 0;
     for (int x = 0; x <= 2; x++) {
         for (int y = 0; y <= 2; y++) {
-            float d = texelFetch(depthtex0, ivec2(saturate(coord) * (screenSize - 2)) + ivec2(x, y), 0).x;
+            float d = texelFetch(depthtex0, ivec2(clamp(coord * screenSize - 2, vec2(0), screenSize)) + ivec2(x, y), 0).x;
             maxdiff = max(maxdiff, abs(d-depth));
         }
     }
     return clamp(pow(maxdiff * 2e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
+
 float depthEdgeFast(vec2 coord, float depth) { // Essentially the same speed
     ivec2 intcoord = ivec2(coord * screenSize);
     float maxdiff  = 0;
@@ -420,7 +422,7 @@ void main() {
              float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
             #endif
 
-            color           = mix(color, getSkyColor5_gamma(viewPos, rainStrength), fog);
+            color           = mix(color, getFogColor_gamma(viewPos, rainStrength, isEyeInWater), fog);
         }
 
     #endif

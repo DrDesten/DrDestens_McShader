@@ -173,7 +173,7 @@ void main() {
         float blend   = saturate(boundsError + moveError + spikeError + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
-        vec3 TAAcolor = color;
+        vec3 TAAcolor = max(color, 0.0);
 
     #endif
 

@@ -1,13 +1,13 @@
 
 /*
-const int colortex0Format = RGB16F;      // Color
-const int colortex1Format = RG8;         // Reflectiveness, Height (and in the future other PBR values)
-const int colortex2Format = RGB16_SNORM; // Normals
+const int colortex0Format = RGB16F;        // Color
+const int colortex1Format = RG8;           // Reflectiveness, Height (and in the future other PBR values)
+const int colortex2Format = RGB16_SNORM;   // Normals
 
-const int colortex3Format = R8;        // colortex3 = blockId
-const int colortex4Format = RGB8;        // colortex4 = bloom
+const int colortex3Format = R8;            // colortex3 = blockId
+const int colortex4Format = RGB8;          // colortex4 = bloom
 
-const int colortex5Format = RGB16;      // TAA
+const int colortex5Format = R11F_G11F_B10F;// TAA
 */
 
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
@@ -60,7 +60,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cube
     //return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
     //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor5_gamma(reflection, rainStrength), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
     if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
-        return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
+        return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
     }
     return vec4(getAlbedo_int(screenPos.xy), 1);
 }
@@ -70,7 +70,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getSkyColor5_gamma(viewReflection - pos.view, rainStrength), 0);
+        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
     }
 
     // Project to Screen Space
@@ -128,7 +128,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
         }
     }
 
-    return vec4(getSkyColor5_gamma(viewReflection - pos.view, rainStrength), 0);
+    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
 }
 
 /* DRAWBUFFERS:0 */

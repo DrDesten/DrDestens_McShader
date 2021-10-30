@@ -57,7 +57,8 @@ vec4 smartUpscale(sampler2D tex, vec2 coord) {
 void main() {
     #ifdef TAA
         float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 50, 1., 1.5);
-        vec3  color = sharpen(coord, sharpen_amount, 0.05);
+        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.05));
+        //vec3  color = texture(colortex5, coord).rgb;
     #else
         vec3  color = getAlbedo(coord);
         //color = smartUpscale(colortex0, coord).rgb;
