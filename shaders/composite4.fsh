@@ -414,7 +414,7 @@ void main() {
             // Blend between FogColor and normal color based on square distance
             vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
 
-            float dist      = sqmag(viewPos) * float(depth < 1);
+            float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
 
             #if FOG == 1
              float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );

@@ -34,7 +34,7 @@ void main(){
 
 	#ifdef WATER_WAVES
 
-		if (mc_Entity.x == 1001) {
+		if (mc_Entity.x == 1010) {
 
 			// "Physical" Wave Offsets
 			float zOffset    = (sin((worldPosition.x * 0.1) + (frameTimeCounter)) - 0.5) * 0.05;

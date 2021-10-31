@@ -45,19 +45,21 @@ void main() {
 	
 	#ifdef WAVY_BLOCKS
 
-		if ((mc_Entity.x == 1010 || mc_Entity.x == 1011) && coord.y < mc_midTexCoord.y) { // Waving Blocks Upper Vertices
+		// Waving Blocks Upper Vertices
+		if ((mc_Entity.x == 1030 || mc_Entity.x == 1031) && coord.y < mc_midTexCoord.y) { 
 
 			vec4 pos  = getPlayer() + vec4(cameraPosition, 0);
 			pos.xyz	  = wavyPlants(pos.xyz, .05);
 
 			clipPos   = playerToClip(pos - vec4(cameraPosition, 0));
 		}
-		
-		if (mc_Entity.x == 1012
+
+		// Waving Blocks All Vertices
+		if (mc_Entity.x == 1032
 		#ifdef WAVY_LEAVES
-		 || mc_Entity.x == 1015
+		 || mc_Entity.x == 1033
 		#endif
-		 ) { // Waving Blocks All Vertices
+		 ) {
 
 			vec4 pos  = getPlayer() + vec4(cameraPosition, 0);
 			pos.xyz   = wavyPlants(pos.xyz, .05);

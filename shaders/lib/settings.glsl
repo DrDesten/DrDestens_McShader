@@ -53,6 +53,7 @@ const float chromaticAberrationSimple = float(CHROMATIC_ABERRATION) * 0.00333333
 //#define TAA
 #define TAA_BLEND 0.20                  // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75]
 #define TAA_JITTER_AMOUNT 1.0
+//#define TAA_NOCLIP
 
 //#define MOTION_BLUR
 #define MOTION_BLUR_STRENGTH 0.25       // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]

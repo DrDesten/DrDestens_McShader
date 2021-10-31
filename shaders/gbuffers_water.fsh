@@ -146,7 +146,7 @@ void main(){
     float id             = floor(blockId + 0.5);
 
     // Reduce opacity and saturation of only water
-    if (id == 1) {
+    if (id == 10) {
 
         #ifdef WATER_TEXTURE_VISIBLE
          color.rgb = sq(color.rgb * texture2D(lightmap, lmcoord).rgb) * 0.75;

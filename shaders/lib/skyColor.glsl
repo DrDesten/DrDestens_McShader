@@ -1,5 +1,7 @@
 uniform float daynight;
+#ifdef SKY_SUNSET
 uniform float sunset;
+#endif
 
 uniform vec3 fogColor;
 
@@ -18,23 +20,10 @@ const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 const vec3 end_sky_up   = vec3(END_SKY_UP_R, END_SKY_UP_G, END_SKY_UP_B);  // Color of the upper sky in the end
 const vec3 end_sky_down = vec3(END_SKY_DOWN_R, END_SKY_DOWN_G, END_SKY_DOWN_B); // Color of the lower sky in the end
 
-vec3 getSkyColor4(vec3 viewPos) {
-    vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-    float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
-
-    vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-    return mix(fogColor, sky_up, viewHeight); //Get sky
-}
-vec3 getSkyColor4_gamma(vec3 viewPos) {
-    vec3 color = getSkyColor4(viewPos);
-    return pow(color, vec3(2.2));
-}
-
 vec3 getSkyColor5(vec3 viewPos, float rain) {
 
     #ifdef NETHER
 
-        const vec3 nether_sky = vec3(1,0,0);
         return fogColor;
 
     #elif defined END 
@@ -78,7 +67,7 @@ vec3 getFogColor(vec3 viewPos, float rain, int eyeWater) {
     if (eyeWater == 0) {
         return getSkyColor5(viewPos, rain);
     } else {
-        return fogColor;
+        return fogColor * 0.25;
     }
 }
 vec3 getFogColor_gamma(vec3 viewPos, float rain, int eyeWater) {

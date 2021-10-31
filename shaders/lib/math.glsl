@@ -162,7 +162,7 @@ mat3 rotateAxisAngle(vec3 u, float angleRadians) {
                 );
 }
 
-mat3 rotateAlign( vec3 v1, vec3 v2) {
+mat3 rotateAlign( vec3 v1, vec3 v2) { 
     vec3 axis = cross( v1, v2 );
 
     float cosA = dot( v1, v2 );
@@ -182,6 +182,16 @@ mat3 rotateAlign( vec3 v1, vec3 v2) {
 
     return result;
 }
+
+mat2 rotationMatrix2(float angle) {
+    float ca = cos(angle);
+    float sa = sin(angle);
+    return mat2(ca, sa, -sa, ca);
+}
+
+/* mat3 rotationMatrix3(float angleX, float angleY) {
+
+} */
 
 ////////////////////////////////////////////////////////////////////////
 // General functions
