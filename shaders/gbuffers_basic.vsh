@@ -1,5 +1,3 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/kernels.glsl"
 
@@ -28,7 +26,8 @@ void main() {
 		clipPos.xy += TAAOffsets[int( mod(frameCounter, 4) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
 	#endif
 
-	gl_Position = clipPos;
+	gl_Position    = clipPos;
+	gl_Position.z -= 5e-4;
 
 	lmcoord = getLmCoord();
 	glcolor = gl_Color;

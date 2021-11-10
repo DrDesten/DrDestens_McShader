@@ -217,9 +217,15 @@ screen.MISC=Other Stuff
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
 value.OUTLINE.0=§cOFF
-value.OUTLINE.1=Normal
-value.OUTLINE.2=Rainbow
+value.OUTLINE.1=White
+value.OUTLINE.2=Black
+value.OUTLINE.3=Rainbow
 
+option.SELECTION_OUTLINE=Block Selection Outline
+option.SELECTION_OUTLINE.comment=§c§n/!\§r Only works with newer OptiFine versions
+value.SELECTION_OUTLINE.0=Black
+value.SELECTION_OUTLINE.1=White
+value.SELECTION_OUTLINE.2=Rainbow
 
 option.WAVY_BLOCKS=Wavy Blocks
 

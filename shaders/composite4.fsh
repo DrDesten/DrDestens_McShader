@@ -360,6 +360,17 @@ void main() {
 
     #endif
 
+    #if OUTLINE != 0
+        float outline = depthEdge(coord, depth);
+        #if OUTLINE == 1
+         color = mix(color, vec3(1), outline * OUTLINE_BRIGHTNESS);
+        #elif OUTLINE == 2
+         color = color * saturate( -outline * OUTLINE_BRIGHTNESS + 1);
+        #else
+         color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
+        #endif
+    #endif
+
     #ifdef OVERWORLD
     #ifdef GODRAYS
 
@@ -426,16 +437,6 @@ void main() {
         }
 
     #endif
-
-    #if OUTLINE != 0
-        float outline = depthEdge(coord, depth);
-        #if OUTLINE == 1
-         color = mix(color, vec3(1), outline * OUTLINE_BRIGHTNESS);
-        #else
-         color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
-        #endif
-    #endif
-    
 
     #ifdef HAND_INVISIBILITY_EFFECT
 
