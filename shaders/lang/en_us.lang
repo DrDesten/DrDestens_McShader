@@ -222,7 +222,7 @@ value.OUTLINE.2=Black
 value.OUTLINE.3=Rainbow
 
 option.SELECTION_OUTLINE=Block Selection Outline
-option.SELECTION_OUTLINE.comment=§c§n/!\§r Only works with newer OptiFine versions
+option.SELECTION_OUTLINE.comment=§c§n/!\§r Only works with newer OptiFine versions (G7 or higher)
 value.SELECTION_OUTLINE.0=Black
 value.SELECTION_OUTLINE.1=White
 value.SELECTION_OUTLINE.2=Rainbow

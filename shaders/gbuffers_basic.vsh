@@ -12,6 +12,10 @@
  uniform vec2 screenSizeInverse;
 #endif
 
+#if MC_VERSION >= 11700
+ uniform int renderStage;
+#endif
+
 varying vec2 lmcoord;
 varying vec4 glcolor;
 
@@ -19,7 +23,13 @@ void main() {
 	vec4 clipPos = ftransform();
 	
 	#ifdef WORLD_CURVE
-		#include "/lib/world_curve.glsl"
+		#if MC_VERSION < 11700
+			#include "/lib/world_curve.glsl"
+		#else
+			if (renderStage != MC_RENDER_STAGE_OUTLINE) {
+				#include "/lib/world_curve.glsl"
+			}
+		#endif
 	#endif
 	
 	#ifdef TAA
