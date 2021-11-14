@@ -23,7 +23,12 @@ void main() {
 
 	#if SELECTION_OUTLINE != 0
 
+		#if MC_VERSION >= 11605
 		if (renderStage == MC_RENDER_STAGE_OUTLINE) {
+		#else
+		if (abs(glcolor.a - 0.5) < 0.2) {
+		#endif
+
 			#if SELECTION_OUTLINE == 1
 				color.rgb = vec3(1.5);
 			#else
