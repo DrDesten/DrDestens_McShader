@@ -204,7 +204,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
 void main() {
     #ifndef REFRACTION
      vec3  color                  = getAlbedo(coord);
-     float transparentLinearDepth = linearizeDepth(texture(depthtex1, screenPos.xy).x, near, far);
+     float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
     #endif
 
     float depth         = getDepth(coord);
