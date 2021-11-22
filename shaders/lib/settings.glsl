@@ -26,6 +26,10 @@
 
 //#define SCREEN_SPACE_GLOBAL_ILLUMINATION
 
+//#define GLASS_REFLECTIONS
+#ifdef GLASS_REFLECTIONS // I have to add this so that optifine recognizes the option
+#endif
+
 // Depth of Field
 /////////////////////////////////////////////////////////////////////////////////////////
 

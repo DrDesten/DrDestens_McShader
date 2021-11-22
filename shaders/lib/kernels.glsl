@@ -494,7 +494,7 @@ const float sobel_vertical[9] = float[](
     vec2( 0.5, 0.5),
     vec2( 0.0, 0.5)
 ); */
-const vec2 TAAOffsets[4] = vec2[](
+const vec2 TAAOffsets[4] = vec2[]( // Creates as 2x2 pattern around a given pixel
     vec2( 0.25, 0.25),
     vec2( 0.25, -.25),
     vec2( -.25, 0.25),

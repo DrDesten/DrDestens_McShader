@@ -134,6 +134,72 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
 }
 
+vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampler) {
+    // Reflect in View Space
+    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
+
+    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
+        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+    }
+
+    // Project to Screen Space
+    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
+    
+    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
+
+    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
+    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+
+    rayStep         /= SSR_STEPS;
+    vec3 rayPos      = rayStep * randfac + pos.screen;
+
+    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
+    float hitDepth       = 0;
+
+    for (int i = 0; i < SSR_STEPS; i++) {
+
+        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
+            break; // Break if out of bounds
+        }
+
+        rayPos  += rayStep;
+        
+        hitDepth = texture(depthSampler, rayPos.xy).x;
+
+        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
+            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+
+            #ifdef SSR_NO_REFINEMENT
+                return vec4(getAlbedo_int(rayPos.xy), 1);
+            #endif
+
+            vec2 hitPos   = rayPos.xy;
+
+            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
+            rayStep      *= 0.5;
+            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
+
+            float condition;
+            for (int o = 0; o < SSR_FINE_STEPS; o++) {
+                hitDepth  = texture(depthSampler, rayPos.xy).x;
+                rayStep  *= .5;
+
+                if (rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance) {
+                    hitPos   = rayPos.xy;
+                    rayPos  -= rayStep;
+                } else {
+                    rayPos  += rayStep;
+                }
+            }
+
+            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
+        }
+    }
+
+    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+}
+
 /* vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
     // Reflect in View Space
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
@@ -290,6 +356,7 @@ void main() {
         //                  OTHER REFLECTIVE SURFACES
         //////////////////////////////////////////////////////////
 
+        // Reflections on PBR Materials
         #ifdef PHYSICALLY_BASED
 
         // SSR for other reflective surfaces
@@ -311,7 +378,29 @@ void main() {
             #endif
         }
 
+        // Reflections on Glass
+        #elif defined GLASS_REFLECTIONS
+
+        if (type == 11) { 
+
+            float fresnel   = customFresnel(viewDir, normal, 0.1, 1, 7);
+
+            #if SSR_MODE == 0
+                vec4 Reflection = universalSSR(Positions, normal, false, depthtex1);
+            #else
+                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            #endif
+
+            color           = mix(color, Reflection.rgb, fresnel);
+
+            #ifdef SSR_DEBUG
+                color = vec3(fresnel);
+            #endif
+
+        }
+
         #endif
+        
 
     #endif
 

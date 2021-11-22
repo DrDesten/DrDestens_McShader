@@ -26,7 +26,7 @@ void main() {
 		#if MC_VERSION >= 11605
 		if (renderStage == MC_RENDER_STAGE_OUTLINE) {
 		#else
-		if (abs(glcolor.a - 0.5) < 0.2) {
+		if (abs(glcolor.a - 0.5) < 0.2) { // Workaround for detecting the block outline in versions prior to 1.16.5
 		#endif
 
 			#if SELECTION_OUTLINE == 1

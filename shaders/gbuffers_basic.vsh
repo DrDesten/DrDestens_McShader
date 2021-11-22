@@ -26,7 +26,7 @@ void main() {
 		#if MC_VERSION < 11700
 			#include "/lib/world_curve.glsl"
 		#else
-			if (renderStage != MC_RENDER_STAGE_OUTLINE) {
+			if (renderStage != MC_RENDER_STAGE_OUTLINE) { // Disable World Curvature for the block outline for versions 1.17 and above
 				#include "/lib/world_curve.glsl"
 			}
 		#endif

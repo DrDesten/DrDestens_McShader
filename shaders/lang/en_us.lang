@@ -62,6 +62,8 @@ option.REFRACTION=Screen Space Refraction
 option.REFRACTION.comment=Distorts things seen through water.
 option.REFRACTION_AMOUNT=Refraction Strength
 
+option.GLASS_REFLECTIONS=Glass Reflections
+option.GLASS_REFLECTIONS.comment=Adds reflections to tinted glass blocks.
 
 ///////////////////////////////////////////////////////////
 // WATER
