@@ -1,5 +1,3 @@
-
-
 uniform int worldTime;
 
 #include "/lib/transform.glsl"
@@ -9,7 +7,6 @@ uniform int worldTime;
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
-#include "/lib/gamma.glsl"
 
 uniform vec3 fogColor;
 uniform vec2 atlasSizeInverse;

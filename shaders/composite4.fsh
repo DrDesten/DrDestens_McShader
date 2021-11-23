@@ -9,7 +9,6 @@
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
 #include "/lib/skyColor.glsl"
-#include "/lib/gamma.glsl"
 #include "/lib/kernels.glsl"
 
 uniform sampler2D depthtex1;
@@ -370,6 +369,23 @@ void main() {
          color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
         #endif
     #endif
+    
+    #if FOG != 0
+
+        // Blend between FogColor and normal color based on square distance
+        vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
+
+        float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
+
+        #if FOG == 1
+            float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
+        #else
+            float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
+        #endif
+
+        color           = mix(color, getFogColor_gamma(viewPos, rainStrength, isEyeInWater), fog);
+
+    #endif
 
     #ifdef OVERWORLD
     #ifdef GODRAYS
@@ -417,25 +433,6 @@ void main() {
         }
 
     #endif
-    #endif
-
-    #if FOG != 0
-
-        if (getType(coord) != 50) {
-            // Blend between FogColor and normal color based on square distance
-            vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
-
-            float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
-
-            #if FOG == 1
-             float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
-            #else
-             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
-            #endif
-
-            color           = mix(color, getFogColor_gamma(viewPos, rainStrength, isEyeInWater), fog);
-        }
-
     #endif
 
     #ifdef HAND_INVISIBILITY_EFFECT

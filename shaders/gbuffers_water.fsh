@@ -7,7 +7,6 @@ uniform int worldTime;
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
-#include "/lib/gamma.glsl"
 
 uniform float frameTimeCounter;
 

@@ -3,7 +3,6 @@ uniform mat4 gbufferModelViewInverse;
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/skyColor.glsl"
-#include "/lib/gamma.glsl"
 
 uniform float wetness; 
 uniform float rainStrength;

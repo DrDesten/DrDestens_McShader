@@ -7,7 +7,6 @@ uniform int worldTime;
 #include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
-#include "/lib/gamma.glsl"
 
 uniform vec3 fogColor;
 

@@ -2,7 +2,6 @@
 
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
-#include "/lib/gamma.glsl"
 
 varying vec3 normal;
 varying vec2 coord;

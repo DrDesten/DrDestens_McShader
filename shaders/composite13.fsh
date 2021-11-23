@@ -3,7 +3,6 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/composite_basics.glsl"
-#include "/lib/gamma.glsl"
 
 #ifdef TAA
 #include "/lib/kernels.glsl"
@@ -183,7 +182,7 @@ void main() {
 
     #if TONEMAP == 1
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
-    color = invgamma(color);
+    color = gamma_inv(color);
     #elif TONEMAP == 2
     color = unreal_tonemap(color * EXPOSURE); // Tone mapping
     #endif

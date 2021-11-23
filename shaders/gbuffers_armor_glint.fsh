@@ -1,6 +1,6 @@
 
 
-#include "/lib/gamma.glsl"
+#include "/lib/math.glsl"
 
 uniform sampler2D lightmap;
 uniform sampler2D texture;
