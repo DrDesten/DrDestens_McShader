@@ -1,8 +1,10 @@
+#define GAMMA 2.2
 
 const float TWO_PI  = 6.28318530717958647692;
 const float PI      = 3.14159265358979323846;
 const float HALF_PI = 1.57079632679489661923;
-const float PHI     = 1.61803398874989484820459;
+const float INV_PI  = 0.31830988618379067153;
+const float PHI     = 1.61803398874989484820;
 
 vec2 radClamp(vec2 coord) {
     // Center at 0,0
@@ -189,10 +191,6 @@ mat2 rotationMatrix2(float angle) {
     return mat2(ca, sa, -sa, ca);
 }
 
-/* mat3 rotationMatrix3(float angleX, float angleY) {
-
-} */
-
 ////////////////////////////////////////////////////////////////////////
 // General functions
 
@@ -240,8 +238,17 @@ float sqmag(vec4 v) {
     return dot(v, v);
 }
 
+float manhattan(vec2 v) {
+    return abs(v.x) + abs(v.y);
+}
+float manhattan(vec3 v) {
+    return abs(v.x) + abs(v.y) + abs(v.z);
+}
+float manhattan(vec4 v) {
+    return abs(v.x) + abs(v.y) + abs(v.z) + abs(v.w);
+}
 
-float sq(float x) {
+float sq(float x) { // Square
     return x * x;
 }
 vec2 sq(vec2 x) {
@@ -254,7 +261,20 @@ vec4 sq(vec4 x) {
     return x * x;
 }
 
-float cb(float x) {
+float ssq(float x) { // Signed Sqaure
+    return x * abs(x);
+}
+vec2 ssq(vec2 x) {
+    return x * abs(x);
+}
+vec3 ssq(vec3 x) {
+    return x * abs(x);
+}
+vec4 ssq(vec4 x) {
+    return x * abs(x);
+}
+
+float cb(float x) { // Cube
     return x * x * x;
 }
 vec2 cb(vec2 x) {
@@ -267,7 +287,7 @@ vec4 cb(vec4 x) {
     return x * x * x;
 }
 
-float logn(float base, float res) {
+float logn(float base, float res) { // Log base n
     return log2(res) / log2(base);
 }
 
@@ -312,6 +332,39 @@ mat3 arbitraryTBN(vec3 normal) {
 
 
 ////////////////////////////////////////////////////////////////////////
+// Matrix Transformations
+
+vec3 projectOrthographicMAD(in vec3 position, in mat4 projectionMatrix) {
+    return vec3(projectionMatrix[0].x, projectionMatrix[1].y, projectionMatrix[2].z) * position + projectionMatrix[3].xyz;
+}
+vec2 projectOrthographicMAD(in vec2 position, in mat4x2 projectionMatrix) {
+    return vec2(projectionMatrix[0].x, projectionMatrix[1].y) * position + projectionMatrix[3].xy;
+}
+vec3 projectPerspectiveMAD(in vec3 position, in mat4 projectionMatrix) {
+    return projectOrthographicMAD(position, projectionMatrix) / -position.z;
+}
+vec2 projectPerspectiveMAD(in vec3 position, in mat4x2 projectionMatrix) {
+    return projectOrthographicMAD(position.xy, projectionMatrix) / -position.z;
+}
+vec4 projectHomogeneousMAD(in vec3 position, in mat4 projectionMatrix) {
+    return vec4(projectOrthographicMAD(position, projectionMatrix), -position.z);
+}
+
+vec3 unprojectOrthographicMAD(in vec2 position, in mat4 inverseProjectionMatrix) {
+    return vec3(vec2(inverseProjectionMatrix[0].x, inverseProjectionMatrix[1].y) * position + inverseProjectionMatrix[3].xy, inverseProjectionMatrix[3].z);
+}
+vec3 unprojectPerspectiveMAD(in vec3 position, in mat4 inverseProjectionMatrix) {
+    return unprojectOrthographicMAD(position.xy, inverseProjectionMatrix) / (inverseProjectionMatrix[2].w * position.z + inverseProjectionMatrix[3].w);
+}
+vec4 unprojectHomogeneousMAD(in vec3 position, in mat4 inverseProjectionMatrix) {
+    return vec4(unprojectOrthographicMAD(position.xy, inverseProjectionMatrix), inverseProjectionMatrix[2].w * position.z + inverseProjectionMatrix[3].w);
+}
+vec3 transformMAD(in vec3 position, in mat4 transformationMatrix) {
+    return mat3(transformationMatrix) * position + transformationMatrix[3].xyz;
+}
+
+
+////////////////////////////////////////////////////////////////////////
 // Color-Specific functions
 
 vec3 saturation(vec3 col, float saturation) {
@@ -342,6 +395,15 @@ vec3 hsv2rgb(vec3 c) {
     const vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 gamma(inout vec3 color) {
+    color = pow(color, vec3(GAMMA));
+    return color;
+}
+vec3 gamma_inv(vec3 color) {
+    color = pow(color, vec3(1 / GAMMA));
+    return color;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
