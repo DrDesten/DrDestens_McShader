@@ -1,7 +1,7 @@
 
 /*
 
-const int colortex0Format = RGB16F;         // Color
+const int colortex0Format = RGB16F; // Color
 
 const int colortex1Format = RG8;            // Reflectiveness, Height (and in the future other PBR values)
 const int colortex2Format = RGB16_SNORM;    // Normals

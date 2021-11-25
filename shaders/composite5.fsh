@@ -11,8 +11,6 @@
 #include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
 
-uniform sampler2D depthtex1;
-
 uniform float centerDepthSmooth;
 const float   centerDepthHalflife = 1.5;
 
@@ -303,7 +301,7 @@ vec3 getBloomTilesBlur_opt(vec2 coord, float tiles, float padding) {
 #endif
 
 void main() {
-    float depth         = texture(depthtex1, coord).r;
+    float depth         = texture(depthtex0, coord).r;
 
     #if DOF_MODE != 0
  

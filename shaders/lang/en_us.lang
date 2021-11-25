@@ -165,6 +165,7 @@ screen.ATMOSPHERE=Atmospherics
 option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Steps
+option.GODRAY_SIZE=Godray Size
 
 option.FOG=Fog
 value.FOG.0=§cOFF
@@ -173,6 +174,9 @@ value.FOG.2=Adaptive
 option.FOG_AMOUNT=Fog Amount
 
 option.SKY_SUNSET=Sunset
+option.SUNSET_FOG=Morning Fog
+option.SUNSET_FOG.comment=Increases fog amount during sunsets. Only works with fog in "Normal" mode. Requires fog and sunsets to be enabled.
+option.SUNSET_FOG_AMOUNT=Morning Fog Strength
 
 screen.SKY_OPTIONS=Sky Options
 option.SKY_DAY_R=Sky Day §cR

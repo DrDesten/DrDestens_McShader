@@ -360,6 +360,7 @@ void main() {
     #endif
 
     #if OUTLINE != 0
+
         float outline = depthEdge(coord, depth);
         #if OUTLINE == 1
          color = mix(color, vec3(1), outline * OUTLINE_BRIGHTNESS);
@@ -368,22 +369,32 @@ void main() {
         #else
          color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
         #endif
+        
     #endif
     
     #if FOG != 0
 
         // Blend between FogColor and normal color based on square distance
         vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
-
         float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
 
+        #ifdef SUNSET_FOG
         #if FOG == 1
-            float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
+        #ifdef SKY_SUNSET
+            dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
+        #endif
+        #endif
+        #endif
+
+        #if FOG == 1
+            //float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
+            float fog       = 1 - pow(FOG_AMOUNT * 4e-6 + 1, -dist);
         #else
             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
         #endif
 
-        color           = mix(color, getFogColor_gamma(viewPos, rainStrength, isEyeInWater), fog);
+        vec3 customFogColor = getFogColor_gamma(viewPos, rainStrength, isEyeInWater);
+        color               = mix(color, customFogColor, fog);
 
     #endif
 
@@ -427,9 +438,13 @@ void main() {
             }
 
             // Exponential falloff (also making it FOV independent)
-            light *= exp2(-sqmag(rayCorrected / fovScale) * 5);
+            light *= exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
 
-            color += clamp(light * GODRAY_STRENGTH * fogColor, 0, 1); // Additive Effect
+            #if FOG != 0
+                color += saturate(light * (GODRAY_STRENGTH * 2) * customFogColor); // Additive Effect
+            #else
+                color += saturate(light * GODRAY_STRENGTH * fogColor); // Additive Effect
+            #endif
         }
 
     #endif

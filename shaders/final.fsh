@@ -21,11 +21,19 @@ vec3 gaussian_3x3(vec2 coord) {
     return color * 0.25;
 }
 
+/* vec3 sharpen(vec2 coord, float amount, float maximum) {
+    vec3 blurred  = gaussian_3x3(coord);
+    vec3 color    = getAlbedo(coord);
+
+    return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
+    //return clamp((color - blurred) * amount, -maximum, maximum) + color;
+} */
 vec3 sharpen(vec2 coord, float amount, float maximum) {
     vec3 blurred  = gaussian_3x3(coord);
     vec3 color    = getAlbedo(coord);
 
-    return clamp((color - blurred) * amount, -maximum, maximum) + color;
+    return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
+    //return clamp((color - blurred) * amount, -maximum, maximum) + color;
 }
 
 float cDist(vec4 col1, vec4 col2) {
@@ -56,9 +64,8 @@ vec4 smartUpscale(sampler2D tex, vec2 coord) {
 
 void main() {
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 50, 1., 1.5);
-        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.05));
-        //vec3  color = texture(colortex5, coord).rgb;
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 100, 0.8, 3.0);
+        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
     #else
         vec3  color = getAlbedo(coord);
         //color = smartUpscale(colortex0, coord).rgb;

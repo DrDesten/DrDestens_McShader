@@ -73,6 +73,9 @@ void main() {
 
     gamma(color.rgb);
 
+    /* float dither = Bayer4(gl_FragCoord.xy) * (1./64) - (.5/64);
+    color       += vec3(dither, dither, dither * 2); */
+
     gl_FragData[0] = vec4(color, 1.0);
     gl_FragData[1] = vec4(0, vec3(1));
 }
