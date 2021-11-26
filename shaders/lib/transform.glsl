@@ -9,9 +9,8 @@ uniform mat4 gbufferPreviousProjection;
 
 float fovScale = gbufferProjection[1][1] * 0.7299270073;
 
-vec3 toView(vec3 clipspace) { // Clippos to viewpos
-    vec4 tmp = gbufferProjectionInverse * vec4(clipspace, 1.0);
-    return tmp.xyz / tmp.w;
+vec3 toView(vec3 clippos) { // Clippos to viewpos
+    return unprojectPerspectiveMAD(clippos, gbufferProjectionInverse);
 }
 
 vec3 toPlayer(vec3 viewspace) { // Viewpos to Playerfeetpos
@@ -41,17 +40,16 @@ vec3 eyeToView(vec3 playereye) {
 }
 
 vec3 backToClip(vec3 viewpos) { // viewpos to clip pos
-    vec4 tmp = gbufferProjection * vec4(viewpos, 1.0);
-    return tmp.xyz / tmp.w;
+    return projectPerspectiveMAD(viewpos, gbufferProjection);
 }
+
 vec4 backToClipW(vec3 viewpos) { // viewpos to clip pos
-    vec4 tmp = gbufferProjection * vec4(viewpos, 1.0);
+    vec4 tmp = projectHomogeneousMAD(viewpos, gbufferProjection);
     return vec4(tmp.xyz / tmp.w, tmp.w);
 }
 
 vec3 backToScreen(vec3 viewpos) { // viewpos to screen pos
-    vec4 tmp = gbufferProjection * vec4(viewpos, 1.0);
-    return (tmp.xyz / tmp.w) * 0.5 + 0.5;
+    return projectPerspectiveMAD(viewpos, gbufferProjection) * 0.5 + 0.5;
 }
 
 
@@ -67,12 +65,10 @@ vec3 eyeToPrevView(vec3 prevplayereye) { // previous playereyepos to previous vi
 }
 
 vec3 toPrevClip(vec3 prevviewpos) { // previous viewpos to previous screen pos
-    vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
-    return tmp.xyz / tmp.w;
+    return projectPerspectiveMAD(prevviewpos, gbufferPreviousProjection);
 }
 vec3 toPrevScreen(vec3 prevviewpos) { // previous viewpos to previous screen pos
-    vec4 tmp = gbufferPreviousProjection * vec4(prevviewpos, 1.0);
-    return (tmp.xyz / tmp.w) * 0.5 + 0.5;
+    return projectPerspectiveMAD(prevviewpos, gbufferPreviousProjection) * 0.5 + 0.5;
 }
 
 

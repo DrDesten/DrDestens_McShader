@@ -17,7 +17,7 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:0 */
 void main() {
 
-	vec4 color = vec4(glcolor.rgb, step(0.01, glcolor.a));
+	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
 	color     *= texture2D(lightmap, lmcoord);
 
 	#if SELECTION_OUTLINE != 0

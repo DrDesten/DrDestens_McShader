@@ -198,14 +198,8 @@ bool closeTo(float a, float b, float epsilon) {
     return abs(a-b) < epsilon;
 }
 
-float mean(vec2 vector) {
-    return (vector.x + vector.y) * 0.5;
-}
-float mean(vec3 vector) {
-    return (vector.x + vector.y + vector.z) * 0.333333333333;
-}
-float mean(vec4 vector) {
-    return ((vector.x + vector.y) + (vector.z + vector.w)) * 0.25;
+float fstep(float edge, float x) { // Fast step() function with no branching of if 
+    return clamp((x - edge) * 1e60, 0, 1);
 }
 
 float sum(vec2 v) {
@@ -216,6 +210,16 @@ float sum(vec3 v) {
 }
 float sum(vec4 v) {
     return (v.x + v.y) + (v.z + v.w);
+}
+
+float mean(vec2 vector) {
+    return (vector.x + vector.y) * 0.5;
+}
+float mean(vec3 vector) {
+    return (vector.x + vector.y + vector.z) * 0.333333333333;
+}
+float mean(vec4 vector) {
+    return ((vector.x + vector.y) + (vector.z + vector.w)) * 0.25;
 }
 
 vec2 midpoint(vec2 v1, vec2 v2) {
@@ -245,7 +249,7 @@ float manhattan(vec3 v) {
     return abs(v.x) + abs(v.y) + abs(v.z);
 }
 float manhattan(vec4 v) {
-    return abs(v.x) + abs(v.y) + abs(v.z) + abs(v.w);
+    return (abs(v.x) + abs(v.y)) + (abs(v.z) + abs(v.w));
 }
 
 float sq(float x) { // Square
@@ -261,7 +265,7 @@ vec4 sq(vec4 x) {
     return x * x;
 }
 
-float ssq(float x) { // Signed Sqaure
+float ssq(float x) { // Signed Square
     return x * abs(x);
 }
 vec2 ssq(vec2 x) {

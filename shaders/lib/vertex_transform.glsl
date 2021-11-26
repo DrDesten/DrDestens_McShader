@@ -1,6 +1,7 @@
 uniform vec3 cameraPosition;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjectionInverse;
 
 vec3 getNormal() {
     return normalize(gl_NormalMatrix * gl_Normal);
@@ -9,7 +10,6 @@ vec3 getNormal() {
 vec2 getCoord() {
     return mat2(gl_TextureMatrix[0]) * gl_MultiTexCoord0.xy + gl_TextureMatrix[0][3].xy;
 }
-
 vec2 getLmCoord() {
     return mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.xy + gl_TextureMatrix[1][3].xy;
 }

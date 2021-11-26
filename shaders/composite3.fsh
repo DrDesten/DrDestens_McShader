@@ -81,8 +81,8 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     
     float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
 
-    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
+    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                     // Selects the maximum Z-Distance a ray can travel based on the information
     vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
     rayStep         /= SSR_STEPS;
@@ -147,7 +147,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
     
     float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
 
-    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
     float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
     vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
@@ -213,7 +213,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
     
     float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
 
-    float zDir       = step(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
+    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
     float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
     vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
