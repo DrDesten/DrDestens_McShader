@@ -10,7 +10,7 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 #endif
 
-in vec2 coord;
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 vec3 gaussian_3x3(vec2 coord) {
     vec2 e = vec2(-.5, .5);

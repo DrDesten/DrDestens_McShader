@@ -431,6 +431,9 @@ float linearizeDepth(float d,float nearPlane,float farPlane) {
 float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / ((-d * slope) + slope);
 }
+float linearizeDepthfDivisor(float d, float slope) { // Returns 1 / linearizeDepthf For matching results, slope should be set to 1/nearPlane
+    return (-d * slope) + slope;
+}
 float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
     return -1 / (ld * slope) + 1;
 }

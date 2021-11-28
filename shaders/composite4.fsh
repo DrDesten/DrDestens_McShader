@@ -17,10 +17,6 @@ uniform sampler2D colortex4;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
-/* uniform int   worldTime;
-uniform vec3  fogColor;
-uniform vec3  sunPosition;
-uniform vec3  moonPosition; */
 uniform float rainStrength;
 
 uniform vec3  lightPosition;
@@ -33,222 +29,7 @@ uniform float aspectRatio;
 
 uniform int   isEyeInWater;
 
-in vec2 coord;
-flat in vec2 x3_kernel[9];
-
-
-/* // 3-Sample Dark Priority Despecler
-    vec3 AntiSpeckleX2(vec2 coord, float threshold, float amount) {
-        float pixelOffsetX = screenSizeInverse.x * amount;
-
-        vec3 color           = getAlbedo(coord);
-
-        vec3 color_surround[2]  = vec3[2](
-            getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
-            getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
-        );
-
-
-        #ifdef DENOISE_DEBUG
-        for (int i = 0; i < 2; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-        }
-        #else
-
-        for (int i = 0; i < 2; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-        }
-
-        #endif
-
-        return color;
-    }
-
-    // 5-Sample Dark Priority Despecler
-    vec3 AntiSpeckleX4(vec2 coord, float threshold, float amount) {
-        vec2 pixelOffset = screenSizeInverse * amount;
-
-        vec3 color           = getAlbedo(coord);
-        vec2 coordOffsetPos  = coord + pixelOffset;
-        vec2 coordOffsetNeg  = coord - pixelOffset;
-
-        vec3 color_surround[4]  = vec3[4](
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-        );
-
-
-        #ifdef DENOISE_DEBUG
-        for (int i = 0; i < 4; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-        }
-        #else
-
-        for (int i = 0; i < 4; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-        }
-
-        #endif
-
-        return color;
-    }
-
-    // 9-Sample Dark Priority Despecler
-    vec3 AntiSpeckleX8(vec2 coord, float threshold, float amount) {
-        vec2 pixelOffset = screenSizeInverse * amount;
-
-        vec3 color           = getAlbedo(coord);
-        vec2 coordOffsetPos  = coord + pixelOffset;
-        vec2 coordOffsetNeg  = coord - pixelOffset;
-
-        vec3 color_surround[8]  = vec3[8](
-            getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-        );
-
-        #ifdef DENOISE_DEBUG
-        for (int i = 0; i < 8; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = vec3(1,0,0);}
-        }
-        #else
-
-        for (int i = 0; i < 8; i++) {
-            if ((sum(color) - sum(color_surround[i])) > threshold) {color = color_surround[i];}
-        }
-
-        #endif
-
-        return color;
-    }
-
-    // 3-Sample Closest-to-Average Denoiser
-    vec3 DenoiseMeanL(vec2 coord, float threshold, float amount) {
-        float pixelOffsetX = screenSizeInverse.x * amount;
-
-        vec3 color           = getAlbedo(coord);
-
-        vec3 color_surround[2]  = vec3[2](
-            getAlbedo_int(vec2(coord.x + pixelOffsetX,  coord.y)),
-            getAlbedo_int(vec2(coord.x - pixelOffsetX,  coord.y))
-        );
-        
-        float average     = sum(color+color_surround[0]+color_surround[1]) / 3;
-        float close       = abs(sum(color) - average);
-        vec3 closestColor = color;
-
-        for (int i = 0; i < 2; i++) {
-            float diff = abs(sum(color_surround[i]) - average);
-            if (diff < close) {
-                close        = diff;
-                closestColor = color_surround[i];
-            }
-        }
-
-        return closestColor;
-    }
-
-    // 5-Sample Closest-to-Average Denoiser
-    vec3 DenoiseMeanM(vec2 coord, float threshold, float amount) {
-        vec2 pixelOffset = screenSizeInverse * amount;
-
-        vec3 color           = getAlbedo(coord);
-        vec2 coordOffsetPos  = coord + pixelOffset;
-        vec2 coordOffsetNeg  = coord - pixelOffset;
-
-        vec3 color_surround[4]  = vec3[4](
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-        );
-
-        float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]) * 0.2;
-        float close       = abs(sum(color) - average);
-        vec3 closestColor = color;
-
-        for (int i = 0; i < 4; i++) {
-            float diff = abs(sum(color_surround[i]) - average);
-            if (diff < close) {
-                close        = diff;
-                closestColor = color_surround[i];
-            }
-        }
-
-        return closestColor;
-    }
-
-    // 9-Sample Closest-to-Average Denoiser
-    vec3 DenoiseMeanH(vec2 coord, float threshold, float amount) {
-        vec2 pixelOffset = screenSizeInverse * amount;
-
-        vec3 color           = getAlbedo(coord);
-        vec2 coordOffsetPos  = coord + pixelOffset;
-        vec2 coordOffsetNeg  = coord - pixelOffset;
-
-        vec3 color_surround[8]  = vec3[8](
-            getAlbedo_int(vec2(coordOffsetPos.x,  coord.y         )),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coord.x,           coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetPos.y)),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coord.y         )),
-            getAlbedo_int(vec2(coordOffsetNeg.x,  coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coord.x,           coordOffsetNeg.y)),
-            getAlbedo_int(vec2(coordOffsetPos.x,  coordOffsetNeg.y))
-        );
-
-        float average     = sum(color+color_surround[0]+color_surround[1]+color_surround[2]+color_surround[3]+color_surround[4]+color_surround[5]+color_surround[6]+color_surround[7]) / 9;
-        float close       = abs(sum(color) - average);
-        vec3 closestColor = color;
-
-        for (int i = 0; i < 8; i++) {
-            float diff = abs(sum(color_surround[i]) - average);
-            if (diff < close) {
-                close = diff;
-                closestColor = color_surround[i];
-            }
-        }
-
-        return closestColor;
-    }
-*/
-
-
-float separationDetect(vec2 coord) {
-    float edgeColor;
-    float edgeColors[4] = float[](0,0,0,0);
-
-    for (int i = 0; i < 9; i++) {
-        float ccolor = getDepth_int(x3_kernel[i]);
-
-        edgeColors[0] += ccolor * sobel_vertical[i];
-        edgeColors[2] += ccolor * sobel_horizontal[i];
-
-        edgeColors[1] += ccolor * -sobel_vertical[i];
-        edgeColors[3] += ccolor * -sobel_horizontal[i];
-    }
-
-    edgeColor = abs(edgeColors[0]) + abs(edgeColors[1]) + abs(edgeColors[2]) + abs(edgeColors[3]);
-
-    edgeColor = min(edgeColor * 2, 1);
-    return edgeColor;
-}
-
-/* float depthEdgeFast(vec2 coord) {
-    float depth         = getDepth(coord);
-    // Use trick with linear interpolation to sample 16 pixels with 4 texture calls, and use the overall difference to calculate the edge
-    float depthSurround = getDepth_int((screenSizeInverse * 1.5) + coord) + getDepth_int((screenSizeInverse * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * 1.5, screenSizeInverse.y * -1.5) + coord) + getDepth_int(vec2(screenSizeInverse.x * -1.5, screenSizeInverse.y * 1.5) + coord);
-    depthSurround *= 0.25;
-
-    return clamp((abs(depthSurround - depth) * 100. * OUTLINE_DISTANCE) - 0.075, 0, 1);
-} */
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 float depthEdge(vec2 coord, float depth) {
     depth = texelFetch(depthtex0, ivec2(clamp(coord * screenSize - 2, vec2(0), screenSize)), 0).x;
@@ -325,7 +106,7 @@ void main() {
         if (depth > 0.56 && depth < 0.998) {
             vec3  normal    = texture(colortex4, coord).rgb * 2 - 1;
             float height    = mapHeight(texture(colortex1, coord).g, POM_DEPTH);
-            height         *= sq(depth / 0.56 - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
+            height         *= sq(depth * (1./0.56) - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
             vec3 playerPos    = toPlayerEye(viewPos);
@@ -387,7 +168,6 @@ void main() {
         #endif
 
         #if FOG == 1
-            //float fog       = 1 - pow(FOG_AMOUNT * 3e-6 + 1, -max(0, dist-5000) );
             float fog       = 1 - pow(FOG_AMOUNT * 4e-6 + 1, -dist);
         #else
             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
@@ -402,7 +182,7 @@ void main() {
     #ifdef GODRAYS
 
         // Start transforming sunPosition from view space to screen space
-        vec4 tmp      = gbufferProjection * vec4(lightPosition, 1.0);
+        vec4 tmp      = projectHomogeneousMAD(lightPosition, gbufferProjection);
 
         if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation

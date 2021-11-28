@@ -16,7 +16,7 @@ const float   centerDepthHalflife = 1.5;
 
 const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
-in vec2       coord;
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform float near;
 uniform float far;

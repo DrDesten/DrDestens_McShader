@@ -37,7 +37,7 @@ const float sunPathRotation = -40.0;
 uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
 
-in vec2 coord;
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform float near;
 uniform float far;
@@ -56,7 +56,7 @@ struct position { // A struct for holding positions in different spaces
 //                     SCREEN SPACE REFLECTION
 //////////////////////////////////////////////////////////////////////////////
 
-vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) { // "Cubemap style"
+vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) {
     vec3 reflection   = reflect(pos.view, normal);
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 

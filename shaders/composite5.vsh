@@ -1,10 +1,3 @@
-
-
-varying vec2 coord;
-
-
 void main() {
-    gl_Position = ftransform();
-
-    coord = gl_MultiTexCoord0.st;
+    gl_Position = gl_Vertex * 2 - 1;
 }

@@ -13,7 +13,7 @@
 
 uniform sampler2D colortex4;
 
-in vec2 coord;
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform float blindness; 
 

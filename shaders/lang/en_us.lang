@@ -245,6 +245,9 @@ option.WORLD_CURVE_RADIUS=World Radius
 
 option.WHITE_WORLD=White World
 
+option.TORCHLIGHT_EXTRA_BRIGHTNESS=Dynamic Light Brightness
+option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from emissive blocks.
+
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
 value.CREDITS.0=§r by DrDesten §r§k:###
