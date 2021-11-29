@@ -82,10 +82,6 @@ void main() {
 		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
 		gamma(color.rgb);
 
-		/* if (id == 1005) {
-			//color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
-			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
-		} */
 		if (lmcoord.x > 14.5/15.) {
 			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
 		}
