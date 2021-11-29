@@ -94,7 +94,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         float ddif = saturate(sample.z - hitDepth);
-        float hit  = saturate(ddif * 1e60);
+        float hit  = saturate(ddif * 1e35);
         hits += hit;
     }
 

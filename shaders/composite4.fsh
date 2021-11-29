@@ -221,7 +221,7 @@ void main() {
             light *= exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
 
             #if FOG != 0
-                color += saturate(light * (GODRAY_STRENGTH * 2) * customFogColor); // Additive Effect
+                color += saturate(light * (GODRAY_STRENGTH * 4) * customFogColor); // Additive Effect
             #else
                 color += saturate(light * GODRAY_STRENGTH * fogColor); // Additive Effect
             #endif

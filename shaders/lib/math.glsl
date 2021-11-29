@@ -199,7 +199,7 @@ bool closeTo(float a, float b, float epsilon) {
 }
 
 float fstep(float edge, float x) { // Fast step() function with no branching of if 
-    return clamp((x - edge) * 1e60, 0, 1);
+    return clamp((x - edge) * 1e35, 0, 1);
 }
 
 float sum(vec2 v) {

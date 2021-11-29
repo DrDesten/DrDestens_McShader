@@ -13,6 +13,7 @@ uniform sampler2D colortex5;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
+
 void Vignette(inout vec3 color) { //Darken Screen Borders
     float dist = distance(coord.st, vec2(0.5));
 
