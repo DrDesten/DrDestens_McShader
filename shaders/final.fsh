@@ -60,7 +60,7 @@ vec3 lanczos(vec2 coord, int r) {
 
 void main() {
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 100, 0.8, 3.0 * MC_RENDER_QUALITY) * TAA_SHARPENING_AMOUNT;
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
         vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
     #else
         vec3  color = getAlbedo_int(coord);

@@ -473,30 +473,23 @@ const float sobel_vertical[9] = float[](
 );
 
 
-/* const vec2 TAAOffsets[6] = vec2[](
-    vec2(-0.25, -0.25),
-    vec2(-0.25,  0.25),
-    vec2( 0.0,    0.0),
-    vec2( 0.25,  0.25),
-    vec2( 0.25, -0.25),
-    vec2( 0.0,    0.0)
-); */
-/* const vec2 TAAOffsets[6] = vec2[](
-    vec2( 0.0, -0.25),
-    vec2( 0.0,  0.25),
-    vec2( 0.0,   0.0),
-    vec2(-0.25,  0.0),
-    vec2( 0.25,  0.0),
-    vec2( 0.0,   0.0)
-); */
-/* const vec2 TAAOffsets[3] = vec2[](
-    vec2( 0.0, 0.0),
-    vec2( 0.5, 0.5),
-    vec2( 0.0, 0.5)
-); */
-const vec2 TAAOffsets[4] = vec2[]( // Creates as 2x2 pattern around a given pixel
+const vec2 TAAOffsets[9] = vec2[](
+    // Top Row
+    vec2(1./3, -1./3),
+    vec2(1./3, 0),
+    vec2(1./3,  1./3),
+    // Middle Row
+    vec2(0, -1./3),
+    vec2(0, 0),
+    vec2(0,  1./3),
+    // Bottom Row
+    vec2(-1./3, -1./3),
+    vec2(-1./3, 0),
+    vec2(-1./3,  1./3)
+); 
+/* const vec2 TAAOffsets[4] = vec2[]( // Creates as 2x2 pattern around a given pixel
     vec2( 0.25, 0.25),
     vec2( 0.25, -.25),
     vec2( -.25, 0.25),
     vec2( -.25, -.25)
-);
+); */

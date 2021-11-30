@@ -127,7 +127,7 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
             maxColor = max(maxColor, color);
         }
     }
-} 
+}
 
 #ifdef TAA 
 /* DRAWBUFFERS:05 */
@@ -137,7 +137,7 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
 
 void main() {
     #ifdef TAA
-        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 4) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
     #else
         vec2 unJitterCoord = coord;
     #endif
@@ -160,23 +160,22 @@ void main() {
         vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
         vec3  lastFrameColor    = lastFrame.rgb;
 
-        vec3 lowerThresh, higherThresh;
-        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
-
         // Anti - Ghosting
         //////////////////////////////////////////////////////////////////////
 
-        float boundsError     = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float spikeError      = float(any( lessThan(lastFrameColor + 0.005, lowerThresh) ) || any( greaterThan(lastFrameColor - 0.005, higherThresh) ));
-        float moveError       = length( (coord - reprojectPos.xy) * screenSize ) * 0.01; 
-
-        float blend   = saturate(boundsError + moveError + spikeError + TAA_BLEND);
-        #ifdef TAA_NOCLIP
-         blend = saturate(boundsError + TAA_BLEND);
+        vec3 lowerThresh, higherThresh;
+        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
+        #ifndef TAA_NOCLIP
+         lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
         #endif
+
+        float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
+        float blend       = saturate(boundsError + TAA_BLEND);
 
         color         = mix(lastFrameColor, currentFrameColor, blend);
         vec3 TAAcolor = max(color, 0.0);
+
+        //color = spikeError.xxx;
 
     #endif
 

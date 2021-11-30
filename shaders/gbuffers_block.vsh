@@ -37,7 +37,7 @@ void main() {
 	#endif
 	
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[int( mod(frameCounter, 4) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		clipPos.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
 	#endif
 
 	gl_Position = clipPos;
