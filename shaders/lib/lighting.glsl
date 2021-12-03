@@ -183,7 +183,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 	 vec4 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
     #endif
 
-    BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
+    //BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
     
     #ifdef SUBSURAFCE_SCATTERING
      if (subsurf >= 0.1) {

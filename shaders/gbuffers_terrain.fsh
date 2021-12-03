@@ -54,6 +54,10 @@ void main() {
 		MaterialInfo MatTex = FullMaterial(coord, color);
 		MatTex.AO 		   *= sq(glcolor.a);
 
+		/* vec2 skyLightDir, blockLightDir;
+		getLmDir(lmcoord, skyLightDir, blockLightDir); */
+
+
 		/* vec3 baseColor = texture2D(texture, coord).rgb;
 		vec3 heights = vec3(
 			sum(texture2D(texture, coord, -2).rgb) * 0.333,
@@ -77,9 +81,26 @@ void main() {
 
 	#else
 
+		vec2 skyLightDir, blockLightDir;
+		getLmDir(lmcoord, skyLightDir, blockLightDir);
+
+		blockLightDir = normalize(mat2(tbn) * blockLightDir);
+		
+		vec3 normalMap = extractNormal(NormalTex(coord), vec4(0));
+		vec2 newlm     = lmcoord;
+
+		// Blocklight
+		newlm.x *= saturate( dot(normalMap.xy, -blockLightDir) * 0.3 + 0.7) * 1.5;
+		newlm.x *= mix(normalMap.z * 0.3 + 0.7, 1,  fstep(0.1, manhattan(blockLightDir)));
+		
+		// Skylight
+		/* newlm.y *= saturate( dot(normalMap.xy, -skyLightDir) * 0.2 + 0.8);
+		newlm.y *= mix(normalMap.z * 0.3 + 0.7, 1,  fstep(0.1, manhattan(skyLightDir))); */
+
 		vec3 tmp 		   = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
 		color.rgb 		  *= glcolor.a;
-		color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		//color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		color.rgb         *= texture2D(lightmap, newlm).rgb + DynamicLight(newlm);
 		gamma(color.rgb);
 
 		if (lmcoord.x > 14.5/15.) {
@@ -87,6 +108,7 @@ void main() {
 		}
 		
 	#endif
+
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);

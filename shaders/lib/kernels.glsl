@@ -486,7 +486,18 @@ const vec2 TAAOffsets[9] = vec2[](
     vec2(-1./3, -1./3),
     vec2(-1./3, 0),
     vec2(-1./3,  1./3)
-); 
+);
+/* const vec2 TAAOffsets[9] = vec2[]( // Same thing as above, but shuffeled
+    vec2(0,  1./3),
+    vec2(-1./3, -1./3),
+    vec2(1./3, -1./3),
+    vec2(0, -1./3),
+    vec2(-1./3, 0),
+    vec2(1./3, 0),
+    vec2(0, 0),
+    vec2(-1./3,  1./3),
+    vec2(1./3,  1./3)
+);  */
 /* const vec2 TAAOffsets[4] = vec2[]( // Creates as 2x2 pattern around a given pixel
     vec2( 0.25, 0.25),
     vec2( 0.25, -.25),

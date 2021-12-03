@@ -334,7 +334,7 @@ void main() {
         if (type == 10) {
 
             /* vec2 n           = N22(fract(coord + frameTimeCounter)) * 2 - 1;
-            vec3 roughNormal = normalize(vec3(n * 0.05, 1)) * arbitraryTBN(normal); */
+            vec3 roughNormal = normalize(vec3(n * 0.1, 1)) * arbitraryTBN(normal); */
 
             float fresnel   = customFresnel(viewDir, normal, 0.05, 1, 3);
 

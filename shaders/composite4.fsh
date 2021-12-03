@@ -168,7 +168,13 @@ void main() {
         #endif
 
         #if FOG == 1
-            float fog       = 1 - pow(FOG_AMOUNT * 4e-6 + 1, -dist);
+            #ifdef END
+                float fog       = 1 - pow(FOG_AMOUNT * 4e-5 + 1, -dist);
+            #elif defined NETHER
+                float fog       = 1 - pow(FOG_AMOUNT * 4e-5 + 1, -dist);
+            #else
+                float fog       = 1 - pow(FOG_AMOUNT * 4e-6 + 1, -dist);
+            #endif
         #else
             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
         #endif
