@@ -157,6 +157,9 @@ option.POM_DEPTH.comment=Specifies how deep the POM goes. Values over 0.15 resul
 
 option.PBR_AMBIENT_LIGHT_MULTIPLIER=Ambient light multiplier
 
+option.DIRECTIONAL_LIGHTMAP=Directional Lightmaps
+option.DIRECTIONAL_LIGHTMAP.comment=Applies normal mapping to dynamic lights. Requires a ressource pack with PBR support.
+option.DIRECTIONAL_LIGHTMAP_STRENGTH=Directional Lightmap Strength
 
 ///////////////////////////////////////////////////////////
 // ATMOSPHERICS

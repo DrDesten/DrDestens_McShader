@@ -133,7 +133,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    if (screenPos.z >= 1.0 || screenPos.z < 0.56) { return 1.0; };
+    if (screenPos.z >= 1.0) { return 1.0; };
 
     #ifdef TAA
      float dither = fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;

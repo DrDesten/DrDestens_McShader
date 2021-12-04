@@ -16,8 +16,6 @@ void main() {
 	vec3 tmp   = sq(color.rgb);
 	color.rgb *= texture2D(lightmap, lmcoord).rgb;
 	gamma(color.rgb);
-	
-	color.rgb  = tmp * EMISSION_STRENGTH + color.rgb;
 
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
