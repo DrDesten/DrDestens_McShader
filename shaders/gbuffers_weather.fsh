@@ -1,7 +1,5 @@
 #include "/lib/math.glsl"
-
-uniform sampler2D lightmap;
-uniform sampler2D texture;
+#include "/lib/gbuffers_basics.glsl"
 
 varying vec2 lmcoord;
 varying vec2 coord;
@@ -11,7 +9,7 @@ varying vec4 glcolor;
 /* DRAWBUFFERS:0 */
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
-	color 	  *= texture2D(lightmap, lmcoord);
+	color.rgb *= getLightmap(lmcoord);
 	gamma(color.rgb);
 
 	color.a *= 0.5;

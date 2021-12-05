@@ -43,12 +43,14 @@ void main() {
 	
 	#ifdef PHYSICALLY_BASED
 
+		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
+
 		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color = color.rgb * glcolor.a * ( texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord) );
+		vec3 mc_color = color.rgb * glcolor.a * lightmapColor;
 		gamma(mc_color);
 
 		gamma(color.rgb);
-		vec3 ambientLight   = texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+		vec3 ambientLight   = lightmapColor;
 		//gamma(ambientLight);
 
 		MaterialInfo MatTex = FullMaterial(coord, color);
@@ -81,7 +83,7 @@ void main() {
 
 	#else
 
-		vec3 tmp 		   = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
+		vec3 tmp = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
 
 		#ifdef DIRECTIONAL_LIGHTMAP
 			vec2 blockLightDir = getBlocklightDir(lmcoord, mat2(tbn));
@@ -92,9 +94,9 @@ void main() {
 			float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lmcoord.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
 			newlm.x *= 1 - sq(1 - blockLightShade);
 
-			color.rgb         *= texture2D(lightmap, newlm).rgb + DynamicLight(newlm);
+			color.rgb *= getLightmap(newlm) + DynamicLight(newlm);
 		#else
-			color.rgb         *= texture2D(lightmap, lmcoord).rgb + DynamicLight(lmcoord);
+			color.rgb *= getLightmap(lmcoord) + DynamicLight(lmcoord);
 		#endif
 
 		color.rgb *= glcolor.a;

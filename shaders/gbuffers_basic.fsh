@@ -1,7 +1,6 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-
-uniform sampler2D lightmap;
+#include "/lib/gbuffers_basics.glsl"
 
 #if SELECTION_OUTLINE != 0
  uniform int   renderStage;
@@ -18,7 +17,7 @@ varying vec4 glcolor;
 void main() {
 
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
-	color     *= texture2D(lightmap, lmcoord);
+	color.rgb *= getLightmap(lmcoord);
 
 	#if SELECTION_OUTLINE != 0
 

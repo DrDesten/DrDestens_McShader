@@ -1,5 +1,3 @@
-
-
 #include "/lib/math.glsl"
 
 uniform sampler2D lightmap;
