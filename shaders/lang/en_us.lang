@@ -116,7 +116,7 @@ value.SSAO_QUALITY.3=High
 
 option.SSAO_STRENGTH=SSAO Strength
 
-
+screen.TAA_OPTIONS=TAA Options
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
 option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
@@ -255,4 +255,5 @@ option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from 
 
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
-value.CREDITS.0=§r by DrDesten §r§k:###
+value.CREDITS.0=§r by §cDrDesten §r§k:###
+value.CREDITS.1=§r §aVersion 1.5.2 §r§k:###

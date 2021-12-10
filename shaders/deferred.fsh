@@ -6,14 +6,8 @@
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
 
-#ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
-const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
-#endif
-
 uniform float nearInverse;
 uniform float aspectRatio;
-
-uniform vec3  fogColor;
 
 uniform int   frameCounter;
 
@@ -193,14 +187,7 @@ void main() {
             #elif SSAO_QUALITY == 3
 
                 vec3 normal = getNormal(coord);
-
-                #ifdef SCREEN_SPACE_GLOBAL_ILLUMINATION
-                    vec4 ssao_gi = AmbientOcclusionHIGH_SSGI(vec3(coord, depth), normal, 0.5);
-                    color       += ssao_gi.rgb;
-                    color       *= ssao_gi.a * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                #else
-                    color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-                #endif
+                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #endif
             

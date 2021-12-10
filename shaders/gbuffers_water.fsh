@@ -162,18 +162,10 @@ void main(){
             
             // "Fake" Waves
             vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-            float blend        = clamp(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1), 0, 1);              // Reducing the normals at small angles to avoid high noise
+            float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
             vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
 
             surfaceNormal      = normalize(tbn * noiseNormals);
-
-            /* vec3 heights = vec3(
-                sq(mean(texture2D(texture, coord))),
-                sq(mean(texture2D(texture, coord + vec2(atlasSizeInverse.x * 0.2, 0)))),
-                sq(mean(texture2D(texture, coord + vec2(0,-atlasSizeInverse.y * 0.2))))
-            );
-            vec3 normalMap = generateNormals(heights, 1);
-            surfaceNormal  = normalize(tbn * normalMap); */
 
         #endif
 

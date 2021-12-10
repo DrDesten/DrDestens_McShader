@@ -20,7 +20,7 @@ const vec4 colortex3ClearColor = vec4(0,0,0,0);
 const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 const bool colortex5Clear      = false;
 
-const float sunPathRotation = -40.0;
+const float sunPathRotation = -35.0;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         REFLECTIONS AND WATER EFFECTS
