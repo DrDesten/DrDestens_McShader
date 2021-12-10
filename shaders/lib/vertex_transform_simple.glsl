@@ -6,9 +6,16 @@ vec2 getCoord() {
     return mat2(gl_TextureMatrix[0]) * gl_MultiTexCoord0.xy + gl_TextureMatrix[0][3].xy;
 }
 
-vec2 getLmCoord() {
+#ifndef MC_GL_RENDERER_INTEL
+vec2 getLmCoord() { // Non-Intel Version
     return mat2(gl_TextureMatrix[1]) * gl_MultiTexCoord1.xy + gl_TextureMatrix[1][3].xy;
+    //return gl_MultiTexCoord1.xy * (1.0 / 240.0); // This "works" I guess
 }
+#else
+vec2 getLmCoord() { // Intel Version (Less Optimised)
+    return (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+}
+#endif
 
 mat3 getTBN(vec4 tangentAttribute) {
 	vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);

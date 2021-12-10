@@ -92,7 +92,8 @@ void main() {
 
 			// Blocklight
 			float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lmcoord.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
-			newlm.x *= 1 - sq(1 - blockLightShade);
+			newlm.x *= saturate(1 - sq(1 - blockLightShade));
+			newlm.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens
 
 			color.rgb *= getLightmap(newlm) + DynamicLight(newlm);
 		#else
