@@ -56,21 +56,6 @@ void main() {
 		MaterialInfo MatTex = FullMaterial(coord, color);
 		MatTex.AO 		   *= sq(glcolor.a);
 
-		/* vec2 skyLightDir, blockLightDir;
-		getLmDir(lmcoord, skyLightDir, blockLightDir); */
-
-
-		/* vec3 baseColor = texture2D(texture, coord).rgb;
-		vec3 heights = vec3(
-			sum(texture2D(texture, coord, -2).rgb) * 0.333,
-			sum(texture2D(texture, coord + vec2(atlasSizeInverse.x, 0), -2).rgb) * 0.333,
-			sum(texture2D(texture, coord + vec2(0, atlasSizeInverse.y), -2).rgb) * 0.333
-		);
-
-		MatTex.normal       = generateNormals(heights, 1);
-		MatTex.roughness    = generateRoughness(baseColor);
-		MatTex.f0           = vec3(0.04); */
-
 		PBRout Material     = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
 
 		color	            = Material.color;

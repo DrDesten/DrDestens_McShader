@@ -158,22 +158,25 @@ void main() {
         // Blend between FogColor and normal color based on square distance
         vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
         float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
+        dist           *= float(isEyeInWater + 1) * 10;
 
         #ifdef SUNSET_FOG
-        #if FOG == 1
-        #ifdef SKY_SUNSET
+         #if FOG == 1
+          #ifdef SKY_SUNSET
+           #ifdef OVERWORLD
             dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
-        #endif
-        #endif
+           #endif
+          #endif
+         #endif
         #endif
 
         #if FOG == 1
             #ifdef END
                 float fog       = 1 - pow(FOG_AMOUNT * 4e-5 + 1, -dist);
             #elif defined NETHER
-                float fog       = 1 - pow(FOG_AMOUNT * 4e-5 + 1, -dist);
+                float fog       = 1 - pow(FOG_AMOUNT * 1e-5 + 1, -dist);
             #else
-                float fog       = 1 - pow(FOG_AMOUNT * 4e-6 + 1, -dist);
+                float fog       = 1 - pow(FOG_AMOUNT * 1e-6 + 1, -dist);
             #endif
         #else
             float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));

@@ -411,7 +411,7 @@ void main() {
 
         color *= absorption;
         if (isEyeInWater == 2) { // Lava
-            color = mix(fogColor, color, absorption * 0.75);
+            color = mix(pow(fogColor, vec3(GAMMA)), color, absorption * 0.75);
         }
     }
 

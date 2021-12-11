@@ -66,8 +66,10 @@ vec3 getSkyColor5_gamma(vec3 viewPos, float rain) {
 vec3 getFogColor(vec3 viewPos, float rain, int eyeWater) {
     if (eyeWater == 0) {
         return getSkyColor5(viewPos, rain);
-    } else {
+    } else if (eyeWater == 1) {
         return fogColor * 0.25;
+    } else {
+        return fogColor;
     }
 }
 vec3 getFogColor_gamma(vec3 viewPos, float rain, int eyeWater) {

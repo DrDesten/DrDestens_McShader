@@ -93,10 +93,10 @@ vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
 vec3 simpleSubsurface2(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
     float diffExpand = dot(N, L);
     diffExpand      *= diffExpand;
-    diffExpand       = diffExpand * 0.15 + 0.1;
+    diffExpand       = diffExpand * 0.2 + 0.1;
 
     float through = clamp(dot(-V, L), 0, 1);
-    through       = pow(through, 10) * 0.75;
+    through       = pow(through, 7);
 
     return (diffExpand + through) * subsurface * albedo;
 }
@@ -183,7 +183,7 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 	 vec4 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
     #endif
 
-    //BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
+    BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
     
     #ifdef SUBSURAFCE_SCATTERING
      if (subsurf >= 0.1) {
@@ -193,7 +193,8 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
     #endif
 
     // Emission and Ambient Light
-	BRDF.rgb 		 += color.rgb * ((ambient * AO * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
+	BRDF.rgb 		+= color.rgb * ((ambient * AO * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
+    //BRDF.rgb = ambient;
 
 	// Blend between normal MC rendering and PBR rendering
 	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
