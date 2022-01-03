@@ -196,9 +196,6 @@ void main() {
         }
 
     #endif
-    
-
-    depth = Vec3ToInt24_asfloat(texture(colortex4, coord).xyz);
 
     FD0 = vec4(color, 1.0);
 }
