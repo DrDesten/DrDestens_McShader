@@ -35,7 +35,8 @@ void main() {
 	float reflectiveness = 0;
 	float height 		 = 1;
 
-	vec4 color		   = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
+	vec4 color = texture2D(texture, coord, 0);
+	color.rgb *= glcolor.rgb;
 	
 	#ifdef WHITE_WORLD
 	 color.rgb = vec3(1);
