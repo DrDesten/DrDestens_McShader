@@ -37,10 +37,11 @@ void main(){
 			float flowHeight = fract(worldPos.y + 0.01);
 
 			// "Physical" Wave Offsets
-			float zOffset    = (sin((worldPos.x * 0.1) + (frameTimeCounter)) - 0.5) * 0.05;
-			float zOffset2   = (sin((worldPos.z * 0.2) + (frameTimeCounter * 3)) - 0.5) * 0.025;
+			float zOffset    = sin((worldPos.x * 0.1) + (frameTimeCounter)) * 0.1;
+			float zOffset2   = sin((worldPos.z * 0.2) + (frameTimeCounter * 3))* 0.4;
 			// Appling them (y Direction aka "up")
-			worldPos.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
+			worldPos.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT * flowHeight;
+			worldPos.y -= flowHeight * 0.5 * WATER_WAVE_AMOUNT;
 
 			gl_Position = playerToClip(vec4(worldPos - cameraPosition, 1));
 
