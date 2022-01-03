@@ -173,11 +173,11 @@ void main() {
 
         #if FOG == 1
             #ifdef END
-                float fog       = 1 - pow(FOG_AMOUNT * 4e-5 + 1, -dist);
+                float fog       = 1 - exp(min(-sqrt(dist) * (5e-3 * FOG_AMOUNT) + 0.2, 0));
             #elif defined NETHER
-                float fog       = 1 - pow(FOG_AMOUNT * 1e-5 + 1, -dist);
+                float fog       = 1 - exp(min(-sqrt(dist) * (3e-3 * FOG_AMOUNT) + 0.2, 0));
             #else
-                float fog       = 1 - pow(FOG_AMOUNT * 1e-6 + 1, -dist);
+                float fog       = 1 - exp(min(-sqrt(dist) * (1e-3 * FOG_AMOUNT) + 0.2, 0));
             #endif
         #else
             float fog       = smoothstep(far, sq(far * 2.828), dist * FOG_AMOUNT);
