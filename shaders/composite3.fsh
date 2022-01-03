@@ -397,7 +397,7 @@ void main() {
     // Absorption Above Water
     if (type == 10 && isEyeInWater == 0) {
         // Height difference between water surface and ocean floor
-        float absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2);
+        float absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2 - WATER_ABSORPTION_BIAS);
 
         color *= absorption;
     }
@@ -419,7 +419,11 @@ void main() {
                 vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
+            #ifdef END
+            Reflection.rgb *= saturate(0.5 + Reflection.a);
+            #else
             Reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + Reflection.a);
+            #endif
 
             color           = mix(color, Reflection.rgb, fresnel);
 

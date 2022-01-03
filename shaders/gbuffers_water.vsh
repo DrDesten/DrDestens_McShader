@@ -1,5 +1,3 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/vertex_transform.glsl"
@@ -27,22 +25,24 @@ out mat3 tbn;
 
 void main(){
 
-	vec4 clipPos 		= ftransform();
-	vec4 viewPosition   = getView4();
-	vec4 playerPosition = toPlayer(viewPosition);
-	vec4 worldPosition  = vec4(playerPosition.xyz + cameraPosition, playerPosition.w);
+	gl_Position    = ftransform();
+	vec3 viewPos   = getView();
+	vec3 playerPos = toPlayer(viewPos);
+	vec3 worldPos  = playerPos + cameraPosition;
 
 	#ifdef WATER_WAVES
 
 		if (mc_Entity.x == 1010) {
 
-			// "Physical" Wave Offsets
-			float zOffset    = (sin((worldPosition.x * 0.1) + (frameTimeCounter)) - 0.5) * 0.05;
-			float zOffset2   = (sin((worldPosition.z * 0.2) + (frameTimeCounter * 3)) - 0.5) * 0.025;
-			// Appling them (y Direction aka "up")
-			worldPosition.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
+			float flowHeight = fract(worldPos.y + 0.01);
 
-			clipPos = playerToClip(vec4(worldPosition.xyz - cameraPosition, worldPosition.w));
+			// "Physical" Wave Offsets
+			float zOffset    = (sin((worldPos.x * 0.1) + (frameTimeCounter)) - 0.5) * 0.05;
+			float zOffset2   = (sin((worldPos.z * 0.2) + (frameTimeCounter * 3)) - 0.5) * 0.025;
+			// Appling them (y Direction aka "up")
+			worldPos.y += (zOffset + zOffset2) * WATER_WAVE_AMOUNT;
+
+			gl_Position = playerToClip(vec4(worldPos - cameraPosition, 1));
 
 		}
 
@@ -53,15 +53,13 @@ void main(){
 	#endif
 
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
-
-	gl_Position  = clipPos;
 
 	tbn			 = getTBN(at_tangent);
 	
-	worldPos	 = worldPosition.xyz;
-	viewDir      = normalize(viewPosition.xyz);
+	worldPos	 = worldPos.xyz;
+	viewDir      = normalize(viewPos.xyz);
 
 	blockId 	 = getID(mc_Entity);
     coord 		 = getCoord();

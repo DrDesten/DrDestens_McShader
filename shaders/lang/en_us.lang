@@ -80,6 +80,8 @@ option.WATER_NORMALS_AMOUNT=Bump Amount
 option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
 option.WATER_NORMALS_SIZE=Bump Size
 
+option.WATER_ABSORPTION_BIAS=Water Absorption Bias
+
 option.WATER_TEXTURE_VISIBLE=Water Texture
 
 ///////////////////////////////////////////////////////////

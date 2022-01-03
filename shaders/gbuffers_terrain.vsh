@@ -1,6 +1,5 @@
-
-
 #include "/lib/settings.glsl"
+#include "/lib/math.glsl"
 #include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
 
@@ -34,7 +33,7 @@ vec3 wavyPlants(vec3 worldPos, float amount) {
 
 void main() {
 
-	vec4 clipPos = ftransform();
+	gl_Position = ftransform();
 
 	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
@@ -48,10 +47,10 @@ void main() {
 		// Waving Blocks Upper Vertices
 		if ((mc_Entity.x == 1030 || mc_Entity.x == 1031) && coord.y < mc_midTexCoord.y) { 
 
-			vec4 pos  = getPlayer() + vec4(cameraPosition, 0);
-			pos.xyz	  = wavyPlants(pos.xyz, .05);
+			vec3 worldPos = getWorld();
+			worldPos.xyz  = wavyPlants(worldPos, .05);
 
-			clipPos   = playerToClip(pos - vec4(cameraPosition, 0));
+			gl_Position = playerToClip(vec4(worldPos - cameraPosition, 1));
 		}
 
 		// Waving Blocks All Vertices
@@ -61,10 +60,10 @@ void main() {
 		#endif
 		 ) {
 
-			vec4 pos  = getPlayer() + vec4(cameraPosition, 0);
-			pos.xyz   = wavyPlants(pos.xyz, .05);
+			vec3 worldPos = getWorld();
+			worldPos.xyz  = wavyPlants(worldPos, .05);
 
-			clipPos   = playerToClip(pos - vec4(cameraPosition, 0));
+			gl_Position = playerToClip(vec4(worldPos - cameraPosition, 1));
 		}
 
 	#endif
@@ -74,12 +73,10 @@ void main() {
 	#endif
 
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 
 
 	blockId     = getID(mc_Entity);
 	glcolor     = gl_Color;
-	gl_Position = clipPos;
-
 }
