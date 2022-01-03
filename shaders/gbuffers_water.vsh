@@ -28,7 +28,7 @@ void main(){
 	gl_Position    = ftransform();
 	vec3 viewPos   = getView();
 	vec3 playerPos = toPlayer(viewPos);
-	vec3 worldPos  = playerPos + cameraPosition;
+	worldPos       = playerPos + cameraPosition;
 
 	#ifdef WATER_WAVES
 
@@ -58,8 +58,7 @@ void main(){
 	#endif
 
 	tbn			 = getTBN(at_tangent);
-	
-	worldPos	 = worldPos.xyz;
+
 	viewDir      = normalize(viewPos.xyz);
 
 	blockId 	 = getID(mc_Entity);
