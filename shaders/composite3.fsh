@@ -20,6 +20,8 @@ const vec4 colortex3ClearColor = vec4(0,0,0,0);
 const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 const bool colortex5Clear      = false;
 
+const float eyeBrightnessHalflife = 1.0;
+
 const float sunPathRotation = -35.0;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +46,8 @@ uniform float far;
 uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform int   isEyeInWater;
+
+uniform ivec2 eyeBrightnessSmooth;
 
 struct position { // A struct for holding positions in different spaces
     vec3 screen;
@@ -343,6 +347,8 @@ void main() {
             #else
                 vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
+
+            Reflection.rgb *= saturate(Reflection.a + eyeBrightnessSmooth.y / 240.);
 
             color           = mix(color, Reflection.rgb, fresnel);
 

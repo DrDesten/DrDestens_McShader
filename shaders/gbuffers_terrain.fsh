@@ -29,11 +29,7 @@ in mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-#ifdef POM_ENABLED
-/* DRAWBUFFERS:02314 */
-#else
 /* DRAWBUFFERS:0231 */
-#endif
 void main() {
 	vec3  normal         = tbn[2];
 	float reflectiveness = 0;
@@ -131,8 +127,4 @@ void main() {
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
-	
-	#ifdef POM_ENABLED
-	gl_FragData[4] = vec4(tbn[2] * 0.5 + 0.5, 1); // Since the Bloom Buffer is only in use in composite5/6, I can use it for POM
-	#endif
 }

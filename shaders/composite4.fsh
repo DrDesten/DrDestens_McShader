@@ -102,7 +102,6 @@ void main() {
     #ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
-            vec3  normal    = texture(colortex4, coord).rgb * 2 - 1;
             #ifdef POM_DISTORTION
              float height    = mapHeight(texture(colortex1, coord).g, POM_DEPTH);
             #else
@@ -112,7 +111,7 @@ void main() {
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
             vec3 playerPos    = toPlayerEye(viewPos);
-            vec3 playerNormal = toPlayerEye(viewPos + normal) - playerPos;
+            vec3 playerNormal = normalize(cross(dFdx(playerPos), dFdy(playerPos))); // Calculate normals based on derivatives (faster, accurate eniugh)
 
             vec3 playerPOM = playerPos + (playerNormal * height);
 
@@ -181,7 +180,7 @@ void main() {
                 float fog       = 1 - pow(FOG_AMOUNT * 1e-6 + 1, -dist);
             #endif
         #else
-            float fog       = sq(saturate((FOG_AMOUNT * dist) / sq(far)));
+            float fog       = smoothstep(far, sq(far * 2.828), dist * FOG_AMOUNT);
         #endif
 
         vec3 customFogColor = getFogColor_gamma(viewPos, rainStrength, isEyeInWater);
