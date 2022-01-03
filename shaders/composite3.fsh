@@ -348,7 +348,7 @@ void main() {
                 vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
-            Reflection.rgb *= saturate(Reflection.a + eyeBrightnessSmooth.y / 240.);
+            Reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + Reflection.a);
 
             color           = mix(color, Reflection.rgb, fresnel);
 

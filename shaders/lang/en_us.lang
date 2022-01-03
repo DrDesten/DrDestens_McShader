@@ -46,7 +46,7 @@ screen.SSR=Reflections
 
 option.SSR_MODE=Reflection Mode
 value.SSR_MODE.0=Raytraced
-value.SSR_MODE.1=Cubemap-Like
+value.SSR_MODE.1=Flipped Image
 
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower is faster.
@@ -182,7 +182,7 @@ option.GODRAY_SIZE=Godray Size
 option.FOG=Fog
 value.FOG.0=§cOFF
 value.FOG.1=Normal
-value.FOG.2=Adaptive
+value.FOG.2=Border
 option.FOG_AMOUNT=Fog Amount
 
 option.SKY_SUNSET=Sunset
