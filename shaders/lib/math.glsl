@@ -14,8 +14,11 @@ bool closeTo(float a, float b, float epsilon) {
     return abs(a-b) < epsilon;
 }
 
-float fstep(float edge, float x) { // Fast step() function with no branching of if 
-    return clamp((x - edge) * 1e35, 0, 1);
+float fstep(float edge, float x) { // Fast step() function with no branching
+    return clamp((x - edge) * 1e36, 0, 1);
+}
+float fstep(float edge, float x, float slope) { // Fast step() function with no branching
+    return clamp((x - edge) * slope, 0, 1);
 }
 
 float sum(vec2 v) {
@@ -138,15 +141,11 @@ float acosf(float x) {
 }
 
 float smootherstep(float x) { // Second derivative zero as well
-    float x2 = x*x;
-    float x4 = x2*x2;
-    return saturate( (6*x4*x) - (15*x4) + (10*x2*x) );
+    return saturate( cb(x) * (x * (6. * x - 15.) + 10.) );
 }
-float smootherstep(float x, float edge0, float edge1) {
-    x = saturate((x - edge0) / (edge1 - edge0));
-    float x2 = x*x;
-    float x4 = x2*x2;
-    return saturate( (6*x4*x) - (15*x4) + (10*x2*x) );
+float smootherstep(float edge0, float edge1, float x) {
+    x = saturate((x - edge0) * (1. / (edge1 - edge0)));
+    return cb(x) * (x * (6. * x - 15.) + 10.);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -162,18 +161,20 @@ float Bayer2(vec2 a) {
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
 
+float ditherColor(vec2 co) {
+    return Bayer4(co) * (4./256) - (2./256);
+}
+
+float checkerboard(vec2 co) {
+    co = floor(co);
+    return fract(co.x * 0.5 + co.y * 0.5);
+}
 
 float rand(float x) {
     return fract(sin(x * 12.9898) * 4375.5453123);
 }
 float rand(vec2 x) {
     return fract(sin(x.x * 12.9898 + x.y * 78.233) * 4375.5453);
-}
-float rand11(float x) {
-    return rand(x) * 2 - 1;
-}
-float rand11(vec2 x) {
-    return rand(x) * 2 - 1;
 }
 
 vec2 N22(vec2 x) {
@@ -236,6 +237,82 @@ float fbm(vec2 x, int n, float scale, float falloff) {
 	return v;
 }
 
+float voronoiSmooth(vec2 coord, float size, int complexity, float time) {
+    vec2 uv  = coord;
+    
+    // Calculate Grid UVs (Also center at (0,0))
+    vec2 guv = fract(uv * size) - .5;
+    vec2 gid = floor(uv * size);
+
+    float minDistance = 1e3;
+
+    // Check neighboring Grid cells
+    for (int x = -complexity; x <= complexity; x++) {
+        for (int y = -complexity; y <= complexity; y++) {
+        
+            vec2 offset = vec2(x, y);
+            
+            // Get the id of current cell (pixel cell + offset by for loop)
+            vec2 id    = gid + offset;
+            // Get the uv difference to that cell (offset has to be subtracted)
+            vec2 relUV = guv - offset;
+            
+            // Get Random Point (adjust to range (-.5, .5))
+            vec2 p     = N22(id) - .5;
+            p          = vec2(sin(time * p.x), cos(time * p.y)) * .5;
+            
+            // Calculate Distance bewtween point and relative UVs)
+            vec2 tmp   = p - relUV;
+            float d    = dot(tmp, tmp);
+            
+            // Select the smallest distance
+            
+            float h     = smoothstep( 0.0, 2.0, 0.5 + (minDistance-d) * 1.);
+            minDistance = mix( minDistance, d, h ); // distance
+            
+        }
+    }
+
+    return minDistance;
+}
+
+float voronoi(vec2 coord, int search_radius) {
+    vec2 uv  = coord;
+    
+    // Calculate Grid UVs (Also center at (0,0))
+    vec2 guv = fract(uv) - .5;
+    vec2 gid = floor(uv);
+
+    float minDistance = 1e3;
+
+    // Check neighboring Grid cells
+    for (int x = -search_radius; x <= search_radius; x++) {
+        for (int y = -search_radius; y <= search_radius; y++) {
+        
+            vec2 offset = vec2(x, y);
+            
+            // Get the id of current cell (pixel cell + offset by for loop)
+            vec2 id    = gid + offset;
+            // Get the uv difference to that cell (offset has to be subtracted)
+            vec2 relUV = guv - offset;
+            
+            // Get Random Point (adjust to range (-.5, .5))
+            vec2 p     = N22(id) - .5;
+            
+            // Calculate Distance bewtween point and relative UVs)
+            vec2 tmp   = p - relUV;
+            float d    = dot(tmp, tmp);
+            
+            // Select the smallest distance
+            minDistance = min(d, minDistance);
+            
+        }
+    }
+
+    return minDistance;
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 // Matrix Transformations
 
@@ -272,7 +349,36 @@ vec3 transformMAD(in vec3 position, in mat4 transformationMatrix) {
 ////////////////////////////////////////////////////////////////////////
 // Other Matrix Functions
 
-mat2 rotationMatrix2(float angle) {
+mat3 rotationMatrix3DX(float angle) { // You can use mat2 instead, but flip angle and keep X. > vec3(x, mat2 * yz)
+    float s = sin(angle);
+    float c = cos(angle);
+    return mat3(1, 0, 0,
+                0, c,-s,
+                0, s, c
+           );
+}
+mat3 rotationMatrix3DZ(float angle) { // You can use mat2 instead, but flip angle and keep Z. > vec3(mat2 * xy, z)
+    float s = sin(angle);
+    float c = cos(angle);    
+    return mat3(c, -s, 0,
+                s,  c, 0,
+                0,  0, 1
+           );
+}
+
+
+mat3 rotationMatrix3D(vec3 axis, float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c
+           );
+}
+
+mat2 rotationMatrix2D(float angle) {
     float ca = cos(angle);
     float sa = sin(angle);
     return mat2(ca, sa, -sa, ca);
@@ -336,6 +442,33 @@ vec3 gamma_inv(vec3 color) {
 
 /////////////////////////////////////////////////////////////////////////////////
 //                              OTHER FUNCTIONS
+
+float lineDist2P(vec2 coord, vec2 start, vec2 end) {
+    vec2 pa = coord - start;
+    vec2 ba = end - start;
+    float t = clamp(dot(pa, ba) / dot(ba, ba), 0, 1);
+    return sqmag(ba * -t + pa);
+}
+float line2P(vec2 coord, vec2 start, vec2 end, float thickness) {
+    return fstep(lineDist2P(coord, start, end), thickness * thickness);
+}
+float line2P(vec2 coord, vec2 start, vec2 end, float thickness, float slope) {
+    thickness = thickness * thickness;
+    return saturate((thickness - lineDist2P(coord, start, end)) * slope + 1);
+}
+
+float lineDist1P1V(vec2 coord, vec2 start, vec2 dir) {
+    vec2 pa = coord - start;
+    float t = dot(pa, dir) / dot(dir, dir);
+    return sqmag(dir * -t + pa);
+}
+float line1P1V(vec2 coord, vec2 start, vec2 dir, float thickness) {
+    return fstep(lineDist1P1V(coord, start, dir), thickness * thickness);
+}
+float line1P1V(vec2 coord, vec2 start, vec2 dir, float thickness, float slope) {
+    thickness = thickness * thickness;
+    return saturate((thickness - lineDist1P1V(coord, start, dir)) * slope + 1);
+}
 
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -412,7 +545,7 @@ vec3 radClamp(vec3 coord) {
     coord = coord + 0.5;
     return coord;
 }
-vec2 mirrorClamp(vec2 coord) { //Repeats texcoords while mirroring them (without branching)
+vec2 mirrorClamp(vec2 coord) { //Repeats coords while mirroring them (without branching)
 
     // Determines whether an axis has to be flipped or not
     vec2 reversal = mod(floor(coord), vec2(2));
