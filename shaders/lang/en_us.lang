@@ -176,21 +176,22 @@ option.DIRECTIONAL_LIGHTMAP_STRENGTH=Directional Lightmap Strength
 
 screen.ATMOSPHERE=Atmospherics
 
-option.GODRAYS=Godrays
-option.GODRAY_STRENGTH=Godray Strength
-option.GODRAY_STEPS=Godray Steps
-option.GODRAY_SIZE=Godray Size
-
 option.FOG=Fog
 value.FOG.0=§cOFF
 value.FOG.1=Normal
 value.FOG.2=Border
 option.FOG_AMOUNT=Fog Amount
 
-option.SKY_SUNSET=Sunset
 option.SUNSET_FOG=Morning Fog
 option.SUNSET_FOG.comment=Increases fog amount during sunsets. Only works with fog in "Normal" mode. Requires fog and sunsets to be enabled.
 option.SUNSET_FOG_AMOUNT=Morning Fog Strength
+
+option.GODRAYS=Godrays
+option.GODRAY_STRENGTH=Godray Strength
+option.GODRAY_STEPS=Godray Steps
+option.GODRAY_SIZE=Godray Size
+
+option.SKY_SUNSET=Sunset
 
 screen.SKY_OPTIONS=Sky Options
 option.SKY_DAY_R=Sky Day §cR
@@ -210,6 +211,7 @@ option.END_SKY_DOWN_R=End Sky Lower §cR
 option.END_SKY_DOWN_G=End Sky Lower §aG
 option.END_SKY_DOWN_B=End Sky Lower §9B
 
+option.sunPathRotation=Sun Angle
 
 ///////////////////////////////////////////////////////////
 // CAMERA
@@ -265,4 +267,4 @@ option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from 
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
 value.CREDITS.0=§r by §cDrDesten §r§k:###
-value.CREDITS.1=§r §aVersion 1.5.2 §r§k:###
+value.CREDITS.1=§r §aVersion 1.5.5 §r§k:###
