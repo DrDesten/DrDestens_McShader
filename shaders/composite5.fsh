@@ -46,26 +46,22 @@ vec3 bokehBlur(vec2 coord, float size) {
     // Low Quality
     #if DOF_KERNEL_SIZE == 1
         const int kernelSize  = 4;
-        const vec2[] kernel   = circle_blur_4;
-        const vec2 kernel_com = circle_blur_4_com;
+        const vec2[] kernel   = vogel_disk_4;
 
     // Medium Quality
     #elif DOF_KERNEL_SIZE == 2
         const int kernelSize  = 16;
-        const vec2[] kernel   = circle_blur_16;
-        const vec2 kernel_com = circle_blur_16_com;
+        const vec2[] kernel   = vogel_disk_16;
     
     // High Quality
     #elif DOF_KERNEL_SIZE == 3
         const int kernelSize  = 32;
-        const vec2[] kernel   = circle_blur_32;
-        const vec2 kernel_com = circle_blur_32_com;
+        const vec2[] kernel   = vogel_disk_32;
 
     // Very High Quality
     #elif DOF_KERNEL_SIZE == 4
         const int kernelSize  = 64;
-        const vec2[] kernel   = circle_blur_64;
-        const vec2 kernel_com = circle_blur_64_com;
+        const vec2[] kernel   = vogel_disk_64;
 
     #endif
 
