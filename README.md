@@ -35,19 +35,19 @@ labPBR and OldPBR/SeusPBR support
 
  - Screen Space Reflections
  - Depth of Field
+    - Chromatic Aberration
  - Screen Space Ambient Occlusion
  - Temporal Anti-Aliasing
  - Parallax Occlusion Mapping
  - Physically Based Rendering
-   - Support for LabPBR 1.3
-     - Normals
-     - Roughness
-     - Reflectance
-     - Emission
-     - Ambient Occlusion
-     - Metals
-     - Subsurface Scattering
-     - Height
+    - Normals
+    - Roughness
+    - Reflectance
+    - Emission
+    - Ambient Occlusion
+    - Metals
+    - Subsurface Scattering
+    - Height
  - Various Water Effects
    - Waves and Bump
    - Refraction
@@ -57,10 +57,10 @@ labPBR and OldPBR/SeusPBR support
  - Waving Leaves and Grass
  - Motion Blur
  - Chromatic Aberration
-   - When paired with DoF realistic Focus-Dependant CA
  - World Curvature
  - Smooth sky gradient
  - Outline
  - Custom Fog
  - White World
- - Saturation
+ - Saturation and Contrast
+ - Multiple Tonemapping operators

@@ -7,12 +7,6 @@ uniform sampler2D depthtex0;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-#define FD0 gl_FragData[0]
-#define FD1 gl_FragData[1]
-#define FD2 gl_FragData[2]
-#define FD3 gl_FragData[3]
-
-
 ivec2 convertIntCoords(vec2 coord, vec2 size) {
     return ivec2(coord * size);
 }
@@ -34,6 +28,9 @@ vec3 getAlbedo_int(in vec2 coord) {
 
 vec3 getNormal(in vec2 coord) {
     return texture(colortex2, coord).rgb;
+}
+vec3 getNormal(in ivec2 icoord) {
+    return texelFetch(colortex2, icoord, 0).rgb;
 }
 
 float getDepth(in vec2 coord) {

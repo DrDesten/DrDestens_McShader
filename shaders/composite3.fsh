@@ -13,12 +13,16 @@ const int colortex5Format = R11F_G11F_B10F; // TAA
 
 */
 
-const vec4 colortex1ClearColor = vec4(0,1,0,1);
+const bool colortex0Clear      = false;
+const bool colortex1Clear      = false;
+const bool colortex2Clear      = false;
 //const bool colortex3Clear      = false;
-const vec4 colortex3ClearColor = vec4(0,0,0,0);
 //const bool colortex4Clear      = false;
-const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 const bool colortex5Clear      = false;
+
+const vec4 colortex1ClearColor = vec4(0,1,0,1);
+const vec4 colortex3ClearColor = vec4(0,0,0,0);
+const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 
 const float eyeBrightnessHalflife = 1.0;
 
@@ -344,14 +348,14 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
 /* DRAWBUFFERS:0 */
 void main() {
     #ifndef REFRACTION
-     vec3  color                  = getAlbedo(coord);
+     vec3  color                  = getAlbedo(gl_FragCoord.xy);
      float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
     #endif
 
-    float depth         = getDepth(coord);
+    float depth         = getDepth(gl_FragCoord.xy);
     float linearDepth   = linearizeDepth(depth, near, far);
-    vec3  normal        = getNormal(coord);
-    float type          = getType(coord);
+    vec3  normal        = getNormal(gl_FragCoord.xy);
+    float type          = getType(gl_FragCoord.xy);
 
     vec3  screenPos     = vec3(coord, depth);
     vec3  clipPos       = screenPos * 2 - 1;
@@ -499,5 +503,5 @@ void main() {
     #endif // WATER_EFFECTS
 
     //Pass everything forward
-    FD0 = vec4(color, 1);
+    gl_FragData[0] = vec4(color, 1);
 }

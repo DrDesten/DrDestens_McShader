@@ -264,5 +264,5 @@ void main() {
 
 
     //Pass everything forward
-    FD0          = vec4(color, 1);
+    gl_FragData[0]          = vec4(color, 1);
 }

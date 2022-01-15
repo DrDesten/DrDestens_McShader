@@ -194,9 +194,9 @@ void main() {
     color = saturation(color, saturationValue);
     #endif
 
-    FD0 = vec4(color, 1.0);
+    gl_FragData[0] = vec4(color, 1.0);
     #ifdef TAA 
-    FD1 = vec4(TAAcolor, 1.0);
+    gl_FragData[1] = vec4(TAAcolor, 1.0);
     #endif
 }
 

@@ -317,8 +317,8 @@ void main() {
     #endif
 
     //Pass everything forward
-    FD0          = vec4(color,  1);
+    gl_FragData[0]          = vec4(color,  1);
     #ifdef BLOOM
-    FD1          = vec4(bloomColor, 1);
+    gl_FragData[1]          = vec4(bloomColor, 1);
     #endif
 }
