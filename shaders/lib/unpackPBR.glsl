@@ -3,9 +3,9 @@ struct MaterialInfo {
     vec3  normal;
 
     float roughness;
-    vec3  f0;
+    float f0;
     float emission;
-    float AO;
+    float ao;
     float height;
 
     float subsurface;
@@ -114,7 +114,7 @@ MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
         extractNormal(NT, ST),
 
         extractRoughness(NT, ST),
-        extractF0(NT, ST, albedo.rgb),
+        extractF0(NT, ST),
         extractEmission(NT, ST),
         extractAO(NT, ST),
         extractHeight(NT, ST),
@@ -178,7 +178,7 @@ MaterialInfo FullMaterial(vec2 coord, vec4 albedo) {
         extractNormal(NT, ST),
 
         extractRoughness(NT, ST),
-        extractF0(NT, ST, albedo.rgb),
+        extractF0(NT, ST),
         extractEmission(NT, ST),
         extractAO(NT, ST),
         extractHeight(NT, ST),

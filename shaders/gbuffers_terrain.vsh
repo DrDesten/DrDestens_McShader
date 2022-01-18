@@ -8,20 +8,15 @@ attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
 uniform float frameTimeCounter;
-uniform int frameCounter;
+uniform int   frameCounter;
 
 uniform vec2 screenSizeInverse;
 
-out float blockId;
-#ifdef PHYSICALLY_BASED
-out vec3  viewpos;
-#endif
+out float id;
 out vec2  lmcoord;
 out vec2  coord;
-
-out vec4 glcolor;
-
-out mat3 tbn;
+out vec4  glcolor;
+out mat3  tbn;
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
@@ -32,15 +27,13 @@ vec3 wavyPlants(vec3 worldPos, float amount) {
 }
 
 void main() {
-
 	gl_Position = ftransform();
 
-	#ifdef PHYSICALLY_BASED
-	viewpos = getView();
-	#endif
-	lmcoord = getLmCoord();
-	coord   = getCoord();
-	tbn     = getTBN(at_tangent);
+	coord    = getCoord();
+	glcolor  = gl_Color;
+	tbn      = getTBN(at_tangent);
+	lmcoord  = getLmCoord();
+	id       = getID(mc_Entity);
 	
 	#ifdef WAVY_BLOCKS
 
@@ -77,6 +70,4 @@ void main() {
 	#endif
 
 
-	blockId     = getID(mc_Entity);
-	glcolor     = gl_Color;
 }
