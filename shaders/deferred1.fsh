@@ -157,7 +157,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = (sq(1 - saturate(occlusion * 0.125)));
+    occlusion = sq(1 - saturate(occlusion * 0.125));
 
     return occlusion;
 }

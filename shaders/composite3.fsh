@@ -348,14 +348,14 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
 /* DRAWBUFFERS:0 */
 void main() {
     #ifndef REFRACTION
-     vec3  color                  = getAlbedo(gl_FragCoord.xy);
+     vec3  color                  = getAlbedo(ivec2(gl_FragCoord.xy));
      float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
     #endif
 
-    float depth         = getDepth(gl_FragCoord.xy);
+    float depth         = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth   = linearizeDepth(depth, near, far);
-    vec3  normal        = getNormal(gl_FragCoord.xy);
-    float type          = getType(gl_FragCoord.xy);
+    vec3  normal        = getNormal(ivec2(gl_FragCoord.xy));
+    float type          = getType(ivec2(gl_FragCoord.xy));
 
     vec3  screenPos     = vec3(coord, depth);
     vec3  clipPos       = screenPos * 2 - 1;
