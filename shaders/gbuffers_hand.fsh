@@ -1,84 +1,48 @@
-
-
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
-#include "/lib/lighting.glsl"
-
-uniform vec3 fogColor;
 
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-#ifdef PHYSICALLY_BASED
-in vec3  viewpos;
-#endif
+in float id;
 in vec2  lmcoord;
 in vec2  coord;
-
 in vec4  glcolor;
+in mat3  tbn;
+// tbn[0] = tangent vector
+// tbn[1] = binomial vector
+// tbn[2] = normal vector
 
-// Switch on or off Fragment based normal mapping
-#ifdef FRAG_NORMALS
-	in vec3 N;
-#else
-	in mat3 tbn;
-	// tbn[0] = tangent vector
-	// tbn[1] = binomial vector
-	// tbn[2] = normal vector
-#endif
-
-/* DRAWBUFFERS:0231 */
+/* DRAWBUFFERS:012345 */
 void main() {
-	#ifdef FRAG_NORMALS
-	vec3  normal = N;
-	#else
-	vec3  normal = tbn[2];
-	#endif
-	float reflectiveness = 0;
+	vec4 albedo = getAlbedo(coord) * glcolor;
+
+	MaterialInfo MatTex = FullMaterial(coord, albedo);
+
+	float f0 = MatTex.f0;
+	float emission = MatTex.emission;
+	float smoothness = MatTex.roughness;
+	float height = MatTex.height;
+	float subsurface = MatTex.subsurface;
+	float ao = MatTex.ao * glcolor.a;
 	
-	vec4 color = texture2D(texture, coord, 0) * glcolor;
+	vec3  normal = tbn * MatTex.normal;
 
-	#ifdef PHYSICALLY_BASED
-
-		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color      = color.rgb * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-		gamma(mc_color);
-
-		#ifdef FRAG_NORMALS
-		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
-		#endif
-
-		gamma(color.rgb);
-		vec3 ambientLight  = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		//gamma(ambientLight);
-
-		MaterialInfo MatTex = FullMaterial(coord, color);
-		//MatTex.AO 		   *= sq(glcolor.a);
-
-		PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
-
-		color	           = Material.color;
-		normal	   	       = Material.normal;
-		reflectiveness     = Material.reflectiveness;
-		
-		reflectiveness += Bayer4(gl_FragCoord.xy) * (1./255) - (0.5/255);
-    	reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
-
-	#else
-
-		color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		gamma(color.rgb);
-
+	#ifdef WHITE_WORLD
+		albedo.rgb = vec3(1);
 	#endif
 
-	//color.a = min(0.01, color.a);
+	//mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 
-	gl_FragData[0] = color;
+	gl_FragData[0] = albedo;
 	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(codeID(51), vec3(1));
-	gl_FragData[3] = vec4(reflectiveness, vec3(1));
+	gl_FragData[2] = vec4(lmcoord, vec2(1));
+	gl_FragData[3] = vec4(codeID(id), vec3(1));
+
+	gl_FragData[4] = vec4(f0, emission, smoothness, subsurface);
+	gl_FragData[5] = vec4(ao, height, vec2(1));
 }

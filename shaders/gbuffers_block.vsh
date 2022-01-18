@@ -17,16 +17,12 @@ uniform int  frameCounter;
 uniform vec2 screenSizeInverse;
 #endif
 
-out float blockId;
+out float id;
+out vec2  lmcoord;
+out vec2  coord;
+out vec4  glcolor;
+out mat3  tbn;
 
-#ifdef PHYSICALLY_BASED
-out vec3 viewpos;
-#endif
-out vec2 lmcoord;
-out vec2 coord;
-out vec4 glcolor;
-
-out mat3 tbn;
 
 void main() {
 	gl_Position = ftransform();
@@ -39,13 +35,9 @@ void main() {
 		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 
-	#ifdef PHYSICALLY_BASED
-	viewpos = getView();
-	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
-
-	blockId = getID(mc_Entity);
+	id      = getID(mc_Entity);
 	glcolor = gl_Color;
 }
