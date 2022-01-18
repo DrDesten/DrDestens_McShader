@@ -5,7 +5,6 @@ uniform int worldTime;
 #include "/lib/transform.glsl"
 #include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
-#include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
 
 #ifdef POM_ENABLED
@@ -15,20 +14,19 @@ uniform ivec2 atlasSize;
 #endif
 #endif
 
-out float id;
-out vec2  lmcoord;
-out vec2  coord;
-out vec4  glcolor;
-out mat3  tbn;
+in float id;
+in vec2  lmcoord;
+in vec2  coord;
+in vec4  glcolor;
+in mat3  tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:0231 */
+/* DRAWBUFFERS:012345 */
 void main() {
 	vec4  albedo = getAlbedo(coord);
 	albedo.rgb  *= glcolor.rgb;
-	vec3  normal = tbn[2];
 
 	MaterialInfo MatTex = FullMaterial(coord, albedo);
 
@@ -38,7 +36,10 @@ void main() {
 	float height = MatTex.height;
 	float subsurface = MatTex.subsurface;
 	float ao = MatTex.ao * glcolor.a;
+
+	vec3  normal = tbn * MatTex.normal;
 	
+
 	#ifdef WHITE_WORLD
 		albedo.rgb = vec3(1);
 	#endif
@@ -80,6 +81,7 @@ void main() {
 	gl_FragData[5] = vec4(ao, height, vec2(1));
 }
 
+
 /* BUFFERSTRUCTURE /
 
 Col0 = Albedo
@@ -89,4 +91,5 @@ Col3 = ID
 
 Col4 = PBR: Reflectiveness+Metals, Emissive, Smoothness, SSS
 Col5 = PBR: Height, AO
+
 //////////////////*/

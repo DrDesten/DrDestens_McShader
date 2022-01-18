@@ -13,7 +13,6 @@ uniform int   frameCounter;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-uniform sampler2D colortex4;
 const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,7 +60,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
         sample      = TBN * sample;
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
@@ -87,7 +86,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
         sample      = TBN * sample;
         sample      = backToScreen(sample + viewPos);                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         float ddif = saturate(sample.z - hitDepth);
         float hit  = saturate(ddif * 1e35);
@@ -117,7 +116,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         sample      = TBN * sample;
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
         //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
@@ -148,7 +147,7 @@ float SSAO(vec3 screenPos, float radius) {
 
         vec2 offs = spiralOffset_full(sample, 4.5) * rad;
 
-        float sdepth = getDepth_int(screenPos.xy + offs);
+        float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
         occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
@@ -162,40 +161,12 @@ float SSAO(vec3 screenPos, float radius) {
     return occlusion;
 }
 
-
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3  color       = getAlbedo(coord);
-    float depth       = getDepth(coord);
-    float type        = getType(coord);
+    vec3 color  = getAlbedo(coord);
+    vec3 normal = getNormal(coord);
 
-    //////////////////////////////////////////////////////////
-    //                  SSAO
-    //////////////////////////////////////////////////////////
 
-    #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
-
-        if (abs(type - 50) > .2 && depth != 1) {
-
-            #if   SSAO_QUALITY == 1
-
-                color        *= SSAO(vec3(coord, depth), 0.35) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-
-            #elif SSAO_QUALITY == 2
-
-                vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-
-            #elif SSAO_QUALITY == 3
-
-                vec3 normal = getNormal(coord);
-                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-
-            #endif
-            
-        }
-
-    #endif
-
+    color = normal * 0.5 + 0.5;
     gl_FragData[0] = vec4(color, 1.0);
 }

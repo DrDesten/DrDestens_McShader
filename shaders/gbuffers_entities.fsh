@@ -6,26 +6,24 @@ uniform int worldTime;
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
-#include "/lib/lighting.glsl"
 
 uniform vec4 entityColor;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-out float id;
-out vec2  lmcoord;
-out vec2  coord;
-out vec4  glcolor;
-out mat3  tbn;
+in float id;
+in vec2  lmcoord;
+in vec2  coord;
+in vec4  glcolor;
+in mat3  tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-/* DRAWBUFFERS:0231 */
+/* DRAWBUFFERS:012345 */
 void main() {
 	vec4 albedo = getAlbedo(coord) * glcolor;
 	albedo.rgb  = mix(albedo.rgb, entityColor.rgb, entityColor.a);
-	vec3 normal = tbn[2];
 
 	MaterialInfo MatTex = FullMaterial(coord, albedo);
 
@@ -36,6 +34,10 @@ void main() {
 	float subsurface = MatTex.subsurface;
 	float ao = MatTex.ao * glcolor.a;
 	
+	vec3  normal = tbn * MatTex.normal;
+
+	normal = tbn[2];
+
 	#ifdef WHITE_WORLD
 		albedo.rgb = vec3(1);
 	#endif
