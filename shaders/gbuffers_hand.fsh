@@ -31,11 +31,7 @@ void main() {
 	float ao = MatTex.ao * glcolor.a;
 	
 	vec3  normal = tbn * MatTex.normal;
-
-	#ifdef WHITE_WORLD
-		albedo.rgb = vec3(1);
-	#endif
-
+	
 	//mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 
 	gl_FragData[0] = albedo;

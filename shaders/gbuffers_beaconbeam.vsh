@@ -13,7 +13,6 @@
  uniform vec2 screenSizeInverse;
 #endif
 
-out vec3 normal;
 out vec2 coord;
 out vec4 glcolor;
 
@@ -28,7 +27,6 @@ void main() {
 		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 	
-	normal  = getNormal();
 	coord   = getCoord();
 	glcolor = gl_Color;
 }

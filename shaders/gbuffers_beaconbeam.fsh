@@ -3,7 +3,6 @@
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
 
-in vec3 normal;
 in vec2 coord;
 in vec4 glcolor;
 
@@ -11,7 +10,6 @@ in vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb *= 2;
-	gamma(color.rgb);
 
 
 	gl_FragData[0] = color;

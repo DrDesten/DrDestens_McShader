@@ -40,7 +40,6 @@ vec3 getLightmap(vec2 lmcoord, float AO) {
         #else
         * AO
         #endif
-        * saturate((mean(skyLight) * 1.15 - 0.15 ) * -LIGHTMAP_BLOCKLIGHT_REDUCTION + 1)          // Reduce Blocklight when it's bright
     );
 
     return blockLight + skyLight;

@@ -31,12 +31,7 @@ void main() {
 	
 	vec3  normal = tbn * MatTex.normal;
 
-	normal = tbn[2];
-
-	#ifdef WHITE_WORLD
-		albedo.rgb = vec3(1);
-	#endif
-
+	//normal = tbn[2];
 
 	//mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 

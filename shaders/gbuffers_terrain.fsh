@@ -39,11 +39,6 @@ void main() {
 
 	vec3  normal = tbn * MatTex.normal;
 	
-
-	#ifdef WHITE_WORLD
-		albedo.rgb = vec3(1);
-	#endif
-
 	#ifdef POM_ENABLED
 	#ifdef POM_SMOOTH
 

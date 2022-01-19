@@ -10,54 +10,6 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 #endif
 
-//uniform float isHurtSmooth;
-
-vec3 gaussian_3x3(vec2 coord) {
-    vec2 e = vec2(-.5, .5) / MC_RENDER_QUALITY;
-    vec3 color  = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;
-         color += texture(colortex0, screenSizeInverse * e.xx + coord).rgb;
-         color += texture(colortex0, screenSizeInverse * e.yx + coord).rgb;
-         color += texture(colortex0, screenSizeInverse * e.xy + coord).rgb;
-    return color * 0.25;
-}
-vec3 sharpen(vec2 coord, float amount, float maximum) {
-    vec3 blurred  = gaussian_3x3(coord);
-    vec3 color    = getAlbedo(coord);
-
-    return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
-    //return clamp((color - blurred) * amount, -maximum, maximum) + color;
-}
-
-float lanczosWeight(float x, float r) {
-    return x == 0.0 ? 1. : (r * sin(PI * x) * sin(PI * (x / r) )) / ( (PI*PI) * sq(x));
-}
-float lanczosWeight(vec2 x, float r) {
-    return lanczosWeight(x.x, r) * lanczosWeight(x.y, r);
-}
-
-vec3 lanczos(vec2 coord, int r) {
-    vec2 res    = screenSize;
-    vec2 ccoord = floor(coord * res) / res;
-    vec2 icoord = floor(coord * res);
-
-    vec3  total  = vec3(0);    
-    for (int x = -r; x <= r; x++) {
-        for (int y = -r; y <= r; y++) {
-            vec2  offs = vec2(x,y);
-            
-            vec2  sampleCoords = icoord + offs;
-            vec3  val          = texelFetch(colortex0, ivec2(sampleCoords), 0).rgb;
-            
-            vec2  d            = sampleCoords - (coord * res);
-            float weight = lanczosWeight(d, float(r));
-            
-            total     += val * weight;
-        }
-    }
-
-    return total;
-}
-
 void main() {
     #ifdef TAA
         float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);

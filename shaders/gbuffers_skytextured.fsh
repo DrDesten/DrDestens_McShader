@@ -10,8 +10,6 @@ in vec4 glcolor;
 
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
-	
-    gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 }
