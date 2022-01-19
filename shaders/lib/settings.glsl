@@ -93,8 +93,8 @@ const float chromaticAberrationSimple = float(CHROMATIC_ABERRATION) * 0.00333333
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #define PBR_FORMAT 1                   // [1 2]
-#define RESSOURCE_PACK_RESOLUTION 16   // [4 8 16 32 64 128 256 512 1024 2048 4096]
-const float RESSOURCE_PACK_RESOLUTION_INVERSE = 1./RESSOURCE_PACK_RESOLUTION;
+#define RESOURCE_PACK_RESOLUTION 16   // [4 8 16 32 64 128 256 512 1024 2048 4096]
+const float RESOURCE_PACK_RESOLUTION_INVERSE = 1./RESOURCE_PACK_RESOLUTION;
 
 //#define PHYSICALLY_BASED
 #define FRAG_NORMALS            // Calculates the TBN matrix in the fragment instead of in the vertex shader (more performance intensive, but fixes at_tangent not working for some elements of the game)
