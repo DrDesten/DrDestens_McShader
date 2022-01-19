@@ -1,5 +1,3 @@
-
-
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
@@ -30,11 +28,6 @@ void main() {
 	float ao = MatTex.ao * glcolor.a;
 	
 	vec3  normal = tbn * MatTex.normal;
-
-	//normal = tbn[2];
-
-	//mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
-
 
 	gl_FragData[0] = albedo;
 	gl_FragData[1] = vec4(normal, 1);

@@ -11,15 +11,9 @@ uniform vec3 previousCameraPosition;
 #endif
 
 void main() {
-    #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
-        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
-    #else
-        vec3  color = getAlbedo(coord);
-        //color = smartUpscale(colortex0, coord).rgb;
-    #endif
+    vec3  color = getAlbedo(coord);
 
-    //color = mix(color, color * color * vec3(1,.5,.5), isHurtSmooth * 0.5);
+    color = color / sqrt(0.5 + color);
 
     // Remove Banding (yay)
     const float displayPrecision = 1./255.;

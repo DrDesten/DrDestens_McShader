@@ -10,8 +10,9 @@ const int colortex3Format = R8;             // ID (+ Masks)
 const int colortex4Format = RGBA8;          // PBR: Reflectiveness (and Metals), Emissiveness, Roughness, SSS
 const int colortex5Format = RG8;            // PBR: Height, AO
 
-const int colortex6Format = RGB8;           // Bloom
-const int colortex7Format = R11F_G11F_B10F; // TAA
+const int colortex6Format = R16;            // Other Depth
+const int colortex7Format = RGB8;           // Bloom
+const int colortex8Format = R11F_G11F_B10F; // TAA
 
 */
 
@@ -32,9 +33,7 @@ const bool colortex3Clear = false;
 const bool colortex4Clear = false;
 const bool colortex5Clear = false;
 
-const vec4 colortex1ClearColor = vec4(0,1,0,1);
-const vec4 colortex3ClearColor = vec4(0,0,0,0);
-const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
+const vec4 colortex1ClearColor = vec4(0);
 
 const float eyeBrightnessHalflife = 1.0;
 
