@@ -1,10 +1,9 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
+#include "/lib/lighting_basics.glsl"
 
 uniform float nearInverse;
 uniform float aspectRatio;
@@ -165,8 +164,17 @@ float SSAO(vec3 screenPos, float radius) {
 void main() {
     vec3  color = getAlbedo(coord);
     float id    = getID(ivec2(gl_FragCoord.xy));
-    bool  isPBR = id != 2 && id != 3;
-    
+
+    bool  isPBR      = id != 2 && id != 3 && id != 4;
+    bool  isLightmap = id != 4;
+
+    material PBR = getMaterial(coord);
+
+    if (isLightmap) {
+        color *= getLightmap(getLmCoord(coord), isPBR ? PBR.ao : 1);
+        //color  = gamma(color);
+    }
+
 
     
     gl_FragData[0] = vec4(color, 1.0);

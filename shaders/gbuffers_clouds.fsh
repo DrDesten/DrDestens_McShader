@@ -33,5 +33,5 @@ void main() {
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
 	gl_FragData[0] = color;
-	gl_FragData[3] = vec4(codeID(3), vec3(1));
+	gl_FragData[1] = vec4(codeID(4), vec3(1));
 }

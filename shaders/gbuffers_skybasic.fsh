@@ -78,5 +78,5 @@ void main() {
     color       += vec3(dither, dither, dither * 2); */
 
     gl_FragData[0] = vec4(color, 1.0);
-    gl_FragData[1] = vec4(codeID(3), vec3(1));
+    gl_FragData[1] = vec4(codeID(4), vec3(1));
 }
