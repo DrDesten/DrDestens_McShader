@@ -3,9 +3,9 @@
 
 const int colortex0Format = R11F_G11F_B10F; // Albedo
 
-const int colortex1Format = RGB16_SNORM;    // Normals
+const int colortex1Format = RGB8_SNORM;     // Normals
 const int colortex2Format = RG8;            // Lightmap
-const int colortex3Format = R8;             // Id
+const int colortex3Format = R8;             // ID (+ Masks)
 
 const int colortex4Format = RGBA8;          // PBR: Reflectiveness (and Metals), Emissiveness, Roughness, SSS
 const int colortex5Format = RG8;            // PBR: Height, AO
@@ -20,18 +20,18 @@ const int colortex7Format = R11F_G11F_B10F; // TAA
 Col0 = Albedo
 Col1 = Normals
 Col2 = Lightmap
-Col3 = ID
+Col3 = ID (+ Masks)
 
 Col4 = PBR: Reflectiveness+Metals, Emissive, Smoothness, SSS
 Col5 = PBR: Height, AO
 //////////////////*/
 
-const bool colortex0Clear      = false;
-const bool colortex1Clear      = false;
-const bool colortex2Clear      = false;
-//const bool colortex3Clear      = false;
-//const bool colortex4Clear      = false;
-const bool colortex5Clear      = false;
+const bool colortex0Clear = false;
+const bool colortex1Clear = false;
+const bool colortex2Clear = false;
+const bool colortex3Clear = false;
+const bool colortex4Clear = false;
+const bool colortex5Clear = false;
 
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
 const vec4 colortex3ClearColor = vec4(0,0,0,0);
@@ -57,7 +57,9 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3 color = getAlbedo(ivec2(gl_FragCoord.xy));
+    vec3  color  = getAlbedo(ivec2(gl_FragCoord.xy));
+
+
 
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);

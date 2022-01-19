@@ -13,9 +13,8 @@
 in vec2 lmcoord;
 in vec4 glcolor;
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:03 */
 void main() {
-
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
 	color.rgb *= getLightmap(lmcoord);
 
@@ -40,5 +39,5 @@ void main() {
 	gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
-	
+	gl_FragData[1] = vec4(codeID(3), vec3(1)); //gcolor
 }

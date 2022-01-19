@@ -1,3 +1,13 @@
+/* BUFFERSTRUCTURE /
+Col0 = Albedo
+Col1 = Normals
+Col2 = Lightmap
+Col3 = ID (+ Masks)
+
+Col4 = PBR: labF0, Emissive, Smoothness, SSS
+Col5 = PBR: Height, AO
+//////////////////*/
+
 uniform sampler2D colortex0; // Color
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
@@ -40,9 +50,33 @@ vec2 getLmCoord(vec2 coord) {
 
 
 
-float getType(ivec2 icoord) {
+float getID(ivec2 icoord) {
     return floor(texelFetch(colortex3, icoord, 0).r * 255 + 0.5);
 }
-float getType(vec2 coord) {
+float getID(vec2 coord) {
     return floor(texture(colortex3, coord).r * 255 + 0.5);
+}
+
+
+struct material {
+    float f0;
+    float emission;
+    float smoothness;
+    float sss;
+    float height;
+    float ao;
+};
+
+material getMaterial(vec2 coord) {
+    vec4 pbrtex0 = texture(colortex4, coord);
+    vec4 pbrtex1 = texture(colortex5, coord);
+    material materialValues = material(
+        pbrtex0.x, // f0
+        pbrtex0.y, // emission
+        pbrtex0.z, // smoothness
+        pbrtex0.w, // sss
+        pbrtex1.x, // height
+        pbrtex1.y  // ao
+    );
+    return materialValues;
 }

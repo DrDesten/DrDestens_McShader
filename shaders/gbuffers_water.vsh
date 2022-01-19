@@ -10,7 +10,7 @@ uniform vec2  screenSizeInverse;
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
-out float blockId;
+out float id;
 
 out vec2 coord;
 out vec2 lmcoord;
@@ -61,7 +61,7 @@ void main(){
 
 	viewDir      = normalize(viewPos.xyz);
 
-	blockId 	 = getID(mc_Entity);
+	id           = getID(mc_Entity);
     coord 		 = getCoord();
 	lmcoord      = getLmCoord();
 	glcolor 	 = gl_Color;

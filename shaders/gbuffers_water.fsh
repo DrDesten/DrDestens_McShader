@@ -6,11 +6,10 @@ uniform int worldTime;
 #include "/lib/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
-#include "/lib/lighting.glsl"
 
 uniform float frameTimeCounter;
 
-in float blockId;
+in float id;
 
 in vec2 coord;
 in vec2 lmcoord;
@@ -132,85 +131,16 @@ vec3 waveNormals(vec2 coord, float strength) {
     return normalize(n);
 }
 
-#ifndef PHYSICALLY_BASED
-/* DRAWBUFFERS:023 */
-#else
-/* DRAWBUFFERS:0231 */
-#endif
+/* DRAWBUFFERS:0123 */
 
 void main(){
-    vec3  surfaceNormal  = tbn[2];
-    float reflectiveness = 0;
-	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
-    float id             = floor(blockId + 0.5);
+    vec3  normal = tbn[2];
+	vec4  albedo = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 
-    // Reduce opacity and saturation of only water
-    if (id == 10) {
-
-        #ifdef WATER_TEXTURE_VISIBLE
-         color.rgb = sq(color.rgb * getLightmap(lmcoord).rgb) * 0.75;
-        #else
-
-            color.rgb          = vec3(0);
-            color.a            = 0.01;
-
-        #endif
-
-        #ifdef WATER_NORMALS
-
-            float surfaceDot   = dot(viewDir, surfaceNormal);
-            
-            // "Fake" Waves
-            vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-            float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
-            vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
-
-            surfaceNormal      = normalize(tbn * noiseNormals);
-
-        #endif
-
-    } else {
-
-        #ifdef PHYSICALLY_BASED
-
-		    // Get the Dafault render color, used for PBR Blending
-            vec3 mc_color      = color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-            gamma(mc_color);
-
-            gamma(color.rgb);
-            vec3 ambientLight  = getLightmap(lmcoord).rgb;
-            //gamma(ambientLight);
-
-		    MaterialInfo MatTex = FullMaterial(coord, color);
-            MatTex.AO 		   *= sq(glcolor.a);
-
-            PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewDir, 0.1 * ambientLight + DynamicLight(lmcoord));
-
-            color	           = Material.color;
-            surfaceNormal      = Material.normal;
-            reflectiveness     = Material.reflectiveness;
-            
-    	    reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.2);
-
-        #else
-
-            #ifdef WHITE_WORLD
-            color.rgb = vec3(1);
-            #endif
-
-	        color.rgb         *= glcolor.a;
-            color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-            gamma(color.rgb);
-
-        #endif
-
-    }
-
+    discard;
     
-    gl_FragData[0] = color; // Color
-    gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(codeID(id), vec3(1)); // Type (colortex3)
-    #ifdef PHYSICALLY_BASED
-    gl_FragData[3] = vec4(reflectiveness, vec3(1));
-    #endif
+    gl_FragData[0] = albedo;
+	gl_FragData[1] = vec4(normal, 1);
+	gl_FragData[2] = vec4(lmcoord, vec2(1));
+	gl_FragData[3] = vec4(codeID(id), vec3(1));
 }

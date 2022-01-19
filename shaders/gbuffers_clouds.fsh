@@ -13,7 +13,7 @@ in vec3 normal;
 in vec3 viewPos;
 in vec4 glcolor;
 
-/* DRAWBUFFERS:0231 */
+/* DRAWBUFFERS:03 */
 void main() {
 	vec4 color    = texture2D(texture, coord);
 	vec3 lightPos = normalize(lightPosition);
@@ -32,8 +32,6 @@ void main() {
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
-	gl_FragData[0] = color; //color
-	gl_FragData[1] = vec4(normal, 1);   //normals
-	gl_FragData[2] = vec4(codeID(50), vec3(1)); //block id (50, SSAO mask)
-	gl_FragData[3] = vec4(0, vec3(1));  // Reflectance
+	gl_FragData[0] = color;
+	gl_FragData[3] = vec4(codeID(3), vec3(1));
 }

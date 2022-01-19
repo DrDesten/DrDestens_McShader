@@ -163,10 +163,11 @@ float SSAO(vec3 screenPos, float radius) {
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3 color  = getAlbedo(coord);
-    vec3 normal = getNormal(coord);
+    vec3  color = getAlbedo(coord);
+    float id    = getID(ivec2(gl_FragCoord.xy));
+    bool  isPBR = id != 2 && id != 3;
+    
 
-
-    color = normal * 0.5 + 0.5;
+    
     gl_FragData[0] = vec4(color, 1.0);
 }
