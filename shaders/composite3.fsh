@@ -7,15 +7,14 @@ const int colortex1Format = RGB8_SNORM;     // Normals
 #ifdef ADVANCED_MATERIALS
 const int colortex2Format = RG8;            // Lightmap
 #else
-const int colortex2Format = RGB8;            // Lightmap + AO
+const int colortex2Format = RGB8;           // Lightmap + AO (if PBR is disabled)
 #endif
 const int colortex3Format = R8;             // ID (+ Masks)
 
 const int colortex4Format = RGBA8;          // PBR: Reflectiveness (and Metals), Emissiveness, Roughness, SSS
 const int colortex5Format = RG8;            // PBR: Height, AO
 
-const int colortex6Format = R16;            // Other Depth
-const int colortex7Format = RGB8;           // Bloom
+const int colortex7Format = RGB8;           // Bloom, SSAO
 const int colortex8Format = R11F_G11F_B10F; // TAA
 
 */

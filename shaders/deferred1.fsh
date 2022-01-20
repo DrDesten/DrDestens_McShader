@@ -7,6 +7,8 @@
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
+uniform sampler2D colortex7;
+
 /* DRAWBUFFERS:0 */
 void main() {
     vec3  color = getAlbedo(ivec2(gl_FragCoord.xy));
@@ -21,8 +23,8 @@ void main() {
 
     #else
 
-        vec3 lmcAO = getLmCoordAO(coord);
         if (isLightmap) {
+            vec3 lmcAO = getLmCoordAO(coord);
             color     *= getLightmap(lmcAO.xy, lmcAO.z);
         }
         color  = gamma(color);
@@ -30,6 +32,8 @@ void main() {
     #endif
 
     //color = getNormal(coord) * 0.5 + 0.5;
+
+    color = texture(colortex7, coord).rgb;
 
     gl_FragData[0] = vec4(color, 1.0);
 }

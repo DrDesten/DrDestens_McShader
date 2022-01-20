@@ -4,7 +4,9 @@ const float TWO_PI  = 6.28318530717958647692;
 const float PI      = 3.14159265358979323846;
 const float HALF_PI = 1.57079632679489661923;
 const float INV_PI  = 0.31830988618379067153;
+
 const float PHI     = 1.61803398874989484820;
+const float PHI_INV = 0.61803398874989484820;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -161,8 +163,13 @@ float Bayer2(vec2 a) {
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
 
+float ign(vec2 co) { // Interlieved Gradient Noise, very noice noise ( ͡° ͜ʖ ͡°)
+    vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+    return fract( magic.z * fract( dot(co, magic.xy) ) );
+}
+
 float ditherColor(vec2 co) {
-    return Bayer4(co) * (4./256) - (2./256);
+    return ign(co) * (4./256) - (2./256);
 }
 
 float checkerboard(vec2 co) {

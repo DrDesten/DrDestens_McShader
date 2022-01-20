@@ -67,12 +67,19 @@ void main() {
 	#endif
 	#endif
 
+	vec2 blockLightDir = getBlocklightDir(lmcoord, mat2(tbn));
+	vec2 newlm         = lmcoord;
+	// Blocklight
+	float blockLightShade = saturate( dot(MatTex.normal, normalize(vec3( blockLightDir, lmcoord.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
+	newlm.x *= saturate(1 - sq(1 - blockLightShade));
+
+
 	gl_FragData[0] = albedo;
 	gl_FragData[1] = vec4(normal, 1);
 	#ifdef ADVANCED_MATERIALS
 	gl_FragData[2] = vec4(lmcoord, vec2(1));
 	#else
-	gl_FragData[2] = vec4(lmcoord, glcolor.a, 1);
+	gl_FragData[2] = vec4(newlm, glcolor.a, 1);
 	#endif
 	gl_FragData[3] = vec4(codeID(id), vec3(1));
 
