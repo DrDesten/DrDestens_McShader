@@ -144,7 +144,12 @@ const vec2 vogel_disk_64[64] = vec2[](
     vec2(0.9082566602526256, 0.38845471061254216)
 );
 
-
+vec2 starOffsets[4] = vec2[4](
+	vec2( 1.0,  0.0),
+	vec2( 0.0,  1.0),
+	vec2(-1.0,  0.0),
+	vec2( 0.0, -1.0)
+);
 
 const float gaussian_3[3] = float[](
     0.25,

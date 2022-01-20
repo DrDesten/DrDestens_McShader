@@ -7,11 +7,32 @@
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
+uniform float nearInverse;
+uniform float far;
 uniform sampler2D colortex7;
+const bool colortex7MipmapEnabled = true;
+
+float filteredAO(vec3 screenPos) {
+    float ao = 0;
+    float wt = 0;
+    float ld = linearizeDepthf(screenPos.z, nearInverse);
+    for (int i = 0; i < 4; i++) {
+        vec2  offs = starOffsets[i] * screenSizeInverse * 2;
+        float s    = textureLod(colortex7, screenPos.xy * 0.75 + offs, 1).x;
+        float sd   = getDepth(offs * (3/2) + screenPos.xy);
+
+        float w    = max(abs(ld - linearizeDepthf(sd, nearInverse)) * -2.0 + 1, 0.00001);
+        wt        += w;
+        ao         = s * w + ao;
+    }
+    ao /= wt;
+    return ao * ao;
+}
 
 /* DRAWBUFFERS:0 */
 void main() {
     vec3  color = getAlbedo(ivec2(gl_FragCoord.xy));
+    float depth = getDepth(ivec2(gl_FragCoord.xy));
     float id    = getID(ivec2(gl_FragCoord.xy));
 
     bool  isPBR      = id != 2 && id != 3 && id != 4;
@@ -23,9 +44,11 @@ void main() {
 
     #else
 
+        float ao = filteredAO(vec3(coord, depth));
+
         if (isLightmap) {
             vec3 lmcAO = getLmCoordAO(coord);
-            color     *= getLightmap(lmcAO.xy, lmcAO.z);
+            color     *= getLightmap(lmcAO.xy, lmcAO.z * ao);
         }
         color  = gamma(color);
 
@@ -33,7 +56,6 @@ void main() {
 
     //color = getNormal(coord) * 0.5 + 0.5;
 
-    color = texture(colortex7, coord).rgb;
 
     gl_FragData[0] = vec4(color, 1.0);
 }
