@@ -15,11 +15,19 @@ void main() {
     bool  isPBR      = id != 2 && id != 3 && id != 4;
     bool  isLightmap = id != 4;
 
-    material PBR = getMaterial(coord);
+    #ifdef ADVANCED_MATERIALS
 
-    if (isLightmap) {
-        color *= getLightmap(getLmCoord(coord), isPBR ? PBR.ao : 1);
-    }
+        material PBR = getMaterial(coord);
+
+    #else
+
+        vec3 lmcAO = getLmCoordAO(coord);
+        if (isLightmap) {
+            color     *= getLightmap(lmcAO.xy, lmcAO.z);
+        }
+        color  = gamma(color);
+
+    #endif
 
     //color = getNormal(coord) * 0.5 + 0.5;
 

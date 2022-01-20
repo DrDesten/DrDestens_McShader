@@ -47,7 +47,9 @@ vec3 getNormal(ivec2 icoord) {
 vec2 getLmCoord(vec2 coord) {
     return texture(colortex2, coord).rg;
 }
-
+vec3 getLmCoordAO(vec2 coord) {
+    return texture(colortex2, coord).rgb;
+}
 
 
 float getID(ivec2 icoord) {

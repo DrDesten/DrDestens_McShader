@@ -12,6 +12,7 @@ uniform vec3 previousCameraPosition;
 
 void main() {
     vec3  color = getAlbedo(coord);
+    color = gamma_inv(color);
 
     color = color / sqrt(0.5 + color);
 

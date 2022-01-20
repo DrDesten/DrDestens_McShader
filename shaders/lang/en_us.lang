@@ -137,8 +137,8 @@ value.PBR_FORMAT.2=SeusPBR / OldPBR
 
 option.RESOURCE_PACK_RESOLUTION=Resource Pack Resolution
 
-option.PHYSICALLY_BASED=PBR
-option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you enable Normal and Specular mapsm in the OptiFine shader options.
+option.ADVANCED_MATERIALS=PBR
+option.ADVANCED_MATERIALS.comment=Enables Physically Based Rendering. Make sure you enable Normal and Specular mapsm in the OptiFine shader options.
 
 option.PBR_BLEND=PBR Blend
 option.PBR_BLEND.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.

@@ -4,7 +4,11 @@
 const int colortex0Format = R11F_G11F_B10F; // Albedo
 
 const int colortex1Format = RGB8_SNORM;     // Normals
+#ifdef ADVANCED_MATERIALS
 const int colortex2Format = RG8;            // Lightmap
+#else
+const int colortex2Format = RGB8;            // Lightmap + AO
+#endif
 const int colortex3Format = R8;             // ID (+ Masks)
 
 const int colortex4Format = RGBA8;          // PBR: Reflectiveness (and Metals), Emissiveness, Roughness, SSS
