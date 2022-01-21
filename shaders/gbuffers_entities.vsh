@@ -11,8 +11,8 @@
 attribute vec4 at_tangent;
 
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform int  taaIndex;
+ uniform vec2 screenSizeInverse;
 #endif
 
 out float id;
@@ -29,7 +29,7 @@ void main() {
 	#endif
 	
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 	
 	lmcoord = getLmCoord();

@@ -4,6 +4,7 @@
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
 #include "/lib/lighting_basics.glsl"
+#include "/lib/fog_sky.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
