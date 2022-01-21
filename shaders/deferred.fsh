@@ -3,7 +3,6 @@
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
-#include "/lib/lighting_basics.glsl"
 
 const float programScale = 0.75;
 
@@ -50,14 +49,13 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = (1 - saturate(occlusion * 0.125));
-
+    occlusion = pow(1 - saturate(occlusion * 0.125), SSAO_STRENGTH);
     return occlusion;
 }
 
 /* DRAWBUFFERS:7 */
 void main() {
-    float ao = SSAO(vec3(coord,getDepth(coord)), 0.3);
+    float ao = SSAO(vec3(coord,getDepth(coord)), 0.15);
 
 
     gl_FragData[0] = vec4(ao);

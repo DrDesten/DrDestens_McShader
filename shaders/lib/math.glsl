@@ -37,7 +37,7 @@ float mean(vec2 vector) {
     return (vector.x + vector.y) * 0.5;
 }
 float mean(vec3 vector) {
-    return (vector.x + vector.y + vector.z) * 0.333333333333;
+    return ((vector.x + vector.y) + vector.z) * 0.333333333333;
 }
 float mean(vec4 vector) {
     return ((vector.x + vector.y) + (vector.z + vector.w)) * 0.25;
@@ -408,6 +408,10 @@ mat3 arbitraryTBN(vec3 normal) {
 ////////////////////////////////////////////////////////////////////////
 // Color-Specific functions
 
+float luminance(vec3 color) {
+    return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
 vec3 saturation(vec3 col, float saturation) {
     float brightness = dot(col, vec3(0.299, 0.587, 0.112));
     return mix(vec3(brightness), col, saturation);
@@ -419,9 +423,7 @@ vec3 contrast(vec3 col, float contrast) {
     return mix(lower, upper, col);
 }
 
-float luminance(vec3 color) {
-    return dot(color, vec3(0.2126, 0.7152, 0.0722));
-}
+
 
 vec3 rgb2hsv(vec3 c) {
     const vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);

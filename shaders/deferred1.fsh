@@ -26,7 +26,7 @@ float filteredAO(vec3 screenPos) {
         ao         = s * w + ao;
     }
     ao /= wt;
-    return ao * ao;
+    return ao;
 }
 
 /* DRAWBUFFERS:0 */
@@ -54,8 +54,16 @@ void main() {
 
     #endif
 
-    //color = getNormal(coord) * 0.5 + 0.5;
 
+    #if FOG != 0
+
+        // Blend between FogColor and normal color based on distance
+        vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
+        float dist    = length(viewPos);
+
+
+
+    #endif
 
     gl_FragData[0] = vec4(color, 1.0);
 }

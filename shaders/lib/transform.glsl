@@ -7,7 +7,7 @@ uniform mat4 gbufferProjection;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousProjection;
 
-float fovScale = gbufferProjection[1][1] * 0.7299270073;
+float fovScale = gbufferProjection[1][1];
 
 vec3 toView(vec3 clippos) { // Clippos to viewpos
     return unprojectPerspectiveMAD(clippos, gbufferProjectionInverse);
