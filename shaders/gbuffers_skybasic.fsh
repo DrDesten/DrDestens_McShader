@@ -3,6 +3,12 @@ uniform mat4 gbufferModelViewInverse;
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
+
+uniform float daynight;
+uniform float sunset;
+uniform float rainStrength;
+uniform vec3  fogColor;
+
 #include "/lib/fog_sky.glsl"
 
 uniform float wetness; 

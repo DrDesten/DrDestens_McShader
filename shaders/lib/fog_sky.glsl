@@ -1,7 +1,4 @@
-uniform float daynight;
-uniform float sunset;
-uniform float rainStrength;
-uniform vec3  fogColor;
+
 
 /* // My original values
 const vec3 sky_up_day   = vec3(0.1, 0.35, 1.0);  //Color of upper part of sky at noon
@@ -71,4 +68,21 @@ vec3 getFogColor(vec3 viewPos, int eyeWater) {
     } else {
         return fogColor;
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+float fogFactor(vec3 viewPos) {
+    float dist = sqmag(viewPos);
+    float fog  = saturate( exp(-dist * sq(0.003 * FOG_DENSITY)) );
+    return fog;
 }

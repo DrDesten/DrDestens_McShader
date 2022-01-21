@@ -1,12 +1,7 @@
 uniform sampler2D texture;  // Color
-uniform sampler2D lightmap; // lightmap
 
 vec4 getAlbedo(vec2 coord) {
     return texture2D(texture, coord);
-}
-
-vec3 getLightmap(vec2 coord) {
-    return texture2D(lightmap, coord).rgb;
 }
 
 void getLmDir(in vec2 lco, out vec2 skyLight, out vec2 blockLight) {
@@ -29,4 +24,8 @@ vec2 getBlocklightDir(vec2 lco, mat2 tbn) {
 
 float codeID(float blockId) {
     return blockId * .00392156862745; // 0.00392156862745 == 1/255
+}
+
+void alphaTest(float alpha, float threshhold) {
+    if (alpha < threshhold) discard;
 }

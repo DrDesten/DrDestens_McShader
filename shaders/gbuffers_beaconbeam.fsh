@@ -1,5 +1,3 @@
-
-
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
 
@@ -8,7 +6,8 @@ in vec4 glcolor;
 
 /* DRAWBUFFERS:03 */
 void main() {
-	vec4 color = texture2D(texture, coord, 0) * glcolor;
+	vec4 color = getAlbedo(coord) * glcolor;
+	color.rgb  = gamma(color.rgb);
 	color.rgb *= 2;
 
 

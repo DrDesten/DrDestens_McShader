@@ -11,6 +11,7 @@ in vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color     *= texture2D(lightmap, lmcoord);
+	color.rgb  = gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 }

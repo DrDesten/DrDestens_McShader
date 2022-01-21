@@ -4,6 +4,12 @@
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
 #include "/lib/lighting_basics.glsl"
+
+uniform float daynight;
+uniform float sunset;
+uniform float rainStrength;
+uniform vec3  fogColor;
+
 #include "/lib/fog_sky.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
@@ -58,10 +64,13 @@ void main() {
 
     #if FOG != 0
 
-        // Blend between FogColor and normal color based on distance
-        vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
-        float dist    = length(viewPos);
+        if (depth < 1) {
+            // Blend between FogColor and normal color based on distance
+            vec3  viewPos  = toView(vec3(coord, depth) * 2 - 1);
+            vec3  skyColor = gamma(getSkyColor(viewPos));
 
+            color = mix(skyColor, color, fogFactor(viewPos));
+        }
 
 
     #endif

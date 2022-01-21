@@ -180,11 +180,11 @@ option.FOG=Fog
 value.FOG.0=§cOFF
 value.FOG.1=Normal
 value.FOG.2=Border
-option.FOG_AMOUNT=Fog Amount
+option.FOG_DENSITY=Fog Amount
 
 option.SUNSET_FOG=Morning Fog
 option.SUNSET_FOG.comment=Increases fog amount during sunsets. Only works with fog in "Normal" mode. Requires fog and sunsets to be enabled.
-option.SUNSET_FOG_AMOUNT=Morning Fog Strength
+option.SUNSET_FOG_DENSITY=Morning Fog Strength
 
 option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
