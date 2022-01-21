@@ -132,23 +132,23 @@ float SSAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0) { return 1.0; };
 
     #ifdef TAA
-     float dither = fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.2;
+     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.2;
     #else
-     float dither = Bayer4(screenPos.xy * screenSize) * 0.2;
+     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     #endif
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
-    vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
     float dscale = 20 / radZ;
+    vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 
     float sample      = 0.2 + dither;
-    float increment   = radius * 0.125;
+    float increment   = radius * PHI_INV;
     float occlusion   = 0.0;
     for (int i = 0; i < 8; i++) {
 
         vec2 offs = spiralOffset_full(sample, 4.5) * rad;
 
-        float sdepth = getDepth_int(screenPos.xy + offs);
+        float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
         occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
@@ -158,10 +158,8 @@ float SSAO(vec3 screenPos, float radius) {
     }
 
     occlusion = sq(1 - saturate(occlusion * 0.125));
-
     return occlusion;
 }
-
 
 /* DRAWBUFFERS:0 */
 void main() {
@@ -179,7 +177,7 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color        *= SSAO(vec3(coord, depth), 0.35) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color        *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
