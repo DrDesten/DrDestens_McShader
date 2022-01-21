@@ -1,9 +1,6 @@
 uniform float daynight;
-#ifdef SKY_SUNSET
 uniform float sunset;
-#endif
-
-uniform vec3 fogColor;
+uniform vec3  fogColor;
 
 /* // My original values
 const vec3 sky_up_day   = vec3(0.1, 0.35, 1.0);  //Color of upper part of sky at noon
@@ -12,13 +9,23 @@ const vec3 end_sky_up   = vec3(0.2, 0, 0.3);  // Color of the upper sky in the e
 const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the end
 */
 
-const vec3 sky_up_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);   //Color of upper part of sky at noon
-const vec3 sky_up_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B); //Color of upper part of sky at midnight
 
-const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 
 const vec3 end_sky_up   = vec3(END_SKY_UP_R, END_SKY_UP_G, END_SKY_UP_B);  // Color of the upper sky in the end
 const vec3 end_sky_down = vec3(END_SKY_DOWN_R, END_SKY_DOWN_G, END_SKY_DOWN_B); // Color of the lower sky in the end
+
+
+const vec3 sky_sunset = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
+
+const vec3 sky_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);
+const vec3 sky_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B);
+const vec3 sky_day_rain   = vec3(SKY_DAY_RAIN_R,   SKY_DAY_RAIN_G,   SKY_DAY_RAIN_B);
+const vec3 sky_night_rain = vec3(SKY_NIGHT_RAIN_R, SKY_NIGHT_RAIN_G, SKY_NIGHT_RAIN_B);
+
+const vec3 fog_day   = vec3(FOG_DAY_R, FOG_DAY_G, FOG_DAY_B);
+const vec3 fog_night = vec3(FOG_NIGHT_R, FOG_NIGHT_G, FOG_NIGHT_B);
+const vec3 fog_day_rain   = vec3(FOG_DAY_RAIN_R,   FOG_DAY_RAIN_G,   FOG_DAY_RAIN_B);
+const vec3 fog_night_rain = vec3(FOG_NIGHT_RAIN_R, FOG_NIGHT_RAIN_G, FOG_NIGHT_RAIN_B);
 
 vec3 getSkyColor5(vec3 viewPos, float rain) {
 
@@ -41,18 +48,11 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
     #else
 
         vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
+        float viewHeight   = saturate(eyePlayerPos.y * (1. / sqrt(dot(eyePlayerPos, eyePlayerPos))) * 0.9 + 0.1);
 
-        vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-        sky_up      = mix(sky_up, fogColor * 0.5, rain);
+        //vec3  upperSky = 
 
-        #ifdef SKY_SUNSET
-         vec3 sky_down = mix(fogColor, sunset_color, sunset);
-         sky_down      = mix(sky_down, fogColor, rain);
-         return mix(sky_down, sky_up, viewHeight); //Get sky
-        #else
-         return mix(fogColor, sky_up, viewHeight); //Get sky
-        #endif
+        return vec3(0);
 
     #endif
 
