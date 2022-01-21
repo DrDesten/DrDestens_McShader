@@ -6,7 +6,6 @@ uniform mat4 gbufferModelViewInverse;
 #include "/lib/fog_sky.glsl"
 
 uniform float wetness; 
-uniform float rainStrength;
 
 uniform vec3  sunPosition;
 uniform vec3  moonPosition;
@@ -63,12 +62,12 @@ void main() {
         float moonDot  = saturate(dot(viewDir, normalize(moonPosition)));
         moonDot        = pow(moonDot, 20) * .25;
 
-        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
+        vec3 color = getSkyColor(viewpos); //Get sky
         color     *= 1 + sunDot + moonDot;
 
     #elif defined END
 
-        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
+        vec3 color = getSkyColor(viewpos); //Get sky
 
     #endif
 

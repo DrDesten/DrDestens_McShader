@@ -1,5 +1,6 @@
 uniform float daynight;
 uniform float sunset;
+uniform float rainStrength;
 uniform vec3  fogColor;
 
 /* // My original values
@@ -27,7 +28,7 @@ const vec3 fog_night = vec3(FOG_NIGHT_R, FOG_NIGHT_G, FOG_NIGHT_B);
 const vec3 fog_day_rain   = vec3(FOG_DAY_RAIN_R,   FOG_DAY_RAIN_G,   FOG_DAY_RAIN_B);
 const vec3 fog_night_rain = vec3(FOG_NIGHT_RAIN_R, FOG_NIGHT_RAIN_G, FOG_NIGHT_RAIN_B);
 
-vec3 getSkyColor5(vec3 viewPos, float rain) {
+vec3 getSkyColor(vec3 viewPos) {
 
     #ifdef NETHER
 
@@ -48,30 +49,26 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
     #else
 
         vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-        float viewHeight   = saturate(eyePlayerPos.y * (1. / sqrt(dot(eyePlayerPos, eyePlayerPos))) * 0.9 + 0.1);
+        float viewHeight   = saturate(eyePlayerPos.y * inversesqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1);
 
-        //vec3  upperSky = 
+        vec3  upperSky     = mix(sky_night, sky_day, daynight);
+        vec3  upperSkyRain = mix(sky_night_rain, sky_day_rain, daynight);
 
-        return vec3(0);
+        vec3  lowerSky     = mix(fog_night, fog_day, daynight);
+        vec3  lowerSkyRain = mix(fog_night_rain, fog_day_rain, daynight);
+
+        return mix(mix(lowerSky, lowerSkyRain, rainStrength), mix(upperSky, upperSkyRain, rainStrength), viewHeight);
 
     #endif
 
 }
-vec3 getSkyColor5_gamma(vec3 viewPos, float rain) {
-    vec3 color = getSkyColor5(viewPos, rain);
-    return pow(color, vec3(GAMMA));
-}
 
-
-vec3 getFogColor(vec3 viewPos, float rain, int eyeWater) {
+vec3 getFogColor(vec3 viewPos, int eyeWater) {
     if (eyeWater == 0) {
-        return getSkyColor5(viewPos, rain);
+        return getSkyColor(viewPos);
     } else if (eyeWater == 1) {
         return fogColor * 0.25;
     } else {
         return fogColor;
     }
-}
-vec3 getFogColor_gamma(vec3 viewPos, float rain, int eyeWater) {
-    return pow(getFogColor(viewPos, rain, eyeWater), vec3(GAMMA));
 }

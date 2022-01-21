@@ -12,5 +12,5 @@ void main() {
 
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(lmcoord, vec2(1));
-	gl_FragData[2] = vec4(codeID(3), vec3(1));
+	gl_FragData[2] = vec4(codeID(5), vec3(1));
 }
