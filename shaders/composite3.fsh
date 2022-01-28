@@ -8,7 +8,7 @@ const int colortex2Format = RGB8;           // Lightmap + AO
 const int colortex3Format = R8;             // ID (+ Masks)
 
 const int colortex4Format = RGBA8;          // PBR: Reflectiveness (and Metals), Emissiveness, Roughness, SSS
-const int colortex5Format = R8;            // PBR: Height
+const int colortex5Format = R8;             // PBR: Height
 
 const int colortex7Format = RGB8;           // Bloom, SSAO
 const int colortex8Format = R11F_G11F_B10F; // TAA
