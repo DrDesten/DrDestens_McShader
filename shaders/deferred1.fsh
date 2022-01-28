@@ -47,7 +47,8 @@ void main() {
 
     #ifdef ADVANCED_MATERIALS
 
-        material PBR = getMaterial(coord);
+        vec3 lmcAO   = getLmCoordAO(coord);
+        material PBR = getMaterial(coord, lmcAO);
 
     #else
 
@@ -57,7 +58,8 @@ void main() {
             vec3 lmcAO = getLmCoordAO(coord);
             color     *= getLightmap(lmcAO.xy, lmcAO.z * ao);
         }
-        color  = gamma(color);
+
+        color = gamma(color);
 
     #endif
 
@@ -71,7 +73,6 @@ void main() {
 
             color = mix(skyColor, color, fogFactor(viewPos));
         }
-
 
     #endif
 

@@ -76,15 +76,11 @@ void main() {
 
 	gl_FragData[0] = albedo;
 	gl_FragData[1] = vec4(normal, 1);
-	#ifdef ADVANCED_MATERIALS
-	gl_FragData[2] = vec4(lmcoord, vec2(1));
-	#else
-	gl_FragData[2] = vec4(newlm, glcolor.a, 1);
-	#endif
+	gl_FragData[2] = vec4(newlm, ao, 1);
 	gl_FragData[3] = vec4(codeID(id), vec3(1));
 
 	gl_FragData[4] = vec4(f0, emission, smoothness, subsurface);
-	gl_FragData[5] = vec4(height, ao, vec2(1));
+	gl_FragData[5] = vec4(height, vec3(1));
 }
 
 
@@ -92,10 +88,10 @@ void main() {
 
 Col0 = Albedo
 Col1 = Normals
-Col2 = Lightmap
+Col2 = Lightmap + AO
 Col3 = ID
 
 Col4 = PBR: Reflectiveness+Metals, Emissive, Smoothness, SSS
-Col5 = PBR: Height, AO
+Col5 = PBR: Height
 
 //////////////////*/

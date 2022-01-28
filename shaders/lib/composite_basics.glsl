@@ -69,7 +69,7 @@ struct material {
     float ao;
 };
 
-material getMaterial(vec2 coord) {
+material getMaterial(vec2 coord, vec3 lmcAO) {
     vec4 pbrtex0 = texture(colortex4, coord);
     vec4 pbrtex1 = texture(colortex5, coord);
     material materialValues = material(
@@ -78,7 +78,7 @@ material getMaterial(vec2 coord) {
         pbrtex0.z, // smoothness
         pbrtex0.w, // sss
         pbrtex1.x, // height
-        pbrtex1.y  // ao
+        lmcAO.z    // ao
     );
     return materialValues;
 }
