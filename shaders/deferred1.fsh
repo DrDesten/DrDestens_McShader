@@ -37,9 +37,12 @@ float filteredAO(vec3 screenPos) {
 /* DRAWBUFFERS:0 */
 void main() {
     vec3  color = getAlbedo(coord);
-    float ao    = filteredAO(vec3(coord, getDepth(coord)));
+    float type  = getType(coord);
 
-    color *= ao;
+    if (type != 50) {
+        float ao = filteredAO(vec3(coord, getDepth(coord)));
+        color   *= ao;
+    }
 
     gl_FragData[0] = vec4(color, 1.0);
 }
