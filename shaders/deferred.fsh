@@ -11,7 +11,10 @@ uniform float aspectRatio;
 
 uniform int   frameCounter;
 
-vec2 coord = gl_FragCoord.xy * screenSizeInverse;
+const float programScale = 0.5;
+const float programScaleInv = 1. / programScale;
+
+vec2 coord = gl_FragCoord.xy * screenSizeInverse * programScaleInv;
 
 uniform sampler2D colortex4;
 const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
@@ -74,9 +77,9 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
-     float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
+     float ditherTimesSize  = -sq(1 - fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * 0.134785))) * size + size;
     #else
-     float ditherTimesSize  = -sq(1 - Bayer4(screenPos.xy * screenSize)) * size + size;
+     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
     #endif
 
     float hits = 0;
@@ -103,9 +106,9 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
-     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+     float ditherTimesSize  = (fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
     #else
-     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+     float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
     #endif
     float depthTolerance   = 0.075/-viewPos.z;
 
@@ -132,9 +135,9 @@ float SSAO(vec3 screenPos, float radius) {
     if (screenPos.z >= 1.0) { return 1.0; };
 
     #ifdef TAA
-     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.2;
+     float dither = fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * PHI_INV)) * 0.2;
     #else
-     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+     float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
     #endif
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
@@ -161,39 +164,34 @@ float SSAO(vec3 screenPos, float radius) {
     return occlusion;
 }
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:4 */
 void main() {
-    vec3  color       = getAlbedo(coord);
-    float depth       = getDepth(coord);
-    float type        = getType(coord);
-
-    //////////////////////////////////////////////////////////
-    //                  SSAO
-    //////////////////////////////////////////////////////////
+    float depth = getDepth(coord);
+    float ao    = 1;
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        if (abs(type - 50) > .2 && depth != 1) {
+    if (depth != 1) {
 
-            #if   SSAO_QUALITY == 1
+        #if   SSAO_QUALITY == 1
 
-                color        *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            ao = SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #elif SSAO_QUALITY == 2
+        #elif SSAO_QUALITY == 2
 
-                vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            vec3 normal = getNormal(coord);
+            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #elif SSAO_QUALITY == 3
+        #elif SSAO_QUALITY == 3
 
-                vec3 normal = getNormal(coord);
-                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            vec3 normal = getNormal(coord);
+            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #endif
-            
-        }
+        #endif
+        
+    }
 
     #endif
 
-    gl_FragData[0] = vec4(color, 1.0);
+    gl_FragData[0] = vec4(ao, vec3(1.0));
 }
