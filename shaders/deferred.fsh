@@ -77,7 +77,8 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
-     float ditherTimesSize  = -sq(1 - fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * 0.134785))) * size + size;
+     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
+     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
     #else
      float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
     #endif
@@ -106,7 +107,8 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
-     float ditherTimesSize  = (fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+     float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
+     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
     #else
      float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
     #endif
@@ -132,10 +134,10 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    if (screenPos.z >= 1.0) { return 1.0; };
-
     #ifdef TAA
-     float dither = fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * PHI_INV)) * 0.2;
+     //float dither = fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * PHI_INV)) * 0.2;
+     float dither  = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
+     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
     #else
      float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
     #endif
