@@ -159,17 +159,17 @@ void main() {
 
         #if   SSAO_QUALITY == 1
 
-            ao = SSAO(vec3(coord, depth), 0.2);
+            ao = SSAO(vec3(coord, depth), 0.125);
 
         #elif SSAO_QUALITY == 2
 
             vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5);
+            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.3);
 
         #elif SSAO_QUALITY == 3
 
             vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5);
+            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.3);
 
         #endif
         
