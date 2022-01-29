@@ -9,8 +9,6 @@
 uniform float nearInverse;
 uniform float aspectRatio;
 
-uniform int   frameCounter;
-
 const float programScale = 0.5;
 const float programScaleInv = 1. / programScale;
 
@@ -76,12 +74,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    #ifdef TAA
-     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
-     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
-    #else
-     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
-    #endif
+    float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
 
     float hits = 0;
     vec3  sample;
@@ -106,12 +99,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    #ifdef TAA
-     float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
-     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
-    #else
-     float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
-    #endif
+    float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -134,13 +122,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    #ifdef TAA
-     //float dither = fract(Bayer8(screenPos.xy * screenSize * programScale) + (frameCounter * PHI_INV)) * 0.2;
-     float dither  = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
-     screenPos.xy += TAAOffsets[int(fract(frameCounter * (1./8)) * 8 + 0.5)] * screenSizeInverse * 3;
-    #else
-     float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
-    #endif
+    float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
     float dscale = 20 / radZ;
