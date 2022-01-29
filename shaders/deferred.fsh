@@ -92,7 +92,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return sq(hits);
+    return hits;
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
@@ -117,7 +117,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = -hits * 0.0625 + 1;
-    return sq(hits);
+    return hits;
 }
 
 // Really Fast™ SSAO
@@ -138,13 +138,13 @@ float SSAO(vec3 screenPos, float radius) {
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
-        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
+        occlusion   += clamp(diff * dscale, -1, 1.1) * cubicAttenuation2(diff, radZ);
 
         sample += increment;
 
     }
 
-    occlusion = sq(1 - saturate(occlusion * 0.125));
+    occlusion = 1 - saturate(occlusion * (1./8.));
     return occlusion;
 }
 
@@ -159,17 +159,17 @@ void main() {
 
         #if   SSAO_QUALITY == 1
 
-            ao = SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            ao = SSAO(vec3(coord, depth), 0.2);
 
         #elif SSAO_QUALITY == 2
 
             vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5);
 
         #elif SSAO_QUALITY == 3
 
             vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5);
 
         #endif
         
