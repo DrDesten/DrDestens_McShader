@@ -9,6 +9,7 @@
 uniform float nearInverse;
 uniform float aspectRatio;
 
+uniform int   frameCounter;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -72,7 +73,11 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize)) * size + size;
+    #ifdef TAA
+     float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
+    #else
+     float ditherTimesSize  = -sq(1 - Bayer4(screenPos.xy * screenSize)) * size + size;
+    #endif
 
     float hits = 0;
     vec3  sample;
@@ -90,14 +95,18 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return hits;
+    return sq(hits);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #ifdef TAA
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+    #else
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #endif
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -115,12 +124,18 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = -hits * 0.0625 + 1;
-    return hits;
+    return sq(hits);
 }
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+    if (screenPos.z >= 1.0) { return 1.0; };
+
+    #ifdef TAA
+     float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.2;
+    #else
+     float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
+    #endif
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
     float dscale = 20 / radZ;
@@ -136,44 +151,49 @@ float SSAO(vec3 screenPos, float radius) {
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
-        occlusion   += clamp(diff * dscale, -1, 1.1) * cubicAttenuation2(diff, radZ);
+        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
 
         sample += increment;
 
     }
 
-    occlusion = 1 - saturate(occlusion * (1./8.));
+    occlusion = sq(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
 
 /* DRAWBUFFERS:0 */
 void main() {
-    float depth = getDepth(coord);
-    float ao    = 1;
+    vec3  color       = getAlbedo(coord);
+    float depth       = getDepth(coord);
+    float type        = getType(coord);
+
+    //////////////////////////////////////////////////////////
+    //                  SSAO
+    //////////////////////////////////////////////////////////
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-    if (depth != 1) {
+        if (abs(type - 50) > .2 && depth != 1) {
 
-        #if   SSAO_QUALITY == 1
+            #if   SSAO_QUALITY == 1
 
-            ao = SSAO(vec3(coord, depth), 0.125);
+                color        *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-        #elif SSAO_QUALITY == 2
+            #elif SSAO_QUALITY == 2
 
-            vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionLOW(vec3(coord, depth), normal, 0.3);
+                vec3 normal = getNormal(coord);
+                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-        #elif SSAO_QUALITY == 3
+            #elif SSAO_QUALITY == 3
 
-            vec3 normal = getNormal(coord);
-            ao = AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.3);
+                vec3 normal = getNormal(coord);
+                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-        #endif
-        
-    }
+            #endif
+            
+        }
 
     #endif
 
-    gl_FragData[0] = vec4(color, (1.0));
+    gl_FragData[0] = vec4(color, 1.0);
 }
