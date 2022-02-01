@@ -9,10 +9,8 @@
 uniform float nearInverse;
 uniform float aspectRatio;
 
-const float programScale = 0.5;
-const float programScaleInv = 1. / programScale;
 
-vec2 coord = gl_FragCoord.xy * screenSizeInverse * programScaleInv;
+vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform sampler2D colortex4;
 const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
@@ -74,7 +72,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
+    float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize)) * size + size;
 
     float hits = 0;
     vec3  sample;
@@ -99,7 +97,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
-    float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
+    float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
@@ -122,7 +120,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
+    float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
     float dscale = 20 / radZ;
@@ -148,7 +146,7 @@ float SSAO(vec3 screenPos, float radius) {
     return occlusion;
 }
 
-/* DRAWBUFFERS:4 */
+/* DRAWBUFFERS:0 */
 void main() {
     float depth = getDepth(coord);
     float ao    = 1;
@@ -177,5 +175,5 @@ void main() {
 
     #endif
 
-    gl_FragData[0] = vec4(ao, vec3(1.0));
+    gl_FragData[0] = vec4(color, (1.0));
 }
