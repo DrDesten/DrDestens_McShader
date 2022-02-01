@@ -38,6 +38,9 @@ const float ssao_strength = (4 * SSAO_STRENGTH * SSAO_STRENGTH) + 0.5;
 
 //#define DOF_DITHER                 // Randomize Samples in order to conceil high step sizes   
 
+#define DOF_SAMPLES 20               // Total Sample Amount
+const int dof_pass_samples = DOF_SAMPLES / 4;
+
 #define DOF_DOWNSAMPLING 0.5         // How much downsampling takes place for the DoF effect    [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 #define DOF_KERNEL_SIZE 2            // Bokeh Quality                                           [1 2 3 4]           
 #define DOF_MAXSIZE 0.007            // Maximum Blur                                            [0.005 0.007 0.03 1.0]

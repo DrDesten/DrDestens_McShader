@@ -10,6 +10,7 @@
 #include "/lib/transform.glsl"
 #include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/dof.glsl"
 
 uniform float centerDepthSmooth;
 const float   centerDepthHalflife = 1.5;
@@ -22,35 +23,6 @@ uniform float near;
 uniform float far;
 uniform float aspectRatio;
 
-vec3 chromaticAberrationTint(vec2 relPos) {
-    float chromAbb     = relPos.x * chromaticAberrationDoF + 0.5;
-    vec3  chromAbbTint = vec3(chromAbb, 0.75 - abs(chromAbb - 0.5), 1 - chromAbb) * 2;
-    return chromAbbTint;
-}
-
-#define PLANE_DIST 5e-3
-vec2 getCoC(float linearDepth, float focusLinearDepth, float aspect, float scale) {
-    float focalLength = 1 / ((1/focusLinearDepth) + (1/PLANE_DIST));
-
-    float zaehler = focalLength * (focusLinearDepth - linearDepth);
-    float nenner  = linearDepth * (focusLinearDepth - focalLength);
-    float CoC     = abs(zaehler / nenner) * scale;
-    return vec2(CoC, CoC * aspectRatio);
-}
-
-vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv) {
-    vec3 col      = vec3(0);
-    vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
-
-    for (int i = 0; i < samples; i++) {
-        col    += texture(tex, sample).rgb;
-        sample += blurStep;
-    }
-
-    return col * samplesInv;
-}
-
 /* DRAWBUFFERS:45 */
 
 void main() {
@@ -61,14 +33,16 @@ void main() {
 
     vec2 Coc = getCoC(linearDepth, clinearDepth, aspectRatio, fovScale * DOF_STRENGTH);
 
+    float lod = log2((Coc.x * screenSize.x) * (1./dof_pass_samples) + 1);
+
     vec2 blurVec1 = vec2(0, -Coc.y);
-    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, 10, 1./10);
+    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
 
     vec2 blurVec2 = vec2( cos(PI / 6.), sin(PI / 6.) ) * Coc;
-    vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, 10, 1./10);
+    vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
 
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color1,  1);
-    gl_FragData[1]          = vec4((color1 + color2) * 0.5,  1);
+    gl_FragData[1]          = vec4(color1 + color2,  1);
 }
