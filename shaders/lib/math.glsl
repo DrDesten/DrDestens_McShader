@@ -162,6 +162,11 @@ float Bayer2(vec2 a) {
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
 
+float ign(vec2 co) { // Interlieved Gradient Noise, very noice noise ( ͡° ͜ʖ ͡°)
+    vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+    return fract( magic.z * fract( dot(co, magic.xy) ) );
+}
+
 float ditherColor(vec2 co) {
     return Bayer4(co) * (4./256) - (2./256);
 }

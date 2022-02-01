@@ -316,6 +316,14 @@ const vec2 blue_noise_disk[64] = vec2[](
     vec2(-0.210004,0.519896) 
 );
 
+
+const vec2 starOffsets[4] = vec2[4](
+	vec2( 1.0,  0.0),
+	vec2( 0.0,  1.0),
+	vec2(-1.0,  0.0),
+	vec2( 0.0, -1.0)
+);
+
 const float sobel_horizontal[9] = float[](
     -1, 0, 1,
     -2, 0, 2,
