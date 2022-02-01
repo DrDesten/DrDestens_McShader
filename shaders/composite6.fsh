@@ -23,12 +23,13 @@ uniform float far;
 uniform float aspectRatio;
 
 #define PLANE_DIST 5e-3
-float realCoC(float linearDepth, float focusLinearDepth) {
+vec2 getCoC(float linearDepth, float focusLinearDepth, float aspect, float scale) {
     float focalLength = 1 / ((1/focusLinearDepth) + (1/PLANE_DIST));
 
     float zaehler = focalLength * (focusLinearDepth - linearDepth);
     float nenner  = linearDepth * (focusLinearDepth - focalLength);
-    return abs(zaehler / nenner);
+    float CoC     = abs(zaehler / nenner) * scale;
+    return vec2(CoC, CoC * aspectRatio);
 }
 
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv) {
@@ -60,13 +61,12 @@ void main() {
     float linearDepth   = linearizeDepth(depth, near, far);
     float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
 
-    float Coc = realCoC(linearDepth, clinearDepth) * fovScale * DOF_STRENGTH;
-    Coc = 100;
+    vec2 Coc = getCoC(linearDepth, clinearDepth, aspectRatio, fovScale * DOF_STRENGTH);
 
-    vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * screenSizeInverse * Coc;
+    vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * Coc;
     vec3 color1   = hexBokehVectorBlur(colortex4, coord, blurVec1, 10, 1./10);
 
-    vec2 blurVec2 = vec2( cos(PI / 6. * 5), sin(PI / 6. * 5) ) * screenSizeInverse * Coc;
+    vec2 blurVec2 = vec2( cos(PI / 6. * 5), sin(PI / 6. * 5) ) * Coc;
     vec3 color2   = hexBokehVectorBlur(colortex5, coord, blurVec2, 10, 1./10);
 
     vec3 color = (color1 + color2 * 2) * (1./3);
