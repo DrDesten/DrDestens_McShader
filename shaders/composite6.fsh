@@ -12,91 +12,65 @@
 #include "/lib/kernels.glsl"
 
 uniform sampler2D colortex4;
+uniform sampler2D colortex5;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-uniform float blindness; 
+uniform float centerDepthSmooth;
 
-vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
-    if (length(blur) < screenSizeInverse.x) { return getAlbedo(coord); }
+uniform float near;
+uniform float far;
+uniform float aspectRatio;
 
+#define PLANE_DIST 5e-3
+float realCoC(float linearDepth, float focusLinearDepth) {
+    float focalLength = 1 / ((1/focusLinearDepth) + (1/PLANE_DIST));
+
+    float zaehler = focalLength * (focusLinearDepth - linearDepth);
+    float nenner  = linearDepth * (focusLinearDepth - focalLength);
+    return abs(zaehler / nenner);
+}
+
+vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv) {
     vec3 col      = vec3(0);
-    vec2 blurStep = blur / float(samples);
-    vec2 sample   = coord;
+    vec2 blurStep = vector * samplesInv;
+    vec2 sample   = blurStep * 0.5 + coord;
 
     for (int i = 0; i < samples; i++) {
-        col += getAlbedo_int(sample);
+        col    += texture(tex, sample).rgb;
         sample += blurStep;
     }
 
-    return col / float(samples);
-}
-
-
-vec3 readBloomTile(vec2 coord, float tile, float padding) {
-    float tileScale = exp2( -tile - 1 );
-    vec2  tileCoord = coord * tileScale / (exp2(tile + 1) * padding + 1);
-    tileCoord.x    += 1 - exp2( -tile );
-
-    return texture(colortex4, tileCoord).rgb;
-}
-vec3 readBloomTileBlur(vec2 coord, float initial_scale, float tile, float padding) {
-    vec2 tileLocation = vec2(0);
-    tileLocation.x    = 1 - exp2(-tile);
-    tileLocation     += coord * exp2(-tile - 1);
-
-    tileLocation     /= (initial_scale * .5);
-    tileLocation.x   += padding * tile;
-
-    vec3 color = vec3(0);
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-
-            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
-            vec2  offs   = vec2(x, y) * screenSizeInverse;
-
-            vec2 sample  = tileLocation + offs;
-            color       += texture(colortex4, sample).rgb * weight;
-
-        }
-    }
-
-    return color;
+    return col * samplesInv;
 }
 
 /* DRAWBUFFERS:0 */
 void main() {
-    #ifdef MOTION_BLUR
+    /* vec3 color1 = texture(colortex4, coord).rgb;
+    vec3 color2 = texture(colortex5, coord).rgb;
 
-        // Motion Blur dependent on player Movement and Camera
-        vec3  clipPos      = vec3(coord, getDepth(coord)) * 2 - 1;
-        vec3  prevCoord    = previousReproject(clipPos);
+    vec3 color = color1;
+    if (coord.x > 0.5) color = color2;
 
-        vec2  motionBlurVector = (clamp(prevCoord.xy, -0.2, 1.2) - coord) * float(clipPos.z > 0.12) * MOTION_BLUR_STRENGTH;
+    color = mix(color, texture(colortex0, coord).rgb, 0.2);
+    */
 
-        float ditherOffset     = (Bayer4(coord * screenSize) - 0.5) / MOTION_BLUR_SAMPLES;
-        vec3  color            = vectorBlur(motionBlurVector * ditherOffset + coord, motionBlurVector, MOTION_BLUR_SAMPLES);
+    float depth = texture(depthtex0, coord).r;
 
-    #else
+    float linearDepth   = linearizeDepth(depth, near, far);
+    float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
 
-        vec3  color = getAlbedo(coord);
+    float Coc = realCoC(linearDepth, clinearDepth) * fovScale * DOF_STRENGTH;
+    Coc = 100;
 
-    #endif
+    vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * screenSizeInverse * Coc;
+    vec3 color1   = hexBokehVectorBlur(colortex4, coord, blurVec1, 10, 1./10);
 
-    #ifdef BLOOM
+    vec2 blurVec2 = vec2( cos(PI / 6. * 5), sin(PI / 6. * 5) ) * screenSizeInverse * Coc;
+    vec3 color2   = hexBokehVectorBlur(colortex5, coord, blurVec2, 10, 1./10);
 
-        vec3 bloom = vec3(0);
-        for (int i = 0; i < 6; i++) {
-            bloom += readBloomTile(coord, i, 10 * screenSizeInverse.x);
-        }
-        bloom  = bloom / (6. * BLOOM_AMOUNT);
-        bloom  = sq(bloom) * BLOOM_AMOUNT;
-        color += bloom;
-        //color = readBloomTile(coord, 2, 10 * screenSizeInverse.x);
-        //color = texture(colortex4, coord).rgb;
-
-    #endif
-
+    vec3 color = (color1 + color2 * 2) * (1./3);
+    
     //Pass everything forward
     gl_FragData[0]          = vec4(color, 1);
 }
