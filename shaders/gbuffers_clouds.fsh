@@ -28,7 +28,7 @@ void main() {
 
 	color.rgb *= glcolor.rgb * (1 - sq(1 - lightBrightness));
 	color.rgb *= (diffuse + 0.75) * (vol_1 + vol_2);
-	color.a   *= vol_1 * 0.5 + 0.5;
+	color.a    = fstep(0.5, color.a);
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
