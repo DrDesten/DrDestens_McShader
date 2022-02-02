@@ -26,12 +26,8 @@ option.DOF_DITHER=Dither DoF
 option.DOF_DOWNSAMPLING=DoF Downsampling Amount
 option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
 
-option.DOF_KERNEL_SIZE=Bokeh Quality
-option.DOF_KERNEL_SIZE.comment=Quality of the blur. Significantly affects performance.
-value.DOF_KERNEL_SIZE.1=Low
-value.DOF_KERNEL_SIZE.2=Medium
-value.DOF_KERNEL_SIZE.3=High
-value.DOF_KERNEL_SIZE.4=Highest
+option.DOF_SAMPLES=Bokeh Samples
+option.DOF_SAMPLES.comment=Quality of the blur. Significantly affects performance.
 
 option.DOF_CHROMATIC_ABERRATION=DoF Chromatic Aberration
 option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction. It is advised to only turn one Chromatic Aberration effect on.

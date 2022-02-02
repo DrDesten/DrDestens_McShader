@@ -16,18 +16,7 @@ vec2 getCoC(float linearDepth, float focusLinearDepth, float aspect, float scale
     return vec2(CoC, CoC * aspect);
 }
 
-vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv) {
-    vec3 col      = vec3(0);
-    vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
 
-    for (int i = 0; i < samples; i++) {
-        col    += texture(tex, sample).rgb;
-        sample += blurStep;
-    }
-
-    return col * samplesInv;
-}
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
@@ -39,4 +28,20 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
     }
 
     return col * samplesInv;
+}
+vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float depth) {
+    vec3 col      = textureLod(tex, coord, lod).rgb;
+    vec2 blurStep = vector * samplesInv;
+    vec2 sample   = blurStep * 0.5 + coord;
+
+    float tw = 1;
+    for (int i = 0; i < samples; i++) {
+        float d = getDepth_int(sample);
+        float w = float(d >= (depth - 1e-5));
+        col    += textureLod(tex, sample, lod).rgb * w;
+        tw     += w;
+        sample += blurStep;
+    }
+
+    return col / tw;
 }

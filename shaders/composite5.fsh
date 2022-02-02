@@ -33,13 +33,13 @@ void main() {
 
     vec2 Coc = getCoC(linearDepth, clinearDepth, aspectRatio, fovScale * DOF_STRENGTH);
 
-    float lod = log2((Coc.x * screenSize.x) * (1./dof_pass_samples) + 1);
+    float lod = log2((Coc.x * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
 
     vec2 blurVec1 = vec2(0, -Coc.y);
-    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
+    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, depth);
 
     vec2 blurVec2 = vec2( cos(PI / 6.), sin(PI / 6.) ) * Coc;
-    vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
+    vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, depth);
 
 
     //Pass everything forward
