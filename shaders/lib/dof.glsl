@@ -13,6 +13,7 @@ vec2 getCoC(float linearDepth, float focusLinearDepth, float aspect, float scale
     float zaehler = focalLength * (focusLinearDepth - linearDepth);
     float nenner  = linearDepth * (focusLinearDepth - focalLength);
     float CoC     = abs(zaehler / nenner) * scale;
+    //float CoC     = 0.05 * scale;
     return vec2(CoC, CoC * aspect);
 }
 
@@ -29,7 +30,7 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
 
     return col * samplesInv;
 }
-vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float depth) {
+/* vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float depth) {
     vec3 col      = textureLod(tex, coord, lod).rgb;
     vec2 blurStep = vector * samplesInv;
     vec2 sample   = blurStep * 0.5 + coord;
@@ -45,6 +46,24 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
 
         sample  += blurStep;
         dsample += blurStep;
+    }
+
+    return col / tw;
+} */
+vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float coc) {
+    vec3 col      = textureLod(tex, coord, 0).rgb;
+    vec2 blurStep = vector * samplesInv;
+    vec2 sample   = blurStep * 0.5 + coord;
+
+    float tw = 1;
+    for (int i = 0; i < samples; i++) {
+        vec4  s  = textureLod(tex, sample, lod); // Sample
+        float w  = float(s.a >= coc * 0.5);
+
+        col     += s.rgb * w;
+        tw      += w;
+
+        sample  += blurStep;
     }
 
     return col / tw;
