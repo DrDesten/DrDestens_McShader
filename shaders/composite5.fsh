@@ -23,7 +23,7 @@ uniform float near;
 uniform float far;
 uniform float aspectRatio;
 
-/* DRAWBUFFERS:45 */
+/* DRAWBUFFERS:04 */
 
 void main() {
     float depth = texture(depthtex0, coord).r;
