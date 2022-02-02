@@ -33,14 +33,18 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
     vec3 col      = textureLod(tex, coord, lod).rgb;
     vec2 blurStep = vector * samplesInv;
     vec2 sample   = blurStep * 0.5 + coord;
+    vec2 dsample  = (blurStep * lod + blurStep) * .5 + coord;
 
     float tw = 1;
     for (int i = 0; i < samples; i++) {
-        float d = getDepth_int(sample);
-        float w = float(d >= (depth - 1e-5));
-        col    += textureLod(tex, sample, lod).rgb * w;
-        tw     += w;
-        sample += blurStep;
+        float d  = getDepth_int(dsample);
+        float w  = float(d >= (depth - 1e-5));
+
+        col     += textureLod(tex, sample, lod).rgb * w;
+        tw      += w;
+
+        sample  += blurStep;
+        dsample += blurStep;
     }
 
     return col / tw;
