@@ -33,12 +33,13 @@ void main() {
     float clinearDepth = linearizeDepth(centerDepthSmooth, near, far);
 
     vec2 coc = getCoC(linearDepth, clinearDepth, aspectRatio, fovScale * DOF_STRENGTH);
+    //float rejectCoc = coc.x * (float(linearDepth > clinearDepth) * 2 - 1);
     
     float lod = log2((coc.x * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
 
     vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * coc;
-    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, coc.x);
-    //vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
+    //vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, coc.x);
+    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
 
     vec2 blurVec2 = vec2( cos(PI / (-5./6.)), sin(PI / (-5./6.)) ) * coc;
     vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
@@ -47,6 +48,8 @@ void main() {
     vec3 color = (color1 + color2) * 0.5;
 
     //color = texture(colortex0, coord).rgb;
+
+    //color = vec3(float(linearDepth > clinearDepth));
     
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);

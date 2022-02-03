@@ -51,14 +51,14 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
     return col / tw;
 } */
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float coc) {
-    vec3 col      = textureLod(tex, coord, 0).rgb;
+    vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
     vec2 sample   = blurStep * 0.5 + coord;
 
-    float tw = 1;
+    float tw = 0;
     for (int i = 0; i < samples; i++) {
         vec4  s  = textureLod(tex, sample, lod); // Sample
-        float w  = float(s.a >= coc * 0.5);
+        float w  = float(s.a * coc >= 0.0) /* * float(abs(s.a) >= min(abs(coc), 0.02)) */;
 
         col     += s.rgb * w;
         tw      += w;
@@ -66,5 +66,6 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
         sample  += blurStep;
     }
 
+    //return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
     return col / tw;
 }
