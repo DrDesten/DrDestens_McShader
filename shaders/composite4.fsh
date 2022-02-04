@@ -8,10 +8,13 @@
 #include "/lib/composite_basics.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/dof.glsl"
 
 uniform sampler2D depthtex1;
 uniform sampler2D colortex1;
 uniform sampler2D colortex4;
+
+uniform float centerDepthSmooth;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
@@ -22,6 +25,7 @@ uniform vec3  lightPosition;
 uniform float isInvisibleSmooth;
 uniform float blindness;
 
+uniform float near;
 uniform float far;
 uniform float aspectRatio;
 
@@ -262,7 +266,11 @@ void main() {
         color     /= sq(dist * blindness + 1);
     }
 
+    // Store CoC in the alpha channel for DOF pass
+    float linearDepth   = linearizeDepth(depth, near, far);
+    float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
+    float coc  = getCoC(linearDepth, clinearDepth, fovScale * DOF_STRENGTH);
 
     //Pass everything forward
-    gl_FragData[0]          = vec4(color, 1);
+    gl_FragData[0]          = vec4(color, coc);
 }
