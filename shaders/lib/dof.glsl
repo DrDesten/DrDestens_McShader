@@ -44,7 +44,7 @@ vec2 aspectCorrect(float circular, float aspect) {
     float tw = 1;
     for (int i = 0; i < samples; i++) {
         vec4  s  = textureLod(tex, sample, lod); // Sample
-        float sc = length(aspectCorrect(s.a, aspect));
+        float sc = length(aspectCorrect(sampleCoc, aspect));
 
         float d  = stepLength * float(i);
         float w  = float(sc >= d);
@@ -60,48 +60,50 @@ vec2 aspectCorrect(float circular, float aspect) {
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
-    float stepLength = length(blurStep);
     vec2 sample   = blurStep * 0.5 + coord;
+    
+    float stepLength = length(blurStep);
+    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
 
     float tw = 0;
     for (int i = 0; i < samples; i++) {
-        vec4  s  = textureLod(tex, sample, lod); // Sample
+        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
 
-        s.a      = saturate(s.a - screenSizeInverse.x);
-        float sc = length(aspectCorrect(s.a, aspect));
-        float d  = stepLength * float(i) + stepLength;
-        if (sc <= d) break;
+        sampleCoc = saturate(sampleCoc - cocBias);
+        sampleCoc = length(aspectCorrect(sampleCoc, aspect));
+        float d   = stepLength * float(i) + stepLength;
+        if (sampleCoc <= d) break;
         
-        col     += s.rgb;
+        col     += sampleColor;
         tw      += 1;
         sample  += blurStep;
     }
 
-    //return col * samplesInv;
-    //return tw == 0 ? vec3(1,0,0) : col / tw;
     return tw == 0 ? textureLod(tex, sample, 0).rgb : col / tw;
 }
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect, sampler2D coctex) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
-    float stepLength = length(blurStep);
     vec2 sample   = blurStep * 0.5 + coord;
+
+    float stepLength = length(blurStep);
+    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
 
     float tw = 0;
     for (int i = 0; i < samples; i++) {
-        vec4  s  = textureLod(tex, sample, lod); // Sample
-        s.a      = textureLod(coctex, sample, lod).a; // Coc sample
+        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(coctex, sample + blurStep * lod, lod).a; // Sample Coc
 
-        float sc = length(aspectCorrect(s.a, aspect));
-        float d  = stepLength * float(i) + stepLength;
-        if (sc <= d) break;
+        sampleCoc = saturate(sampleCoc - cocBias);
+        sampleCoc = length(aspectCorrect(sampleCoc, aspect));
+        float d   = stepLength * float(i) + stepLength;
+        if (sampleCoc <= d) break;
         
-        col     += s.rgb;
+        col     += sampleColor;
         tw      += 1;
         sample  += blurStep;
     }
 
-    //return col * samplesInv;
-    //return tw == 0 ? vec3(1,0,0) : col / tw;
     return tw == 0 ? textureLod(tex, sample, 0).rgb : col / tw;
 }

@@ -13,7 +13,7 @@
 #include "/lib/dof.glsl"
 
 uniform float centerDepthSmooth;
-const float   centerDepthHalflife = 1.5;
+const float   centerDepthHalflife = 5;
 
 const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
