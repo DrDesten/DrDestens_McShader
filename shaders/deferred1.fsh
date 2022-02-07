@@ -73,24 +73,23 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
 
     #ifdef TAA
-     float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.9 + 0.1) * size;
     #else
-     float ditherTimesSize  = -sq(1 - Bayer4(screenPos.xy * screenSize)) * size + size;
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
     #endif
+    float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
     for (int i = 0; i < 8; i++) {
 
         vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
 
-        float ddif = saturate(sample.z - hitDepth);
-        float hit  = saturate(ddif * 1e35);
-        hits += hit;
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
@@ -112,7 +111,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.05;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
