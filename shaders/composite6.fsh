@@ -28,6 +28,8 @@ uniform float aspectRatio;
 
 /* DRAWBUFFERS:0 */
 void main() {
+    float type  = getID(coord);
+
     float depth        = getDepth(coord);
     float linearDepth  = linearizeDepth(depth, near, far);
     float clinearDepth = linearizeDepth(centerDepthSmooth, near, far);
@@ -48,7 +50,11 @@ void main() {
     //color = texture(colortex0, coord).rgb;
 
     //color = vec3(float(linearDepth > clinearDepth));
-    
+
+    if (type == 51) {
+        color = getAlbedo(coord);
+    }
+
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);
 }

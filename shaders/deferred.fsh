@@ -165,7 +165,7 @@ float SSAO(vec3 screenPos, float radius) {
 void main() {
     vec3  color       = getAlbedo(coord);
     float depth       = getDepth(coord);
-    float type        = getType(coord);
+    float type        = getID(coord);
 
     //////////////////////////////////////////////////////////
     //                  SSAO

@@ -111,7 +111,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) {
         hitDepth = getDepth(rayPos.xy);
 
         if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
                 return vec4(getAlbedo_int(rayPos.xy), 1);
@@ -178,7 +178,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
         hitDepth = getDepth(rayPos.xy);
 
         if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
                 return vec4(getAlbedo_int(rayPos.xy), 1);
@@ -247,7 +247,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
         hitDepth = texture(depthSampler, rayPos.xy).x;
 
         if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
                 return vec4(getAlbedo_int(rayPos.xy), 1);
@@ -314,7 +314,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
         hitDepth = getDepth(rayPos.xy);
 
         if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
+            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
                 return vec4(getAlbedo_int(rayPos.xy), 1);
@@ -356,7 +356,7 @@ void main() {
     float depth         = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth   = linearizeDepth(depth, near, far);
     vec3  normal        = getNormal(ivec2(gl_FragCoord.xy));
-    float type          = getType(ivec2(gl_FragCoord.xy));
+    float type          = getID(ivec2(gl_FragCoord.xy));
 
     vec3  screenPos     = vec3(coord, depth);
     vec3  clipPos       = screenPos * 2 - 1;

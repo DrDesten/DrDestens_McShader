@@ -246,7 +246,7 @@ void main() {
 
     #ifdef HAND_INVISIBILITY_EFFECT
 
-        if (getType(coord) == 51 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
+        if (getID(coord) == 51 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
 
             vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
             vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);

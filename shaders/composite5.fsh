@@ -26,6 +26,9 @@ uniform float aspectRatio;
 /* DRAWBUFFERS:04 */
 
 void main() {
+    float type  = getID(coord);
+
+
     float depth = texture(depthtex0, coord).r;
 
     float linearDepth   = linearizeDepth(depth, near, far);
@@ -44,6 +47,10 @@ void main() {
     //vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
     vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
     
+
+    if (type == 51) {
+        color1 = getAlbedo(coord);
+    }
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color1,  coc);
