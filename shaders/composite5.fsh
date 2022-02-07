@@ -25,19 +25,30 @@ uniform float aspectRatio;
 
 /* DRAWBUFFERS:04 */
 
-void main() {    
-    float coc  = texture(colortex0, coord).a; // Reading the CoC from composite4 instead of recalculating
-    vec2  cocv = aspectCorrect(coc, aspectRatio);
+void main() {
 
-    float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
+    #ifdef DEPTH_OF_FIELD
 
-    vec2 blurVec1 = vec2(0, -cocv.y);
-    //vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
-    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+        float coc  = texture(colortex0, coord).a; // Reading the CoC from composite4 instead of recalculating
+        vec2  cocv = aspectCorrect(coc, aspectRatio);
 
-    vec2 blurVec2 = vec2( cos(PI / 6.), sin(PI / 6.) ) * cocv;
-    //vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
-    vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+        float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
+
+        vec2 blurVec1 = vec2(0, -cocv.y);
+        //vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
+        vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+
+        vec2 blurVec2 = vec2( cos(PI / 6.), sin(PI / 6.) ) * cocv;
+        //vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
+        vec3 color2   = hexBokehVectorBlur(colortex0, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+
+    #else
+
+        vec3 color1 = getAlbedo(coord);
+        vec3 color2 = color1;
+        float coc   = 1.0;
+
+    #endif
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color1,  coc);

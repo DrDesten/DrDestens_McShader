@@ -28,18 +28,27 @@ uniform float aspectRatio;
 
 /* DRAWBUFFERS:0 */
 void main() {
-    float coc  = texture(colortex0, coord).a; // Reading the CoC from composite4 instead of recalculating
-    vec2  cocv = aspectCorrect(coc, aspectRatio);
     
-    float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
+    #ifdef DEPTH_OF_FIELD
 
-    vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * cocv;
-    vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+        float coc  = texture(colortex0, coord).a; // Reading the CoC from composite4 instead of recalculating
+        vec2  cocv = aspectCorrect(coc, aspectRatio);
+        
+        float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
 
-    vec2 blurVec2 = vec2( cos(PI / (-5./6.)), sin(PI / (-5./6.)) ) * cocv;
-    vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio, colortex0);
+        vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * cocv;
+        vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
 
-    vec3 color = (color1 + color2) * (1./2);
+        vec2 blurVec2 = vec2( cos(PI / (-5./6.)), sin(PI / (-5./6.)) ) * cocv;
+        vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio, colortex0);
+
+        vec3 color = (color1 + color2) * (1./2);
+
+    #else
+
+        vec3 color = getAlbedo(coord);
+
+    #endif
 
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);
