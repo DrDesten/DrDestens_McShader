@@ -69,9 +69,8 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     hits  = -hits * 0.125 + 1;
     return sq(hits);
 } */
-/* float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
+float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
      float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
@@ -80,13 +79,13 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     #endif
 
     float hits = 0;
-    vec3  sample;
     for (int i = 0; i < 8; i++) {
-        sample      = half_sphere_8[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                            // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToScreen(sample + viewPos);                  // Converting Sample to screen space, since normals are in view space
-    
+
+        vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
+        sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+
         float hitDepth = getDepth_int(sample.xy);
 
         float ddif = saturate(sample.z - hitDepth);
@@ -96,39 +95,10 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
 
     hits  = saturate(-hits * 0.125 + 1.125);
     return sq(hits);
-}*/
+}
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
-
-    #ifdef TAA
-     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
-    #else
-     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
-    #endif
-    float depthTolerance   = 0.075/-viewPos.z;
-
-    float hits = 0;
-    vec3 sample;
-    for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
-    
-        float hitDepth = getDepth_int(sample.xy);
-
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-        //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
-    }
-
-    hits  = -hits * 0.0625 + 1;
-    return sq(hits);
-}
-/* float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
@@ -141,8 +111,8 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     for (int i = 0; i < 16; i++) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
-        sample     *= sign(dot(normal, sample));
-        sample     += normal * 0.05;
+        sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        sample     += normal * 0.05;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
@@ -153,7 +123,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
     hits  = -hits * 0.0625 + 1;
     return sq(hits);
-} */
+}
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
