@@ -4,6 +4,9 @@ vec3 chromaticAberrationTint(vec2 relPos) {
     vec3  chromAbbTint = vec3(chromAbb, 0.75 - abs(chromAbb - 0.5), 1 - chromAbb) * 2;
     return chromAbbTint;
 }
+vec3 chromaticAberrationTint(float relPos) {
+    return chromaticAberrationTint(vec2(relPos));
+}
 
 
 #define PLANE_DIST 5e-3
@@ -12,8 +15,14 @@ float getCoC(float linearDepth, float focusLinearDepth, float scale) {
 
     float zaehler = focalLength * (focusLinearDepth - linearDepth);
     float nenner  = linearDepth * (focusLinearDepth - focalLength);
-    float CoC     = abs(zaehler / nenner) * scale;
-    return CoC;
+    return abs(zaehler / nenner) * scale;
+}
+float getCoC_sign(float linearDepth, float focusLinearDepth, float scale) {
+    float focalLength = 1 / ((1/focusLinearDepth) + (1/PLANE_DIST));
+
+    float zaehler = focalLength * (focusLinearDepth - linearDepth);
+    float nenner  = linearDepth * (focusLinearDepth - focalLength);
+    return (zaehler / nenner) * scale;
 }
 vec2 aspectCorrect(vec2 circular, float aspect) {
     return vec2(circular.x, circular.y * aspect);
@@ -74,6 +83,35 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
     }
 
     return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
+}
+vec3 hexBokehVectorBlur_ChromAbb(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
+    vec2 blurStep = vector * samplesInv;
+    vec2 sample   = blurStep * 0.5 + coord;
+    
+    float stepLength = length(blurStep);
+    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
+
+    float aspectLengthChange = sqrt(aspect * aspect + 1.);
+
+    vec3  totalTint, col = vec3(0);
+    for (int i = 0; i < samples; i++) {
+        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
+
+        sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
+        //sampleCoc = length(aspectCorrect(sampleCoc, aspect));
+        float d   = stepLength * float(i) + stepLength;
+        if (sampleCoc <= d) break; 
+        
+        vec3 tint = chromaticAberrationTint(i * (1./samples) - 0.5);
+
+        col       += sampleColor * tint;
+        totalTint += tint;
+        sample    += blurStep;
+    }
+
+    //return col / totalTint;
+    return sum(totalTint) <= 0 ? textureLod(tex, coord, 0).rgb : col / totalTint;
 }
 
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect, sampler2D coctex) {

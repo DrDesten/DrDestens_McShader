@@ -3,34 +3,35 @@
 // DEPTH OF FIELD
 ///////////////////////////////////////////////////////////
 
-screen.DEPTH_OF_FIELD=Depth Of Field
+screen.DOF_OPTS=Depth Of Field
 
-option.DOF_MODE=DoF Type
-option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (inconsistent, but mostly better performance).
-value.DOF_MODE.0=OFF
-value.DOF_MODE.3=Bokeh
-value.DOF_MODE.4=Adaptive Bokeh
+option.DEPTH_OF_FIELD=Depth of Field
+option.DEPTH_OF_FIELD.comment=Blurs non-focused objects, like a real camera.
+
+option.DOF_SAMPLES=Bokeh Samples
+option.DOF_SAMPLES.comment=Quality of the blur. Significantly affects performance.
+
+option.DOF_STRENGTH=DoF Intensity
+option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. No/Low performance impact.
 
 option.DOF_MAXSIZE=Maximum Blur
-option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Hides artifacts when using lower quality blur.
+option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Helps reduce artifacts when using lower sample counts and is better for gameplay.
 value.DOF_MAXSIZE.0.005=Low
 value.DOF_MAXSIZE.0.007=Medium
 value.DOF_MAXSIZE.0.03=High
 value.DOF_MAXSIZE.1.0=Unlimited
 
-option.DOF_STRENGTH=DoF Intensity
-option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. With Adaptive Bokeh, lower values might be faster.
+option.DOF_DOWNSAMPLING=DoF Downsampling Amount
+option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Reduces DoF artifacts, increases pixelation artifacts. No/Low performance impact.
+
+option.DOF_FAR_BLUR_ONLY=Far Blur Only
+option.centerDepthHalflife=Focus Delay
 
 option.DOF_DITHER=Dither DoF
 
-option.DOF_DOWNSAMPLING=DoF Downsampling Amount
-option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
-
-option.DOF_SAMPLES=Bokeh Samples
-option.DOF_SAMPLES.comment=Quality of the blur. Significantly affects performance.
 
 option.DOF_CHROMATIC_ABERRATION=DoF Chromatic Aberration
-option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction. It is advised to only turn one Chromatic Aberration effect on.
+option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction.
 value.DOF_CHROMATIC_ABERRATION.0=§cOFF
 
 
