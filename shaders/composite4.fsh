@@ -102,6 +102,7 @@ vec2 warpCoord(vec2 co) {
 void main() {
     vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
+    float id    = getID(coord);
 
     #ifdef POM_ENABLED
 
@@ -267,9 +268,10 @@ void main() {
     }
 
     // Store CoC in the alpha channel for DOF pass
-    float linearDepth   = linearizeDepth(depth, near, far);
-    float clinearDepth  = linearizeDepth(centerDepthSmooth, near, far);
-    float coc  = getCoC(linearDepth, clinearDepth, fovScale * DOF_STRENGTH);
+    float linearDepth  = linearizeDepth(depth, near, far);
+    float clinearDepth = linearizeDepth(centerDepthSmooth, near, far);
+    float coc          = getCoC(linearDepth, clinearDepth, fovScale * DOF_STRENGTH);
+    if (id == 51) coc = 0; // Exclude Hand from DÖF
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color, coc);
