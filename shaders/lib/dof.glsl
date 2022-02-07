@@ -22,34 +22,6 @@ vec2 aspectCorrect(float circular, float aspect) {
     return vec2(circular, circular * aspect);
 }
 
-
-vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
-    vec3 col      = vec3(0);
-    vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
-    
-    float stepLength = length(blurStep);
-    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
-
-    float aspectLengthChange = sqrt(aspect * aspect + 1.);
-
-    float tw = 0;
-    for (int i = 0; i < samples; i++) {
-        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
-        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
-
-        sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
-        //sampleCoc = length(aspectCorrect(sampleCoc, aspect));
-        float d   = stepLength * float(i) + stepLength;
-        if (sampleCoc <= d) break;
-        
-        col     += sampleColor;
-        tw      += 1;
-        sample  += blurStep;
-    }
-
-    return tw == 0 ? textureLod(tex, coord, 0).rgb : col / tw;
-}
 vec3 hexBokehVectorBlur_old(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
@@ -73,8 +45,37 @@ vec3 hexBokehVectorBlur_old(sampler2D tex, vec2 coord, vec2 vector, int samples,
         sample  += blurStep;
     }
 
-    return tw == 0 ? textureLod(tex, coord, 0).rgb : col / tw;
+    return tw == 0 ? textureLod(tex, sample, 0).rgb : col / tw;
 }
+
+vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
+    vec3 col      = vec3(0);
+    vec2 blurStep = vector * samplesInv;
+    vec2 sample   = blurStep * 0.5 + coord;
+    
+    float stepLength = length(blurStep);
+    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
+
+    float aspectLengthChange = sqrt(aspect * aspect + 1.);
+
+    float tw = 0;
+    for (int i = 0; i < samples; i++) {
+        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
+
+        sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
+        //sampleCoc = length(aspectCorrect(sampleCoc, aspect));
+        float d   = stepLength * float(i) + stepLength;
+        if (sampleCoc <= d) break; 
+        
+        col     += sampleColor;
+        tw      += 1;
+        sample  += blurStep;
+    }
+
+    return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
+}
+
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect, sampler2D coctex) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
@@ -82,14 +83,16 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
 
     float stepLength = length(blurStep);
     float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
+    
+    float aspectLengthChange = sqrt(aspect * aspect + 1.);
 
     float tw = 0;
     for (int i = 0; i < samples; i++) {
         vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
         float sampleCoc   = textureLod(coctex, sample + blurStep * lod, lod).a; // Sample Coc
 
-        sampleCoc = saturate(sampleCoc - cocBias);
-        sampleCoc = length(aspectCorrect(sampleCoc, aspect));
+        sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
+        //sampleCoc = length(aspectCorrect(sampleCoc, aspect)); aspectLengthChange does the equivalent
         float d   = stepLength * float(i) + stepLength;
         if (sampleCoc <= d) break;
         
@@ -98,5 +101,5 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
         sample  += blurStep;
     }
 
-    return tw == 0 ? textureLod(tex, sample, 0).rgb : col / tw;
+    return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
 }
