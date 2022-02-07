@@ -69,7 +69,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     hits  = -hits * 0.125 + 1;
     return sq(hits);
 } */
-float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
+/* float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
     mat3 TBN               = arbitraryTBN(normal);
 
@@ -96,7 +96,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
     hits  = saturate(-hits * 0.125 + 1.125);
     return sq(hits);
-}
+}*/
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos           = toView(screenPos * 2 - 1);
@@ -126,6 +126,34 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     hits  = -hits * 0.0625 + 1;
     return sq(hits);
 }
+/* float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
+    vec3 viewPos           = toView(screenPos * 2 - 1);
+    mat3 TBN               = arbitraryTBN(normal);
+
+    #ifdef TAA
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
+    #else
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
+    #endif
+    float depthTolerance   = 0.075/-viewPos.z;
+
+    float hits = 0;
+    for (int i = 0; i < 16; i++) {
+
+        vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
+        sample     *= sign(dot(normal, sample));
+        sample     += normal * 0.05;
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+
+        float hitDepth = getDepth_int(sample.xy);
+
+        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+        //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
+    }
+
+    hits  = -hits * 0.0625 + 1;
+    return sq(hits);
+} */
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
