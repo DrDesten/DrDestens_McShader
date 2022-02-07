@@ -28,16 +28,7 @@ uniform float aspectRatio;
 
 /* DRAWBUFFERS:0 */
 void main() {
-    /* float type  = getID(coord);
-
-    float depth        = getDepth(coord);
-    float linearDepth  = linearizeDepth(depth, near, far);
-    float clinearDepth = linearizeDepth(centerDepthSmooth, near, far);
-
-    float coc  = getCoC(linearDepth, clinearDepth, fovScale * DOF_STRENGTH); */
-
-    float coc = texture(colortex0, coord).a;
-    
+    float coc  = texture(colortex0, coord).a; // Reading the CoC from composite4 instead of recalculating
     vec2  cocv = aspectCorrect(coc, aspectRatio);
     
     float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
@@ -49,10 +40,6 @@ void main() {
     vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio, colortex0);
 
     vec3 color = (color1 + color2) * 0.5;
-
-    /* if (type == 51) {
-        color = getAlbedo(coord);
-    } */
 
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);
