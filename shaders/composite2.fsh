@@ -9,7 +9,7 @@ const int colortex2Format = RGB8_SNORM;    // Normals
 const int colortex3Format = R8;             // colortex3 = blockId
 const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0)
 
-const int colortex5Format = R11F_G11F_B10F; // DOF 2
+const int colortex5Format = R11F_G11F_B10F; // TAA
 
 
 */
@@ -70,11 +70,11 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) {
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
     //return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
-    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor5_gamma(reflection, rainStrength), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
+    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor5_gamma(reflection, rainStrength), 0) : vec4(getAlbedo(screenPos.xy), 1);
     if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
         return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
     }
-    return vec4(getAlbedo_int(screenPos.xy), 1);
+    return vec4(getAlbedo(screenPos.xy), 1);
 }
 
 /* vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
@@ -114,7 +114,7 @@ vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) {
             if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
+                return vec4(getAlbedo(rayPos.xy), 1);
             #endif
 
             vec2 hitPos   = rayPos.xy;
@@ -181,7 +181,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
             if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
+                return vec4(getAlbedo(rayPos.xy), 1);
             #endif
 
             vec2  hitPos   = rayPos.xy;
@@ -250,7 +250,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
             if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
+                return vec4(getAlbedo(rayPos.xy), 1);
             #endif
 
             vec2  hitPos   = rayPos.xy;
@@ -317,7 +317,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
             if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
+                return vec4(getAlbedo(rayPos.xy), 1);
             #endif
 
             vec2 hitPos   = rayPos.xy;
@@ -392,7 +392,7 @@ void main() {
             coordDistort += 0.5;
         }
 
-        vec3  color                  = getAlbedo_int(coordDistort);
+        vec3  color                  = getAlbedo(coordDistort);
               depth                  = getDepth_int(coordDistort);
               linearDepth            = linearizeDepth(depth, near, far);
         float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);

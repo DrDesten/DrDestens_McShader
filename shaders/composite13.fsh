@@ -129,56 +129,14 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
     }
 }
 
-#ifdef TAA 
-/* DRAWBUFFERS:05 */
-#else
 /* DRAWBUFFERS:0 */
-#endif
-
 void main() {
-    #ifdef TAA
-        vec2 unJitterCoord = coord + TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * screenSizeInverse;
-    #else
-        vec2 unJitterCoord = coord;
-    #endif
 
     #if CHROMATIC_ABERRATION != 0
-        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromaticAberrationSimple, 5);
+        vec3 color = ChromaticAbberation_HQ(coord, chromaticAberrationSimple, 5);
     #else
-        vec3 color = getAlbedo_int(unJitterCoord);
+        vec3 color = getAlbedo(coord);
     #endif
-
-
-    #ifdef TAA 
-
-        vec3  currentFrameColor = color;
-        float depth             = getDepth_int(unJitterCoord);
-        vec3  screenPos         = vec3(coord, depth);
-
-        vec3  reprojectPos      = reprojectTAA(screenPos);
-        
-        vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
-        vec3  lastFrameColor    = lastFrame.rgb;
-
-        // Anti - Ghosting
-        //////////////////////////////////////////////////////////////////////
-
-        vec3 lowerThresh, higherThresh;
-        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
-        #ifndef TAA_NOCLIP
-         lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
-        #endif
-
-        float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float blend       = saturate(boundsError + TAA_BLEND);
-
-        color         = mix(lastFrameColor, currentFrameColor, blend);
-        vec3 TAAcolor = max(color, 0.0);
-
-        //color = spikeError.xxx;
-
-    #endif
-
 
     #if TONEMAP == 1
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
@@ -195,8 +153,5 @@ void main() {
     #endif
 
     gl_FragData[0] = vec4(color, 1.0);
-    #ifdef TAA 
-    gl_FragData[1] = vec4(TAAcolor, 1.0);
-    #endif
 }
 

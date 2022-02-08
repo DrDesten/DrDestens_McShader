@@ -8,7 +8,9 @@
 #include "/lib/kernels.glsl"
 #include "/lib/dof.glsl"
 
-uniform int   taaIndex;
+#include "/lib/transform.glsl"
+uniform sampler2D colortex5;
+uniform int taaIndex;
 
 uniform float centerDepthSmooth;
 uniform float near;
@@ -16,17 +18,65 @@ uniform float far;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
+void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {
+    minColor = vec3(1e35);
+    maxColor = vec3(0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            vec2 sample = vec2(x, y) * size * screenSizeInverse + coord;
+            vec3 color  = getAlbedo(sample);
 
+            minColor = min(minColor, color);
+            maxColor = max(maxColor, color);
+        }
+    }
+}
+
+#ifdef TAA 
+/* DRAWBUFFERS:05 */
+#else
 /* DRAWBUFFERS:0 */
+#endif
 
 void main() {
     #ifdef TAA
-    coord += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 jitterCoord = coord + TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec3 color = getAlbedo(jitterCoord);
     #else
+        vec3 color = getAlbedo(coord);
+    #endif
 
-    vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
     float id    = getID(coord);
+
+
+
+    #ifdef TAA 
+
+        vec3  currentFrameColor = color;
+        vec3  screenPos         = vec3(coord, depth);
+
+        vec3  reprojectPos      = reprojectTAA(screenPos);
+        
+        vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
+        vec3  lastFrameColor    = lastFrame.rgb;
+
+        // Anti - Ghosting
+        //////////////////////////////////////////////////////////////////////
+
+        #ifndef TAA_NOCLIP
+         vec3 lowerThresh, higherThresh;
+         neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
+         lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
+        #endif
+
+        float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
+        float blend       = saturate(boundsError + TAA_BLEND);
+
+        color         = mix(lastFrameColor, currentFrameColor, blend);
+        vec3 TAAcolor = max(color, 0.0);
+
+    #endif
 
     #ifdef DEPTH_OF_FIELD
 
@@ -50,4 +100,7 @@ void main() {
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color, coc);
+    #ifdef TAA 
+    gl_FragData[1]          = vec4(TAAcolor, 1);
+    #endif
 }

@@ -71,7 +71,7 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
     vec2 sample   = coord;
 
     for (int i = 0; i < samples; i++) {
-        col    += getAlbedo_int(sample);
+        col    += getAlbedo(sample);
         sample += blurStep;
     }
 
@@ -128,7 +128,7 @@ void main() {
             bool error = POMdepth < 0.56 || distSQ > 500;
             if (!error) {
 
-                color  = getAlbedo_int(POMPos.xy);
+                color  = getAlbedo(POMPos.xy);
 
                 float distFade = saturate(map(distSQ, 300, 500, 1, 0.2));
                 color *= texture(colortex1, POMPos.xy).g * distFade + (1 - distFade);

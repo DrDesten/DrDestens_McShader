@@ -22,7 +22,7 @@ vec3 gaussian_3x3(vec2 coord) {
 }
 vec3 sharpen(vec2 coord, float amount, float maximum) {
     vec3 blurred  = gaussian_3x3(coord);
-    vec3 color    = getAlbedo_int(coord);
+    vec3 color    = getAlbedo(coord);
 
     return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
     //return clamp((color - blurred) * amount, -maximum, maximum) + color;
@@ -63,7 +63,7 @@ void main() {
         float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
         vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
     #else
-        vec3  color = getAlbedo_int(coord);
+        vec3  color = getAlbedo(coord);
         //color = smartUpscale(colortex0, coord).rgb;
     #endif
 
