@@ -267,26 +267,6 @@ void main() {
         color     /= sq(dist * blindness + 1);
     }
 
-    #ifdef DEPTH_OF_FIELD
-
-        // Store CoC in the alpha channel for DOF pass
-        float linearDepth  = linearizeDepth(depth, near, far);
-        float clinearDepth = linearizeDepth(centerDepthSmooth, near, far);
-
-        #ifdef DOF_FAR_BLUR_ONLY
-        float coc          = saturate(-getCoC_sign(linearDepth, clinearDepth, fovScale * DOF_STRENGTH));
-        #else
-        float coc          = getCoC(linearDepth, clinearDepth, fovScale * DOF_STRENGTH);
-        #endif
-
-        if (id == 51) coc = 0; // Exclude Hand from DÖF
-
-        coc = min(coc, DOF_MAXSIZE);
-
-    #else 
-        const float coc = 1.0;
-    #endif
-
     //Pass everything forward
-    gl_FragData[0]          = vec4(color, coc);
+    gl_FragData[0]          = vec4(color, 1);
 }
