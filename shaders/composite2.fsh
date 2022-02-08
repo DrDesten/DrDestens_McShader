@@ -3,7 +3,7 @@
 
 const int colortex0Format = RGBA16F; // Color
 
-const int colortex1Format = RG8;            // Reflectiveness, Height (and in the future other PBR values)
+const int colortex1Format = RG8;           // Reflectiveness, Height (and in the future other PBR values)
 const int colortex2Format = RGB8_SNORM;    // Normals
 
 const int colortex3Format = R8;             // colortex3 = blockId
@@ -157,7 +157,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
 
     float zDir         = fstep(0, screenSpaceRay.z);                                          // Checks if Reflection is pointing towards the camera in the z-direction (depth)
     float zCompression = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                    // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep      = screenSpaceRay * saturate(abs(zCompression / screenSpaceRay.z));  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
+    vec3  rayStep      = screenSpaceRay * saturate(abs(zCompression / screenSpaceRay.z));     // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
 
     //if (zCompression / screenSpaceRay.z < 0.05 )    return vec4(1,0,0,1);
 

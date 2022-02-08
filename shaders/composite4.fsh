@@ -8,13 +8,17 @@
 #include "/lib/kernels.glsl"
 #include "/lib/dof.glsl"
 
+#ifdef TAA
 #include "/lib/transform.glsl"
 uniform sampler2D colortex5;
 uniform int taaIndex;
+#endif
 
+#ifdef DEPTH_OF_FIELD
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
+#endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
