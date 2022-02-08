@@ -129,8 +129,8 @@ vec3 getBloomTilesPass1(vec2 coord, float tiles, float padding) {
     }
 
     float lod      = floor(currentTile + 0.5);
-    vec2  stepSize = screenSizeInverse * (tileScale * 2);
-    vec2  offset   = screenSizeInverse * (tileScale * 0.5);
+    vec2  stepSize = screenSizeInverse * tileScale;
+    vec2  offset   = stepSize * 0.5;
     vec3  color    = vec3(0);
     for (int x = -1; x <= 2; x++) {
             

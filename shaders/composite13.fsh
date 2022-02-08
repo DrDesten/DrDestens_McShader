@@ -11,6 +11,8 @@ uniform int taaIndex;
 uniform sampler2D colortex5;
 #endif
 
+uniform sampler2D colortex4;
+
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 
@@ -115,18 +117,12 @@ vec3 exp_tonemap(vec3 color, float a) {
 float PeakAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
-void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {
-    minColor = vec3(1);
-    maxColor = vec3(0);
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            vec2 sample = vec2(x, y) * size * screenSizeInverse + coord;
-            vec3 color  = getAlbedo(sample);
+vec3 readBloomTile(vec2 coord, float tile, float padding) {
+    float tileScale = exp2( -tile - 1 );
+    vec2  tileCoord = coord * tileScale / (exp2(tile + 1) * padding + 1);
+    tileCoord.x    += 1 - exp2( -tile );
 
-            minColor = min(minColor, color);
-            maxColor = max(maxColor, color);
-        }
-    }
+    return texture(colortex4, tileCoord).rgb;
 }
 
 /* DRAWBUFFERS:0 */
@@ -137,6 +133,8 @@ void main() {
     #else
         vec3 color = getAlbedo(coord);
     #endif
+
+    //color = readBloomTile(coord, 5, 0.01);
 
     #if TONEMAP == 1
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping

@@ -11,11 +11,10 @@
 #include "/lib/kernels.glsl"
 
 uniform sampler2D colortex4;
-const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-vec3 getBloomTilesPass2(vec2 coord, float tiles, float padding) {
+vec3 getBloomTilesPass2(sampler2D tex, vec2 coord, float padding) {
 
     float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
     // Log2(x) returns the exponent necessary to get to the coordinate.
@@ -40,7 +39,7 @@ vec3 getBloomTilesPass2(vec2 coord, float tiles, float padding) {
         float weight = gaussian_4[y + 1];
         vec2  offs   = vec2(0, y * stepSize.y - offset.y);
 
-        color       += texture(colortex0, coord + offs).rgb * weight;
+        color       += texture(tex, coord + offs).rgb * weight;
 
     }
 
@@ -51,7 +50,7 @@ vec3 getBloomTilesPass2(vec2 coord, float tiles, float padding) {
 void main() {
     //vec3 color = getAlbedo(coord);
 
-    vec3 color = getBloomTilesPass2(coord, 1, 0.01);
+    vec3 color = getBloomTilesPass2(colortex4, coord, 0.01);
 
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);
