@@ -8,6 +8,8 @@
 #include "/lib/kernels.glsl"
 #include "/lib/dof.glsl"
 
+uniform int   taaIndex;
+
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
@@ -18,6 +20,10 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 /* DRAWBUFFERS:0 */
 
 void main() {
+    #ifdef TAA
+    coord += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * screenSizeInverse;
+    #else
+
     vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
     float id    = getID(coord);

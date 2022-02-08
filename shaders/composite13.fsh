@@ -7,7 +7,7 @@
 #ifdef TAA
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
-uniform int frameCounter;
+uniform int taaIndex;
 uniform sampler2D colortex5;
 #endif
 
@@ -137,7 +137,7 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
 
 void main() {
     #ifdef TAA
-        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 unJitterCoord = coord + TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * screenSizeInverse;
     #else
         vec2 unJitterCoord = coord;
     #endif
