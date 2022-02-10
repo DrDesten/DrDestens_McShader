@@ -149,7 +149,8 @@ vec3 getBloomTilesPass1(vec2 coord, float tiles) {
 void main() {
     //vec3 color = vec3(0);
 
-    vec3 color = getBloomTilesPass1(coord, 1);
+    //vec3 color = getBloomTilesPass1(coord, 1);
+    vec3 color = getBloomTilesBlur_opt(coord, 1, BLOOM_TILE_PADDING);
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color,  1);

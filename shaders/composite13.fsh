@@ -163,7 +163,7 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        color += sq( getBloom(coord, 9) * BLOOM_AMOUNT);
+        color = sq( getBloom(coord, 9) * BLOOM_AMOUNT);
     #endif
 
     #if TONEMAP == 1
