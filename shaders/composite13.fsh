@@ -164,6 +164,7 @@ void main() {
 
     #ifdef BLOOM
         color = sq( getBloom(coord, 9) * BLOOM_AMOUNT);
+        color = texture(colortex4, coord).rgb;
     #endif
 
     #if TONEMAP == 1

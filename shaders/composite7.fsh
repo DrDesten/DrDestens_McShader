@@ -84,16 +84,41 @@ vec3 getBloomTilesBlur_opt(vec2 coord, float tiles, float padding) {
     // invert because the exponents are negative
     // ceil() to get the tile number
 
-    float xOffset    = 1 - exp2( 1 - currentTile ); // Tbh I'm not even sure how this works (but it does)
-    float tileScale  = exp2( currentTile );         // 2^tile gives us the scaling factor for each tile
-    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
-    tileCoords       = floor(tileCoords * screenSize) * screenSizeInverse;
+    vec2  tileOffset = vec2(1 - exp2(1-currentTile));
+    float tileScale  = exp2(currentTile);
+    vec2  tileCoord  = (coord - tileOffset) * tileScale;
+
+    if (tileCoord != saturate(tileCoord)) {
+        return vec3(currentTile / 16);
+    }
+
+    float lod      = currentTile;
+    vec2  stepSize = screenSizeInverse * (tileScale * 2);
+    vec2  offset   = screenSizeInverse * (tileScale * 0.5);
+    vec3  color    = vec3(0);
+    for (int x = -1; x <= 2; x++) {
+        for (int y = -1; y <= 2; y++) {
+            
+            float weight = gaussian_4[x + 1] * gaussian_4[y + 1];
+            vec2  offs   = vec2(x, y) * stepSize - offset;
+
+            color       += textureLod(colortex0, tileCoord + offs, lod).rgb * weight;
+
+        }
+    }
+
+    return color;
+}
+vec3 getBloomTile(vec2 coord, float tile, vec2 tileOffset) {
+
+    float tileScale = exp2(tile);
+    vec2 tileCoords = (coord - tileOffset) * tileScale;
 
     if (tileCoords != saturate(tileCoords)) {
         return vec3(0);
     }
 
-    float lod      = floor(currentTile + 0.5);
+    float lod      = tile + 0.5;
     vec2  stepSize = screenSizeInverse * (tileScale * 2);
     vec2  offset   = screenSizeInverse * (tileScale * 0.5);
     vec3  color    = vec3(0);
@@ -149,8 +174,14 @@ vec3 getBloomTilesPass1(vec2 coord, float tiles) {
 void main() {
     //vec3 color = vec3(0);
 
-    //vec3 color = getBloomTilesPass1(coord, 1);
     vec3 color = getBloomTilesBlur_opt(coord, 1, BLOOM_TILE_PADDING);
+    /* vec3 color = getBloomTilesBlur_opt(coord, 1, vec2(0))
+               + getBloomTilesBlur_opt(coord, 2, vec2(0.5))
+               + getBloomTilesBlur_opt(coord, 3, vec2(0.75))
+               + getBloomTilesBlur_opt(coord, 4, vec2(0.875))
+               + getBloomTilesBlur_opt(coord, 5, vec2(0.9375))
+               + getBloomTilesBlur_opt(coord, 6, vec2(0.96875))
+               + getBloomTilesBlur_opt(coord, 7, vec2(0.984375)); */
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color,  1);
