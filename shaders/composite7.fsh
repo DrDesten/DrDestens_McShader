@@ -37,13 +37,13 @@ vec3 getBloomTilesBlur(vec2 coord) {
     }
 
     float lod      = currentTile;
-    vec2  stepSize = screenSizeInverse * (tileScale * 2);
-    vec2  offset   = screenSizeInverse * (tileScale * 0.5);
+    vec2  stepSize = screenSizeInverse * tileScale;
+    vec2  offset   = screenSizeInverse * (tileScale * 0.);
     vec3  color    = vec3(0);
-    for (int x = -1; x <= 2; x++) {
-        for (int y = -1; y <= 2; y++) {
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
             
-            float weight = gaussian_4[x + 1] * gaussian_4[y + 1];
+            float weight = gaussian_5[x + 2] * gaussian_5[y + 2];
             vec2  offs   = vec2(x, y) * stepSize - offset;
 
             color       += textureLod(colortex0, tileCoord + offs, lod).rgb * weight;
