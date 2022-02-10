@@ -42,7 +42,7 @@ void main() {
         vec2 blurVec2 = vec2( cos(PI / (-5./6.)), sin(PI / (-5./6.)) ) * cocv;
         vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio, colortex0);
 
-        vec3 color = (color1 + color2) * (1./2);
+        vec3 color = (color1 + color2) * (1./3);
 
     #else
 

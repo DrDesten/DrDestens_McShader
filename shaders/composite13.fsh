@@ -11,7 +11,9 @@ uniform int taaIndex;
 uniform sampler2D colortex5;
 #endif
 
+#ifdef BLOOM
 uniform sampler2D colortex4;
+#endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -117,13 +119,39 @@ vec3 exp_tonemap(vec3 color, float a) {
 float PeakAttenuation(float depthDiff, float peak) {
     return peak - abs(depthDiff - peak);
 }
-vec3 readBloomTile(vec2 coord, float tile, float padding) {
-    float tileScale = exp2( -tile - 1 );
-    vec2  tileCoord = coord * tileScale / (exp2(tile + 1) * padding + 1);
-    tileCoord.x    += 1 - exp2( -tile );
 
-    return texture(colortex4, tileCoord).rgb;
-}
+
+#ifdef BLOOM
+
+    vec3 readBloomTile(vec2 coord, float tile) {
+        float tileScale = exp2( -tile - 1 );
+        vec2  tileCoord = coord * tileScale / (exp2(tile + 1) * BLOOM_TILE_PADDING + 1);
+        tileCoord.x    += 1 - exp2( -tile );
+
+        return texture(colortex4, tileCoord).rgb;
+    }
+
+    /* vec3 getBloom(vec2 coord, int tileLevel) {
+        vec3 bloomColor = vec3(0);
+        for (int i = 0; i < tileLevel; i++) {
+            bloomColor += readBloomTile(coord, i);
+        }
+        return bloomColor / tileLevel;
+    } */
+    vec3 getBloom(vec2 coord, int tileLevel) {
+        vec3 bloomColor = vec3(0);
+        for (int i = 0; i < tileLevel; i++) {
+            float tileScale = exp2( -i - 1 );
+            float xOffset   = 1 - exp2( -i );
+            float coordMult = tileScale / (exp2(i + 1) * BLOOM_TILE_PADDING + 1);
+
+            vec2  tileCoord = coord * coordMult + vec2(xOffset, 0);
+            bloomColor     += texture(colortex4, tileCoord).rgb;
+        }
+        return bloomColor / tileLevel;
+    }
+
+#endif
 
 /* DRAWBUFFERS:0 */
 void main() {
@@ -134,7 +162,9 @@ void main() {
         vec3 color = getAlbedo(coord);
     #endif
 
-    //color = readBloomTile(coord, 5, 0.01);
+    #ifdef BLOOM
+        color += sq( getBloom(coord, 9) * BLOOM_AMOUNT);
+    #endif
 
     #if TONEMAP == 1
     color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping

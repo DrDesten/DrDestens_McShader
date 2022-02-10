@@ -6,15 +6,18 @@
 #include "/lib/math.glsl"
 #include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
-#include "/lib/dof.glsl"
+
+#if defined TAA || defined DEPTH_OF_FIELD
+#include "/lib/transform.glsl"
+#endif
 
 #ifdef TAA
-#include "/lib/transform.glsl"
 uniform sampler2D colortex5;
 uniform int taaIndex;
 #endif
 
 #ifdef DEPTH_OF_FIELD
+#include "/lib/dof.glsl"
 uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;

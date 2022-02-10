@@ -14,7 +14,7 @@ uniform sampler2D colortex4;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-vec3 getBloomTilesPass2(sampler2D tex, vec2 coord, float padding) {
+vec3 getBloomTilesPass2(sampler2D tex, vec2 coord) {
 
     float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
     // Log2(x) returns the exponent necessary to get to the coordinate.
@@ -24,7 +24,7 @@ vec3 getBloomTilesPass2(sampler2D tex, vec2 coord, float padding) {
 
     float xOffset    = 1 - exp2( 1 - currentTile ); // Tbh I'm not even sure how this works (but it does)
     float tileScale  = exp2( currentTile );         // 2^tile gives us the scaling factor for each tile
-    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
+    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * BLOOM_TILE_PADDING + 1);
     tileCoords       = floor(tileCoords * screenSize) * screenSizeInverse;
 
     if (tileCoords != saturate(tileCoords)) {
@@ -50,7 +50,7 @@ vec3 getBloomTilesPass2(sampler2D tex, vec2 coord, float padding) {
 void main() {
     //vec3 color = getAlbedo(coord);
 
-    vec3 color = getBloomTilesPass2(colortex4, coord, 0.01);
+    vec3 color = getBloomTilesPass2(colortex4, coord);
 
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);

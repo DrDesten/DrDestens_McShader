@@ -111,7 +111,7 @@ vec3 getBloomTilesBlur_opt(vec2 coord, float tiles, float padding) {
     return color;
 }
 
-vec3 getBloomTilesPass1(vec2 coord, float tiles, float padding) {
+vec3 getBloomTilesPass1(vec2 coord, float tiles) {
 
     float currentTile = ceil( -log2(1 - coord.x) ); // Gets the current tile
     // Log2(x) returns the exponent necessary to get to the coordinate.
@@ -121,7 +121,7 @@ vec3 getBloomTilesPass1(vec2 coord, float tiles, float padding) {
 
     float xOffset    = 1 - exp2( 1 - currentTile ); // Tbh I'm not even sure how this works (but it does)
     float tileScale  = exp2( currentTile );         // 2^tile gives us the scaling factor for each tile
-    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * padding + 1);
+    vec2  tileCoords = vec2(coord.x - xOffset, coord.y) * tileScale * (tileScale * BLOOM_TILE_PADDING + 1);
     tileCoords       = floor(tileCoords * screenSize) * screenSizeInverse;
 
     if (tileCoords != saturate(tileCoords)) {
@@ -149,7 +149,7 @@ vec3 getBloomTilesPass1(vec2 coord, float tiles, float padding) {
 void main() {
     //vec3 color = vec3(0);
 
-    vec3 color = getBloomTilesPass1(coord, 1, 0.01);
+    vec3 color = getBloomTilesPass1(coord, 1);
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color,  1);
