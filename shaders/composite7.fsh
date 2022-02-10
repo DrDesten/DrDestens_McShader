@@ -89,7 +89,7 @@ vec3 getBloomTilesBlur_opt(vec2 coord, float tiles, float padding) {
     vec2  tileCoord  = (coord - tileOffset) * tileScale;
 
     if (tileCoord != saturate(tileCoord)) {
-        return vec3(currentTile / 16);
+        return vec3(0);
     }
 
     float lod      = currentTile;

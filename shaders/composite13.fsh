@@ -124,9 +124,9 @@ float PeakAttenuation(float depthDiff, float peak) {
 #ifdef BLOOM
 
     vec3 readBloomTile(vec2 coord, float tile) {
-        float tileScale = exp2( -tile - 1 );
-        vec2  tileCoord = coord * tileScale / (exp2(tile + 1) * BLOOM_TILE_PADDING + 1);
-        tileCoord.x    += 1 - exp2( -tile );
+        float tileScale  = exp2(-tile);
+        vec2  tileOffset = vec2(1 - exp2(1-tile));
+        vec2  tileCoord  = coord * tileScale  + tileOffset;
 
         return texture(colortex4, tileCoord).rgb;
     }
@@ -140,12 +140,11 @@ float PeakAttenuation(float depthDiff, float peak) {
     } */
     vec3 getBloom(vec2 coord, int tileLevel) {
         vec3 bloomColor = vec3(0);
-        for (int i = 0; i < tileLevel; i++) {
-            float tileScale = exp2( -i - 1 );
-            float xOffset   = 1 - exp2( -i );
-            float coordMult = tileScale / (exp2(i + 1) * BLOOM_TILE_PADDING + 1);
+        for (int i = 1; i <= tileLevel; i++) {
+            float tileScale  = exp2(-i);
+            vec2  tileOffset = vec2(1 - exp2(1-i));
+            vec2  tileCoord  = coord * tileScale  + tileOffset;
 
-            vec2  tileCoord = coord * coordMult + vec2(xOffset, 0);
             bloomColor     += texture(colortex4, tileCoord).rgb;
         }
         return bloomColor / tileLevel;
@@ -163,8 +162,9 @@ void main() {
     #endif
 
     #ifdef BLOOM
-        color = sq( getBloom(coord, 9) * BLOOM_AMOUNT);
-        color = texture(colortex4, coord).rgb;
+        color += sq( getBloom(coord, 9) * BLOOM_AMOUNT);
+        //color = texture(colortex4, coord).rgb;
+        //color = readBloomTile(coord, 8);
     #endif
 
     #if TONEMAP == 1
