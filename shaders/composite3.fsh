@@ -21,7 +21,6 @@ uniform int   frameCounter;
 uniform float rainStrength;
 
 uniform vec3  lightPosition;
-
 // lightPositionClip returns the clip position of the light with the homogenous w-component
 uniform vec4  lightPositionClip;
 
@@ -209,10 +208,10 @@ void main() {
 
             vec2 rayStep      = ray / GODRAY_STEPS;
             #ifndef TAA
-            vec2 rayPos       = coord - (Bayer8(coord * screenSize) * rayStep);
+            vec2 rayPos  = coord - (Bayer8(coord * screenSize) * rayStep);
             #else
-            vec2 taa_offs     = fract(vec2(frameCounter * 0.2, -frameCounter * 0.2 - 0.5)) * 5 - 10;
-            vec2 rayPos       = coord - (Bayer8(coord * screenSize + taa_offs) * rayStep);
+            float dither = fract(Bayer8(coord * screenSize) + frameCounter * PHI);
+            vec2  rayPos = coord - ( dither * rayStep);
             #endif
 
             float light = 1;
