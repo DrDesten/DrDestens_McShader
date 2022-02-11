@@ -54,7 +54,8 @@ void main() {
 
     #else
 
-        vec3 color = getAlbedo(coord);
+        vec3 color = vec3(0);
+        discard;
 
     #endif
 

@@ -113,7 +113,7 @@ vec2 motionBlur(vec3 screenPos) {
     
     vec3 prevScreenPos = toPrevScreen(toPrevView(toPrevPlayer(toWorld(toPlayer(toView(screenPos * 2 - 1))))));
     vec2 motionVector  = screenPos.xy - prevScreenPos.xy;
-    motionVector      /= length(motionVector) + 0.5; //Basically Reinhard Tonemapping (but on motion blur lol)
+    motionVector      /= length(motionVector) + 0.25; //Basically Reinhard Tonemapping (but on motion blur lol)
 	
-    return motionVector * (0.1 * MOTION_BLUR_STRENGTH);
+    return motionVector * (0.25 * MOTION_BLUR_STRENGTH);
 }

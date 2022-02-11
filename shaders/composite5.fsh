@@ -50,9 +50,9 @@ void main() {
 
     #else
 
-        vec3 color1 = getAlbedo(coord);
-        vec3 color2 = color1;
-        float coc   = 1.0;
+        vec3 color1, color2 = vec3(0);
+        float coc = 1.0;
+        discard;
 
     #endif
 
