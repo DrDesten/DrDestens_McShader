@@ -22,6 +22,9 @@ uniform float rainStrength;
 
 uniform vec3  lightPosition;
 
+// lightPositionClip returns the clip position of the light with the homogenous w-component
+uniform vec4  lightPositionClip;
+
 uniform float isInvisibleSmooth;
 uniform float blindness;
 
@@ -196,12 +199,9 @@ void main() {
     #ifdef OVERWORLD
     #ifdef GODRAYS
 
-        // Start transforming sunPosition from view space to screen space
-        vec4 tmp      = projectHomogeneousMAD(lightPosition, gbufferProjection);
-
-        if (tmp.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
+        if (lightPositionClip.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
-            vec2 sunScreen    = (tmp.xy / tmp.w) * .5 + .5;
+            vec2 sunScreen    = lightPositionClip.xy * 0.5 + 0.5;
 
             // Create ray pointing from the current pixel to the sun
             vec2 ray          = sunScreen - coord;
