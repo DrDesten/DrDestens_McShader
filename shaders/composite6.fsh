@@ -37,10 +37,18 @@ void main() {
         float lod = log2((coc * screenSize.x) * (DOF_DOWNSAMPLING/dof_pass_samples) + 1);
 
         vec2 blurVec1 = vec2( cos(PI / 6.), sin(PI / 6.) ) * cocv;
+        #ifdef DOF_SAMPLE_REJECTION
         vec3 color1   = hexBokehVectorBlur(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio);
+        #else
+        vec3 color1   = hexBokehVectorBlur_noReject(colortex0, coord, blurVec1, dof_pass_samples, 1./dof_pass_samples, lod);
+        #endif
 
         vec2 blurVec2 = vec2( cos(PI / (-5./6.)), sin(PI / (-5./6.)) ) * cocv;
+        #ifdef DOF_SAMPLE_REJECTION
         vec3 color2   = hexBokehVectorBlur(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod, aspectRatio, colortex0);
+        #else
+        vec3 color2   = hexBokehVectorBlur_noReject(colortex4, coord, blurVec2, dof_pass_samples, 1./dof_pass_samples, lod);
+        #endif
 
         vec3 color = (color1 + color2) * (1./3);
 

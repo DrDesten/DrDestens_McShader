@@ -31,30 +31,17 @@ vec2 aspectCorrect(float circular, float aspect) {
     return vec2(circular, circular * aspect);
 }
 
-vec3 hexBokehVectorBlur_old(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
+vec3 hexBokehVectorBlur_noReject(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
     vec2 sample   = blurStep * 0.5 + coord;
-    
-    float stepLength = length(blurStep);
-    float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
 
-    float tw = 0;
-    for (int i = 0; i < samples; i++) {
-        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
-        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
-
-        sampleCoc = saturate(sampleCoc - cocBias);
-        sampleCoc = length(aspectCorrect(sampleCoc, aspect));
-        float d   = stepLength * float(i) + stepLength;
-        if (sampleCoc <= d) break;
-        
-        col     += sampleColor;
-        tw      += 1;
+    for (int i = 0; i < samples; i++) {        
+        col     += textureLod(tex, sample, lod).rgb;
         sample  += blurStep;
     }
 
-    return tw == 0 ? textureLod(tex, sample, 0).rgb : col / tw;
+    return col * samplesInv;
 }
 
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {

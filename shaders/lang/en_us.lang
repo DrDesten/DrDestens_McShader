@@ -9,10 +9,10 @@ option.DEPTH_OF_FIELD=Depth of Field
 option.DEPTH_OF_FIELD.comment=Blurs non-focused objects, like a real camera.
 
 option.DOF_SAMPLES=Bokeh Samples
-option.DOF_SAMPLES.comment=Quality of the blur. Significantly affects performance.
+option.DOF_SAMPLES.comment=Quality of the blur. Higher is better. Significantly affects performance.
 
 option.DOF_STRENGTH=DoF Intensity
-option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. No/Low performance impact.
+option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low performance impact.
 
 option.DOF_MAXSIZE=Maximum Blur
 option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Helps reduce artifacts when using lower sample counts and is better for gameplay.
@@ -25,10 +25,13 @@ option.DOF_DOWNSAMPLING=DoF Downsampling Amount
 option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Reduces DoF artifacts, increases pixelation artifacts. No/Low performance impact.
 
 option.DOF_FAR_BLUR_ONLY=Far Blur Only
+option.DOF_FAR_BLUR_ONLY.comment=Only blurs far away things.
+
+option.DOF_SAMPLE_REJECTION=Sample Rejection
+option.DOF_SAMPLE_REJECTION.comment=Improved DoF Quality by (mostly) removing color bleeding. Can have a significant performance impact.
+
 option.centerDepthHalflife=Focus Delay
-
-option.DOF_DITHER=Dither DoF
-
+option.centerDepthHalflife.comment=Sets how long the focus takes to adjust.
 
 option.DOF_CHROMATIC_ABERRATION=DoF Chromatic Aberration
 option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction.
