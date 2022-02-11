@@ -78,6 +78,10 @@ vec3 getBloomTilesBlur(vec2 coord) {
 /* DRAWBUFFERS:04 */
 
 void main() {
+    #if !defined BLOOM && !defined MOTION_BLUR
+    discard;
+    #endif
+
     #ifdef BLOOM
     vec3 bloom = getBloomTilesBlur(coord);
     #else
@@ -88,11 +92,7 @@ void main() {
     vec2 motionVector = motionBlur(vec3(coord, getDepth(coord))).xy;
     vec3 color        = vectorBlur(coord, motionVector, 4, Bayer4(gl_FragCoord.xy)); 
     #else 
-    vec3 color = vec3(0);
-    #endif
-
-    #if !defined BLOOM && !defined MOTION_BLUR
-    discard;
+    vec3 color = getAlbedo(coord);
     #endif
 
     //Pass everything forward

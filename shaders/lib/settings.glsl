@@ -22,8 +22,7 @@
 
 #define SCREEN_SPACE_AMBIENT_OCCLUSION
 #define SSAO_QUALITY 1                  // SSAO Quality                                 [1 2 3]
-#define SSAO_STRENGTH 0.50              // SSAO Strength                                [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
-const float ssao_strength = (4 * SSAO_STRENGTH * SSAO_STRENGTH) + 0.5;
+#define SSAO_STRENGTH 0.90              // SSAO Strength                                [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 //#define GLASS_REFLECTIONS
 #ifdef GLASS_REFLECTIONS // I have to add this so that optifine recognizes the option (maybe?)
