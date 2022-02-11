@@ -13,8 +13,7 @@ in vec4 glcolor;
 /* DRAWBUFFERS:031 */
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
-	vec3 tmp   = sq(color.rgb);
-	color.rgb *= getLightmap(lmcoord).rgb;
+	color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 	gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor

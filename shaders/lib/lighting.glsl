@@ -210,6 +210,3 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 }
 
 
-float DynamicLight(vec2 lmcoord) {
-    return lmcoord.x * lmcoord.x * TORCHLIGHT_EXTRA_BRIGHTNESS;
-}
