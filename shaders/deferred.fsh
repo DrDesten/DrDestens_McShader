@@ -162,9 +162,9 @@ float SSAO(vec3 screenPos, float radius) {
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3  color       = getAlbedo(coord);
-    float depth       = getDepth(coord);
-    float type        = getID(coord);
+    vec3  color = getAlbedo(coord);
+    float depth = getDepth(coord);
+    float id    = getID(coord);
 
     //////////////////////////////////////////////////////////
     //                  SSAO
@@ -172,7 +172,7 @@ void main() {
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        if (abs(type - 50) > .2 && depth != 1) {
+        if (id != 50 && id != 51 && depth != 1) {
 
             #if   SSAO_QUALITY == 1
 
