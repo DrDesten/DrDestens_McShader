@@ -63,8 +63,8 @@ const float chromaticAberrationSimple = float(CHROMATIC_ABERRATION) * 0.00333333
 //#define TAA_NOCLIP
 #define TAA_CLIP_BIAS 0.01
 
-//#define MOTION_BLUR
-#define MOTION_BLUR_STRENGTH 0.25       // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define MOTION_BLUR
+#define MOTION_BLUR_STRENGTH 0.15       // [0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 #define MOTION_BLUR_SAMPLES 4           // [1 4]
 
 #define BLOOM 

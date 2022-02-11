@@ -10,15 +10,35 @@
 #include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
 
+#ifdef MOTION_BLUR
+#include "/lib/transform.glsl"
+#endif
+
+#ifdef BLOOM
 const bool colortex0MipmapEnabled = true; //Enabling Mipmapping
+#endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-//                              BLOOM
+//                              BLOOM & MOTION BLUR
 /////////////////////////////////////////////////////////////////////////////////////
 
+vec3 vectorBlur(vec2 coord, vec2 blur, int samples, float dither) {
+    if (sqmag(blur) < sq(screenSizeInverse.x)) return getAlbedo(coord);
+
+    vec3 col      = vec3(0);
+    vec2 blurStep = blur / float(samples);
+    vec2 sample   = blurStep * dither + coord;
+
+    for (int i = 0; i < samples; i++) {
+        col    += textureLod(colortex0, sample, 0).rgb;
+        sample += blurStep;
+    }
+
+    return col / float(samples);
+}
 
 vec3 getBloomTilesBlur(vec2 coord) {
 
@@ -54,15 +74,19 @@ vec3 getBloomTilesBlur(vec2 coord) {
     return color;
 }
 
-/* DRAWBUFFERS:4 */
+/* DRAWBUFFERS:04 */
 
 void main() {
     #ifdef BLOOM
-    vec3 color = getBloomTilesBlur(coord);
+    vec3 bloom = getBloomTilesBlur(coord);
     #else
-    vec3 color = vec3(0);
+    vec3 bloom = vec3(0);
     #endif
+
+    vec2 motionVector = motionBlur(vec3(coord, getDepth(coord))).xy;
+    vec3 color        = vectorBlur(coord, motionVector, 4, Bayer4(gl_FragCoord.xy)); 
 
     //Pass everything forward
     gl_FragData[0]          = vec4(color,  1);
+    gl_FragData[1]          = vec4(bloom,  1);
 }
