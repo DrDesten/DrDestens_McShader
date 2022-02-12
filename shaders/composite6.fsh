@@ -16,7 +16,6 @@
 uniform sampler2D colortex4;
 const bool colortex0MipmapEnabled = true; //Enabling Mipmapping
 const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
-#endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -25,6 +24,7 @@ uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
 uniform float aspectRatio;
+#endif
 
 
 /* DRAWBUFFERS:0 */

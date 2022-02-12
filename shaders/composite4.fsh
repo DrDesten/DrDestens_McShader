@@ -56,8 +56,6 @@ void main() {
     float depth = getDepth(coord);
     float id    = getID(coord);
 
-
-
     #ifdef TAA 
 
         vec3  currentFrameColor = color;
