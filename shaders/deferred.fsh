@@ -70,7 +70,8 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     return sq(hits);
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
+    vec3 viewPos      = toView(screenPos * 2 - 1);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
@@ -88,9 +89,8 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
         float hitDepth = getDepth_int(sample.xy);
 
-        float ddif = saturate(sample.z - hitDepth);
-        float hit  = saturate(ddif * 1e35);
-        hits += hit;
+        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
@@ -98,7 +98,8 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
+    vec3  viewPos     = toView(screenPos * 2 - 1);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
@@ -117,8 +118,8 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         float hitDepth = getDepth_int(sample.xy);
 
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-        //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
+        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
