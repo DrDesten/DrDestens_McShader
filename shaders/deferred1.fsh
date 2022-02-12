@@ -90,7 +90,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
@@ -119,7 +119,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
@@ -156,7 +156,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = sq(1 - saturate(occlusion * 0.125));
+    occlusion = cb(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
 
