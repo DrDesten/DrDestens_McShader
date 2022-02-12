@@ -74,9 +74,9 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
-     float ditherTimesSize  = -sq(1 - fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.134785))) * size + size;
+     float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.9 + 0.1) * size;
     #else
-     float ditherTimesSize  = -sq(1 - Bayer4(screenPos.xy * screenSize)) * size + size;
+     float ditherTimesSize  = (Bayer4(screenPos.xy * screenSize) * 0.85 + 0.15) * size;
     #endif
 
     float hits = 0;
@@ -84,13 +84,13 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
@@ -113,13 +113,13 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.05;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 2, 1) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
