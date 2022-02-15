@@ -170,7 +170,7 @@ void main() {
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        if (abs(type - 50) > .2 && depth != 1) {
+        if (type != 50 && type != 51 && depth != 1) {
 
             #if   SSAO_QUALITY == 1
 
