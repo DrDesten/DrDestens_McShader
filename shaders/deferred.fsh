@@ -84,17 +84,17 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size * 0.6, 3) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return sq(hits);
+    return sqsq(hits);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
@@ -119,18 +119,16 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         float hitDepth = getDepth_int(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size * 0.5, 3) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
-    return sq(hits);
+    return sqsq(hits);
 }
 
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    if (screenPos.z >= 1.0) { return 1.0; };
-
     #ifdef TAA
      float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.2;
     #else
@@ -146,7 +144,7 @@ float SSAO(vec3 screenPos, float radius) {
     float occlusion   = 0.0;
     for (int i = 0; i < 8; i++) {
 
-        vec2 offs = spiralOffset_full(sample, 4.5) * rad;
+        vec2 offs = spiralOffset_full(sample, 7.5 * PHI_INV) * rad;
 
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
@@ -157,7 +155,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = cb(1 - saturate(occlusion * 0.125));
+    occlusion = sqsq(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
 

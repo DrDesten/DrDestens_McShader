@@ -111,6 +111,19 @@ vec4 cb(vec4 x) {
     return x * x * x;
 }
 
+float sqsq(float x) { // Cube
+    return sq(sq(x));
+}
+vec2 sqsq(vec2 x) {
+    return sq(sq(x));
+}
+vec3 sqsq(vec3 x) {
+    return sq(sq(x));
+}
+vec4 sqsq(vec4 x) {
+    return sq(sq(x));
+}
+
 float logn(float base, float res) { // Log base n
     return log2(res) / log2(base);
 }
