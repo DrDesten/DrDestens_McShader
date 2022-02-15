@@ -72,7 +72,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     return sq(hits);
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos      = toView(screenPos * 2 - 1);
+    vec3  viewPos     = toView(screenPos * 2 - 1);
     float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
@@ -82,7 +82,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
@@ -92,7 +92,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return sq(hits);
+    return hits;
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
@@ -107,7 +107,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.05;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth_int(sample.xy);
@@ -117,7 +117,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     }
 
     hits  = -hits * 0.0625 + 1;
-    return sq(hits);
+    return hits;
 }
 
 // Really Fast™ SSAO
@@ -125,6 +125,7 @@ float SSAO(vec3 screenPos, float radius) {
     float dither = Bayer8(screenPos.xy * screenSize * programScale) * 0.2;
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
+    radZ         = max(radZ, screenSizeInverse.x * 5 * programScaleInv);
     float dscale = 20 / radZ;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 
@@ -144,7 +145,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = cb(1 - saturate(occlusion * 0.125));
+    occlusion = 1 - saturate(occlusion * 0.125);
     return occlusion;
 }
 /* DRAWBUFFERS:4 */

@@ -67,10 +67,12 @@ void main() {
         float ao = filteredAO(vec3(coord, getDepth(coord)));
         #endif
 
+        //ao = texture2D(colortex4, coord * 0.5).r;
+
         ao = pow(ao, ssao_strength);
 
         color   *= ao;
-        //color = vec3(ao);
+        color = vec3(ao);
     }
 
     gl_FragData[0] = vec4(color, 1.0);
