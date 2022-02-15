@@ -10,6 +10,10 @@
 #include "/lib/composite_basics.glsl"
 #include "/lib/kernels.glsl"
 
+#ifdef MOTION_BLUR
+#include "/lib/transform.glsl"
+#endif
+
 const bool colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
