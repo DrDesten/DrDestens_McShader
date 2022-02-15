@@ -1,3 +1,4 @@
+
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/composite_basics.glsl"
@@ -24,6 +25,33 @@ vec3 sharpen(vec2 coord, float amount, float maximum) {
 
     return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
     //return clamp((color - blurred) * amount, -maximum, maximum) + color;
+}
+
+vec3 sharpen2(vec2 coord, float amount) {
+    vec2 e = vec2(1, 0);
+    vec3 c = texture(colortex0, coord).rgb;
+    vec3 n = texture(colortex0, screenSizeInverse *  e.yx + coord).rgb;
+    vec3 o = texture(colortex0, screenSizeInverse *  e.xy + coord).rgb;
+    vec3 s = texture(colortex0, screenSizeInverse * -e.yx + coord).rgb;
+    vec3 w = texture(colortex0, screenSizeInverse * -e.xy + coord).rgb;
+
+    float nl = luminance(n);
+    float ol = luminance(o);
+    float sl = luminance(s);
+    float wl = luminance(w);
+
+    float maxl = max(max(nl, ol), max(sl, wl));
+    float minl = min(min(nl, ol), min(sl, wl));
+
+    float contrast = max(abs(c.g - maxl), abs(c.g - minl));
+    contrast       = max(contrast, 1e-3);
+
+    float blur = (nl+ol+sl+wl) * 0.25;
+    float diff = luminance(c) - blur;
+
+    diff = clamp( diff * inversesqrt(contrast), -c.g, 1 - c.g) * amount;
+    
+    return c + diff;
 }
 
 float lanczosWeight(float x, float r) {
@@ -58,8 +86,8 @@ vec3 lanczos(vec2 coord, int r) {
 
 void main() {
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
-        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.5, 1) * TAA_SHARPENING_AMOUNT;
+        vec3  color = sharpen2(coord, sharpen_amount);
     #else
         vec3  color = getAlbedo(coord);
         //color = smartUpscale(colortex0, coord).rgb;
