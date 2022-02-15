@@ -21,6 +21,7 @@ const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
 //                     SCREEN SPACE AMBIENT OCCLUSION
 //////////////////////////////////////////////////////////////////////////////
 
+
 float linearPeakAttenuation(float depthDiff, float slope){
     float f = depthDiff * slope;
     float g = -(depthDiff - (1 + 1/slope));
@@ -71,53 +72,52 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     return sq(hits);
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
+    vec3 viewPos      = toView(screenPos * 2 - 1);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     float ditherTimesSize  = -sq(1 - Bayer8(screenPos.xy * screenSize * programScale)) * size + size;
 
     float hits = 0;
-    vec3  sample;
     for (int i = 0; i < 8; i++) {
-        sample      = half_sphere_8[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                            // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToScreen(sample + viewPos);                  // Converting Sample to screen space, since normals are in view space
-    
+
+        vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
+        sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+
         float hitDepth = getDepth_int(sample.xy);
 
-        float ddif = saturate(sample.z - hitDepth);
-        float hit  = saturate(ddif * 1e35);
-        hits += hit;
+        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return hits;
+    return sq(hits);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
-    vec3 viewPos           = toView(screenPos * 2 - 1);
-    mat3 TBN               = arbitraryTBN(normal);
+    vec3  viewPos     = toView(screenPos * 2 - 1);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     float ditherTimesSize  = (Bayer8(screenPos.xy * screenSize * programScale) * 0.85 + 0.15) * size;
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
-    vec3 sample;
     for (int i = 0; i < 16; i++) {
-        sample      = half_sphere_16[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
-    
+
+        vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
+        sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+
         float hitDepth = getDepth_int(sample.xy);
 
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
-        //hits += saturate(peakAttenuation(sample.z - hitDepth, depthTolerance * 0.5) * 100) * 2;
+        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
-    return hits;
+    return sq(hits);
 }
 
 // Really Fast™ SSAO
@@ -138,16 +138,15 @@ float SSAO(vec3 screenPos, float radius) {
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
-        occlusion   += clamp(diff * dscale, -1, 1.1) * cubicAttenuation2(diff, radZ);
+        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
 
         sample += increment;
 
     }
 
-    occlusion = 1 - saturate(occlusion * (1./8.));
+    occlusion = cb(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
-
 /* DRAWBUFFERS:4 */
 void main() {
     float depth = getDepth(coord);
