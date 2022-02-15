@@ -10,8 +10,6 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 #endif
 
-//uniform float isHurtSmooth;
-
 vec3 gaussian_3x3(vec2 coord) {
     vec2 e = vec2(-.5, .5) / MC_RENDER_QUALITY;
     vec3 color  = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;

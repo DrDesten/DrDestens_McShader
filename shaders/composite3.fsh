@@ -8,29 +8,29 @@
 #include "/lib/composite_basics.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/kernels.glsl"
-#include "/lib/dof.glsl"
 
+#if defined GODRAYS && defined OVERWORLD
 uniform sampler2D depthtex1;
-uniform sampler2D colortex1;
-uniform sampler2D colortex4;
+uniform int   frameCounter;
+uniform vec4  lightPositionClip; // lightPositionClip returns the clip position of the light with the homogenous w-component
+uniform float aspectRatio;
+#endif
 
-uniform float centerDepthSmooth;
+#ifdef POM_ENABLED
+uniform sampler2D colortex1;
+#endif
+
+#ifdef HAND_INVISIBILITY_EFFECT
+uniform float isInvisibleSmooth;
+#endif
+
+#if FOG != 0
+uniform float rainStrength;
+uniform float far;
+#endif
 
 uniform float frameTimeCounter;
-uniform int   frameCounter;
-uniform float rainStrength;
-
-uniform vec3  lightPosition;
-// lightPositionClip returns the clip position of the light with the homogenous w-component
-uniform vec4  lightPositionClip;
-
-uniform float isInvisibleSmooth;
 uniform float blindness;
-
-uniform float near;
-uniform float far;
-uniform float aspectRatio;
-
 uniform int   isEyeInWater;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
@@ -195,8 +195,7 @@ void main() {
 
     #endif
 
-    #ifdef OVERWORLD
-    #ifdef GODRAYS
+    #if defined GODRAYS && defined OVERWORLD
 
         if (lightPositionClip.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
@@ -241,7 +240,6 @@ void main() {
             #endif
         }
 
-    #endif
     #endif
 
     #ifdef HAND_INVISIBILITY_EFFECT

@@ -12,8 +12,8 @@
 #include "/lib/kernels.glsl"
 #include "/lib/dof.glsl"
 
+#ifdef DEPTH_OF_FIELD
 uniform sampler2D colortex4;
-
 const bool colortex0MipmapEnabled = true; //Enabling Mipmapping
 const bool colortex4MipmapEnabled = true; //Enabling Mipmapping
 
@@ -24,6 +24,7 @@ uniform float centerDepthSmooth;
 uniform float near;
 uniform float far;
 uniform float aspectRatio;
+#endif
 
 
 /* DRAWBUFFERS:0 */
@@ -54,7 +55,8 @@ void main() {
 
     #else
 
-        vec3 color = getAlbedo(coord);
+        vec3 color = vec3(0);
+        discard;
 
     #endif
 

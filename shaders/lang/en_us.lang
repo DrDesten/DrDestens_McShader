@@ -101,13 +101,6 @@ option.BLOOM_AMOUNT=Bloom Strength
 option.MOTION_BLUR=Motion Blur
 option.MOTION_BLUR_STRENGTH=Motion Blur Intensity
 
-option.MOTION_BLUR_FULL=Realistic Motion Blur
-option.MOTION_BLUR_FULL.comment=With this option enabled, the camera rotation as well as the distance to the terrain will be taken into account. Otherwise, only player movement affects motion blur.
-
-option.MOTION_BLUR_SAMPLES=Motion Blur Quality
-value.MOTION_BLUR_SAMPLES.1=Low
-value.MOTION_BLUR_SAMPLES.4=High
-
 option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
 option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Makes cavities dark. High performance impact.
 
@@ -188,8 +181,8 @@ option.SUNSET_FOG_AMOUNT=Morning Fog Strength
 
 option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
-option.GODRAY_STEPS=Godray Steps
-option.GODRAY_SIZE=Godray Size
+option.GODRAY_STEPS=Godray Samples
+option.GODRAY_SIZE=Godray Radius
 
 option.SKY_SUNSET=Sunset
 
