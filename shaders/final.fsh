@@ -27,6 +27,24 @@ vec3 sharpen(vec2 coord, float amount, float maximum) {
     return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
     //return clamp((color - blurred) * amount, -maximum, maximum) + color;
 }
+vec3 sharpen2(vec2 coord, float amount, float maximum) {
+    vec2 e = vec2(-.5, .5) / MC_RENDER_QUALITY;
+    vec3 c  = texture(colortex0, coord).rgb;
+    vec3 nw = texture(colortex0, screenSizeInverse * e.xy + coord).rgb;
+    vec3 ne = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;
+    vec3 sw = texture(colortex0, screenSizeInverse * e.xx + coord).rgb;
+    vec3 se = texture(colortex0, screenSizeInverse * e.yx + coord).rgb;
+
+    float maxVal = max(max(nw.g, ne.g), max(sw.g, se.g));
+    float minVal = min(min(nw.g, ne.g), min(sw.g, se.g));
+
+    float sharpenAmount = amount * (min(1.0-maxVal, minVal) / maxVal);
+
+    vec3 colorDiff = c - (nw + ne + sw + se) * 0.25;
+
+    return colorDiff * sharpenAmount + c;
+}
+
 
 float lanczosWeight(float x, float r) {
     return x == 0.0 ? 1. : (r * sin(PI * x) * sin(PI * (x / r) )) / ( (PI*PI) * sq(x));
@@ -60,18 +78,17 @@ vec3 lanczos(vec2 coord, int r) {
 
 void main() {
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.6, 2.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
-        vec3  color = saturate(sharpen(coord, sharpen_amount, 0.07));
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 1.5, 3.5 * MC_RENDER_QUALITY) * (TAA_SHARPENING_AMOUNT);
+        vec3  color = saturate(sharpen2(coord, sharpen_amount, 2));
     #else
         vec3  color = getAlbedo_int(coord);
-        //color = smartUpscale(colortex0, coord).rgb;
     #endif
-
-    //color = mix(color, color * color * vec3(1,.5,.5), isHurtSmooth * 0.5);
 
     // Remove Banding (yay)
     const float displayPrecision = 1./255.;
     color                       += (Bayer4(coord * screenSize) - .5) * displayPrecision;
+
+    //color = vec3(coord, 0);
 
     gl_FragColor = vec4(color, 1.0);
 }
