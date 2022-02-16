@@ -131,6 +131,14 @@ float PeakAttenuation(float depthDiff, float peak) {
         return texture(colortex4, tileCoord).rgb;
     }
 
+    vec3 readBloomTileHQ(vec2 coord, float tile) {
+        float tileScale  = exp2(-tile);
+        vec2  tileOffset = vec2(1 - exp2(1-tile));
+        vec2  tileCoord  = coord * tileScale  + tileOffset;
+
+        return textureBicubic(colortex4, tileCoord).rgb;
+    }
+
     /* vec3 getBloom(vec2 coord, int tileLevel) {
         vec3 bloomColor = vec3(0);
         for (int i = 0; i < tileLevel; i++) {
@@ -148,6 +156,32 @@ float PeakAttenuation(float depthDiff, float peak) {
             bloomColor     += texture(colortex4, tileCoord).rgb;
         }
         return bloomColor / tileLevel;
+    }
+
+    float edgeFade(vec2 coord) {
+        return saturate( -4 * max(abs(0.5 - coord.x), abs(0.5 - coord.y)) + 2);
+    }
+
+    vec3 getLensFlare(vec2 coord) {
+        vec2 invCoord = coord * -2 + 1; //Note: This is NDC
+
+        vec3 lf = vec3(0);
+        for (int i = 1; i <= 3; i++) {
+            vec2  lfco = (invCoord * sq( 2. / i ) ) * 0.5 + 0.5;
+            float w    = edgeFade(lfco);
+
+            lf += max(readBloomTile(lfco, 4).rgb - 2.5, 0) * w;
+        }
+        for (int i = 1; i <= 2; i++) {
+            vec2  lfco = (invCoord * -sq( 3. / i ) ) * 0.5 + 0.5;
+            float w    = edgeFade(lfco);
+
+            lf += max(readBloomTile(lfco, 4).rgb - 2.5, 0) * w;
+        }
+
+        lf = lf * lf * (1./5);
+
+        return lf;
     }
 
 #endif
