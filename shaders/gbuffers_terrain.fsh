@@ -47,8 +47,7 @@ void main() {
 		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
 
 		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color = color.rgb * glcolor.a * lightmapColor;
-		gamma(mc_color);
+		vec3 mc_color = gamma(color.rgb * glcolor.a * lightmapColor);
 
 		color.rgb  = gamma(color.rgb);
 		vec3 ambientLight   = lightmapColor;
