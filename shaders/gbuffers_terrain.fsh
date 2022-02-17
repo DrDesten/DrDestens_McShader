@@ -50,7 +50,7 @@ void main() {
 		vec3 mc_color = color.rgb * glcolor.a * lightmapColor;
 		gamma(mc_color);
 
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 		vec3 ambientLight   = lightmapColor;
 		//gamma(ambientLight);
 
@@ -115,7 +115,7 @@ void main() {
 		#endif
 
 		color.rgb *= glcolor.a;
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 
 		if (lmcoord.x > 14.5/15.) {
 			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;

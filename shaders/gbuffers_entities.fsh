@@ -62,7 +62,7 @@ void main() {
 		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 		#endif
 
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 		vec3 ambientLight  = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		//gamma(ambientLight);
 
@@ -82,7 +82,7 @@ void main() {
 	#else
 
 		color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 
 	#endif
 

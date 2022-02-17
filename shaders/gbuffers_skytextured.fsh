@@ -11,7 +11,7 @@ in vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	
-    gamma(color.rgb);
+    color.rgb  = gamma(color.rgb);
 
 	#ifdef BLOOM
 	color.rgb *= 5;

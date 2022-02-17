@@ -71,7 +71,7 @@ void main() {
 
     #endif
 
-    gamma(color.rgb);
+    color.rgb  = gamma(color.rgb);
 
     /* float dither = Bayer4(gl_FragCoord.xy) * (1./64) - (.5/64);
     color       += vec3(dither, dither, dither * 2); */

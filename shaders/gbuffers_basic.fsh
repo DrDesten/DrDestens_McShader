@@ -36,7 +36,7 @@ void main() {
 
 	#endif
 
-	gamma(color.rgb);
+	color.rgb  = gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 	

@@ -43,7 +43,7 @@ void main() {
 		vec3 mc_color       = color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
 		gamma(mc_color);
 
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 		vec3 ambientLight   = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		//gamma(ambientLight);
 
@@ -64,7 +64,7 @@ void main() {
 
 		color.rgb 		  *= glcolor.a;	
 		color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 
 	#endif
 

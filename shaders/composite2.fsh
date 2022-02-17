@@ -38,23 +38,43 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 uniform sampler2D depthtex1;
 
 uniform float frameTimeCounter;
+
 uniform float nearInverse;
+uniform float aspectRatio;
+
+uniform float rainStrength;
+uniform int   isEyeInWater;
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/composite_basics.glsl"
+#include "/lib/transform.glsl"
+#include "/lib/skyColor.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
+
+const vec3 waterAbsorptionColor = vec3(WATER_ABSORPTION_COLOR_R, WATER_ABSORPTION_COLOR_G, WATER_ABSORPTION_COLOR_B) * WATER_ABSORPTION_COLOR_MULT;
+
+vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
+    vec3 reflection   = reflect(viewPos, normal);
+    vec4 screenPos    = backToClipW(reflection) * .5 + .5;
+
+    if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
+        return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
+    }
+    return vec4(getAlbedo(screenPos.xy), 1);
+}
 
 /* DRAWBUFFERS:0 */
 void main() {
 
-    float id    = getID(ivec2(gl_FragCoord.xy));
+    float id          = getID(ivec2(gl_FragCoord.xy));
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth = linearizeDepthf(depth, nearInverse);
     
-    if (id == 10) {
-        vec2 distort = vec2( sin( noise(coord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * 0.005 );
+    if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
+        vec2 noiseCoord = vec2((coord.x - 0.5) * aspectRatio, coord.y - 0.5);
+        vec2 distort    = vec2( sin( noise(noiseCoord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * 0.005 );
         coord += distort;
     }
 
@@ -65,13 +85,42 @@ void main() {
 
     if (id == 10) {
 
-        float transparentDepth       = texture(depthtex1, coord).r;
-        float transparentLinearDepth = linearizeDepthf(transparentDepth, nearInverse);
+        // ABSORPTION <SEE THROUGH> /////////////////////////////////////////////////////////////
+        if (isEyeInWater == 0) {
 
-        float absorption = exp(-abs(transparentLinearDepth - linearDepth));
+            float transparentDepth       = texture(depthtex1, coord).r;
+            float transparentLinearDepth = linearizeDepthf(transparentDepth, nearInverse);
 
-        color = mix(vec3(0,0.015,0.1), color, absorption);
+            float absorption = exp(-abs(transparentLinearDepth - linearDepth));
 
+            color = mix(waterAbsorptionColor, color, absorption);
+
+        }
+
+        // SCREEN SPACE REFLECTION <WATER> /////////////////////////////////////////////////////////////
+
+        vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
+        vec3  viewDir = normalize(viewPos);
+
+        vec3  normal  = getNormal(coord);
+        float fresnel = customFresnel(viewDir, normal, 0.05, 1, 3);
+
+        vec4  reflection = CubemapStyleReflection(viewPos, normal);
+
+        color = mix(color, reflection.rgb, fresnel);
+
+
+    }
+    
+    if (isEyeInWater == 1) {
+
+        float absorption = exp(-abs(linearDepth) * 0.2);
+        color            = mix(waterAbsorptionColor, color, absorption);
+
+    } else if (isEyeInWater == 2) {
+
+        float absorption = exp(-abs(linearDepth));
+        color            = mix(gamma(fogColor), color, absorption);
 
     }
     

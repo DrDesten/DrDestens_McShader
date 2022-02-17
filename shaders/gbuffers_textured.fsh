@@ -14,7 +14,7 @@ in vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-	gamma(color.rgb);
+	color.rgb  = gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)

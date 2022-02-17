@@ -450,7 +450,7 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-vec3 gamma(inout vec3 color) {
+vec3 gamma(vec3 color) {
     color = pow(color, vec3(GAMMA));
     return color;
 }
