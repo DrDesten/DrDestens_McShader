@@ -200,7 +200,7 @@ void main() {
     #endif
 
     #if TONEMAP == 1
-    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
+    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping 
     color = gamma_inv(color);
     #elif TONEMAP == 2
     color = unreal_tonemap(color * EXPOSURE); // Tone mapping
