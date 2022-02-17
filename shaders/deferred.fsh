@@ -61,7 +61,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
         sample      = TBN * sample;
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
@@ -87,7 +87,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
         sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
         hits += linearAttenuation(depthDiff, size * 0.6, 3) * float(sample.z > hitDepth);
@@ -116,7 +116,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
         sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
         hits += linearAttenuation(depthDiff, size * 0.5, 3) * float(sample.z > hitDepth);

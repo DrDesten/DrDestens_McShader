@@ -124,7 +124,7 @@ void main() {
 
             vec3  POMPos   = backToScreen(eyeToView(playerPOM));
             POMPos.xy      = mirrorClamp(POMPos.xy);
-            float POMdepth = getDepth_int(POMPos.xy);
+            float POMdepth = getDepth(POMPos.xy);
 
             float distSQ   = sqmag(playerPos);
             bool error = POMdepth < 0.56 || distSQ > 500;

@@ -30,13 +30,10 @@ vec3 getNormal(in ivec2 icoord) {
 }
 
 float getDepth(in vec2 coord) {
-    return texelFetch(depthtex0, convertIntCoords(coord, screenSize), 0).x;
+    return texture(depthtex0, coord).x;
 }
 float getDepth(in ivec2 icoord) {
     return texelFetch(depthtex0, icoord, 0).x;
-}
-float getDepth_int(in vec2 coord) {
-    return texture(depthtex0, coord).x;
 }
 
 float getID(in vec2 coord) {
