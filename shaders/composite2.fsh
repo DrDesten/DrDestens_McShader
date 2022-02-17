@@ -35,7 +35,17 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 //                                         REFLECTIONS AND WATER EFFECTS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+#include "/lib/settings.glsl"
+#include "/lib/math.glsl"
+#include "/lib/composite_basics.glsl"
+#include "/lib/transform.glsl"
+#include "/lib/skyColor.glsl"
+
 uniform sampler2D depthtex1;
+#ifdef PHYSICALLY_BASED
+uniform sampler2D colortex1;
+#endif
 
 uniform float frameTimeCounter;
 
@@ -45,12 +55,6 @@ uniform float aspectRatio;
 uniform float rainStrength;
 uniform int   isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
-
-#include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/composite_basics.glsl"
-#include "/lib/transform.glsl"
-#include "/lib/skyColor.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -350,23 +354,32 @@ void main() {
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth = linearizeDepthf(depth, nearInverse);
     
+    #ifdef WATER_EFFECTS
+    #ifdef REFRACTION
     if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
 
         vec2 noiseCoord = vec2((coord.x - 0.5) * aspectRatio, coord.y - 0.5);
-        vec2 distort    = vec2( sin( noise(noiseCoord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * 0.02 );
+        vec2 distort    = vec2( sin( noise(noiseCoord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * (0.02 * REFRACTION_AMOUNT) );
         coord += distort / linearDepth;
 
     }
     if (isEyeInWater != 0) {   // REFRACTION <IN MEDIUM> /////////////////////////////////////////////////////////////
 
         vec2 noiseCoord = vec2((coord.x - 0.5) * aspectRatio, coord.y - 0.5);
-        vec2 distort    = vec2( sin( noise(noiseCoord * 10) * TWO_PI + (frameTimeCounter * 2)) * 0.005 );
+        vec2 distort    = vec2( sin( noise(noiseCoord * 10) * TWO_PI + (frameTimeCounter * 2)) * (0.005 * REFRACTION_AMOUNT) );
         coord += distort;
 
     }
+    #endif
 
     depth       = getDepth(coord);
     linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5);
+
+    #ifdef PHYSICALLY_BASED
+    vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
+    vec3  viewDir = normalize(viewPos);
+    vec3  normal  = getNormal(coord);
+    #endif
 
     vec3  color = getAlbedo(coord);
 
@@ -386,10 +399,12 @@ void main() {
 
         // SCREEN SPACE REFLECTION <WATER> /////////////////////////////////////////////////////////////
 
+        #ifndef PHYSICALLY_BASED
         vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
         vec3  viewDir = normalize(viewPos);
-
         vec3  normal  = getNormal(coord);
+        #endif
+
         float fresnel = customFresnel(viewDir, normal, 0.05, 1, 3);
 
         #if SSR_MODE == 0
@@ -401,9 +416,37 @@ void main() {
 
         color = mix(color, reflection.rgb, fresnel);
 
+        #ifdef SSR_DEBUG
+        color = vec3(0, 0, fresnel);
+        #endif
 
     }
+    #endif
+
+    #ifdef PHYSICALLY_BASED
+
+        // SCREEN SPACE REFLECTION <PBR> /////////////////////////////////////////////////////////////
+        float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
+        if (reflectiveness > 0.6/255) {
+
+            #if SSR_MODE == 0
+            position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
+            vec4 Reflection = universalSSR(posData, normal, false);
+            #else
+            vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            #endif
+
+            color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
+
+            #ifdef SSR_DEBUG
+            color = vec3(reflectiveness, 0, 0);
+            #endif
+        }
+
+
+    #endif
     
+    #ifdef WATER_EFFECTS
     if (isEyeInWater == 1) {
 
         float absorption = exp(-abs(linearDepth) * 0.2);
@@ -415,6 +458,7 @@ void main() {
         color            = mix(gamma(fogColor), color, absorption);
 
     }
+    #endif
     
     //Pass everything forward
     gl_FragData[0] = vec4(color, 1);
