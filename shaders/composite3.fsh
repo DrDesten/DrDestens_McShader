@@ -169,12 +169,8 @@ void main() {
         dist           *= float(isEyeInWater + 1) * 10;
 
         #ifdef SUNSET_FOG
-         #if FOG == 1
-          #ifdef SKY_SUNSET
-           #ifdef OVERWORLD
+         #if FOG == 1 && defined SKY_SUNSET && defined OVERWORLD
             dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
-           #endif
-          #endif
          #endif
         #endif
 
@@ -184,8 +180,9 @@ void main() {
             #elif defined NETHER
                 float fog       = 1 - exp(min(-sqrt(dist) * (3e-3 * FOG_AMOUNT) + 0.2, 0));
             #else
-                float fog       = 1 - exp(min(-sqrt(dist) * (1e-3 * FOG_AMOUNT) + 0.2, 0));
+                float fog       = 1 - exp(min(-sqrt(dist) * (1e-3 * FOG_AMOUNT) + 0.1, 0));
             #endif
+            fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
         #else
             float fog       = smoothstep(far, sq(far * 2.828), dist * FOG_AMOUNT);
         #endif
