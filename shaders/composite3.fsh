@@ -102,9 +102,9 @@ vec2 warpCoord(vec2 co) {
 /* DRAWBUFFERS:0 */
 
 void main() {
-    vec3  color = getAlbedo(coord);
-    float depth = getDepth(coord);
-    float id    = getID(coord);
+    vec3  color = getAlbedo(ivec2(gl_FragCoord.xy));
+    float depth = getDepth(ivec2(gl_FragCoord.xy));
+    float id    = getID(ivec2(gl_FragCoord.xy));
 
     #ifdef POM_ENABLED
 
@@ -176,9 +176,9 @@ void main() {
 
         #if FOG == 1
             #ifdef END
-                float fog       = 1 - exp(min(-sqrt(dist) * (5e-3 * FOG_AMOUNT) + 0.2, 0));
+                float fog       = 1 - exp(min(-sqrt(dist) * (5e-3 * FOG_AMOUNT) + 0.1, 0));
             #elif defined NETHER
-                float fog       = 1 - exp(min(-sqrt(dist) * (3e-3 * FOG_AMOUNT) + 0.2, 0));
+                float fog       = 1 - exp(min(-sqrt(dist) * (3e-3 * FOG_AMOUNT) + 0.1, 0));
             #else
                 float fog       = 1 - exp(min(-sqrt(dist) * (1e-3 * FOG_AMOUNT) + 0.1, 0));
             #endif

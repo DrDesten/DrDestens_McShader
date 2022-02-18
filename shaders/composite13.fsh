@@ -207,11 +207,23 @@ void main() {
     #endif
 
     #if CONTRAST != 0
-    color = contrast(color, contrastValue);
-    #endif
-    #if SATURATION != 50
-    color = saturation(color, saturationValue);
-    #endif
+		const float contrastAmount = 1 / (1 - (CONTRAST / 300. + 0.5)) - 1;
+		color = applyContrast(color, contrastAmount);
+	#endif
+	#if VIBRANCE != 0
+		const float vibranceAmount = (VIBRANCE / 100.);
+		color = applyVibrance(color, vibranceAmount);
+	#endif
+	#if SATURATION != 0
+		const float saturationAmount = SATURATION / 100. + 1.;
+		color = applySaturation(color, saturationAmount);
+	#endif
+	#if BRIGHTNESS != 0
+		const float brightnessAmount      = 1 / (BRIGHTNESS / 250. + 0.5) - 1;
+		const float brightnessColorOffset = abs(BRIGHTNESS - 50.) / 500.;
+		color = applyBrightness(color, brightnessAmount, brightnessColorOffset);
+	#endif
+
 
     gl_FragData[0] = vec4(color, 1.0);
 }

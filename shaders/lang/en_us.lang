@@ -222,8 +222,9 @@ value.TONEMAP.1=Custom Reinhard
 value.TONEMAP.2=Unreal
 
 option.CONTRAST=Contrast
-
+option.VIBRANCE=Vibrance
 option.SATURATION=Saturation
+option.BRIGHTNESS=Brightness
 
 
 ///////////////////////////////////////////////////////////
