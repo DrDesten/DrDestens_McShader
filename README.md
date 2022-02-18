@@ -13,7 +13,7 @@ labPBR and OldPBR/SeusPBR support
 <img src="https://user-images.githubusercontent.com/70536771/126960742-88d08bb4-8c6e-415b-b1a0-3cc8b131aa7a.png" width="100%"/>
 
 ### Depth of Field
-<img src="https://user-images.githubusercontent.com/70536771/126915028-5f016e61-2f29-4d14-8e8d-18ac73adaaec.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/154742310-3cc6eb1c-c780-4038-a0f0-f8d1e6c40e69.png" width="100%"/>
 
 ### Physically Based Rendering
 <img src="https://user-images.githubusercontent.com/70536771/125120834-57399b80-e0f3-11eb-8b70-11c5d7997bd9.png" width="100%"/>
