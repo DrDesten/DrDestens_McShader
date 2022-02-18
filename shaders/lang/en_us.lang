@@ -80,9 +80,12 @@ option.WATER_NORMALS_AMOUNT=Bump Amount
 option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
 option.WATER_NORMALS_SIZE=Bump Size
 
+option.WATER_ABSORPTION_DENSITY=Water Absorption Density
 option.WATER_ABSORPTION_BIAS=Water Absorption Bias
+option.WATER_ABSORPTION_BIAS.comment=Adds a constant to the water fog distance. Can help in making water more visible.
 
 option.WATER_TEXTURE_VISIBLE=Water Texture
+option.WATER_TEXTURE_VISIBLE.comment=Enables the vanilla water texture
 
 ///////////////////////////////////////////////////////////
 // POST-PROCESSING

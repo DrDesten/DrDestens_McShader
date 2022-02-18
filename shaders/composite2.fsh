@@ -80,72 +80,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
 }
 
-/* vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-    }
-
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                     // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    rayStep         /= SSR_STEPS;
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo(rayPos.xy), 1);
-            #endif
-
-            vec2 hitPos   = rayPos.xy;
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            float condition;
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = getDepth(rayPos.xy);
-                rayStep  *= .5;
-
-                if (rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance) {
-                    hitPos   = rayPos.xy;
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-} */
-vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
+/* vec4 universalSSR(position pos, vec3 normal) { // Old Raytracer (keeping it in case I need binary refinement again)
     // Reflect in View Space
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
@@ -172,16 +107,13 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
 
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        /* if (hitDepth >= 1) {
-            break; // Break if out of bounds
-        } */
+        // if (hitDepth >= 1) break; // Break if sky (bad)
 
         rayPos  += rayStep;
         
         hitDepth = getDepth(rayPos.xy);
 
         if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
 
             #ifdef SSR_NO_REFINEMENT
                 return vec4(getAlbedo(rayPos.xy), 1);
@@ -212,179 +144,8 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
     }
 
     return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-}
-
-vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampler) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-    }
-
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir         = fstep(0, screenSpaceRay.z);                                          // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float zCompression = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                    // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep      = screenSpaceRay * saturate(abs(zCompression / screenSpaceRay.z));  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    //if (zCompression / screenSpaceRay.z < 0.05 )    return vec4(1,0,0,1);
-
-    rayStep         *= (1. / SSR_STEPS);
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = abs(rayStep.z * max(abs(normal.x), abs(normal.y)) + rayStep.z) * SSR_DEPTH_TOLERANCE; // We have to consider: the ray step AND the angle at which the surface is hit
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if (hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = texture(depthSampler, rayPos.xy).x;
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo(rayPos.xy), 1);
-            #endif
-
-            vec2  hitPos   = rayPos.xy;
-            float lastDiff = abs(rayPos.z - hitDepth);
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = texture(depthSampler, rayPos.xy).x;
-                rayStep  *= .5;
-
-                if (abs(rayPos.z - hitDepth) < lastDiff) {
-                    hitPos   = rayPos.xy;
-                    lastDiff = abs(rayPos.z - hitDepth);
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-}
-
-/* vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-    }
-
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    rayStep         /= SSR_STEPS;
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getID(pos.screen.xy) == getID(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo(rayPos.xy), 1);
-            #endif
-
-            vec2 hitPos   = rayPos.xy;
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            float condition;
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = getDepth(rayPos.xy);
-                rayStep  *= .5;
-
-                if (rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance) {
-                    hitPos   = rayPos.xy;
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
 } */
 
-/* vec4 efficientSSR(position pos, vec3 normal) {
-    vec3 reflection     = reflect(pos.vdir, normal);
-    vec3 viewReflection = reflection + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
-        return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
-    }
-
-    vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-
-    // If the reflected direction is pointing away from the camera, then calculate the maximum Z-Travel "1 - pos.screen.z"
-    // Adjust the length of the ray so that the z-component is equal to the maximum z-travel "(1 - pos.screen.z) / screenSpaceRay.z)"
-    // Only do so if it decreases the length "saturate()"
-    screenSpaceRay *= screenSpaceRay.z > 0.0 ? saturate((1 - pos.screen.z) / screenSpaceRay.z) : 1;
-
-    vec3  rayStep = screenSpaceRay * (1./SSR_STEPS);
-    float dither  = Bayer4(gl_FragCoord.xy);
-    vec3  rayPos  = rayStep * dither + pos.screen;
-
-    float hitDepth = 0;
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if (saturate(rayPos.y) != rayPos.y || hitDepth >= 1) break;
-
-        rayPos += rayStep;
-
-        hitDepth = getDepth(rayPos.xy);
-
-        if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1) {
-            return vec4(getAlbedo(rayPos.xy), 1);
-        }
-
-    }
-
-    return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
-} */
 vec4 efficientSSR(position pos, vec3 normal) {
     vec3 reflection     = reflect(pos.vdir, normal);
     vec3 viewReflection = reflection + pos.view;
@@ -409,9 +170,9 @@ vec4 efficientSSR(position pos, vec3 normal) {
     float hitDepth = 0;
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        if (saturate(rayPos.y) != rayPos.y) break;
-
         rayPos += rayStep;
+
+        if (saturate(rayPos.y) != rayPos.y) break;
 
         hitDepth = getDepth(rayPos.xy);
 
@@ -451,7 +212,7 @@ void main() {
     #endif
 
     depth       = getDepth(coord);
-    linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5);
+    linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
     #ifdef PHYSICALLY_BASED
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
@@ -469,7 +230,7 @@ void main() {
             float transparentDepth       = texture(depthtex1, coord).r;
             float transparentLinearDepth = min( linearizeDepthf(transparentDepth, nearInverse), 1e5);
 
-            float absorption = exp(-abs(transparentLinearDepth - linearDepth));
+            float absorption = exp(-abs(transparentLinearDepth - linearDepth) - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
             color = mix(waterAbsorptionColor, color, absorption);
 
@@ -487,7 +248,7 @@ void main() {
 
         #if SSR_MODE == 0
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-        //vec4  reflection = universalSSR(posData, normal, false);
+        //vec4  reflection = universalSSR(posData, normal);
         vec4  reflection = efficientSSR(posData, normal);
         #else
         vec4  reflection = CubemapStyleReflection(viewPos, normal);
@@ -496,7 +257,7 @@ void main() {
         color = mix(color, reflection.rgb, fresnel);
 
         #ifdef SSR_DEBUG
-        color = vec3(0, 0, fresnel);
+        color = vec3(0, reflection.a, fresnel);
         #endif
 
     }
@@ -511,15 +272,15 @@ void main() {
 
             #if SSR_MODE == 0
             position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-            vec4 Reflection = efficientSSR(posData, normal);
+            vec4 reflection = efficientSSR(posData, normal);
             #else
-            vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            vec4 reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
-            color = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
+            color = mix(color, Reflection.rgb, reflectiveness * reflection.a);
 
             #ifdef SSR_DEBUG
-            color = vec3(reflectiveness, 0, 0);
+            color = vec3(reflectiveness, reflection.a, 0);
             #endif
         }
 
@@ -530,7 +291,7 @@ void main() {
     // ABSORPTION <IN MEDIUM> /////////////////////////////////////////////////////////////
     if (isEyeInWater == 1) {
 
-        float absorption = exp(-abs(linearDepth) * 0.2);
+        float absorption = exp(-linearDepth * (0.2 * WATER_ABSORPTION_DENSITY));
         color            = mix(waterAbsorptionColor, color, absorption);
 
     } else if (isEyeInWater == 2) {
