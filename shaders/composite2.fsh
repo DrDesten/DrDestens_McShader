@@ -172,9 +172,9 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
 
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        if (hitDepth >= 1) {
+        /* if (hitDepth >= 1) {
             break; // Break if out of bounds
-        }
+        } */
 
         rayPos  += rayStep;
         
@@ -401,16 +401,10 @@ vec4 efficientSSR(position pos, vec3 normal) {
     screenSpaceRay *= screenSpaceRay.z > 0.0 ? saturate((1 - pos.screen.z) / screenSpaceRay.z) : 1;
 
     vec3  rayStep = screenSpaceRay * (1./SSR_STEPS);
-    float dither  = Bayer4(gl_FragCoord.xy) * 0.25;
+    float dither  = Bayer4(gl_FragCoord.xy) * 0.2;
     vec3  rayPos  = rayStep * dither + pos.screen;
 
-    /* //float normalAngle = HALF_PI - acos(dot(normalize(cross(dFdx(pos.view), dFdy(pos.view))), pos.vdir));
-    float normalAngle = HALF_PI - acos(abs(dot(normal, pos.vdir) * 0.9999999));
-    float angleError  = abs((length(rayStep.xy) / sin(normalAngle)) * sin(HALF_PI - normalAngle));
-    float screenSpaceAngleError = linearizeDepthInverse(pos.view.z + angleError, near, far) - pos.screen.z;
-    float depthTolerance = screenSpaceAngleError + rayStep.z; */
-
-    float depthTolerance = max(abs(rayStep.z) * 3, .02 / sq(pos.view.z));
+    float depthTolerance = max(abs(rayStep.z) * 3, .02 / sq(pos.view.z)) * SSR_DEPTH_TOLERANCE; // Increase depth tolerance when close, because it is usually too small in these situations
 
     float hitDepth = 0;
     for (int i = 0; i < SSR_STEPS; i++) {
@@ -489,7 +483,7 @@ void main() {
         vec3  normal  = getNormal(coord);
         #endif
 
-        float fresnel = 1;// customFresnel(viewDir, normal, 0.05, 1, 3);
+        float fresnel = customFresnel(viewDir, normal, 0.05, 1, 3);
 
         #if SSR_MODE == 0
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
@@ -517,7 +511,7 @@ void main() {
 
             #if SSR_MODE == 0
             position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-            vec4 Reflection = universalSSR(posData, normal, false);
+            vec4 Reflection = efficientSSR(posData, normal);
             #else
             vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
