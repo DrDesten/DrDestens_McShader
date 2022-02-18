@@ -58,6 +58,7 @@ uniform float aspectRatio;
 uniform float rainStrength;
 uniform int   isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
+uniform float lightBrightness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -232,7 +233,7 @@ void main() {
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
-            color = mix(waterAbsorptionColor, color, absorption);
+            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * lightBrightness, color, absorption);
 
         }
 
@@ -252,6 +253,12 @@ void main() {
         vec4  reflection = efficientSSR(posData, normal);
         #else
         vec4  reflection = CubemapStyleReflection(viewPos, normal);
+        #endif
+
+        #if defined END
+        reflection.rgb *= saturate(0.5 + reflection.a);
+        #else
+        reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + reflection.a);
         #endif
 
         color = mix(color, reflection.rgb, fresnel);
@@ -292,7 +299,7 @@ void main() {
     if (isEyeInWater == 1) {
 
         float absorption = exp(-linearDepth * (0.2 * WATER_ABSORPTION_DENSITY));
-        color            = mix(waterAbsorptionColor, color, absorption);
+        color            = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * lightBrightness, color, absorption);
 
     } else if (isEyeInWater == 2) {
 
