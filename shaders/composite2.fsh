@@ -71,10 +71,10 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     vec3 reflection   = reflect(viewPos, normal);
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
-    if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
+    if (clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
         return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
     }
-    return vec4(getAlbedo(screenPos.xy), 1);
+    return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
 }
 
 /* vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
@@ -204,7 +204,7 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
                 }
             }
 
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
+            return vec4(texture(colortex0, (rayPos.xy), 0).rgb, 1);
         }
     }
 

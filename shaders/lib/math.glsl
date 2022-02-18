@@ -624,6 +624,15 @@ vec2 mirrorClamp(vec2 coord) { //Repeats coords while mirroring them (without br
 
     return coord;
 }
+vec2 distortClamp(vec2 coord) {
+    coord = coord * 2 - 1;
+
+    vec2 d = abs(coord * 1.5);
+    d      = max(d-1.5, 0);
+    coord *= exp2(-d);
+ 
+    return coord * .5 + .5;
+}
 
 
 float smoothCutoff(float x, float cutoff, float taper) {

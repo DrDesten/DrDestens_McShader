@@ -174,12 +174,10 @@ void main(){
         #ifdef PHYSICALLY_BASED
 
 		    // Get the Dafault render color, used for PBR Blending
-            vec3 mc_color      = color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-            gamma(mc_color);
+            vec3 mc_color = gamma(color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) ));
+            color.rgb     = gamma(color.rgb);
 
-            color.rgb  = gamma(color.rgb);
             vec3 ambientLight  = getLightmap(lmcoord).rgb;
-            //gamma(ambientLight);
 
 		    MaterialInfo MatTex = FullMaterial(coord, color);
             MatTex.AO 		   *= sq(glcolor.a);
