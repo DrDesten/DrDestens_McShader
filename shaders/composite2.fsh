@@ -346,15 +346,15 @@ vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampl
     return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
 } */
 
-vec4 efficientSSR(position pos, vec3 normal) {
+/* vec4 efficientSSR(position pos, vec3 normal) {
     vec3 reflection     = reflect(pos.vdir, normal);
     vec3 viewReflection = reflection + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
-        return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
+        return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
     }
 
-    vec3  screenSpaceRay = normalize((backToClip(viewReflection) * .5 + .5) - pos.screen);
+    vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
 
     // If the reflected direction is pointing away from the camera, then calculate the maximum Z-Travel "1 - pos.screen.z"
     // Adjust the length of the ray so that the z-component is equal to the maximum z-travel "(1 - pos.screen.z) / screenSpaceRay.z)"
@@ -362,20 +362,58 @@ vec4 efficientSSR(position pos, vec3 normal) {
     screenSpaceRay *= screenSpaceRay.z > 0.0 ? saturate((1 - pos.screen.z) / screenSpaceRay.z) : 1;
 
     vec3  rayStep = screenSpaceRay * (1./SSR_STEPS);
-    float dither  = Bayer8(gl_FragCoord.xy) * 0.5; // This breaks something
+    float dither  = Bayer4(gl_FragCoord.xy);
     vec3  rayPos  = rayStep * dither + pos.screen;
 
+    float hitDepth = 0;
     for (int i = 0; i < SSR_STEPS; i++) {
 
-        if (saturate(rayPos.yz) != rayPos.yz) break;
+        if (saturate(rayPos.y) != rayPos.y || hitDepth >= 1) break;
 
-        float hitDepth = getDepth(rayPos.xy);
+        rayPos += rayStep;
 
-        if (hitDepth < rayPos.z && hitDepth > 0.56) {
+        hitDepth = getDepth(rayPos.xy);
+
+        if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1) {
             return vec4(getAlbedo(rayPos.xy), 1);
         }
 
+    }
+
+    return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
+} */
+vec4 efficientSSR(position pos, vec3 normal) {
+    vec3 reflection     = reflect(pos.vdir, normal);
+    vec3 viewReflection = reflection + pos.view;
+
+    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
+        return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
+    }
+
+    vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
+
+    // If the reflected direction is pointing away from the camera, then calculate the maximum Z-Travel "1 - pos.screen.z"
+    // Adjust the length of the ray so that the z-component is equal to the maximum z-travel "(1 - pos.screen.z) / screenSpaceRay.z)"
+    // Only do so if it decreases the length "saturate()"
+    screenSpaceRay *= screenSpaceRay.z > 0.0 ? saturate((1 - pos.screen.z) / screenSpaceRay.z) : 1;
+
+    vec3  rayStep = screenSpaceRay * (1./SSR_STEPS);
+    float dither  = Bayer4(gl_FragCoord.xy) * 0.25;
+    vec3  rayPos  = rayStep * dither + pos.screen;
+
+    float hitDepth = 0;
+    for (int i = 0; i < SSR_STEPS; i++) {
+
+        if (saturate(rayPos.y) != rayPos.y) break;
+
         rayPos += rayStep;
+
+        hitDepth = getDepth(rayPos.xy);
+
+        if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1) {
+            return vec4(getAlbedo(rayPos.xy), 1);
+        }
+
     }
 
     return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
