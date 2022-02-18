@@ -544,9 +544,12 @@ vec2 convertPolarCartesian(vec2 coord) {
     return vec2(coord.x * cos(coord.y), coord.x * sin(coord.y));
 }
 
-float linearizeDepth(float d,float nearPlane,float farPlane) {
+float linearizeDepth(float d,float nearPlane,float farPlane) { // Linearizes the depth to viewspace z
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
+}
+float linearizeDepthInverse(float l, float nearPlane, float farPlane) { // Un-Linearizes viewspace z to screenspace depth
+    return (farPlane * (l-nearPlane))/(l * (farPlane-nearPlane));
 }
 float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / ((-d * slope) + slope);

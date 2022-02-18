@@ -49,6 +49,9 @@ uniform sampler2D colortex1;
 
 uniform float frameTimeCounter;
 
+uniform float near;
+uniform float far;
+
 uniform float nearInverse;
 uniform float aspectRatio;
 
@@ -401,6 +404,14 @@ vec4 efficientSSR(position pos, vec3 normal) {
     float dither  = Bayer4(gl_FragCoord.xy) * 0.25;
     vec3  rayPos  = rayStep * dither + pos.screen;
 
+    /* //float normalAngle = HALF_PI - acos(dot(normalize(cross(dFdx(pos.view), dFdy(pos.view))), pos.vdir));
+    float normalAngle = HALF_PI - acos(abs(dot(normal, pos.vdir) * 0.9999999));
+    float angleError  = abs((length(rayStep.xy) / sin(normalAngle)) * sin(HALF_PI - normalAngle));
+    float screenSpaceAngleError = linearizeDepthInverse(pos.view.z + angleError, near, far) - pos.screen.z;
+    float depthTolerance = screenSpaceAngleError + rayStep.z; */
+
+    float depthTolerance = max(abs(rayStep.z) * 3, .02 / sq(pos.view.z));
+
     float hitDepth = 0;
     for (int i = 0; i < SSR_STEPS; i++) {
 
@@ -410,7 +421,7 @@ vec4 efficientSSR(position pos, vec3 normal) {
 
         hitDepth = getDepth(rayPos.xy);
 
-        if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1) {
+        if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1 && abs(rayPos.z - hitDepth) < depthTolerance) {
             return vec4(getAlbedo(rayPos.xy), 1);
         }
 
@@ -478,7 +489,7 @@ void main() {
         vec3  normal  = getNormal(coord);
         #endif
 
-        float fresnel = customFresnel(viewDir, normal, 0.05, 1, 3);
+        float fresnel = 1;// customFresnel(viewDir, normal, 0.05, 1, 3);
 
         #if SSR_MODE == 0
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
