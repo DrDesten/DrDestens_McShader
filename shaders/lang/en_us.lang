@@ -241,7 +241,7 @@ screen.MISC=Other Stuff
 
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
-value.OUTLINE.0=§cOFF
+value.OUTLINE.0=OFF
 value.OUTLINE.1=White
 value.OUTLINE.2=Black
 value.OUTLINE.3=Rainbow
