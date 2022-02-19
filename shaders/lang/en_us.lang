@@ -226,6 +226,12 @@ option.VIBRANCE=Vibrance
 option.SATURATION=Saturation
 option.BRIGHTNESS=Brightness
 
+option.VIGNETTE=Vignette
+option.VIGNETTE.comment=Darkens screen borders.
+value.VIGNETTE.0=OFF
+value.VIGNETTE.1=Round
+value.VIGNETTE.2=Square
+option.VIGNETTE_STRENGTH=Vignette Strength
 
 ///////////////////////////////////////////////////////////
 // MISC
