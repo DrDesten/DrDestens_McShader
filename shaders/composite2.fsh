@@ -62,7 +62,9 @@ uniform float lightBrightness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-const vec3 waterAbsorptionColor = vec3(WATER_ABSORPTION_COLOR_R, WATER_ABSORPTION_COLOR_G, WATER_ABSORPTION_COLOR_B) * WATER_ABSORPTION_COLOR_MULT;
+const vec3 waterAbsorptionColor      = vec3(WATER_ABSORPTION_COLOR_DAY_R, WATER_ABSORPTION_COLOR_DAY_G, WATER_ABSORPTION_COLOR_DAY_B) * WATER_ABSORPTION_COLOR_MULT;
+const vec3 waterAbsorptionColorDay   = vec3(WATER_ABSORPTION_COLOR_DAY_R, WATER_ABSORPTION_COLOR_DAY_G, WATER_ABSORPTION_COLOR_DAY_B) * WATER_ABSORPTION_COLOR_MULT;
+const vec3 waterAbsorptionColorNight = vec3(WATER_ABSORPTION_COLOR_NIGHT_R, WATER_ABSORPTION_COLOR_NIGHT_G, WATER_ABSORPTION_COLOR_NIGHT_B) * WATER_ABSORPTION_COLOR_MULT;
 
 struct position { // A struct for holding positions in different spaces
     vec3 screen;
@@ -231,9 +233,9 @@ void main() {
             float transparentDepth       = texture(depthtex1, coord).r;
             float transparentLinearDepth = min( linearizeDepthf(transparentDepth, nearInverse), 1e5);
 
-            float absorption = exp(-abs(transparentLinearDepth - linearDepth) - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
+            float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
-            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * lightBrightness, color, absorption);
+            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * saturate(lightBrightness * 1.1 - 0.1), color, absorption);
 
         }
 
