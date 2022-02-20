@@ -468,6 +468,11 @@ vec3 gamma_inv(vec3 color) {
     return color;
 }
 
+vec3 normalizeColor(vec3 col) {
+    col += 1e-5; // prevent NaNs
+    return col / max(col.r, max(col.g, col.b));
+}
+
 vec4 cubic(float v) {
     vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;
     vec4 s = n * n * n;
@@ -581,7 +586,7 @@ float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float bas
     return reflectiveness;
 }
 float schlickFresnel(vec3 viewDir, vec3 normal, float F0) {
-    float NormalDotView = dot(-viewDir, normal);
+    float NormalDotView = clamp(dot(-viewDir, normal), 0, 1);
     return F0 + (1.0 - F0) * pow(1.0 - NormalDotView, 5.0);
 }
 float customFresnel(vec3 viewRay, vec3 normal, float bias, float scale, float power) {

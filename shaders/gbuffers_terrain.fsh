@@ -60,8 +60,8 @@ void main() {
 
 		color	            = Material.color;
 		normal	   	        = Material.normal;
-		reflectiveness      = Material.reflectiveness;
 		height 				= MatTex.height;
+		reflectiveness      = luminance(MatTex.f0);
 
 		#ifdef POM_ENABLED
 		#ifdef POM_SMOOTH
@@ -90,9 +90,6 @@ void main() {
 
 		#endif
 		#endif
-
-    	reflectiveness  = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
-		reflectiveness += Bayer4(gl_FragCoord.xy) * (1./255) - (0.5/255);
 
 	#else
 

@@ -220,7 +220,7 @@ void main() {
     #ifdef PHYSICALLY_BASED
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
     vec3  viewDir = normalize(viewPos);
-    vec3  normal  = getNormal(coord);
+    vec3  normal  = normalize(getNormal(coord));
     #endif
 
     vec3  color = getAlbedo(coord);
@@ -251,7 +251,6 @@ void main() {
 
         #if SSR_MODE == 0
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-        //vec4  reflection = universalSSR(posData, normal);
         vec4  reflection = efficientSSR(posData, normal);
         #else
         vec4  reflection = CubemapStyleReflection(viewPos, normal);
@@ -276,8 +275,10 @@ void main() {
 
         // SCREEN SPACE REFLECTION <PBR> /////////////////////////////////////////////////////////////
 
-        float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
-        if (reflectiveness > 0.6/255) {
+        float f0 = texture(colortex1, coord).r;
+        if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
+
+            float fresnel = schlickFresnel(viewDir, normal, f0);
 
             #if SSR_MODE == 0
             position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
@@ -286,13 +287,14 @@ void main() {
             vec4 reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
-            color = mix(color, Reflection.rgb, reflectiveness * reflection.a);
+            vec3 albedoTint = normalizeColor(color);
+            color = mix(color, reflection.rgb * albedoTint, fresnel * reflection.a);
 
             #ifdef SSR_DEBUG
-            color = vec3(reflectiveness, reflection.a, 0);
+            color = vec3(fresnel, reflection.a, 0);
             #endif
-        }
 
+        }
 
     #endif
     

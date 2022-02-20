@@ -40,7 +40,7 @@ vec3 Fresnel(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     vec3  H     = normalize(V + L);
     float NdotH = clamp(dot(N, H), 0, 1);
     float NdotL = clamp(dot(N, L), 0, 1);
@@ -64,21 +64,17 @@ vec4 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     spec        = min(spec, 7);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
-    
-    float reflectiveness = Fresnel(NdotV, (f0.r + f0.g + f0.b) * 0.33333333333) /* / (spec.g + 1) */;
 
-    return vec4(BRDF, reflectiveness);
+    return BRDF;
 }
-vec4 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+vec3 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     float NdotL = clamp(dot(N, L), 0, 1);
     float NdotV = clamp(dot(N, V), 0, 1);
 
     float radiance = 5;
     vec3  BRDF     = (albedo / PI) * radiance * NdotL;
-    
-    float reflectiveness = Fresnel(NdotV, (f0.r + f0.g + f0.b) * 0.33333333333);
 
-    return vec4(BRDF, reflectiveness);
+    return (BRDF);
 }
 
 vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
@@ -144,7 +140,6 @@ vec3 nkTof0(vec3 n, vec3 k) {
 struct PBRout {
 	vec4  color;
 	vec3  normal;
-	float reflectiveness;
 };
 
 PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, mat3 tbn, vec3 viewpos, vec3 ambient) {
@@ -178,9 +173,9 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 
     // Get PBR Material
     #ifdef OVERWORLD
-	 vec4 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+	 vec3 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
     #else
-	 vec4 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
+	 vec3 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
     #endif
 
     BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
@@ -198,13 +193,10 @@ PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, ma
 
 	// Blend between normal MC rendering and PBR rendering
 	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
-	BRDF.a 	    	 = mix(0, BRDF.a, PBR_BLEND);
-	
-	float reflectiveness = BRDF.a * clamp(0.9 - 2 * (roughness + emission), 0, 1);
 
     color.rgb = max(color.rgb, 0); // Prevent Negative values
 
-	PBRout Material  = PBRout(color, normal, reflectiveness);
+	PBRout Material  = PBRout(color, normal);
 	return Material;
 
 }

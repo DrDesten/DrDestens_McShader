@@ -54,11 +54,8 @@ void main() {
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
-		reflectiveness     = Material.reflectiveness;
 		height             = MatTex.height;
-		
-		reflectiveness += Bayer4(gl_FragCoord.xy) * (1./255) - (0.5/255);
-    	reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
+		reflectiveness     = luminance(MatTex.f0);
 
 	#else
 
