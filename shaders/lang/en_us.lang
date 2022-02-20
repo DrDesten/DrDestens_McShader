@@ -87,6 +87,13 @@ option.WATER_ABSORPTION_BIAS.comment=Adds a constant to the water fog distance. 
 option.WATER_TEXTURE_VISIBLE=Water Texture
 option.WATER_TEXTURE_VISIBLE.comment=Enables the vanilla water texture
 
+screen.WATER_COLOR_OPTS=Water Color Options
+
+option.WATER_ABSORPTION_COLOR_DAY_R=Water Absorption Color §cR
+option.WATER_ABSORPTION_COLOR_DAY_G=Water Absorption Color §2G
+option.WATER_ABSORPTION_COLOR_DAY_B=Water Absorption Color §9B
+option.WATER_ABSORPTION_COLOR_MULT=Absorption Color Multiplier
+
 ///////////////////////////////////////////////////////////
 // POST-PROCESSING
 ///////////////////////////////////////////////////////////
@@ -191,20 +198,20 @@ option.SKY_SUNSET=Sunset
 
 screen.SKY_OPTIONS=Sky Options
 option.SKY_DAY_R=Sky Day §cR
-option.SKY_DAY_G=Sky Day §aG
+option.SKY_DAY_G=Sky Day §2G
 option.SKY_DAY_B=Sky Day §9B
 option.SKY_NIGHT_R=Sky Night §cR
-option.SKY_NIGHT_G=Sky Night §aG
+option.SKY_NIGHT_G=Sky Night §2G
 option.SKY_NIGHT_B=Sky Night §9B
 option.SKY_SUNSET_R=Sky Sunset §cR
-option.SKY_SUNSET_G=Sky Sunset §aG
+option.SKY_SUNSET_G=Sky Sunset §2G
 option.SKY_SUNSET_B=Sky Sunset §9B
 
 option.END_SKY_UP_R=End Sky Upper §cR
-option.END_SKY_UP_G=End Sky Upper §aG
+option.END_SKY_UP_G=End Sky Upper §2G
 option.END_SKY_UP_B=End Sky Upper §9B
 option.END_SKY_DOWN_R=End Sky Lower §cR
-option.END_SKY_DOWN_G=End Sky Lower §aG
+option.END_SKY_DOWN_G=End Sky Lower §2G
 option.END_SKY_DOWN_B=End Sky Lower §9B
 
 option.sunPathRotation=Sun Angle
