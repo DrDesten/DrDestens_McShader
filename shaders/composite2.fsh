@@ -3,7 +3,7 @@
 
 const int colortex0Format = RGBA16F; // Color
 
-const int colortex1Format = RG8;           // Reflectiveness, Height (and in the future other PBR values)
+const int colortex1Format = RGB8;           // f0, roughness, Height (and in the future other PBR values)
 const int colortex2Format = RGB8_SNORM;    // Normals
 
 const int colortex3Format = R8;             // colortex3 = blockId

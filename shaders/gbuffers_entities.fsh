@@ -34,16 +34,17 @@ in vec4 glcolor;
 #endif
 
 
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
+#else
+/* DRAWBUFFERS:023 */
+#endif
 void main() {
 	#ifdef FRAG_NORMALS
 	vec3  normal = N;
 	#else
 	vec3  normal = tbn[2];
 	#endif
-
-	float reflectiveness = 0;
-	float height 		 = 1;
 
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
@@ -73,8 +74,10 @@ void main() {
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
-		height             = MatTex.height;
-		reflectiveness     = luminance(MatTex.f0);
+		
+		float reflectiveness = luminance(MatTex.f0);
+		float roughness      = MatTex.roughness;
+		float height         = MatTex.height;
 
 	#else
 
@@ -86,5 +89,7 @@ void main() {
 	gl_FragData[0] = vec4(color); //color
 	gl_FragData[1] = vec4(normal, 1); //normal
 	gl_FragData[2] = vec4(codeID(52), vec3(1)); //Type
+	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	#endif
 }

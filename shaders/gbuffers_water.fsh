@@ -135,14 +135,21 @@ vec3 waveNormals(vec2 coord, float strength) {
 #ifndef PHYSICALLY_BASED
 /* DRAWBUFFERS:023 */
 #else
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
+#else
+/* DRAWBUFFERS:023 */
+#endif
 #endif
 
 void main(){
     vec3  surfaceNormal  = tbn[2];
-    float reflectiveness = 0;
 	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
     float id             = floor(blockId + 0.5);
+
+    #ifdef PHYSICALLY_BASED
+    float reflectiveness, roughness = 0;
+    #endif
 
     // Reduce opacity and saturation of only water
     if (id == 10) {
@@ -186,7 +193,9 @@ void main(){
 
             color	           = Material.color;
             surfaceNormal      = Material.normal;
-		    reflectiveness     = luminance(MatTex.f0);
+            
+            reflectiveness = luminance(MatTex.f0);
+            roughness      = MatTex.roughness;
 
         #else
 

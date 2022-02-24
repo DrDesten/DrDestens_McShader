@@ -29,11 +29,13 @@ in mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
+#else
+/* DRAWBUFFERS:023 */
+#endif
 void main() {
 	vec3  normal         = tbn[2];
-	float reflectiveness = 0;
-	float height 		 = 1;
 
 	vec4 color = texture2D(texture, coord, 0);
 	color.rgb *= glcolor.rgb;
@@ -60,8 +62,10 @@ void main() {
 
 		color	            = Material.color;
 		normal	   	        = Material.normal;
-		height 				= MatTex.height;
-		reflectiveness      = luminance(MatTex.f0);
+		
+		float reflectiveness = luminance(MatTex.f0);
+		float roughness      = MatTex.roughness;
+		float height         = MatTex.height;
 
 		#ifdef POM_ENABLED
 		#ifdef POM_SMOOTH
@@ -123,5 +127,7 @@ void main() {
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
+	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	#endif
 }
