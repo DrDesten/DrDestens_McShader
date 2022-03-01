@@ -1,12 +1,14 @@
 #define GAMMA 2.0
 
-const float TWO_PI  = 6.28318530717958647692;
-const float PI      = 3.14159265358979323846;
-const float HALF_PI = 1.57079632679489661923;
-const float INV_PI  = 0.31830988618379067153;
-const float PHI     = 1.61803398874989484820;
-const float PHI_INV = 0.61803398874989484820;
+const float TWO_PI  = 6.2831853071795864769252867665590057683943387987502;
+const float PI      = 3.1415926535897932384626433832795028841971693993751;
+const float HALF_PI = 1.5707963267948966192313216916397514420985846996876;
+const float INV_PI  = 0.3183098861837906715377675267450287240689192914809;
 
+const float PHI     = 1.6180339887498948482045868343656381177203091798058;
+const float PHI_INV = 0.6180339887498948482045868343656381177203091798058;
+
+const float E       = 2.7182818284590452353602874713526624977572470937000;
 
 ////////////////////////////////////////////////////////////////////////
 // General Functions
@@ -70,6 +72,16 @@ float manhattan(vec3 v) {
 }
 float manhattan(vec4 v) {
     return (abs(v.x) + abs(v.y)) + (abs(v.z) + abs(v.w));
+}
+
+float manhattan(vec2 v1, vec2 v2) {
+    return manhattan(v1-v2);
+}
+float manhattan(vec3 v1, vec3 v2) {
+    return manhattan(v1-v2);
+}
+float manhattan(vec4 v1, vec4 v2) {
+    return manhattan(v1-v2);
 }
 
 float sq(float x) { // Square
@@ -419,6 +431,17 @@ mat3 arbitraryTBN(vec3 normal) {
 
 ////////////////////////////////////////////////////////////////////////
 // Color-Specific functions
+
+/* vec3 saturation(vec3 col, float saturation) {
+    float brightness = dot(col, vec3(0.299, 0.587, 0.112));
+    return mix(vec3(brightness), col, saturation);
+}
+
+vec3 contrast(vec3 col, float contrast) {
+    vec3 lower = (contrast * col) * (col * col);
+    vec3 upper = 1 - contrast * sq(col - 1);
+    return mix(lower, upper, col);
+} */
 
 float luminance(vec3 color) {
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
