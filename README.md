@@ -10,7 +10,7 @@ labPBR and OldPBR/SeusPBR support
 
 ### Water Effects
 <img src="https://user-images.githubusercontent.com/70536771/154742129-4e693d22-cf21-4ffc-801b-e933357190d6.png" width="100%"/>
-<img src="https://user-images.githubusercontent.com/70536771/126960742-88d08bb4-8c6e-415b-b1a0-3cc8b131aa7a.png" width="100%"/>
+<img src="https://user-images.githubusercontent.com/70536771/156651863-ed057993-5b6f-4052-a95c-6005d2e1062e.png" width="100%"/>
 
 ### Depth of Field
 <img src="https://user-images.githubusercontent.com/70536771/154742310-3cc6eb1c-c780-4038-a0f0-f8d1e6c40e69.png" width="100%"/>
