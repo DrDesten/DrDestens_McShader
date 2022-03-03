@@ -6,30 +6,11 @@ labPBR and OldPBR/SeusPBR support
  - Supports Normals, Roughness, Reflectance, Emission, AO, Hardcoded Metals, Subsurface Scattering, Height (LabPBR)
  - Supports Normals, Roughness, Emission, Metalness, Height (OldPBR/SeusPBR)
 
-## Features:
-
-### Water Effects
-<img src="https://user-images.githubusercontent.com/70536771/154742129-4e693d22-cf21-4ffc-801b-e933357190d6.png" width="100%"/>
-<img src="https://user-images.githubusercontent.com/70536771/156651863-ed057993-5b6f-4052-a95c-6005d2e1062e.png" width="100%"/>
-
-### Depth of Field
-<img src="https://user-images.githubusercontent.com/70536771/154742310-3cc6eb1c-c780-4038-a0f0-f8d1e6c40e69.png" width="100%"/>
-
-### Physically Based Rendering
-<img src="https://user-images.githubusercontent.com/70536771/125120834-57399b80-e0f3-11eb-8b70-11c5d7997bd9.png" width="100%"/>
-<img src="https://user-images.githubusercontent.com/70536771/125115288-6c123100-e0eb-11eb-852a-38042e077436.png" width="100%"/>
-
-### Ambient Occlusion
-<table>
- <td>
-  On:
-  <img src="https://user-images.githubusercontent.com/70536771/126914993-9df7fb36-895f-4bde-ab06-ddae3bb903f6.png" width="100%"/>
- </td>
- <td>
-  Off:
-  <img src="https://user-images.githubusercontent.com/70536771/126914998-c8a84bed-91ad-4e5f-ad5c-abb09620147c.png" width="100%"/>
- </td>
-</table>
+## Images:
+<img src="https://raw.githubusercontent.com/DrDesten/DrDestens_McShader/v2/images/DoF%20Water%20Vegetation.png" width="100%"/>
+<img src="https://raw.githubusercontent.com/DrDesten/DrDestens_McShader/v2/images/Nether%20Crimson%20Forest.png" width="100%"/>
+<img src="https://raw.githubusercontent.com/DrDesten/DrDestens_McShader/v2/images/PBR%20Reflections%20Diamond.png" width="100%"/>
+<img src="https://raw.githubusercontent.com/DrDesten/DrDestens_McShader/v2/images/PBR%20Reflections%20Fire%20Iron.png" width="100%"/>
 
 ### Full Feature List:
 
