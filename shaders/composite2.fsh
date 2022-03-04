@@ -235,7 +235,7 @@ void main() {
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
-            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * lightBrightness, color, absorption);
+            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * lightBrightness, color, absorption);
 
         }
 

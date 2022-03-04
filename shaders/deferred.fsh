@@ -113,7 +113,7 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                              // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
         float hitDepth = getDepth(sample.xy);
@@ -124,6 +124,32 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
     hits  = -hits * 0.0625 + 1;
     return sqsq(hits);
+}
+
+vec3 HBAO_like(vec3 screenPos, vec3 screenNormal, float radius) {
+    float dither = Bayer4(gl_FragCoord.xy);
+
+    float dirDither = dither * TWO_PI + (frameCounter);
+    vec2  dir       = vec2(sin(dirDither), cos(dirDither)) * radius;
+
+    float ao = 0;
+    for (int i = 0; i < 4; i++) {
+        vec2 sdir = dir * i;
+
+        float sd1 = getDepth(screenPos.xy + sdir);
+        float sd2 = getDepth(screenPos.xy - sdir);
+
+        vec3 s1 = normalize(vec3( sdir, sd1 - screenPos.z));
+        vec3 s2 = normalize(vec3(-sdir, sd2 - screenPos.z));
+
+        float angle1 = saturate(-dot(s1, screenNormal));
+        float angle2 = saturate(-dot(s2, screenNormal));
+        float occlusion = angle1 + angle2;
+
+        ao += occlusion * 0.125;
+    }
+
+    return vec3(ao * 1.05 - 0.05);
 }
 
 
@@ -168,6 +194,8 @@ void main() {
     vec3  color = getAlbedo(coord);
     float depth = getDepth(coord);
     float id    = getID(coord);
+
+    vec3 screenPos = vec3(coord, depth);
 
     //////////////////////////////////////////////////////////
     //                  SSAO
