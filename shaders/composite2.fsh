@@ -35,6 +35,7 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 //                                         REFLECTIONS AND WATER EFFECTS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
@@ -286,6 +287,17 @@ void main() {
             #else
             vec4 reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
+
+            /* vec3 fb = min( min(textureLod(colortex0, vec2(0.25), 9).rgb, textureLod(colortex0, vec2(0.75), 9).rgb),
+                      min(textureLod(colortex0, vec2(0.25, 0.75), 9).rgb, textureLod(colortex0, vec2(0.75, 0.25), 9).rgb) ); */
+            /* vec3 fb = textureLod(colortex0, vec2(0.25), 9).rgb +
+                      textureLod(colortex0, vec2(0.75), 9).rgb +
+                      textureLod(colortex0, vec2(0.25, 0.75), 9).rgb + 
+                      textureLod(colortex0, vec2(0.75, 0.25), 9).rgb;
+            fb *= 0.25; */
+            //reflection.rgb = mix(fb, reflection.rgb, reflection.a);
+
+            //color = reflection.rgb;
 
             vec3 albedoTint = normalizeColor(color);
             color = mix(color, reflection.rgb * albedoTint, fresnel * reflection.a);
