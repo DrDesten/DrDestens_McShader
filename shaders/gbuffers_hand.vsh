@@ -2,9 +2,12 @@
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/vertex_transform_simple.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
+
+uniform mat4 gbufferModelView;
 
 #ifdef TAA
 uniform int  taaIndex;
@@ -47,4 +50,9 @@ void main() {
 	#endif
 
 	glcolor = gl_Color;
+	#ifdef FRAG_NORMALS
+	glcolor.rgb *= oldLighting(N, gbufferModelView);
+	#else
+	glcolor.rgb *= oldLighting(tbn[2], gbufferModelView);
+	#endif
 }

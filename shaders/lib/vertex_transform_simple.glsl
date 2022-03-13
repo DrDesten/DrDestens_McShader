@@ -25,7 +25,6 @@ mat3 getTBN(vec4 tangentAttribute) {
 
 vec3 getView() {
     return mat3(gl_ModelViewMatrix) * gl_Vertex.xyz + gl_ModelViewMatrix[3].xyz;
-    //return (gl_ModelViewMatrix * gl_Vertex).xyz;
 }
 vec4 getView4() {
     return gl_ModelViewMatrix * gl_Vertex;

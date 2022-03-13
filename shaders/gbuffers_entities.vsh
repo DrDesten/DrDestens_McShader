@@ -1,11 +1,13 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 #ifdef WORLD_CURVE
  #include "/lib/vertex_transform.glsl"
 #else
  #include "/lib/vertex_transform_simple.glsl"
+ uniform mat4 gbufferModelView;
 #endif
 
 attribute vec4 at_tangent;
@@ -53,4 +55,9 @@ void main() {
 	#endif
 
 	glcolor = gl_Color;
+	#ifdef FRAG_NORMALS
+	glcolor.rgb *= oldLighting(N, gbufferModelView);
+	#else
+	glcolor.rgb *= oldLighting(tbn[2], gbufferModelView);
+	#endif
 }

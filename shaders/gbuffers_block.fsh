@@ -30,10 +30,10 @@ in mat3 tbn;
 /* DRAWBUFFERS:023 */
 #endif
 void main() {
-	vec3  normal         = tbn[2];
+	vec3 normal = tbn[2];
 
-	vec4 color		   = texture2D(texture, coord);
-	color.rgb 		  *= glcolor.rgb;
+	vec4 color = texture2D(texture, coord);
+	color.rgb *= glcolor.rgb;
 
 	#ifdef WHITE_WORLD
 	 color.rgb = vec3(1);

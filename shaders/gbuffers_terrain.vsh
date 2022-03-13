@@ -1,7 +1,8 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/vertex_transform.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 attribute vec2 mc_midTexCoord;
 attribute vec4 mc_Entity;
@@ -42,6 +43,10 @@ void main() {
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
+	blockId = getID(mc_Entity);
+	glcolor = gl_Color;
+
+	glcolor.a *= oldLighting(tbn[2], gbufferModelView);
 	
 	#ifdef WAVY_BLOCKS
 
@@ -78,6 +83,4 @@ void main() {
 	#endif
 
 
-	blockId     = getID(mc_Entity);
-	glcolor     = gl_Color;
 }
