@@ -148,6 +148,11 @@ float SSAO(vec3 screenPos, float radius) {
     occlusion = 1 - saturate(occlusion * 0.125);
     return occlusion;
 }
+
+
+
+
+
 /* DRAWBUFFERS:4 */
 void main() {
     float depth = getDepth(coord);
@@ -177,5 +182,9 @@ void main() {
 
     #endif
 
-    gl_FragData[0] = vec4(ao, vec3(1.0));
+    vec3 encodedDepth = Int24ToVec3_asfloat(depth);
+
+    //ao = checkerboard(gl_FragCoord.xy);
+
+    gl_FragData[0] = vec4(ao, encodedDepth);
 }

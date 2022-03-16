@@ -7,7 +7,7 @@ const int colortex1Format = RG8;            // Reflectiveness, Height (and in th
 const int colortex2Format = RGB16_SNORM;    // Normals
 
 const int colortex3Format = R8;             // colortex3 = blockId
-const int colortex4Format = RGB8;           // deferred: A0, composite5-6: bloom 
+const int colortex4Format = RGBA8;           // deferred: A0, composite5-6: bloom 
 
 const int colortex5Format = R11F_G11F_B10F; // TAA
 

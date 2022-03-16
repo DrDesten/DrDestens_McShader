@@ -54,25 +54,54 @@ float filteredAO(vec3 screenPos) {
     return ao;
 }
 
+float filteredAO2(vec3 screenPos) {
+    ivec2 LRintPixel = ivec2(screenPos.xy * screenSize * 0.5);
+
+    float ld = linearizeDepthf(screenPos.z, nearInverse);
+
+    float ao = 0;
+    float tw = 0;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            ivec2 sco  = ivec2(x,y) + LRintPixel;
+
+            float sd = texelFetch(depthtex0, sco * 2 + 1, 0).x;
+            float sld = linearizeDepthf(sd, nearInverse);
+            float w = exp(sq(ld - sld) * -10);
+
+            ao += texelFetch(colortex4, sco, 0).x * w;
+            tw += w;
+        }
+    }
+
+    return ao / tw;
+}
+
 /* DRAWBUFFERS:0 */
 void main() {
     vec3  color = getAlbedo(coord);
     float type  = getType(coord);
 
     if (type != 50 && type != 51) {
+        vec3 screenPos = vec3(coord, getDepth(coord));
+
         #ifdef TAA
         vec2  jitter = TAAOffsets[int(mod(Bayer4(gl_FragCoord.xy) * (16. * PHI_INV) + frameCounter, 9))] * screenSizeInverse * 8;
-        float ao = filteredAO(vec3(coord, getDepth(coord)), jitter);
+        float ao = filteredAO(screenPos, jitter);
         #else
-        float ao = filteredAO(vec3(coord, getDepth(coord)));
+        float ao = filteredAO(screenPos);
         #endif
 
         //ao = texture2D(colortex4, coord * 0.5).r;
 
         ao = pow(ao, ssao_strength);
 
+        ao = filteredAO2(screenPos);
+        //ao = filteredAO(screenPos);
+        ao = pow(ao, 8);
+
         color   *= ao;
-        color = vec3(ao);
+        //color = vec3(ao);
     }
 
     gl_FragData[0] = vec4(color, 1.0);
