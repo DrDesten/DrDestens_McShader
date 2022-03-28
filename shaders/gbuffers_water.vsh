@@ -1,7 +1,8 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/vertex_transform.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 uniform int   frameCounter;
 uniform int   taaIndex;
@@ -66,5 +67,6 @@ void main(){
     coord 		 = getCoord();
 	lmcoord      = getLmCoord();
 	glcolor 	 = gl_Color;
+	glcolor.a   *= oldLighting(tbn[2], gbufferModelView);
 
 }

@@ -13,10 +13,6 @@
  uniform vec2 screenSizeInverse;
 #endif
 
-#if MC_VERSION >= 11700
- uniform int renderStage;
-#endif
-
 out vec2 lmcoord;
 out vec4 glcolor;
 
