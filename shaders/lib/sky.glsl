@@ -1,7 +1,5 @@
 uniform float daynight;
-#ifdef SKY_SUNSET
 uniform float sunset;
-#endif
 
 uniform vec3 fogColor;
 
@@ -46,13 +44,9 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
         sky_up      = mix(sky_up, fogColor * 0.5, rain);
 
-        #ifdef SKY_SUNSET
-         vec3 sky_down = mix(fogColor, sunset_color, sunset);
-         sky_down      = mix(sky_down, fogColor, rain);
-         return mix(sky_down, sky_up, viewHeight); //Get sky
-        #else
-         return mix(fogColor, sky_up, viewHeight); //Get sky
-        #endif
+        vec3 sky_down = mix(fogColor, sunset_color, sunset);
+        sky_down      = mix(sky_down, fogColor, rain);
+        return mix(sky_down, sky_up, viewHeight); //Get sky
 
     #endif
 
@@ -81,15 +75,11 @@ vec3 getSky(vec3 playerEyePos) {
         float viewHeight = playerEyePos.y * inversesqrt(sqmag(playerEyePos));
 
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-        sky_up      = mix(sky_up, fogColor * 0.5, rain);
+        sky_up      = mix(sky_up, fogColor * 0.5, skyRainStrength);
 
-        #ifdef SKY_SUNSET
-         vec3 sky_down = mix(fogColor, sunset_color, sunset);
-         sky_down      = mix(sky_down, fogColor, rain);
-         color = mix(sky_down, sky_up, viewHeight); //Get sky
-        #else
-         color = mix(fogColor, sky_up, viewHeight); //Get sky
-        #endif
+        vec3 sky_down = mix(fogColor, sunset_color, sunset);
+        sky_down      = mix(sky_down, fogColor, skyRainStrength);
+        color = mix(sky_down, sky_up, viewHeight); //Get sky
 
     #endif
 

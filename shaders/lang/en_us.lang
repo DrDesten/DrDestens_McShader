@@ -194,8 +194,6 @@ option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Samples
 option.GODRAY_SIZE=Godray Radius
 
-option.SKY_SUNSET=Sunset
-
 screen.SKY_OPTIONS=Sky Options
 option.SKY_DAY_R=Sky Day §cR
 option.SKY_DAY_G=Sky Day §2G

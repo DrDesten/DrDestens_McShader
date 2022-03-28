@@ -173,7 +173,7 @@ void main() {
         dist           *= float(isEyeInWater + 1) * 10;
 
         #ifdef SUNSET_FOG
-         #if FOG == 1 && defined SKY_SUNSET && defined OVERWORLD
+         #if FOG == 1 && defined OVERWORLD
             dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
          #endif
         #endif
