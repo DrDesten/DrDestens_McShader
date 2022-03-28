@@ -137,6 +137,7 @@ float SSAO(vec3 screenPos, float radius) {
     #endif
 
     float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
+    radZ         = clamp(radZ, 1e-3, 0.2);
     float dscale = 20 / radZ;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 
@@ -159,6 +160,40 @@ float SSAO(vec3 screenPos, float radius) {
     occlusion = cb(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
+
+/* float SSAO2(vec3 screenPos, float radius) {
+    if (screenPos.z >= 1.0) { return 1.0; };
+
+    #ifdef TAA
+     int dither = int(fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 56);
+    #else
+     int dither = int(Bayer8(screenPos.xy * screenSize) * 56);
+    #endif
+
+    float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
+    radZ         = clamp(radZ, 1e-3, 0.1);
+    float dscale = 20 / radZ;
+    vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
+
+    float sample      = 0.2 + dither;
+    float increment   = radius * PHI_INV;
+    float occlusion   = 0.0;
+    for (int i = 0; i < 8; i++) {
+
+        vec2 offs = vogel_disk_64_progressive[i+dither] * rad;
+
+        float sdepth = getDepth(screenPos.xy + offs);
+        float diff   = screenPos.z - sdepth;
+
+        occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
+
+        sample += increment;
+
+    }
+
+    occlusion = saturate(cb(1.125 - saturate(occlusion * (0.125 / 0.875))));
+    return occlusion;
+} */
 
 /* DRAWBUFFERS:0 */
 void main() {
