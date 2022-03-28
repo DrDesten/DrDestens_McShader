@@ -57,21 +57,48 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
     #endif
 
 }
-vec3 getSkyColor5_gamma(vec3 viewPos, float rain) {
-    vec3 color = getSkyColor5(viewPos, rain);
+
+vec3 getSky(vec3 playerEyePos) {
+
+    vec3 color;
+
+    #ifdef NETHER
+
+        color = fogColor;
+
+    #elif defined END 
+
+        float viewHeight = playerEyePos.y * inversesqrt(sqmag(playerEyePos));
+
+        float offset     = noise(vec2(abs(atan(playerEyePos.z, playerEyePos.x))) * 4.4) - 0.5;
+        offset          *= sq(1 - sq(viewHeight)) * 0.25;
+        viewHeight       = saturate(viewHeight * 0.5 + 0.5 + offset);
+
+        color = mix(end_sky_down, end_sky_up, viewHeight);
+
+    #else
+
+        float viewHeight = playerEyePos.y * inversesqrt(sqmag(playerEyePos));
+
+        vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
+        sky_up      = mix(sky_up, fogColor * 0.5, rain);
+
+        #ifdef SKY_SUNSET
+         vec3 sky_down = mix(fogColor, sunset_color, sunset);
+         sky_down      = mix(sky_down, fogColor, rain);
+         color = mix(sky_down, sky_up, viewHeight); //Get sky
+        #else
+         color = mix(fogColor, sky_up, viewHeight); //Get sky
+        #endif
+
+    #endif
+
     return pow(color, vec3(GAMMA));
+
 }
 
-
-vec3 getFogColor(vec3 viewPos, float rain, int eyeWater) {
-    if (eyeWater == 0) {
-        return getSkyColor5(viewPos, rain);
-    } else if (eyeWater == 1) {
-        return fogColor * 0.25;
-    } else {
-        return fogColor;
-    }
-}
-vec3 getFogColor_gamma(vec3 viewPos, float rain, int eyeWater) {
-    return pow(getFogColor(viewPos, rain, eyeWater), vec3(GAMMA));
+vec3 getFog(vec3 playerEyePos) {
+    if (isEyeInWater == 0)      return getSky(viewPos);
+    else if (isEyeInWater == 1) return pow(fogColor * 0.25, vec3(GAMMA));
+    else                        return pow(fogColor, vec3(GAMMA));
 }
