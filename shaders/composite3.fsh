@@ -5,7 +5,11 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/composite_basics.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
 #include "/lib/skyColor.glsl"
 #include "/lib/kernels.glsl"
 

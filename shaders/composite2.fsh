@@ -39,7 +39,11 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/composite_basics.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
 #include "/lib/transform.glsl"
 #include "/lib/skyColor.glsl"
 

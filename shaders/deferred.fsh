@@ -4,7 +4,11 @@
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/composite_basics.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
 
 uniform float nearInverse;
 uniform float aspectRatio;
