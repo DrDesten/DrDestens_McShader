@@ -79,6 +79,7 @@ vec3 getSky(vec3 playerEyePos) {
 
         vec3 sky_down = mix(fogColor, sunset_color, sunset);
         sky_down      = mix(sky_down, fogColor, skyRainStrength);
+        
         color = mix(sky_down, sky_up, viewHeight); //Get sky
 
     #endif
