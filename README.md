@@ -1,6 +1,6 @@
 # DrDestens MinecraftShaders
 
-Supports versions 1.8.x to 1.17.x (I usually develop on 1.8.9 and 1.16.5)
+Supports versions 1.8.x to 1.18.x (I usually develop on 1.8.9 and 1.16.5)
 
 labPBR and OldPBR/SeusPBR support
  - Supports Normals, Roughness, Reflectance, Emission, AO, Hardcoded Metals, Subsurface Scattering, Height (LabPBR)
