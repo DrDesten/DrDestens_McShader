@@ -24,7 +24,7 @@ option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. With Adaptiv
 option.DOF_DITHER=Dither DoF
 
 option.DOF_DOWNSAMPLING=DoF Downsampling Amount
-option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
+option.DOF_DOWNSAMPLING.comment=Amount of downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
 
 option.DOF_KERNEL_SIZE=Bokeh Quality
 option.DOF_KERNEL_SIZE.comment=Quality of the blur. Significantly affects performance.
@@ -121,7 +121,7 @@ option.SSAO_STRENGTH=SSAO Strength
 screen.TAA_OPTIONS=TAA Options
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
-option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
+option.TAA_BLEND.comment=Controls the opacity of the current frame. Set this value lower for smoother TAA.
 option.TAA_SHARPENING_AMOUNT=TAA Sharpening
 option.TAA_SHARPENING_AMOUNT.comment=Changes the strength of the sharpening effect.
 
@@ -138,10 +138,10 @@ value.PBR_FORMAT.2=SeusPBR / OldPBR
 option.RESOURCE_PACK_RESOLUTION=Resource Pack Resolution
 
 option.PHYSICALLY_BASED=PBR
-option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you enable Normal and Specular mapsm in the OptiFine shader options.
+option.PHYSICALLY_BASED.comment=Enables Physically Based Rendering. Make sure you enable Normal and Specular maps in the OptiFine shader options.
 
 option.PBR_BLEND=PBR Blend
-option.PBR_BLEND.comment=In order to stay closer to minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
+option.PBR_BLEND.comment=In order to stay closer to Minecraft vanilla rendering, my shader blends between PBR and vanilla rendering. If you increase this value, the PBR effect will be stronger.
 
 option.HEIGHT_AO=Height as AO
 option.HEIGHT_AO.comment=Uses the Height information for Ambient occlusion
@@ -167,7 +167,7 @@ option.POM_SMOOTH.comment=Smooths out the height map. Significantly reduces arti
 option.PBR_AMBIENT_LIGHT_MULTIPLIER=Ambient light multiplier
 
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmaps
-option.DIRECTIONAL_LIGHTMAP.comment=Applies normal mapping to dynamic lights. Requires a ressource pack with PBR support.
+option.DIRECTIONAL_LIGHTMAP.comment=Applies normal mapping to dynamic lights. Requires a resource pack with PBR support.
 option.DIRECTIONAL_LIGHTMAP_STRENGTH=Directional Lightmap Strength
 
 ///////////////////////////////////////////////////////////
@@ -267,4 +267,4 @@ option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from 
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
 value.CREDITS.0=§r by §cDrDesten §r§k:###
-value.CREDITS.1=§r §aVersion 1.5.5 §r§k:###
+value.CREDITS.1=§r §aVersion 1.5.6 §r§k:###
