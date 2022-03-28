@@ -35,11 +35,11 @@ labPBR and OldPBR/SeusPBR support
    - Absorption
  - Godrays
  - Bloom
- - Waving Leaves and Grass
+ - Waving Blocks
  - Motion Blur
  - Chromatic Aberration
  - World Curvature
- - Smooth sky gradient
+ - Custom Sky
  - Outline
  - Custom Fog
  - White World
