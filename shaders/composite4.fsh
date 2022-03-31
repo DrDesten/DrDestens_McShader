@@ -68,6 +68,7 @@ void main() {
         vec3  reprojectPos      = reprojectTAA(screenPos);
         
         vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
+        //vec4  lastFrame         = texelFetch(colortex5, ivec2(reprojectPos.xy * screenSize), 0);
         vec3  lastFrameColor    = lastFrame.rgb;
 
         // Anti - Ghosting

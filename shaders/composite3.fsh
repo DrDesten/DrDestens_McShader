@@ -10,7 +10,7 @@
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
-#include "/lib/skyColor.glsl"
+#include "/lib/sky.glsl"
 #include "/lib/kernels.glsl"
 
 #if defined GODRAYS && defined OVERWORLD
@@ -35,7 +35,6 @@ uniform float far;
 
 uniform float frameTimeCounter;
 uniform float blindness;
-uniform int   isEyeInWater;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -168,9 +167,9 @@ void main() {
     #if FOG != 0
 
         // Blend between FogColor and normal color based on square distance
-        vec3 viewPos    = toView(vec3(coord, depth) * 2 - 1);
-        float dist      = sqmag(viewPos) * float(depth < 1 || isEyeInWater != 0);
-        dist           *= float(isEyeInWater + 1) * 10;
+        vec3 viewPos      = toView(vec3(coord, depth) * 2 - 1);
+        vec3 playerEyePos = toPlayerEye(viewPos);
+        float dist        = length(viewPos);
 
         #ifdef SUNSET_FOG
          #if FOG == 1 && defined OVERWORLD
@@ -180,18 +179,18 @@ void main() {
 
         #if FOG == 1
             #ifdef END
-                float fog       = 1 - exp(min(-sqrt(dist) * (5e-3 * FOG_AMOUNT) + 0.1, 0));
+                float fog       = 1 - exp(min(dist * (15e-3 * -FOG_AMOUNT) + 0.1, 0));
             #elif defined NETHER
-                float fog       = 1 - exp(min(-sqrt(dist) * (3e-3 * FOG_AMOUNT) + 0.1, 0));
+                float fog       = 1 - exp(min(dist * (9e-3 * -FOG_AMOUNT) + 0.1, 0));
             #else
-                float fog       = 1 - exp(min(-sqrt(dist) * (1e-3 * FOG_AMOUNT) + 0.1, 0));
+                float fog       = 1 - exp(min(dist * (2e-3 * -FOG_AMOUNT) + 0.1, 0));
             #endif
             fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
         #else
-            float fog       = smoothstep(far, sq(far * 2.828), dist * FOG_AMOUNT);
+            float fog       = smoothstep(far, far * 2.828, dist * FOG_AMOUNT);
         #endif
 
-        vec3 customFogColor = getFogColor_gamma(viewPos, rainStrength, isEyeInWater);
+        vec3 customFogColor = getFog(playerEyePos);
         color               = mix(color, customFogColor, fog);
 
     #endif

@@ -14,10 +14,6 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 /* DRAWBUFFERS:0 */
 void main() {
-    #ifndef SCREEN_SPACE_AMBIENT_OCCLUSION
-    discard;
-    #endif
-
     float depth = getDepth(coord);
     vec3  screenPos = vec3(coord, depth);
     vec3  color;

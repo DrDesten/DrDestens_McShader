@@ -7,7 +7,7 @@ const int colortex1Format = RGB8;           // f0, roughness, Height (and in the
 const int colortex2Format = RGB8_SNORM;    // Normals
 
 const int colortex3Format = R8;             // colortex3 = blockId
-const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0)
+const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0) + Bloom
 
 const int colortex5Format = R11F_G11F_B10F; // TAA
 
@@ -18,7 +18,7 @@ const bool colortex0Clear      = false;
 const bool colortex1Clear      = false;
 const bool colortex2Clear      = false;
 //const bool colortex3Clear      = false;
-//const bool colortex4Clear      = false;
+const bool colortex4Clear      = false;
 const bool colortex5Clear      = false;
 
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
