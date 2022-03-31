@@ -10,7 +10,6 @@
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
-#include "/lib/sky.glsl"
 #include "/lib/kernels.glsl"
 
 #if defined GODRAYS && defined OVERWORLD
@@ -31,6 +30,7 @@ uniform float isInvisibleSmooth;
 #if FOG != 0
 uniform float rainStrength;
 uniform float far;
+#include "/lib/sky.glsl"
 #endif
 
 uniform float frameTimeCounter;
@@ -109,6 +109,10 @@ void main() {
     float depth = getDepth(ivec2(gl_FragCoord.xy));
     float id    = getID(ivec2(gl_FragCoord.xy));
 
+    //////////////////////////////////////////////////////////////////////////////
+    //                              POM
+    //////////////////////////////////////////////////////////////////////////////
+
     #ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
@@ -151,6 +155,10 @@ void main() {
 
     #endif
 
+    //////////////////////////////////////////////////////////////////////////////
+    //                              OUTLINE
+    //////////////////////////////////////////////////////////////////////////////
+
     #if OUTLINE != 0
 
         float outline = depthEdge(coord, depth);
@@ -163,21 +171,29 @@ void main() {
         #endif
         
     #endif
+
+    //////////////////////////////////////////////////////////////////////////////
+    //                                 FOG
+    //////////////////////////////////////////////////////////////////////////////
     
     #if FOG != 0
+
+        if (depth < 1) { // NOT SKY
 
         // Blend between FogColor and normal color based on square distance
         vec3 viewPos      = toView(vec3(coord, depth) * 2 - 1);
         vec3 playerEyePos = toPlayerEye(viewPos);
-        float dist        = length(viewPos);
-
-        #ifdef SUNSET_FOG
-         #if FOG == 1 && defined OVERWORLD
-            dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
-         #endif
-        #endif
 
         #if FOG == 1
+
+            float dist        = length(viewPos);
+
+            #ifdef SUNSET_FOG
+            #ifdef OVERWORLD
+                dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
+            #endif
+            #endif
+
             #ifdef END
                 float fog       = 1 - exp(min(dist * (15e-3 * -FOG_AMOUNT) + 0.1, 0));
             #elif defined NETHER
@@ -185,15 +201,26 @@ void main() {
             #else
                 float fog       = 1 - exp(min(dist * (2e-3 * -FOG_AMOUNT) + 0.1, 0));
             #endif
+
             fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
+
         #else
-            float fog       = smoothstep(far, far * 2.828, dist * FOG_AMOUNT);
+
+            float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
+            float fog  = smoothstep(far * 0.5, far, dist * FOG_AMOUNT);
+
         #endif
 
         vec3 customFogColor = getFog(playerEyePos);
         color               = mix(color, customFogColor, fog);
 
+        }
+
     #endif
+
+    //////////////////////////////////////////////////////////////////////////////
+    //                              GODRAYS
+    //////////////////////////////////////////////////////////////////////////////
 
     #if defined GODRAYS && defined OVERWORLD
 
@@ -241,6 +268,11 @@ void main() {
         }
 
     #endif
+
+    
+    //////////////////////////////////////////////////////////////////////////////
+    //                              EFFECTS
+    //////////////////////////////////////////////////////////////////////////////
 
     #ifdef HAND_INVISIBILITY_EFFECT
 

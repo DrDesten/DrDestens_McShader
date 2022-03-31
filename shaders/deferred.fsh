@@ -1,12 +1,14 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/sky.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
+
+uniform float rainStrength;
+#include "/lib/sky.glsl"
 
 //////////////////////////////////////////////////////////////////////////////
 //                     SKY RENDERING
@@ -14,17 +16,16 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 /* DRAWBUFFERS:0 */
 void main() {
-    float depth = getDepth(coord);
+    float depth     = getDepth(coord);
     vec3  screenPos = vec3(coord, depth);
-    vec3  color;
+    vec3  color     = getAlbedo(coord);
     
     if (depth >= 1) { // SKY
 
-        color = getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+        color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
 
     } else { // NO SKY
 
-        color = getAlbedo(coord);
 
     }
     

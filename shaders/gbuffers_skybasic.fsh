@@ -1,16 +1,5 @@
-uniform mat4 gbufferModelViewInverse;
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/skyColor.glsl"
-
-uniform float wetness; 
-uniform float rainStrength;
-
-uniform vec3  sunPosition;
-uniform vec3  moonPosition;
-
-in vec3 viewpos;
 
 const vec3 rgbWaveLengths  = vec3(680, 550, 440);
 const vec3 rgbCoefficients = vec3(5.8e-6, 13.5e-6, 33.1e-6);
@@ -52,30 +41,6 @@ vec3 rayleigh(float dotp, vec3 coeff) {
 
 /* DRAWBUFFERS:03 */
 void main() {
-
-    #ifdef OVERWORLD
-
-        vec3  viewDir  = normalize(viewpos);
-        
-        float sunDot   = saturate(dot(viewDir, normalize(sunPosition)));
-        sunDot         = pow(sunDot, 15) * .5;
-        float moonDot  = saturate(dot(viewDir, normalize(moonPosition)));
-        moonDot        = pow(moonDot, 20) * .25;
-
-        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
-        color     *= 1 + sunDot + moonDot;
-
-    #elif defined END
-
-        vec3 color = getSkyColor5(viewpos, rainStrength); //Get sky
-
-    #endif
-
-    color.rgb  = gamma(color.rgb);
-
-    /* float dither = Bayer4(gl_FragCoord.xy) * (1./64) - (.5/64);
-    color       += vec3(dither, dither, dither * 2); */
-
-    gl_FragData[0] = vec4(color, 1.0);
+    gl_FragData[0] = vec4(vec3(0), 1.0);
     gl_FragData[1] = vec4((50./255.), vec3(1));
 }

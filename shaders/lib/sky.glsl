@@ -42,10 +42,10 @@ vec3 getSky(vec3 playerEyePos) {
         float viewHeight = playerEyePos.y * inversesqrt(sqmag(playerEyePos));
 
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-        sky_up      = mix(sky_up, fogColor * 0.5, skyRainStrength);
+        sky_up      = mix(sky_up, fogColor * 0.5, rainStrength);
 
         vec3 sky_down = mix(fogColor, sunset_color, sunset);
-        sky_down      = mix(sky_down, fogColor, skyRainStrength);
+        sky_down      = mix(sky_down, fogColor, rainStrength);
         
         color = mix(sky_down, sky_up, viewHeight); //Get sky
 
