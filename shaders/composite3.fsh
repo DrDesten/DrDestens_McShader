@@ -206,8 +206,11 @@ void main() {
 
         #else
 
+            const float fogStart = 0.5 / max(FOG_AMOUNT, 0.5001);
+            const float fogEnd   = 1.0;
+
             float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
-            float fog  = smoothstep(far * 0.5, far, dist * FOG_AMOUNT);
+            float fog  = smoothstep(far * fogStart, far, dist);
 
         #endif
 

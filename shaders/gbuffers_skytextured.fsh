@@ -14,7 +14,7 @@ void main() {
     color.rgb  = gamma(color.rgb);
 
 	#ifdef BLOOM
-	color.rgb *= 4;
+	color.rgb *= 2;
 	#endif
 
 	gl_FragData[0] = color; //gcolor
