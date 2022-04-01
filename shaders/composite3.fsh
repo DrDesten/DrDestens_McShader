@@ -210,7 +210,11 @@ void main() {
             const float fogEnd   = 1.0;
 
             float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
+            #if defined SUNSET_FOG && defined OVERWORLD
+            float fog  = smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
+            #else
             float fog  = smoothstep(far * fogStart, far, dist);
+            #endif
 
         #endif
 

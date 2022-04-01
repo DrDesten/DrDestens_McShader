@@ -49,8 +49,6 @@ vec3 getSky(vec3 playerEyePos) {
         
         color = mix(sky_down, sky_up, viewHeight); // Get sky
 
-        //color = vec3(sunset);
-
     #endif
 
     return pow(color, vec3(GAMMA));
