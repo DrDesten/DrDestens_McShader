@@ -178,11 +178,11 @@ void main() {
     
     #if FOG != 0
 
-        if (depth < 1) { // NOT SKY
+        vec3 viewPos        = toView(vec3(coord, depth) * 2 - 1);
+        vec3 playerEyePos   = toPlayerEye(viewPos);
+        vec3 customFogColor = getFog(playerEyePos);
 
-        // Blend between FogColor and normal color based on square distance
-        vec3 viewPos      = toView(vec3(coord, depth) * 2 - 1);
-        vec3 playerEyePos = toPlayerEye(viewPos);
+        if (depth < 1) { // NOT SKY
 
         #if FOG == 1
 
@@ -218,8 +218,7 @@ void main() {
 
         #endif
 
-        vec3 customFogColor = getFog(playerEyePos);
-        color               = mix(color, customFogColor, fog);
+        color = mix(color, customFogColor, fog);
 
         }
 

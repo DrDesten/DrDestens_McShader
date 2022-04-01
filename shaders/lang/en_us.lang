@@ -213,6 +213,7 @@ option.END_SKY_DOWN_G=End Sky Lower §2G
 option.END_SKY_DOWN_B=End Sky Lower §9B
 
 option.sunPathRotation=Sun Angle
+suffix.sunPathRotation=°
 
 ///////////////////////////////////////////////////////////
 // CAMERA
