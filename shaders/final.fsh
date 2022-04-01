@@ -23,12 +23,28 @@ vec3 gaussian_3x3(vec2 coord) {
          color += texture(colortex0, screenSizeInverse * e.xy + coord).rgb;
     return color * 0.25;
 }
+struct sharpenData { vec3 average; vec3 minimum; vec3 maximum; };
+sharpenData getSharpenData(vec2 coord) {
+    vec2 e  = vec2(-.5, .5) / MC_RENDER_QUALITY;
+    vec3 c1 = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;
+    vec3 c2 = texture(colortex0, screenSizeInverse * e.xx + coord).rgb;
+    vec3 c3 = texture(colortex0, screenSizeInverse * e.yx + coord).rgb;
+    vec3 c4 = texture(colortex0, screenSizeInverse * e.xy + coord).rgb;
+    return sharpenData(
+        (c1 + c2 + c3 + c4) * 0.25,
+        min(min(min(c1, c2), c3), c4),
+        max(max(max(c1, c2), c3), c4)
+    );
+}
 vec3 sharpen(vec2 coord, float amount, float maximum) {
     vec3 blurred  = gaussian_3x3(coord);
     vec3 color    = getAlbedo(coord);
 
     return clamp((color - blurred) * amount, -maximum, maximum * .33333) + color;
     //return clamp((color - blurred) * amount, -maximum, maximum) + color;
+}
+vec3 sharpen(sharpenData data, vec3 color, float amount) {
+    return clamp(amount * (color - data.average) + color, data.minimum * 0.5, data.maximum * 1.5);
 }
 
 vec3 sharpen2(vec2 coord, float amount) {
@@ -90,8 +106,9 @@ vec3 lanczos(vec2 coord, int r) {
 
 void main() {
     #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.25, 0.5) * TAA_SHARPENING_AMOUNT;
-        vec3  color = sharpen2(coord, sharpen_amount);
+        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.25, 1.0) * TAA_SHARPENING_AMOUNT;
+        //vec3  color = sharpen2(coord, sharpen_amount);
+        vec3  color = sharpen(getSharpenData(coord), getAlbedo(coord), sharpen_amount);
     #else
         vec3  color = getAlbedo(coord);
         //color = smartUpscale(colortex0, coord).rgb;

@@ -1,5 +1,3 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/composite/basics.glsl"
@@ -7,13 +5,6 @@
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
-
-#ifdef TAA
-#include "/lib/kernels.glsl"
-#include "/lib/transform.glsl"
-uniform int taaIndex;
-uniform sampler2D colortex5;
-#endif
 
 #ifdef BLOOM
 uniform sampler2D colortex4;
