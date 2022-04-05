@@ -206,7 +206,7 @@ void main() {
 
         #else
 
-            const float fogStart = 0.5 / max(FOG_AMOUNT, 0.5001);
+            const float fogStart = 0.5 / max(FOG_AMOUNT, 0.6);
             const float fogEnd   = 1.0;
 
             float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));

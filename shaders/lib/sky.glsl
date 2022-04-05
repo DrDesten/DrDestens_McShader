@@ -55,6 +55,34 @@ vec3 getSky(vec3 playerEyePos) {
 
 }
 
+vec3 getSky(float viewHeight) {
+
+    vec3 color;
+
+    #ifdef NETHER
+
+        color = fogColor;
+
+    #elif defined END 
+
+        color = mix(end_sky_down, end_sky_up, viewHeight);
+
+    #else
+
+        vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
+        sky_up      = mix(sky_up, fogColor * 0.5, rainStrength);
+
+        vec3 sky_down = mix(fogColor, sunset_color, sunset);
+        sky_down      = mix(sky_down, fogColor, rainStrength);
+        
+        color = mix(sky_down, sky_up, viewHeight); // Get sky
+
+    #endif
+
+    return pow(color, vec3(GAMMA));
+
+}
+
 vec3 getFog(vec3 playerEyePos) {
     if (isEyeInWater == 0)      return getSky(playerEyePos);
     else if (isEyeInWater == 1) return pow(fogColor * 0.25, vec3(GAMMA));

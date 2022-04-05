@@ -45,7 +45,9 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/skyColor.glsl"
+
+uniform float rainStrength;
+#include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
 #ifdef PHYSICALLY_BASED
@@ -60,8 +62,6 @@ uniform float far;
 uniform float nearInverse;
 uniform float aspectRatio;
 
-uniform float rainStrength;
-uniform int   isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float lightBrightness;
 
@@ -83,7 +83,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
     if (clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
-        return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
+        return vec4(getFog(reflection), 0);
     }
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
 }
@@ -93,7 +93,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+        return vec4(getFog(viewReflection - pos.view), 0);
     }
 
     // Project to Screen Space
@@ -151,7 +151,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
         }
     }
 
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+    return vec4(getFog(viewReflection - pos.view), 0);
 } */
 
 vec4 efficientSSR(position pos, vec3 normal) {
@@ -159,7 +159,7 @@ vec4 efficientSSR(position pos, vec3 normal) {
     vec3 viewReflection = reflection + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
-        return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
+        return vec4(getFog(reflection), 0);
     }
 
     vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
@@ -190,7 +190,7 @@ vec4 efficientSSR(position pos, vec3 normal) {
 
     }
 
-    return vec4(gamma(getFogColor(reflection, rainStrength, isEyeInWater)), 0);
+    return vec4(getFog(reflection), 0);
 }
 
 
@@ -240,7 +240,8 @@ void main() {
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
-            color = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * lightBrightness, color, absorption);
+            vec3  waterColor = waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * getSky(0.5);
+            color = mix(waterColor, color, absorption);
 
         }
 
