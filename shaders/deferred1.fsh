@@ -191,21 +191,19 @@ float SSAO(vec3 screenPos, float radius) {
 
 /* DRAWBUFFERS:0 */
 void main() {
-    #ifndef SCREEN_SPACE_AMBIENT_OCCLUSION
-    discard;
-    #endif
-
     vec3  color = getAlbedo(coord);
-    float depth = getDepth(coord);
-    float id    = getID(coord);
-
-    vec3 screenPos = vec3(coord, depth);
-
-    //////////////////////////////////////////////////////////
-    //                  SSAO
-    //////////////////////////////////////////////////////////
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
+    
+        float depth = getDepth(coord);
+        float id    = getID(coord);
+
+        vec3 screenPos = vec3(coord, depth);
+
+        //////////////////////////////////////////////////////////
+        //                  SSAO
+        //////////////////////////////////////////////////////////
+
 
         if (id != 50 && id != 51 && depth != 1) {
 
