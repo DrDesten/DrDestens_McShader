@@ -194,7 +194,7 @@ void main() {
     vec3  color = getAlbedo(coord);
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
-    
+
         float depth = getDepth(coord);
         float id    = getID(coord);
 
