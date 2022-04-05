@@ -83,7 +83,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
 
     if (clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
-        return vec4(getFog(reflection), 0);
+        return vec4(getFog(toPlayerEye(reflection)), 0);
     }
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
 }
@@ -93,7 +93,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFog(viewReflection - pos.view), 0);
+        return vec4(getFog(toPlayerEye(viewReflection - pos.view)), 0);
     }
 
     // Project to Screen Space
@@ -159,7 +159,7 @@ vec4 efficientSSR(position pos, vec3 normal) {
     vec3 viewReflection = reflection + pos.view;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
-        return vec4(getFog(reflection), 0);
+        return vec4(getFog(toPlayerEye(reflection)), 0);
     }
 
     vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
@@ -190,7 +190,7 @@ vec4 efficientSSR(position pos, vec3 normal) {
 
     }
 
-    return vec4(getFog(reflection), 0);
+    return vec4(getFog(toPlayerEye(reflection)), 0);
 }
 
 
