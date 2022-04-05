@@ -61,7 +61,7 @@ vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     vec3  zaehl = D * G * F;
     float nenn  = 4 * NdotV * NdotL;
     vec3  spec  = zaehl / max(nenn, 0.01) * specular;
-    spec        = min(spec, 7);
+    spec        = min(spec, 5);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
 

@@ -67,9 +67,7 @@ uniform float lightBrightness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-const vec3 waterAbsorptionColor      = vec3(WATER_ABSORPTION_COLOR_DAY_R, WATER_ABSORPTION_COLOR_DAY_G, WATER_ABSORPTION_COLOR_DAY_B) * water_absorption_color_mult;
-const vec3 waterAbsorptionColorDay   = vec3(WATER_ABSORPTION_COLOR_DAY_R, WATER_ABSORPTION_COLOR_DAY_G, WATER_ABSORPTION_COLOR_DAY_B) * WATER_ABSORPTION_COLOR_MULT;
-const vec3 waterAbsorptionColorNight = vec3(WATER_ABSORPTION_COLOR_NIGHT_R, WATER_ABSORPTION_COLOR_NIGHT_G, WATER_ABSORPTION_COLOR_NIGHT_B) * WATER_ABSORPTION_COLOR_MULT;
+const vec3 waterAbsorptionColor = vec3(WATER_ABSORPTION_COLOR_DAY_R, WATER_ABSORPTION_COLOR_DAY_G, WATER_ABSORPTION_COLOR_DAY_B) * water_absorption_color_mult;
 
 struct position { // A struct for holding positions in different spaces
     vec3 screen;
@@ -293,19 +291,9 @@ void main() {
             vec4 reflection = CubemapStyleReflection(Positions, normal, false);
             #endif
 
-            /* vec3 fb = min( min(textureLod(colortex0, vec2(0.25), 9).rgb, textureLod(colortex0, vec2(0.75), 9).rgb),
-                      min(textureLod(colortex0, vec2(0.25, 0.75), 9).rgb, textureLod(colortex0, vec2(0.75, 0.25), 9).rgb) ); */
-            /* vec3 fb = textureLod(colortex0, vec2(0.25), 9).rgb +
-                      textureLod(colortex0, vec2(0.75), 9).rgb +
-                      textureLod(colortex0, vec2(0.25, 0.75), 9).rgb + 
-                      textureLod(colortex0, vec2(0.75, 0.25), 9).rgb;
-            fb *= 0.25; */
-            //reflection.rgb = mix(fb, reflection.rgb, reflection.a);
-
-            //color = reflection.rgb;
-
-            vec3 albedoTint = normalizeColor(color);
-            color = mix(color, reflection.rgb * albedoTint, fresnel * reflection.a);
+            /* vec3 albedoTint = normalizeColor(color);
+            color = mix(color, reflection.rgb * albedoTint, fresnel * reflection.a); */
+            color = mix(color, reflection.rgb, fresnel * reflection.a);
 
             #ifdef SSR_DEBUG
             color = vec3(fresnel, reflection.a, 0);
@@ -320,7 +308,8 @@ void main() {
     if (isEyeInWater == 1) {
 
         float absorption = exp(-linearDepth * (0.2 * WATER_ABSORPTION_DENSITY));
-        color            = mix(waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .1) * lightBrightness, color, absorption);
+        vec3  waterColor = waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * gamma(fogColor);
+        color            = mix(waterColor, color, absorption);
 
     } else if (isEyeInWater == 2) {
 
