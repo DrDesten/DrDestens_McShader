@@ -14,7 +14,7 @@ uniform int   taaIndex;
 
 uniform vec2 screenSizeInverse;
 
-out float blockId;
+flat out int blockId;
 #ifdef PHYSICALLY_BASED
 out vec3  viewpos;
 #endif
@@ -43,7 +43,7 @@ void main() {
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
-	blockId = getID(mc_Entity);
+	blockId = int(getID(mc_Entity));
 	glcolor = gl_Color;
 
 	glcolor.a *= oldLighting(tbn[2], gbufferModelView);

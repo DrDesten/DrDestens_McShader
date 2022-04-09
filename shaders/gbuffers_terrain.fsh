@@ -15,7 +15,7 @@ uniform ivec2 atlasSize;
 #endif
 #endif
 
-in float blockId;
+flat in int blockId;
 #ifdef PHYSICALLY_BASED
 in vec3  viewpos;
 #endif
