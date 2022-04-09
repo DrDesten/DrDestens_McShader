@@ -28,7 +28,7 @@ out vec2 lmcoord;
 out vec2 coord;
 out vec4 glcolor;
 
-out mat3 tbn;
+flat out mat3 tbn;
 
 void main() {
 	gl_Position = ftransform();

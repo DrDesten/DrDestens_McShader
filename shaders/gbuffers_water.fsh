@@ -18,7 +18,7 @@ in vec3 worldPos;
 in vec3 viewDir;
 
 in vec4 glcolor;
-in mat3 tbn;
+flat in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector

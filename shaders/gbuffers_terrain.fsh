@@ -24,7 +24,7 @@ in vec2  coord;
 
 in vec4  glcolor;
 
-in mat3 tbn;
+flat in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
@@ -35,7 +35,7 @@ in mat3 tbn;
 /* DRAWBUFFERS:023 */
 #endif
 void main() {
-	vec3  normal         = tbn[2];
+	vec3  normal = tbn[2];
 
 	vec4 color = texture2D(texture, coord, 0);
 	color.rgb *= glcolor.rgb;

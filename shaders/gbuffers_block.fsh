@@ -19,7 +19,7 @@ in vec2  lmcoord;
 in vec2  coord;
 in vec4  glcolor;
 
-in mat3 tbn;
+flat in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector

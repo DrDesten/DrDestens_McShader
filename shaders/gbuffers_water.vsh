@@ -20,7 +20,7 @@ out vec3 worldPos;
 out vec3 viewDir;
 
 out vec4 glcolor;
-out mat3 tbn;
+flat out mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector

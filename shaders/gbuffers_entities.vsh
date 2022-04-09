@@ -29,7 +29,7 @@ out vec4 glcolor;
 #ifdef FRAG_NORMALS
 out vec3 N;
 #else
-out mat3 tbn;
+flat out mat3 tbn;
 #endif
 
 void main() {

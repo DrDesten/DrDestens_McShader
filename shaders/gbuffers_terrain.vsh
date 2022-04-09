@@ -23,7 +23,7 @@ out vec2  coord;
 
 out vec4 glcolor;
 
-out mat3 tbn;
+flat out mat3 tbn;
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);

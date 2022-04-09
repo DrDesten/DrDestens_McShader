@@ -27,7 +27,7 @@ in vec4 glcolor;
 #ifdef FRAG_NORMALS
 	in vec3 N;
 #else
-	in mat3 tbn;
+	flat in mat3 tbn;
 	// tbn[0] = tangent vector
 	// tbn[1] = binomial vector
 	// tbn[2] = normal vector
