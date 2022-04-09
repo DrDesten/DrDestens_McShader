@@ -1,7 +1,7 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 
-varying vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
+flat in vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
 
 /* DRAWBUFFERS:03 */
 void main() {

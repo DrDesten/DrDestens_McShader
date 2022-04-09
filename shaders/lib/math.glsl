@@ -242,7 +242,7 @@ float fbm(vec2 x, int n) {
 	vec2 shift = vec2(100);
 
 	// Rotate to reduce axial bias
-    const mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+    const mat2 rot = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV));
 
 	for (int i = 0; i < n; ++i) {
 		v += a * noise(x);
@@ -258,7 +258,7 @@ float fbm(vec2 x, int n, float scale, float falloff) {
 	vec2 shift = vec2(100);
 
 	// Rotate to reduce axial bias
-    const mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+    const mat2 rot = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV));
 
 	for (int i = 0; i < n; ++i) {
 		v += a * noise(x);
