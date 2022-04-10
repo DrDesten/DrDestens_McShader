@@ -11,6 +11,8 @@ uniform float rainStrength;
 #include "/lib/sky.glsl"
 
 uniform vec3  lightPosition;
+uniform vec3  sunPosition;
+uniform vec3  moonPosition;
 uniform float frameTimeCounter;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,7 +60,7 @@ float fbmCloud(vec2 x, int n, float scale, float falloff, out vec3 normal) {
 		a *= falloff;
 	}
 
-    normal = normalize(vec3(noiseRight - v, noiseDown - v, dx));
+    normal = normalize(vec3(noiseRight - v, dx, noiseDown - v));
 	return v;
 }
 
@@ -72,38 +74,73 @@ void main() {
 
         #define CLOUD_COORD_DISTORT 7
         float sunBrightness = 1;
+        float moonBrightness = 1./16;
         vec3  cloudNormal;
 
+        // CLOUD SHAPE AND GENERATION //////////////////////////////////////////////////////////////////////////////
+
+        // Necessary Positions for Cloud Calculations
         vec3 viewPos      = toView(screenPos * 2 - 1);
         vec3 viewDir      = normalize(viewPos);
         vec3 playerEyePos = toPlayerEye(viewPos);
-        vec3 skyColor     = getSky(playerEyePos);
+        vec3 playerEyeDir = normalize(playerEyePos);
 
-        vec3  playerEyeDirDistort = normalize(playerEyePos * vec3(1,CLOUD_COORD_DISTORT,1));
-        vec2  cloudCoord  = playerEyeDirDistort.xz * CLOUD_COORD_DISTORT + (frameTimeCounter * 0.03);
+        // Normalized Light Positions
+        vec3 sunDir  = normalize(sunPosition);
+        vec3 moonDir = normalize(moonPosition);
+
+        // Get Coordinates for clouds
+        vec2 cloudCoord = normalize(playerEyePos * vec3(1,CLOUD_COORD_DISTORT,1)).xz;
+        cloudCoord      = cloudCoord * CLOUD_COORD_DISTORT + (frameTimeCounter * 0.03);
+
+        // Sample Noise and get Cloud Surface Normals
         float cloudHeight = fbmCloud(cloudCoord, 6, 3.75, 0.3, cloudNormal);
         cloudHeight       = saturate(cloudHeight * 1.75 - 0.75) * 5;
 
+        // Blend factor that determines the blending factor between clouds and sky
         float isCloud = 1 - exp(-cloudHeight);
-        isCloud      *= saturate(playerEyeDirDistort.y * (10/CLOUD_COORD_DISTORT)); // Cloud horizon
+        isCloud      *= saturate(playerEyeDir.y * 3); // Cloud horizon
 
-        float sunDotView = dot(normalize(lightPosition), viewDir);
 
-        float volumeAlongRay     = sq(cloudHeight) * (abs(sunDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
-        float visibilityAlongRay = exp(-volumeAlongRay);
-        float anisotropicScatter = KleinNishina(sunDotView, 100) * visibilityAlongRay * 10;
-        float diffuseCloud       = dot(normalize(toPlayerEye(lightPosition) * vec3(1,CLOUD_COORD_DISTORT,1)), cloudNormal) * -0.5 + 0.5;
+        // CLOUD LIGHTING ////////////////////////////////////////////////////////////////////////////////////////
 
-        vec3 cloudColor = vec3(anisotropicScatter + diffuseCloud) * sunBrightness;
+        #define LIGHT_TRANSITION_PERIOD 0.1
+        float cloudBrightness = 0;
+        float sunContribution  = saturate(((0.5 + LIGHT_TRANSITION_PERIOD) - daynight) * (1./LIGHT_TRANSITION_PERIOD));
+        float moonContribution = saturate((daynight - (0.5 - LIGHT_TRANSITION_PERIOD)) * (1./LIGHT_TRANSITION_PERIOD));
+
+
+        if (sunContribution > 0) {
+            float sunDotView = dot(sunDir, viewDir);
+
+            float volumeAlongRay     = sq(cloudHeight) * (abs(sunDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
+            float visibilityAlongRay = exp(-volumeAlongRay);
+            float anisotropicScatter = KleinNishina(sunDotView, 100) * visibilityAlongRay * 10;
+            float diffuseCloud       = dot(toPlayerEye(sunDir), cloudNormal) * -0.5 + 0.5;
+
+            cloudBrightness += (anisotropicScatter + diffuseCloud) * sunBrightness * sunContribution;
+        }
+        if (moonContribution > 0) {
+            float moonDotView = dot(moonDir, viewDir);
+
+            float volumeAlongRay     = sq(cloudHeight) * (abs(moonDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
+            float visibilityAlongRay = exp(-volumeAlongRay);
+            float anisotropicScatter = KleinNishina(moonDotView, 100) * visibilityAlongRay * 10;
+            float diffuseCloud       = dot(toPlayerEye(moonDir), cloudNormal) * -0.5 + 0.5;
+
+            cloudBrightness += (anisotropicScatter + diffuseCloud) * moonBrightness * moonContribution;
+        }
 
         #ifdef OVERWORLD
         // Sun and Moon disappear under the horizon
-        color *= saturate(playerEyeDirDistort.y * (10/CLOUD_COORD_DISTORT) + 0.75);
+        color *= saturate(playerEyeDir.y * 1.5 + 0.3);
         #endif
 
-        color = mix(color * (1-isCloud) + skyColor, cloudColor, isCloud);
+        vec3 skyColor = getSky(playerEyePos);
+        color = mix(color * (1-isCloud) + skyColor, vec3(cloudBrightness), isCloud);
 
         //color = vec3(cloudNormal.xy * 0.5 + 0.5, 0);
+
 
     } else { // NO SKY
 
