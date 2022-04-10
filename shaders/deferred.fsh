@@ -72,8 +72,8 @@ void main() {
     
     if (depth >= 1) { // SKY
 
-        #define CLOUD_COORD_DISTORT 7
-        float sunBrightness = 1;
+        #define CLOUD_COORD_DISTORT 15
+        float sunBrightness  = 1;
         float moonBrightness = 1./16;
         vec3  cloudNormal;
 
@@ -91,10 +91,10 @@ void main() {
 
         // Get Coordinates for clouds
         vec2 cloudCoord = normalize(playerEyePos * vec3(1,CLOUD_COORD_DISTORT,1)).xz;
-        cloudCoord      = cloudCoord * CLOUD_COORD_DISTORT + (frameTimeCounter * 0.03);
+        cloudCoord      = cloudCoord * (0.5 * CLOUD_COORD_DISTORT) + (frameTimeCounter * 0.02);
 
         // Sample Noise and get Cloud Surface Normals
-        float cloudHeight = fbmCloud(cloudCoord, 6, 3.75, 0.3, cloudNormal);
+        float cloudHeight = fbmCloud(cloudCoord, 6, 3, 0.3, cloudNormal);
         cloudHeight       = saturate(cloudHeight * 1.75 - 0.75) * 5;
 
         // Blend factor that determines the blending factor between clouds and sky
@@ -137,7 +137,7 @@ void main() {
         #endif
 
         vec3 skyColor = getSky(playerEyePos);
-        color = mix(color * (1-isCloud) + skyColor, vec3(cloudBrightness), isCloud);
+        color = mix(color * sq(1-isCloud) + skyColor, vec3(cloudBrightness), isCloud);
 
         //color = vec3(cloudNormal.xy * 0.5 + 0.5, 0);
 
