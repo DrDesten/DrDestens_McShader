@@ -286,13 +286,13 @@ void main() {
 
             vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
             vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);
-            vec2 noise = vec2(
+            vec2 valueNoise = vec2(
                 fbm(seed1, 2, 5, .05), 
                 fbm(seed2, 2, 5, .05)
             );
-            noise = normalize(noise - .25) * isInvisibleSmooth * 0.05;
+            valueNoise = normalize(valueNoise - .25) * isInvisibleSmooth * 0.05;
 
-            color = vectorBlur(coord + noise, -(noise * Bayer4(coord * screenSize)), 5);
+            color = vectorBlur(coord + valueNoise, -(valueNoise * Bayer4(coord * screenSize)), 5);
         }
 
     #endif

@@ -386,7 +386,7 @@ const vec3 half_sphere_16[16] = vec3[](
 //              OTHER KERNELS
 //////////////////////////////////////////////////////
 
-// This kernel is progressive. Any sample count will return an even spread of noise
+// This kernel is progressive. Any sample count will return an even spread of valueNoise
 const vec2 blue_noise_disk[64] = vec2[](
     vec2(0.478712,0.875764),
     vec2(-0.337956,-0.793959),

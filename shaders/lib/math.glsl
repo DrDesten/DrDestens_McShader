@@ -187,7 +187,7 @@ float Bayer2(vec2 a) {
 #define Bayer32(a)  (Bayer16(0.5 * (a)) * 0.25 + Bayer2(a))
 #define Bayer64(a)  (Bayer32(0.5 * (a)) * 0.25 + Bayer2(a))
 
-float ign(vec2 co) { // Interlieved Gradient Noise, very noice noise ( ͡° ͜ʖ ͡°)
+float ign(vec2 co) { // Interlieved Gradient Noise, very noice valueNoise ( ͡° ͜ʖ ͡°)
     vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
     return fract( magic.z * fract( dot(co, magic.xy) ) );
 }
@@ -201,39 +201,89 @@ float checkerboard(vec2 co) {
     return fract(co.x * 0.5 + co.y * 0.5);
 }
 
-float rand(float x) {
+float rand1(float x) {
     return fract(sin(x * 12.9898) * 4375.5453123);
 }
-float rand(vec2 x) {
+float rand1(vec2 x) {
     return fract(sin(x.x * 12.9898 + x.y * 78.233) * 4375.5453);
 }
 
-vec2 N22(vec2 x) {
-    return vec2(rand(x - 5), rand(x + 5));
+vec2 rand2(vec2 x) {
+    return vec2(rand1(x - 5), rand1(x + 5));
+}
+vec2 randnv(vec2 x) {
+    float rot = rand1(x) * TWO_PI;
+    return vec2(cos(rot), sin(rot));
 }
 
-float noise(vec2 x) {
+float valueNoiseLinear(vec2 x) {
     vec2 i = floor(x);
     vec2 f = fract(x);
 
 	// Four corners in 2D of a tile
-	float a = rand(i);
-    float b = rand(i + vec2(1.0, 0.0));
-    float c = rand(i + vec2(0.0, 1.0));
-    float d = rand(i + vec2(1.0, 1.0));
+	float a = rand1(i);
+    float b = rand1(i + vec2(1.0, 0.0));
+    float c = rand1(i + vec2(0.0, 1.0));
+    float d = rand1(i + vec2(1.0, 1.0));
+
+    return mix(
+        mix(a, b, f.x),
+        mix(c, d, f.x),
+        f.y
+    );
+}
+
+float valueNoise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+
+	// Four corners in 2D of a tile
+	float a = rand1(i);
+    float b = rand1(i + vec2(1.0, 0.0));
+    float c = rand1(i + vec2(0.0, 1.0));
+    float d = rand1(i + vec2(1.0, 1.0));
 
     vec2 u = f * f * (3.0 - 2.0 * f);
 	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
-float noise(float x) {
+float valueNoise(float x) {
     float i = floor(x);
     float f = fract(x);
 
 	// Two connecting points
-	float a = rand(i);
-    float b = rand(i + 1.0);
+	float a = rand1(i);
+    float b = rand1(i + 1.0);
 
 	return smoothstep(a, b, f);
+}
+
+float perlinNoise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+
+	// Four corners in 2D of a tile
+	vec2 a = randnv(i);
+    vec2 b = randnv(i + vec2(1.0, 0.0));
+    vec2 c = randnv(i + vec2(0.0, 1.0));
+    vec2 d = randnv(i + vec2(1.0, 1.0));
+
+    // Offset Vectors
+    vec2 oa = f;
+    vec2 ob = f - vec2(1.0, 0.0);
+    vec2 oc = f - vec2(0.0, 1.0);
+    vec2 od = f - vec2(1.0, 1.0);
+
+    // Dot products
+    float da = dot(a,oa);
+    float db = dot(b,ob);
+    float dc = dot(c,oc);
+    float dd = dot(d,od);
+
+    return mix(
+        mix(da, db, f.x),
+        mix(dc, dd, f.x),
+        f.y
+    );
 }
 
 float fbm(vec2 x, int n) {
@@ -245,7 +295,7 @@ float fbm(vec2 x, int n) {
     const mat2 rot = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV));
 
 	for (int i = 0; i < n; ++i) {
-		v += a * noise(x);
+		v += a * valueNoise(x);
 		x  = rot * x * 2.0 + shift;
 		a *= 0.5;
 	}
@@ -261,7 +311,7 @@ float fbm(vec2 x, int n, float scale, float falloff) {
     const mat2 rot = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV));
 
 	for (int i = 0; i < n; ++i) {
-		v += a * noise(x);
+		v += a * valueNoise(x);
 		x  = rot * x * scale + shift;
 		a *= falloff;
 	}
@@ -289,7 +339,7 @@ float voronoiSmooth(vec2 coord, float size, int complexity, float time) {
             vec2 relUV = guv - offset;
             
             // Get Random Point (adjust to range (-.5, .5))
-            vec2 p     = N22(id) - .5;
+            vec2 p     = rand2(id) - .5;
             p          = vec2(sin(time * p.x), cos(time * p.y)) * .5;
             
             // Calculate Distance bewtween point and relative UVs)
@@ -328,7 +378,7 @@ float voronoi(vec2 coord, int search_radius) {
             vec2 relUV = guv - offset;
             
             // Get Random Point (adjust to range (-.5, .5))
-            vec2 p     = N22(id) - .5;
+            vec2 p     = rand2(id) - .5;
             
             // Calculate Distance bewtween point and relative UVs)
             vec2 tmp   = p - relUV;

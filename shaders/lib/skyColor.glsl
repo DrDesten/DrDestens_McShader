@@ -29,7 +29,7 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
         vec3  playerEyePos = mat3(gbufferModelViewInverse) * viewPos;
         float viewHeight   = clamp(playerEyePos.y / sqrt(dot(playerEyePos, playerEyePos)) * 0.55 + 0.45, 0, 1);
 
-        float offset       = noise(vec2(atan(abs(playerEyePos.z / playerEyePos.x))) * PI);
+        float offset       = valueNoise(vec2(atan(abs(playerEyePos.z / playerEyePos.x))) * PI);
         offset            *= 1 - sq(viewHeight * 2 - 1);
         offset             = offset * 0.1 - 0.05;
         viewHeight         = saturate(viewHeight + offset);

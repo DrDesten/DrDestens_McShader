@@ -37,32 +37,35 @@ float fbmCloud(vec2 x, int n, float scale, float falloff) {
     const mat2 rot = mat2(cos(PHI_INV*0.5), sin(PHI_INV*0.5), -sin(PHI_INV*0.5), cos(PHI_INV*0.5));
 
 	for (int i = 0; i < n; ++i) {
-		v += a * noise(x);
+		v += a * valueNoise(x);
 		x  = rot * x * scale + shift;
 		a *= falloff;
 	}
 	return v;
 }
-float fbmCloud(vec2 x, int n, float scale, float falloff, out vec3 normal) {
+float fbmCloud(vec2 x, out vec3 normal) {
 	float v = 0.0;
-	float a = 1.0 - (1. / scale);
+	float a = 1.0;
 	vec2 shift = vec2(50);
 
 	// Rotate to reduce axial bias
-    const mat2 rot = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV));
+    const mat2 rots = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV)) * CLOUD_NOISE_OCTAVE_SCALE;
 
     const float dx = 0.5;
-    float noiseRight  = noise(x + vec2(dx, 0));
-    float noiseDown   = noise(x + vec2(0, dx));
+    float noiseRight  = valueNoise(x + vec2(dx, 0));
+    float noiseDown   = valueNoise(x + vec2(0, dx));
 
-	for (int i = 0; i < n; ++i) {
-		v += a * noise(x);
-		x  = rot * x * scale + shift;
-		a *= falloff;
+	for (int i = 0; i < CLOUD_NOISE_DETAIL; ++i) {
+		v += a * valueNoise(x);
+		x  = shift + rots * x;
+		a *= CLOUD_NOISE_FALLOFF;
 	}
+    
+    const float exponent = 1./CLOUD_NOISE_FALLOFF;
+    const float factor  = (exponent-1) / (exponent - pow(exponent, 1-CLOUD_NOISE_DETAIL));
 
     normal = normalize(vec3(noiseRight - v, dx, noiseDown - v));
-	return v;
+	return v * factor;
 }
 
 /* DRAWBUFFERS:0 */
@@ -76,7 +79,7 @@ void main() {
         #ifdef OVERWORLD
 
         float sunBrightness  = 2;
-        float moonBrightness = 1./25;
+        float moonBrightness = 1./50;
         vec3  cloudNormal;
 
         // CLOUD SHAPE AND GENERATION //////////////////////////////////////////////////////////////////////////////
@@ -98,7 +101,7 @@ void main() {
         cloudCoord      = cameraPosition.xz * (1./(CLOUD_HEIGHT)) + cloudCoord;
 
         // Sample Noise and get Cloud Surface Normals
-        float cloudHeight = fbmCloud(cloudCoord, CLOUD_NOISE_DETAIL, CLOUD_NOISE_OCTAVE_SCALE, CLOUD_NOISE_FALLOFF, cloudNormal);
+        float cloudHeight = fbmCloud(cloudCoord, cloudNormal);
         cloudHeight       = saturate(
             mix( cloudHeight * (1./CLOUD_COVERAGE) - ((1./CLOUD_COVERAGE)-1),
                  cloudHeight, cloudCoverageSmooth )
@@ -117,26 +120,26 @@ void main() {
         float sunContribution  = saturate(((0.5 + CLOUD_LIGHT_TRANSITION_PERIOD) - daynight) * (.5/CLOUD_LIGHT_TRANSITION_PERIOD));
         float moonContribution = saturate((daynight - (0.5 - CLOUD_LIGHT_TRANSITION_PERIOD)) * (.5/CLOUD_LIGHT_TRANSITION_PERIOD));
 
+        vec3  sunDirPlayerEye    = toPlayerEye(sunDir);
+        float sunDotView         = dot(sunDir, viewDir);
+        float volumeAlongRay     = sq(cloudHeight) * (abs(sunDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
+        float visibilityAlongRay = exp(-volumeAlongRay);
+        float visibility         = exp(-cloudHeight);
+ 
 
         if (sunContribution > 0) {
-            float sunDotView = dot(sunDir, viewDir);
-
-            float volumeAlongRay     = sq(cloudHeight) * (abs(sunDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
-            float visibilityAlongRay = exp(-volumeAlongRay);
-            float anisotropicScatter = KleinNishina(sunDotView, 500) * visibilityAlongRay * 5;
-            float diffuseCloud       = dot(toPlayerEye(sunDir), cloudNormal) * -0.5 + 0.5;
-
-            cloudBrightness += (anisotropicScatter + diffuseCloud) * sunBrightness * sunContribution;
+            float anisotropicScatter = KleinNishina(sunDotView, 500) * visibilityAlongRay;
+            float diffuseCloud       = dot(sunDirPlayerEye, cloudNormal) * -0.5 + 0.5;
+            cloudBrightness         += (anisotropicScatter + diffuseCloud) * sunBrightness * sunContribution;
         }
         if (moonContribution > 0) {
-            float moonDotView = dot(moonDir, viewDir);
+            //float moonDotView = dot(moonDir, viewDir); moonDotView == -sunDotView
+            //float volumeAlongRay     = sq(cloudHeight) * (abs(moonDotView) * (2 - HALF_PI) + HALF_PI); Since moonDotView == -sunDotView, abs() makes no difference
+            //float visibilityAlongRay = exp(-volumeAlongRay); Same goes for here
 
-            float volumeAlongRay     = sq(cloudHeight) * (abs(moonDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
-            float visibilityAlongRay = exp(-volumeAlongRay);
-            float anisotropicScatter = KleinNishina(moonDotView, 500) * visibilityAlongRay * 5;
-            float diffuseCloud       = dot(toPlayerEye(moonDir), cloudNormal) * -0.5 + 0.5;
-
-            cloudBrightness += (anisotropicScatter + diffuseCloud) * moonBrightness * moonContribution;
+            float anisotropicScatter = KleinNishina(-sunDotView, 500) * visibilityAlongRay;
+            float diffuseCloud       = dot(-sunDirPlayerEye, cloudNormal) * -0.5 + 0.5;
+            cloudBrightness         += (anisotropicScatter + diffuseCloud) * moonBrightness * moonContribution;
         }
 
         // Sun and Moon disappear under the horizon

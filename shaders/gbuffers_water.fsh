@@ -45,7 +45,7 @@ vec2 worley(vec2 coord, float size, int complexity, float time) {
             vec2 relUV = guv - offset;
             
             // Get Random Point (adjust to range (-.5, .5))
-            vec2 p     = N22(id) - .5;
+            vec2 p     = rand2(id) - .5;
             p          = vec2(sin(time * p.x), cos(time * p.y)) * .5;
             
             // Calculate Distance bewtween point and relative UVs)
@@ -88,7 +88,7 @@ float voronoi(vec2 coord, float size, int complexity, float time) {
             vec2 relUV = guv - offset;
             
             // Get Random Point (adjust to range (-.5, .5))
-            vec2 p     = N22(id) - .5;
+            vec2 p     = rand2(id) - .5;
             p          = vec2(sin(time * p.x), cos(time * p.y)) * .5;
             
             // Calculate Distance bewtween point and relative UVs)
@@ -169,7 +169,7 @@ void main(){
             
             // "Fake" Waves
             vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-            float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
+            float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high valueNoise
             vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
 
             surfaceNormal      = normalize(tbn * noiseNormals);
