@@ -124,7 +124,7 @@ option.SSAO_STRENGTH=SSAO Strength
 screen.TAA_OPTIONS=TAA Options
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
-option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
+option.TAA_BLEND.comment=Controls the opacity of the current frame. Set this value lower for smoother TAA.
 option.TAA_SHARPENING_AMOUNT=TAA Sharpening
 option.TAA_SHARPENING_AMOUNT.comment=Changes the strength of the sharpening effect.
 
@@ -170,7 +170,7 @@ option.POM_SMOOTH.comment=Smooths out the height map. Significantly reduces arti
 option.PBR_AMBIENT_LIGHT_MULTIPLIER=Ambient light multiplier
 
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmaps
-option.DIRECTIONAL_LIGHTMAP.comment=Applies normal mapping to dynamic lights. Requires a ressource pack with PBR support.
+option.DIRECTIONAL_LIGHTMAP.comment=Applies normal mapping to dynamic lights. Requires a resource pack with PBR support.
 option.DIRECTIONAL_LIGHTMAP_STRENGTH=Directional Lightmap Strength
 
 ///////////////////////////////////////////////////////////
@@ -214,6 +214,24 @@ option.END_SKY_DOWN_B=End Sky Lower §9B
 
 option.sunPathRotation=Sun Angle
 suffix.sunPathRotation=°
+
+option.CLOUDS=Clouds
+screen.CLOUD_OPTIONS=Cloud Options
+
+option.CLOUD_HEIGHT=Cloud Height
+option.CLOUD_SPEED=Cloud Speed
+option.CLOUD_COVERAGE=Cloud Coverage
+option.CLOUD_COVERAGE.comment=1.0: 100% Clouds. 0.0: 0% Clouds
+option.CLOUD_SCALE=Cloud Scale
+option.CLOUD_THICKNESS=Cloud Thickness
+option.CLOUD_NOISE_DETAIL=Cloud Noise Detail
+option.CLOUD_NOISE_DETAIL.comment=Amount of noise iterations. Medium performance impact.
+option.CLOUD_NOISE_FALLOFF=Cloud Noise Octave Falloff
+option.CLOUD_NOISE_FALLOFF.comment=Importance of each successive noise iteration. Lower values create smoother and bigger clouds, higher values chaotic and small cloud patches.
+option.CLOUD_NOISE_OCTAVE_SCALE=Cloud Noise Octave Scale
+option.CLOUD_NOISE_OCTAVE_SCALE.comment=Scale of each successive noise iteration. Higher values increase perceived detail, but can introduce artifacts.
+option.CLOUD_LIGHT_TRANSITION_PERIOD=Cloud Light Transition
+option.CLOUD_LIGHT_TRANSITION_PERIOD.comment=Amount of time it takes for the cloud light to transition from sun to moon.
 
 ///////////////////////////////////////////////////////////
 // CAMERA

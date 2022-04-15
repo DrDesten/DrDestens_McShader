@@ -78,6 +78,8 @@ void main() {
 
         #ifdef OVERWORLD
 
+        #ifdef CLOUDS
+
         const float sunBrightness  = 2;
         const float moonBrightness = 1./50;
         vec3  cloudNormal;
@@ -155,6 +157,14 @@ void main() {
 
         vec3 skyColor = getSky(saturate(playerEyeDir.y));
         color = mix(color * sq(1-isCloud) + skyColor, cloudBrightness * ambientColor, isCloud);
+
+        #else
+
+        // Sun and Moon (and Stars) disappear under the horizon
+        color *= saturate(playerEyeDir.y * 1.5 + 0.2);
+        color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+
+        #endif
 
         #else
 
