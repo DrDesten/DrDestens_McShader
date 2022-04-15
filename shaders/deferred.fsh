@@ -78,8 +78,8 @@ void main() {
 
         #ifdef OVERWORLD
 
-        float sunBrightness  = 2;
-        float moonBrightness = 1./50;
+        const float sunBrightness  = 2;
+        const float moonBrightness = 1./50;
         vec3  cloudNormal;
 
         // CLOUD SHAPE AND GENERATION //////////////////////////////////////////////////////////////////////////////
@@ -95,9 +95,9 @@ void main() {
         vec3 moonDir = normalize(moonPosition);
 
         // Get Coordinates for clouds
-        vec3 cloudSpace = normalize(playerEyePos * vec3(1,CLOUD_COORD_DISTORT + (cameraPosition.y * (10./CLOUD_HEIGHT)),1));
+        vec3 cloudSpace = normalize(playerEyePos * vec3(1,CLOUD_COORD_DISTORT + (cameraPosition.y * (5./CLOUD_HEIGHT)),1));
         vec2 cloudCoord = cloudSpace.xz;
-        cloudCoord      = cloudCoord * (CLOUD_SCALE * CLOUD_COORD_DISTORT) + (frameTimeCounter * (0.02 * CLOUD_SPEED));
+        cloudCoord      = cloudCoord * (CLOUD_SCALE * (CLOUD_HEIGHT / 256) * CLOUD_COORD_DISTORT) + (frameTimeCounter * (0.02 * CLOUD_SPEED));
         cloudCoord      = cameraPosition.xz * (1./(CLOUD_HEIGHT)) + cloudCoord;
 
         // Sample Noise and get Cloud Surface Normals
