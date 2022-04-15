@@ -51,7 +51,7 @@ float fbmCloud(vec2 x, out vec3 normal) {
 	// Rotate to reduce axial bias
     const mat2 rots = mat2(cos(PHI_INV), sin(PHI_INV), -sin(PHI_INV), cos(PHI_INV)) * CLOUD_NOISE_OCTAVE_SCALE;
 
-    const float dx = 0.5;
+    const float dx = 0.25;
     float noiseRight  = valueNoise(x + vec2(dx, 0));
     float noiseDown   = valueNoise(x + vec2(0, dx));
 
@@ -123,29 +123,37 @@ void main() {
         vec3  sunDirPlayerEye    = toPlayerEye(sunDir);
         float sunDotView         = dot(sunDir, viewDir);
         float volumeAlongRay     = sq(cloudHeight) * (abs(sunDotView) * (2 - HALF_PI) + HALF_PI); // How thick is the cloud along the view ray in direction to the light source
-        float visibilityAlongRay = exp(-volumeAlongRay);
-        float visibility         = exp(-cloudHeight);
- 
+        float visibilityAlongRay = exp(-volumeAlongRay * CLOUD_DENSITY);
+        float visibility         = exp(-cloudHeight * CLOUD_DENSITY);
+        float diffuseCloud       = dot(sunDirPlayerEye, cloudNormal);
 
         if (sunContribution > 0) {
-            float anisotropicScatter = KleinNishina(sunDotView, 500) * visibilityAlongRay;
-            float diffuseCloud       = dot(sunDirPlayerEye, cloudNormal) * -0.5 + 0.5;
-            cloudBrightness         += (anisotropicScatter + diffuseCloud) * sunBrightness * sunContribution;
+
+            float anisotropicScatter = KleinNishina(sunDotView, 800) * visibilityAlongRay;
+            float interpolator       = smootherstep(-diffuseCloud);
+            float densityMixFactor   = visibility * (1 - interpolator) + interpolator;
+            cloudBrightness         += (
+                (diffuseCloud * -0.5 + 0.5) * densityMixFactor +
+                anisotropicScatter
+            ) * sunBrightness * sunContribution;
+
         }
         if (moonContribution > 0) {
-            //float moonDotView = dot(moonDir, viewDir); moonDotView == -sunDotView
-            //float volumeAlongRay     = sq(cloudHeight) * (abs(moonDotView) * (2 - HALF_PI) + HALF_PI); Since moonDotView == -sunDotView, abs() makes no difference
-            //float visibilityAlongRay = exp(-volumeAlongRay); Same goes for here
 
-            float anisotropicScatter = KleinNishina(-sunDotView, 500) * visibilityAlongRay;
-            float diffuseCloud       = dot(-sunDirPlayerEye, cloudNormal) * -0.5 + 0.5;
-            cloudBrightness         += (anisotropicScatter + diffuseCloud) * moonBrightness * moonContribution;
+            float anisotropicScatter = KleinNishina(-sunDotView, 800) * visibilityAlongRay;
+            float interpolator       = smootherstep(diffuseCloud);
+            float densityMixFactor   = visibility * (1 - interpolator) + interpolator;
+            cloudBrightness         += (
+                (diffuseCloud * 0.5 + 0.5) * densityMixFactor +
+                anisotropicScatter
+            ) * moonBrightness * moonContribution;
+
         }
 
-        // Sun and Moon disappear under the horizon
+        // Sun and Moon (and Stars) disappear under the horizon
         color *= saturate(playerEyeDir.y * 1.5 + 0.2);
 
-        vec3 skyColor = getSky(playerEyeDir.y);
+        vec3 skyColor = getSky(saturate(playerEyeDir.y));
         color = mix(color * sq(1-isCloud) + skyColor, cloudBrightness * ambientColor, isCloud);
 
         #else
