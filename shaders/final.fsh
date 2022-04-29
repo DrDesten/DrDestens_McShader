@@ -105,6 +105,10 @@ vec3 lanczos(vec2 coord, int r) {
 }
 
 void main() {
+    #if SUPER_SECRET_SETTING == 1
+    coord += sin(coord.x * TWO_PI) * 0.1;
+    #endif
+
     #ifdef TAA
         float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.25 * TAA_SHARPENING_AMOUNT, 1.0) * TAA_SHARPENING_AMOUNT;
         //vec3  color = sharpen2(coord, sharpen_amount);

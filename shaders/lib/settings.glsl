@@ -214,3 +214,5 @@ const float water_absorption_color_mult = WATER_ABSORPTION_COLOR_MULT * WATER_AB
 #define CREDITS 0 // [0 1]
 #ifdef CREDITS
 #endif
+
+#define SUPER_SECRET_SETTING 0 // [0 1]
