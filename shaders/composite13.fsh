@@ -189,7 +189,7 @@ float squareVignette(vec2 coord) {
 void main() {
     
     if (getID(coord) == 53) {
-        float depth = pow(getDepth(coord), 50);
+        float depth = pow(getDepth(coord), 250);
         coord      += depth * 0.1 * -.05;
     }
 
