@@ -1,4 +1,4 @@
-#define GAMMA 2.0
+#define GAMMA 2.2
 
 const float TWO_PI  = 6.2831853071795864769252867665590057683943387987502;
 const float PI      = 3.1415926535897932384626433832795028841971693993751;
@@ -209,7 +209,12 @@ float rand(vec2 x) {
 }
 
 vec2 N22(vec2 x) {
-    return vec2(rand(x - 5), rand(x + 5));
+    float t = rand(x);
+    return vec2(t, rand(t * 50 - 25));
+}
+vec2 N12(float x) {
+    float t = rand(x);
+    return vec2(t, rand(t * 50 - 25));
 }
 
 float noise(vec2 x) {
@@ -413,6 +418,10 @@ mat2 rotationMatrix2D(float angle) {
     float ca = cos(angle);
     float sa = sin(angle);
     return mat2(ca, sa, -sa, ca);
+}
+
+vec2 angleToVector(float angle) {
+    return vec2(cos(angle), sin(angle));
 }
 
 vec3 arbitraryTangent(vec3 normal) {

@@ -1,5 +1,3 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
@@ -191,7 +189,7 @@ float SSAO(vec3 screenPos, float radius) {
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3  color = getAlbedo(coord);
+    vec3 color = getAlbedo(coord);
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
@@ -209,7 +207,7 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color        *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 

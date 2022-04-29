@@ -10,6 +10,8 @@
 uniform sampler2D colortex4;
 #endif
 
+uniform float frameTimeCounter;
+
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 
@@ -185,6 +187,11 @@ float squareVignette(vec2 coord) {
 
 /* DRAWBUFFERS:0 */
 void main() {
+    
+    if (getID(coord) == 53) {
+        float depth = pow(getDepth(coord), 50);
+        coord      += depth * 0.1 * -.05;
+    }
 
     #if CHROMATIC_ABERRATION != 0
         vec3 color = ChromaticAbberation_HQ(coord, chromaticAberrationSimple, 5);

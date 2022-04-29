@@ -118,7 +118,7 @@ void main() {
 
     // Remove Banding (yay)
     const float displayPrecision = 1./255.;
-    color                       += (Bayer4(coord * screenSize) - .5) * displayPrecision;
+    color += (Bayer4(coord * screenSize) - .5) * displayPrecision;
 
     gl_FragColor = vec4(color, 1.0);
 }
