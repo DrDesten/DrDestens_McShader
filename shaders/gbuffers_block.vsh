@@ -15,8 +15,8 @@ attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
 #ifdef TAA
-uniform int  taaIndex;
-uniform vec2 screenSizeInverse;
+ uniform int  taaIndex;
+ uniform vec2 screenSizeInverse;
 #endif
 
 out float blockId;

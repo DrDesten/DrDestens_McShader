@@ -10,9 +10,11 @@ attribute vec4 at_tangent;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
-uniform int   taaIndex;
 
-uniform vec2 screenSizeInverse;
+#ifdef TAA
+ uniform int  taaIndex;
+ uniform vec2 screenSizeInverse;
+#endif
 
 flat out int blockId;
 #ifdef PHYSICALLY_BASED

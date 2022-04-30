@@ -4,8 +4,8 @@
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
-uniform int  taaIndex;
-uniform vec2 screenSizeInverse;
+ uniform int  taaIndex;
+ uniform vec2 screenSizeInverse;
 #endif
 
 out vec2 lmcoord;

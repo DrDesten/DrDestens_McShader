@@ -10,8 +10,8 @@ attribute vec4 at_tangent;
 uniform mat4 gbufferModelView;
 
 #ifdef TAA
-uniform int  taaIndex;
-uniform vec2 screenSizeInverse;
+ uniform int  taaIndex;
+ uniform vec2 screenSizeInverse;
 #endif
 
 #ifdef PHYSICALLY_BASED
