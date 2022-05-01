@@ -140,7 +140,7 @@ void main() {
                 color  = getAlbedo(POMPos.xy);
 
                 float distFade = saturate(map(distSQ, 300, 500, 1, 0.2));
-                color *= texture(colortex1, POMPos.xy).g * distFade + (1 - distFade);
+                //color *= texture(colortex1, POMPos.xy).g * distFade + (1 - distFade);
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);

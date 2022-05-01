@@ -23,6 +23,6 @@ void main() {
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[2] = vec4(0, vec3(1));  // Reflectance
+	gl_FragData[2] = PBR_EMPTY; // pbr
 	#endif
 }

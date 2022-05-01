@@ -216,3 +216,8 @@ const float water_absorption_color_mult = WATER_ABSORPTION_COLOR_MULT * WATER_AB
 #endif
 
 #define SUPER_SECRET_SETTING 0 // [0 1]
+
+
+
+// CONSTANTS ///////////////////////////////////////////////////////////////////////////////////
+#define PBR_EMPTY vec4(0,1,1,1)
