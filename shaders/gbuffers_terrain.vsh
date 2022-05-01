@@ -12,7 +12,7 @@ uniform float frameTimeCounter;
 uniform int   frameCounter;
 
 #ifdef TAA
- uniform int  taaIndex;
+ uniform vec2 taaOffset;
  uniform vec2 screenSizeInverse;
 #endif
 
@@ -81,7 +81,7 @@ void main() {
 	#endif
 
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 
 

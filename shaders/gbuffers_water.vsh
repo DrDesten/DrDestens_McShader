@@ -4,16 +4,18 @@
 #include "/lib/vertex_transform.glsl"
 #include "/lib/vertex_lighting.glsl"
 
-uniform int   frameCounter;
-uniform int   taaIndex;
+
+#ifdef TAA
+ uniform vec2 taaOffset;
+ uniform vec2 screenSizeInverse;
+#endif
+
 uniform float frameTimeCounter;
-uniform vec2  screenSizeInverse;
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
 out float blockId;
-
 out vec2 coord;
 out vec2 lmcoord;
 out vec3 worldPos;
@@ -56,7 +58,7 @@ void main(){
 	#endif
 
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
 	#endif
 
 	tbn			 = getTBN(at_tangent);

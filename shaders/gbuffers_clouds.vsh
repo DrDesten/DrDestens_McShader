@@ -4,7 +4,7 @@
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
- uniform int  taaIndex;
+ uniform vec2 taaOffset;
  uniform vec2 screenSizeInverse;
 #endif
 
@@ -17,7 +17,7 @@ void main() {
 	vec4 clipPos = ftransform();
 
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[taaIndex] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		clipPos.xy += taaOffset * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
 	#endif
 	
 	gl_Position = clipPos;
