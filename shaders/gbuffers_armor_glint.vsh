@@ -17,7 +17,7 @@ void main() {
 	gl_Position = ftransform();
 
 	#ifdef TAA
-		clipPos.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 	
 	coord   = getCoord();
