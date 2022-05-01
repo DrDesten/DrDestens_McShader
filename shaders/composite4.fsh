@@ -59,7 +59,7 @@ vec4 textureSmoothstep(sampler2D sampler, vec2 coord, vec2 samplerSize, vec2 sam
 
 void main() {
     #ifdef TAA
-        vec2 jitterCoord = coord + taaOffset * TAA_JITTER_AMOUNT * screenSizeInverse;
+        vec2 jitterCoord = coord + taaOffset * TAA_JITTER_AMOUNT;
         vec3 color = getAlbedo(jitterCoord);
     #else
         vec3 color = getAlbedo(coord);

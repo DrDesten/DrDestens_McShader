@@ -10,7 +10,6 @@
 
 #ifdef TAA
  uniform vec2 taaOffset;
- uniform vec2 screenSizeInverse;
 #endif
 
 out vec3 normal;
@@ -25,7 +24,7 @@ void main() {
 	#endif
 	
 	#ifdef TAA
-		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 	
 	normal  = getNormal();

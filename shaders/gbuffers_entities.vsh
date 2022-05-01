@@ -14,7 +14,6 @@ attribute vec4 at_tangent;
 
 #ifdef TAA
  uniform vec2 taaOffset;
- uniform vec2 screenSizeInverse;
 #endif
 
 #ifdef PHYSICALLY_BASED
@@ -40,7 +39,7 @@ void main() {
 	#endif
 	
 	#ifdef TAA
-		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 	
 	#ifdef PHYSICALLY_BASED

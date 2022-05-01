@@ -11,7 +11,6 @@ uniform mat4 gbufferModelView;
 
 #ifdef TAA
  uniform vec2 taaOffset;
- uniform vec2 screenSizeInverse;
 #endif
 
 #ifdef PHYSICALLY_BASED
@@ -30,13 +29,11 @@ flat out mat3 tbn;
 #endif
 
 void main() {
-	vec4 clipPos = ftransform();
+	gl_Position = ftransform();
 	
 	#ifdef TAA
-		clipPos.xy += taaOffset * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		clipPos.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
-
-	gl_Position  = clipPos;
 
 	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
