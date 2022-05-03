@@ -7,6 +7,7 @@
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 #include "/lib/sky.glsl"
 

@@ -28,6 +28,7 @@ uniform float isInvisibleSmooth;
 #endif
 
 #if FOG != 0
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 uniform float far;
 #include "/lib/sky.glsl"

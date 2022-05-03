@@ -189,6 +189,9 @@ option.SUNSET_FOG=Morning Fog
 option.SUNSET_FOG.comment=Increases fog amount during sunsets. Only works with fog in "Normal" mode. Requires fog and sunsets to be enabled.
 option.SUNSET_FOG_AMOUNT=Morning Fog Strength
 
+option.CAVE_FOG=Cave Fog 
+option.CAVE_FOG_BRIGHTNESS=Cave Fog Brightness
+
 option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Samples

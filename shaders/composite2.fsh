@@ -46,6 +46,7 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 #include "/lib/composite/id.glsl"
 #include "/lib/transform.glsl"
 
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 #include "/lib/sky.glsl"
 
@@ -62,7 +63,6 @@ uniform float far;
 uniform float nearInverse;
 uniform float aspectRatio;
 
-uniform ivec2 eyeBrightnessSmooth;
 uniform float lightBrightness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;

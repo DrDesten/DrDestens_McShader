@@ -48,6 +48,9 @@ vec3 getSky(vec3 playerEyePos) {
         sky_down      = mix(sky_down, fogColor, rainStrength);
         
         color = mix(sky_down, sky_up, viewHeight); // Get sky
+        #ifdef CAVE_FOG
+        color = mix(vec3(CAVE_FOG_BRIGHTNESS), color, saturate(eyeBrightnessSmooth.y * (5./240))); // Get sky
+        #endif
 
     #endif
 
@@ -76,7 +79,10 @@ vec3 getSky(float viewHeight) {
         sky_down      = mix(sky_down, fogColor, rainStrength);
         
         color = mix(sky_down, sky_up, viewHeight); // Get sky
-
+        #ifdef CAVE_FOG
+        color = mix(vec3(CAVE_FOG_BRIGHTNESS), color, saturate(eyeBrightnessSmooth.y * (5./240))); // Get sky
+        #endif
+        
     #endif
 
     return pow(color, vec3(GAMMA));
