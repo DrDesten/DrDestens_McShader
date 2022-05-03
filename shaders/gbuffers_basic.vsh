@@ -26,7 +26,7 @@ void main() {
 		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
-	gl_Position.z -= 5e-4;
+	gl_Position.z -= 1e-4;
 
 	lmcoord = getLmCoord();
 	glcolor = gl_Color;

@@ -154,7 +154,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
 
 vec4 efficientSSR(position pos, vec3 normal) {
     vec3 reflection     = reflect(pos.vdir, normal);
-    vec3 viewReflection = reflection + pos.view;
+    vec3 viewReflection = pos.view + reflection;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
         return vec4(getFog(toPlayerEye(reflection)), 0);

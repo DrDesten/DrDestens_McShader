@@ -66,7 +66,6 @@ void main() {
     #endif
 
     float depth = getDepth(coord);
-    float id    = getID(coord);
 
     #ifdef TAA 
 
@@ -97,6 +96,8 @@ void main() {
     #endif
 
     #ifdef DEPTH_OF_FIELD
+
+        float id    = getID(coord);
 
         // Store CoC in the alpha channel for DOF pass
         float linearDepth  = linearizeDepth(depth, near, far);

@@ -48,7 +48,7 @@ void main() {
 	blockId = int(getID(mc_Entity));
 	glcolor = gl_Color;
 
-	if (!(mc_Entity.x == 1030 || mc_Entity.x == 1031 || mc_Entity.x == 1032)) glcolor.a *= oldLighting(tbn[2], gbufferModelView);
+	if (!(1030 <= mc_Entity.x && mc_Entity.x <= 1032)) glcolor.a *= oldLighting(tbn[2], gbufferModelView);
 	
 	#ifdef WAVY_BLOCKS
 
