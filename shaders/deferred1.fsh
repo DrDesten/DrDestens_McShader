@@ -207,17 +207,17 @@ void main() {
 
             #if   SSAO_QUALITY == 1
 
-                color      *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
                 vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 3
 
                 vec3 normal = getNormal(coord);
-                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #endif
             

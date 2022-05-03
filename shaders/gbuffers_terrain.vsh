@@ -10,6 +10,7 @@ attribute vec4 at_tangent;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
+uniform vec3 upPosition;
 
 #ifdef TAA
  uniform vec2 taaOffset;
@@ -47,7 +48,7 @@ void main() {
 	blockId = int(getID(mc_Entity));
 	glcolor = gl_Color;
 
-	glcolor.a *= oldLighting(tbn[2], gbufferModelView);
+	if (!(mc_Entity.x == 1030 || mc_Entity.x == 1031 || mc_Entity.x == 1032)) glcolor.a *= oldLighting(tbn[2], gbufferModelView);
 	
 	#ifdef WAVY_BLOCKS
 
