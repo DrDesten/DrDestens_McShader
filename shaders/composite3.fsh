@@ -187,7 +187,7 @@ void main() {
 
         #if FOG == 1
 
-            float dist        = length(viewPos);
+            float dist = length(viewPos);
 
             #ifdef SUNSET_FOG
             #ifdef OVERWORLD
@@ -212,9 +212,10 @@ void main() {
 
             float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
             #if defined SUNSET_FOG && defined OVERWORLD
-            float fog  = smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
+            // if it is a cloud, apply set fog distances as they don't depend on render distance (cloud id is 52)
+            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
             #else
-            float fog  = smoothstep(far * fogStart, far, dist);
+            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart, far, dist);
             #endif
 
         #endif

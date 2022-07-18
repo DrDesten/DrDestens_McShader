@@ -38,7 +38,7 @@ void main() {
 
 	gl_FragData[0] = color; //color
 	gl_FragData[1] = vec4(normal, 1);   //normals
-	gl_FragData[2] = vec4(codeID(50), vec3(1)); //block id (50, SSAO mask)
+	gl_FragData[2] = vec4(codeID(52), vec3(1)); //block id (50, SSAO mask)
 	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(0, vec3(1));  // Reflectance
 	#endif

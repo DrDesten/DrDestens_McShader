@@ -14,13 +14,14 @@ const int colortex5Format = R11F_G11F_B10F; // TAA
 
 */
 
-const bool colortex0Clear      = false;
+const bool colortex0Clear      = true;
 const bool colortex1Clear      = false;
 const bool colortex2Clear      = false;
 //const bool colortex3Clear      = false;
 const bool colortex4Clear      = false;
 const bool colortex5Clear      = false;
 
+const vec4 colortex0ClearColor = vec4(0,0,0,1);
 const vec4 colortex1ClearColor = vec4(0,1,0,1);
 const vec4 colortex3ClearColor = vec4(0,0,0,0);
 const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);

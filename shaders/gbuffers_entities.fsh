@@ -88,7 +88,7 @@ void main() {
 
 	gl_FragData[0] = vec4(color); //color
 	gl_FragData[1] = vec4(normal, 1); //normal
-	gl_FragData[2] = vec4(codeID(52), vec3(1)); //Type
+	gl_FragData[2] = vec4(codeID(54), vec3(1)); //Type
 	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
 	#endif
