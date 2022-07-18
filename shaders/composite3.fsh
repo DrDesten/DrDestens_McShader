@@ -13,7 +13,11 @@ const int colortex5Format = R11F_G11F_B10F; // TAA
 
 */
 
+#if MC_VERSION >= 11900
+const bool colortex0Clear      = true;
+#else
 const bool colortex0Clear      = false;
+#endif
 const bool colortex1Clear      = false;
 const bool colortex2Clear      = false;
 //const bool colortex3Clear      = false;

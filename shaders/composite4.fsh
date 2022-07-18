@@ -257,9 +257,9 @@ void main() {
 
     #endif
 
-    if (blindness > 0) { // Handling Blindness
+    if (blindness > 0 || darknessFactor > 0) { // Handling Blindness
         float dist = sqmag(toView(vec3(coord, depth) * 2 - 1));
-        color     /= sq(dist * blindness + 1);
+        color     /= sq(dist * max(blindness, darknessFactor * 0.1) + 1);
     }
 
 
