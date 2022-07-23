@@ -409,7 +409,7 @@ vec3 saturation(vec3 col, float saturation) {
 
 vec3 contrast(vec3 col, float contrast) {
     vec3 lower = (contrast * col) * (col * col);
-    vec3 upper = 1 - contrast * sq(col - 1);
+    vec3 upper = vec3(1) - contrast * sq(col - 1);
     return mix(lower, upper, col);
 }
 
@@ -482,7 +482,7 @@ vec2 convertPolarCartesian(vec2 coord) {
     return vec2(coord.x * cos(coord.y), coord.x * sin(coord.y));
 }
 
-float linearizeDepth(float d,float nearPlane,float farPlane) {
+float linearizeDepth(float d, float nearPlane, float farPlane) {
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
 }
