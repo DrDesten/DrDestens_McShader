@@ -486,14 +486,14 @@ float linearizeDepth(float d, float nearPlane, float farPlane) {
     d = 2.0 * d - 1.0; // Convert to NDC (normalized device coordinates)
     return 2.0 * nearPlane * farPlane / (farPlane + nearPlane - d * (farPlane - nearPlane));
 }
-float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
-    return 1 / ((-d * slope) + slope);
+float linearizeDepthf(float d, float near) { // Returns the approximate linear depth under the assumption that far >> near
+    return near / (1 - d);
 }
-float linearizeDepthfDivisor(float d, float slope) { // Returns 1 / linearizeDepthf For matching results, slope should be set to 1/nearPlane
-    return (-d * slope) + slope;
+float linearizeDepthfDivisor(float d, float near) { // Returns 1 / linearizeDepthf
+    return (1 - d) / near;
 }
-float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
-    return -1 / (ld * slope) + 1;
+float linearizeDepthfInverse(float ld, float near) { // Inverts linearizeDepthf
+    return 1 - near / ld;
 }
 
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
