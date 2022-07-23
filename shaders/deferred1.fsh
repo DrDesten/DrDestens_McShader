@@ -8,7 +8,7 @@
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
 
-uniform float nearInverse;
+uniform float near;
 uniform float aspectRatio;
 
 uniform int   frameCounter;
@@ -73,7 +73,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos      = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
+    float linearDepth = linearizeDepthf(screenPos.z, near);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.9 + 0.1) * size;
@@ -101,7 +101,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3  viewPos     = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
+    float linearDepth = linearizeDepthf(screenPos.z, near);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
@@ -163,7 +163,7 @@ float SSAO(vec3 screenPos, float radius) {
      float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     #endif
 
-    float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
+    float radZ   = radius * linearizeDepthfDivisor(screenPos.z, near);
     float dscale = 20 / radZ;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 
@@ -203,7 +203,8 @@ void main() {
         //////////////////////////////////////////////////////////
 
 
-        if (id < 50 && id > 52 && depth != 1) {
+        if ((id < 50 || id > 52) && depth != 1) {
+            //color = vec3(1);
 
             #if   SSAO_QUALITY == 1
 
@@ -217,7 +218,7 @@ void main() {
             #elif SSAO_QUALITY == 3
 
                 vec3 normal = getNormal(coord);
-                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #endif
             

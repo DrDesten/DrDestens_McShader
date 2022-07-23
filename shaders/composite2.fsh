@@ -198,7 +198,7 @@ void main() {
 
     float id          = getID(ivec2(gl_FragCoord.xy));
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
-    float linearDepth = linearizeDepthf(depth, nearInverse);
+    float linearDepth = linearizeDepthf(depth, near);
     
     #ifdef WATER_EFFECTS
     #ifdef REFRACTION
@@ -219,7 +219,7 @@ void main() {
     #endif
 
     depth       = getDepth(coord);
-    linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
+    linearDepth = min( linearizeDepthf(depth, near), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
     #ifdef PHYSICALLY_BASED
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
@@ -235,7 +235,7 @@ void main() {
         if (isEyeInWater == 0) {
 
             float transparentDepth       = texture(depthtex1, coord).r;
-            float transparentLinearDepth = min( linearizeDepthf(transparentDepth, nearInverse), 1e5);
+            float transparentLinearDepth = min( linearizeDepthf(transparentDepth, near), 1e5);
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 

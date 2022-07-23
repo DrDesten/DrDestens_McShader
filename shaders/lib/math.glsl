@@ -463,8 +463,8 @@ vec3 applyBrightness(vec3 color, float brightness, float colorOffset) { // Range
 }
 vec3 applyContrast(vec3 color, float contrast) { // Range: 0-inf
 	color = color * 0.99 + 0.005;
-	vec3 colorHigh = 1 - 0.5 * pow(-2 * color + 2, vec3(contrast));
-	vec3 colorLow  =     0.5 * pow( 2 * color,     vec3(contrast));
+	vec3 colorHigh = vec3(1) - 0.5 * pow(-2 * color + 2, vec3(contrast));
+	vec3 colorLow  =     vec3(0.5) * pow( 2 * color,     vec3(contrast));
 	return saturate(mix(colorLow, colorHigh, color));
 }
 vec3 applySaturation(vec3 color, float saturation) { // Range: 0-2
@@ -518,7 +518,7 @@ vec4 cubic(float v) {
 vec4 textureBicubic(sampler2D sampler, vec2 texCoords) {
 
    vec2 texSize = textureSize(sampler, 0);
-   vec2 invTexSize = 1.0 / texSize;
+   vec2 invTexSize = vec2(1.0) / texSize;
 
    texCoords = texCoords * texSize - 0.5;
 
@@ -597,14 +597,14 @@ float linearizeDepth(float d,float nearPlane,float farPlane) { // Linearizes the
 float linearizeDepthInverse(float l, float nearPlane, float farPlane) { // Un-Linearizes viewspace z to screenspace depth
     return (farPlane * (l-nearPlane))/(l * (farPlane-nearPlane));
 }
-float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
-    return 1 / ((-d * slope) + slope);
+float linearizeDepthf(float d, float near) { // Returns the approximate linear depth under the assumption that far >> near
+    return near / (1 - d);
 }
-float linearizeDepthfDivisor(float d, float slope) { // Returns 1 / linearizeDepthf For matching results, slope should be set to 1/nearPlane
-    return (-d * slope) + slope;
+float linearizeDepthfDivisor(float d, float near) { // Returns 1 / linearizeDepthf
+    return (1 - d) / near;
 }
-float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
-    return -1 / (ld * slope) + 1;
+float linearizeDepthfInverse(float ld, float near) { // Inverts linearizeDepthf
+    return 1 - near / ld;
 }
 
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {
