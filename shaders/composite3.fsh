@@ -27,7 +27,7 @@ uniform sampler2D colortex1;
 uniform float isInvisibleSmooth;
 #endif
 
-#if FOG != 0
+#if FOG != 0 || (defined GODRAYS && defined OVERWORLD)
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 uniform float far;
@@ -232,7 +232,7 @@ void main() {
 
     #if defined GODRAYS && defined OVERWORLD
 
-        if (lightPositionClip.w > 0) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
+        if (lightPositionClip.w > 0 && rainStrength < 1) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
             // Finish screen space transformation
             vec2 sunScreen    = lightPositionClip.xy * 0.5 + 0.5;
 
