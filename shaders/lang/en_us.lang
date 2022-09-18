@@ -124,7 +124,7 @@ option.SSAO_STRENGTH=SSAO Strength
 screen.TAA_OPTIONS=TAA Options
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
-option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
+option.TAA_BLEND.comment=Controls the opacity of the current frame. Set this value lower for smoother TAA.
 option.TAA_SHARPENING_AMOUNT=TAA Sharpening
 option.TAA_SHARPENING_AMOUNT.comment=Changes the strength of the sharpening effect.
 
@@ -241,6 +241,20 @@ value.VIGNETTE.0=OFF
 value.VIGNETTE.1=Round
 value.VIGNETTE.2=Square
 option.VIGNETTE_STRENGTH=Vignette Strength
+
+///////////////////////////////////////////////////////////
+// WEATHER
+///////////////////////////////////////////////////////////
+
+screen.WEATHER=Weather
+
+option.RAIN_DETECTION_MODE=Rain Detection
+value.RAIN_DETECTION_MODE.0=Temperature
+value.RAIN_DETECTION_MODE.1=Color
+
+option.RAIN_OPACITY=Rain Opacity
+option.RAIN_REFRACTION=Rain Refraction
+option.RAIN_REFRACTION_STRENGTH=Rain Refraction Strength
 
 ///////////////////////////////////////////////////////////
 // MISC

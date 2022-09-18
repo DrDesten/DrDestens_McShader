@@ -188,10 +188,12 @@ float squareVignette(vec2 coord) {
 /* DRAWBUFFERS:0 */
 void main() {
     
+    #ifdef RAIN_REFRACTION
     if (getID(coord) == 53) {
         float depth = pow(getDepth(coord), 250);
-        coord      += depth * 0.1 * -.05;
+        coord      += depth * RAIN_REFRACTION_STRENGTH * -(RAIN_REFRACTION_STRENGTH * .5);
     }
+    #endif
 
     #if CHROMATIC_ABERRATION != 0
         vec3 color = ChromaticAbberation_HQ(coord, chromaticAberrationSimple, 5);
