@@ -251,15 +251,15 @@ void main() {
             float light = 1;
             for (int i = 0; i < GODRAY_STEPS; i++ ) {
 
-                rayPos       += rayStep;
+                rayPos += rayStep;
 
                 if (isEyeInWater != 0) {
                     if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1. / GODRAY_STEPS;
+                        light -= 1. / GODRAY_STEPS;
                     }
                 } else {
                     if (texture(depthtex0, rayPos).x != 1) { // Subtract from light when there is an occlusion
-                        light    -= 1. / GODRAY_STEPS;
+                        light -= 1. / GODRAY_STEPS;
                     }
                 }
 
@@ -269,7 +269,7 @@ void main() {
             light *= exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
 
             #if FOG != 0
-                color += saturate(light * (GODRAY_STRENGTH * 4) * customFogColor); // Additive Effect
+                color += saturate(light * GODRAY_STRENGTH * getGodrayColor()); // Additive Effect
             #else
                 color += saturate(light * GODRAY_STRENGTH * fogColor); // Additive Effect
             #endif
