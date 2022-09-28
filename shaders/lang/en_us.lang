@@ -197,7 +197,15 @@ option.GODRAY_STRENGTH=Godray Strength
 option.GODRAY_STEPS=Godray Samples
 option.GODRAY_SIZE=Godray Radius
 
-screen.SKY_OPTIONS=Sky Options
+screen.GODRAY_OPTIONS=Godray Colors
+option.GODRAY_SUN_R=Godray Sun §cR
+option.GODRAY_SUN_G=Godray Sun §2G
+option.GODRAY_SUN_B=Godray Sun §9B
+option.GODRAY_MOON_R=Godray Moon §cR
+option.GODRAY_MOON_G=Godray Moon §2G
+option.GODRAY_MOON_B=Godray Moon §9B
+
+screen.SKY_OPTIONS=Sky Colors
 option.SKY_DAY_R=Sky Day §cR
 option.SKY_DAY_G=Sky Day §2G
 option.SKY_DAY_B=Sky Day §9B

@@ -10,8 +10,9 @@ const vec3 end_sky_up   = vec3(0.2, 0, 0.3);  // Color of the upper sky in the e
 const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the end
 */
 
-const vec3 sun_color = vec3(1.0,0.9,0.3);
-const vec3 moon_color = vec3(0.05,0.1,0.25);
+
+const vec3 sun_color = vec3(GODRAY_SUN_R, GODRAY_SUN_G, GODRAY_SUN_B);
+const vec3 moon_color = vec3(GODRAY_MOON_R, GODRAY_MOON_G, GODRAY_MOON_B);
 
 const vec3 sky_up_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);   //Color of upper part of sky at noon
 const vec3 sky_up_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B); //Color of upper part of sky at midnight
