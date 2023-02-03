@@ -85,7 +85,17 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
     ) {
         return vec4(0);
     }
+
+    #if REFLECTION_FADE == 0
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
+    #elif REFLECTION_FADE == 1
+    return vec4(getAlbedo(distortClamp(screenPos.xy)), smoothstep(0, 1, 5 - 5 * abs(rayPos.y * 2 - 1)));
+    #elif REFLECTION_FADE == 2
+    return vec4(
+        getAlbedo(distortClamp(screenPos.xy)),
+        smoothstep(0, 1, 3.5 - 3.5 * max(abs(rayPos.x * 1.5 - .75), abs(rayPos.y * 2 - 1)))
+    );
+    #endif
 }
 
 /* vec4 universalSSR(position pos, vec3 normal) { // Old Raytracer (keeping it in case I need binary refinement again)
