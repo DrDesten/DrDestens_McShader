@@ -73,7 +73,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos      = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, near);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.9 + 0.1) * size;
@@ -101,7 +101,7 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3  viewPos     = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, near);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
@@ -163,7 +163,7 @@ float SSAO(vec3 screenPos, float radius) {
      float dither = Bayer8(screenPos.xy * screenSize) * 0.2;
     #endif
 
-    float radZ   = radius * linearizeDepthfDivisor(screenPos.z, near);
+    float radZ   = radius * linearizeDepthfDivisor(screenPos.z, nearInverse);
     float dscale = 20 / radZ;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 

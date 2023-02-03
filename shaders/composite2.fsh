@@ -58,9 +58,6 @@ uniform sampler2D colortex1;
 
 uniform float frameTimeCounter;
 
-uniform float near;
-uniform float far;
-
 uniform float nearInverse;
 uniform float aspectRatio;
 
@@ -89,11 +86,13 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
     #if REFLECTION_FADE == 0
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
     #elif REFLECTION_FADE == 1
-    return vec4(getAlbedo(distortClamp(screenPos.xy)), smoothstep(0, 1, 5 - 5 * abs(rayPos.y * 2 - 1)));
+    vec2 hit = distortClamp(screenPos.xy);
+    return vec4(getAlbedo(hit), smoothstep(0, 1, 5 - 5 * abs(hit.y * 2 - 1)));
     #elif REFLECTION_FADE == 2
+    vec2 hit = distortClamp(screenPos.xy);
     return vec4(
-        getAlbedo(distortClamp(screenPos.xy)),
-        smoothstep(0, 1, 3.5 - 3.5 * max(abs(rayPos.x * 1.5 - .75), abs(rayPos.y * 2 - 1)))
+        getAlbedo(hit),
+        smoothstep(0, 1, 3.5 - 3.5 * max(abs(hit.x * 1.5 - .75), abs(hit.y * 2 - 1)))
     );
     #endif
 }
@@ -217,7 +216,7 @@ void main() {
 
     float id          = getID(ivec2(gl_FragCoord.xy));
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
-    float linearDepth = linearizeDepthf(depth, near);
+    float linearDepth = linearizeDepthf(depth, nearInverse);
     
     #ifdef WATER_EFFECTS
     #ifdef REFRACTION
@@ -238,7 +237,7 @@ void main() {
     #endif
 
     depth       = getDepth(coord);
-    linearDepth = min( linearizeDepthf(depth, near), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
+    linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
     #ifdef PHYSICALLY_BASED
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
@@ -254,7 +253,7 @@ void main() {
         if (isEyeInWater == 0) {
 
             float transparentDepth       = texture(depthtex1, coord).r;
-            float transparentLinearDepth = min( linearizeDepthf(transparentDepth, near), 1e5);
+            float transparentLinearDepth = min( linearizeDepthf(transparentDepth, nearInverse), 1e5);
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
