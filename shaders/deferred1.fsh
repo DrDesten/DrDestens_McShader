@@ -8,7 +8,7 @@
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
 
-uniform float near;
+uniform float nearInverse;
 uniform float aspectRatio;
 
 uniform int   frameCounter;
