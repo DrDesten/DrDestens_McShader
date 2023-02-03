@@ -184,8 +184,16 @@ vec4 efficientSSR(position pos, vec3 reflection) {
         hitDepth = getDepth(rayPos.xy);
 
         if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1 && abs(rayPos.z - hitDepth) < depthTolerance) {
-            return vec4(getAlbedo(rayPos.xy), saturate(1 - 5 * maxc(abs(rayPos.xy - 0.5))));
+            #if REFLECTION_FADE == 0
             return vec4(getAlbedo(rayPos.xy), 1);
+            #elif REFLECTION_FADE == 1
+            return vec4(getAlbedo(rayPos.xy), smoothstep(0, 1, 5 - 5 * abs(rayPos.y * 2 - 1)));
+            #elif REFLECTION_FADE == 2
+            return vec4(
+                getAlbedo(rayPos.xy),
+                smoothstep(0, 1, 3.5 - 3.5 * max(abs(rayPos.x * 1.5 - .75), abs(rayPos.y * 2 - 1)))
+            );
+            #endif
         }
 
     }

@@ -58,6 +58,11 @@ value.SSR_DEPTH_TOLERANCE.1000=Infinite
 option.SSR_REFLECTION_THRESHOLD=Reflection Threshold
 option.SSR_REFLECTION_THRESHOLD.comment=PBR only. Sets the minimum required reflectiveness in order for SSR to enable. Higher values may introduce reflection cutoffs.
 
+option.REFLECTION_FADE=Fade Edges
+value.REFLECTION_FADE.0=OFF
+value.REFLECTION_FADE.1=Vertical
+value.REFLECTION_FADE.2=Full
+
 option.REFRACTION=Screen Space Refraction
 option.REFRACTION.comment=Distorts things seen through water.
 option.REFRACTION_AMOUNT=Refraction Strength
