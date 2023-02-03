@@ -1,3 +1,6 @@
+////////////////////////////////////////////////////////////////////////
+// Constants
+
 #define GAMMA 2.2
 
 const float TWO_PI  = 6.2831853071795864769252867665590057683943387987502;
@@ -7,8 +10,11 @@ const float INV_PI  = 0.3183098861837906715377675267450287240689192914809;
 
 const float PHI     = 1.6180339887498948482045868343656381177203091798058;
 const float PHI_INV = 0.6180339887498948482045868343656381177203091798058;
+const float PHI2    = 1.32471795724474602596;
 
 const float E       = 2.7182818284590452353602874713526624977572470937000;
+
+const float SQRT2   = 1.4142135623730951;
 
 ////////////////////////////////////////////////////////////////////////
 // General Functions
@@ -22,6 +28,26 @@ float fstep(float edge, float x) { // Fast step() function with no branching
 }
 float fstep(float edge, float x, float slope) { // Fast step() function with no branching
     return clamp((x - edge) * slope, 0, 1);
+}
+
+float maxc(vec2 v) {
+    return max(v.x, v.y);
+}
+float maxc(vec3 v) {
+    return max(max(v.x, v.y), v.z);
+}
+float maxc(vec4 v) {
+    return max(max(v.x, v.y), max(v.z, v.w));
+}
+
+float minc(vec2 v) {
+    return min(v.x, v.y);
+}
+float minc(vec3 v) {
+    return min(min(v.x, v.y), v.z);
+}
+float minc(vec4 v) {
+    return min(min(v.x, v.y), min(v.z, v.w));
 }
 
 float sum(vec2 v) {
@@ -157,6 +183,31 @@ float angleBetween(vec3 v1, vec3 v2) {
     return acos(dot(normalize(v1), normalize(v2)));
 }
 
+float sqrtf01(float x) {
+    return x * (2.0 - x);
+}
+vec2 sqrtf01(vec2 x) {
+    return x * (2.0 - x);
+}
+vec3 sqrtf01(vec3 x) {
+    return x * (2.0 - x);
+}
+vec4 sqrtf01(vec4 x) {
+    return x * (2.0 - x);
+}
+float sqrtf13(float x) {
+    return x * ( -0.23606797749978969641 * x + 1.23606797749978969641 );
+}
+vec2 sqrtf13(vec2 x) {
+    return x * ( -0.23606797749978969641 * x + 1.23606797749978969641 );
+}
+vec3 sqrtf13(vec3 x) {
+    return x * ( -0.23606797749978969641 * x + 1.23606797749978969641 );
+}
+vec4 sqrtf13(vec4 x) {
+    return x * ( -0.23606797749978969641 * x + 1.23606797749978969641 );
+}
+
 float asinf(float x) { // s(x) = x + x³/8 + x^5/5
     float x2  = x*x;
     float x4  = x2*x2;
@@ -172,6 +223,11 @@ float smootherstep(float x) { // Second derivative zero as well
 float smootherstep(float edge0, float edge1, float x) {
     x = saturate((x - edge0) * (1. / (edge1 - edge0)));
     return cb(x) * (x * (6. * x - 15.) + 10.);
+}
+
+
+float tri(float x) {
+    return abs(fract(x) * 2 - 1);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -193,12 +249,17 @@ float ign(vec2 co) { // Interlieved Gradient Noise, very noice noise ( ͡° ͜ʖ
 }
 
 float ditherColor(vec2 co) {
-    return Bayer4(co) * (4./256) - (2./256);
+    return Bayer4(co) * (1./255) - (.5/255);
 }
 
 float checkerboard(vec2 co) {
     co = floor(co);
     return fract(co.x * 0.5 + co.y * 0.5);
+}
+
+vec2 R2(float n) {
+    const vec2 a = vec2(1.0/PHI2, 1.0/(PHI2*PHI2));
+    return fract(a * n + 0.5);
 }
 
 float rand(float x) {
@@ -455,6 +516,13 @@ vec3 contrast(vec3 col, float contrast) {
 float luminance(vec3 color) {
     return dot(color, vec3(0.2126, 0.7152, 0.0722));
 }
+float saturation(vec3 color, float luma) {
+    return distance(vec3(luma), color);
+}
+float saturation(vec3 color) {
+    return saturation(color, luminance(color));
+}
+
 
 vec3 applyBrightness(vec3 color, float brightness, float colorOffset) { // Range: inf-0
 	float tmp = (1 / (2 * colorOffset + 1));
@@ -463,8 +531,8 @@ vec3 applyBrightness(vec3 color, float brightness, float colorOffset) { // Range
 }
 vec3 applyContrast(vec3 color, float contrast) { // Range: 0-inf
 	color = color * 0.99 + 0.005;
-	vec3 colorHigh = vec3(1) - 0.5 * pow(-2 * color + 2, vec3(contrast));
-	vec3 colorLow  =     vec3(0.5) * pow( 2 * color,     vec3(contrast));
+	vec3 colorHigh = 1 - 0.5 * pow(-2 * color + 2, vec3(contrast));
+	vec3 colorLow  =     0.5 * pow( 2 * color,     vec3(contrast));
 	return saturate(mix(colorLow, colorHigh, color));
 }
 vec3 applySaturation(vec3 color, float saturation) { // Range: 0-2
@@ -515,26 +583,21 @@ vec4 cubic(float v) {
     return vec4(x, y, z, w) * (1.0/6.0);
 }
 
-vec4 textureBicubic(sampler2D sampler, vec2 texCoords) {
+vec4 textureBicubic(sampler2D sampler, vec2 coord, vec2 samplerSize, vec2 pixelSize) {
+    coord = coord * samplerSize - 0.5;
 
-   vec2 texSize = textureSize(sampler, 0);
-   vec2 invTexSize = vec2(1.0) / texSize;
-
-   texCoords = texCoords * texSize - 0.5;
-
-
-    vec2 fxy = fract(texCoords);
-    texCoords -= fxy;
+    vec2 fxy = fract(coord);
+    coord -= fxy;
 
     vec4 xcubic = cubic(fxy.x);
     vec4 ycubic = cubic(fxy.y);
 
-    vec4 c = texCoords.xxyy + vec2 (-0.5, +1.5).xyxy;
+    vec4 c = coord.xxyy + vec2 (-0.5, +1.5).xyxy;
 
     vec4 s = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
     vec4 offset = c + vec4 (xcubic.yw, ycubic.yw) / s;
 
-    offset *= invTexSize.xxyy;
+    offset *= pixelSize.xxyy;
 
     vec4 sample0 = texture(sampler, offset.xz);
     vec4 sample1 = texture(sampler, offset.yz);
@@ -545,12 +608,70 @@ vec4 textureBicubic(sampler2D sampler, vec2 texCoords) {
     float sy = s.z / (s.z + s.w);
 
     return mix(
-       mix(sample3, sample2, sx), mix(sample1, sample0, sx)
+        mix(sample3, sample2, sx), 
+        mix(sample1, sample0, sx)
     , sy);
 }
 
+float triangle(float x) {
+    return saturate(1 - abs(x));
+}
+float sincNorm(float x) {
+    return x == 0 ? 1 : sin(x*PI) / (x*PI);
+}
+float bell(float x) {
+    return exp(-(x*x*2));
+}
+
+vec4 textureSmoothstep(sampler2D sampler, vec2 coord, vec2 samplerSize, vec2 samplerSizeInverse) {
+    vec2 icoord    = coord * samplerSize;
+    vec2 pixCoord  = fract(icoord);
+    //pixCoord       = pixCoord * (pixCoord * (4 * pixCoord - 6) + 3);
+    pixCoord       = pixCoord * (pixCoord * (2.22222 * pixCoord - 3.33333) + 2.11111);
+    return texture(sampler, (floor(icoord) + pixCoord) * samplerSizeInverse);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//                                 TONEMAPPING
+
+vec3 reinhard_tonemap(vec3 color, float a) {
+    return color / (a + color);
+}
+vec3 reinhard_luminance_tonemap(vec3 color, float a) {
+    float l = luminance(color);
+    return color / (a+l);
+}
+vec3 reinhard_jodie_tonemap(vec3 color, float a) {
+    float l   = luminance(color);
+    vec3 tmc  = color / (color + a);
+    return mix(color / (l+a), tmc, tmc);
+}
+vec3 reinhard_sqrt_tonemap(vec3 color, float a) {
+    return color / sqrt(color * color + a);
+}
+vec3 reinhard_sqrt_tonemap_inverse(vec3 color, float a) {
+    return sqrt(a) * color * inversesqrt(-color * color + 1);
+}
+
+
+vec3 unreal_tonemap(vec3 color) {
+  return color / (color + 0.155) * 1.019;
+}
+
+
+vec3 exp_tonemap(vec3 color, float a) {
+    return 1 - exp(-color * a);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////
 //                              OTHER FUNCTIONS
+
+float peak05(float x) { return x * (-4*x + 4); }
+vec2  peak05(vec2 x)  { return x * (-4*x + 4); }
+vec3  peak05(vec3 x)  { return x * (-4*x + 4); }
+vec4  peak05(vec4 x)  { return x * (-4*x + 4); }
 
 float lineDist2P(vec2 coord, vec2 start, vec2 end) {
     vec2 pa = coord - start;
@@ -597,14 +718,14 @@ float linearizeDepth(float d,float nearPlane,float farPlane) { // Linearizes the
 float linearizeDepthInverse(float l, float nearPlane, float farPlane) { // Un-Linearizes viewspace z to screenspace depth
     return (farPlane * (l-nearPlane))/(l * (farPlane-nearPlane));
 }
-float linearizeDepthf(float d, float near) { // Returns the approximate linear depth under the assumption that far >> near
-    return near / (1 - d);
+float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
+    return 1 / ((-d * slope) + slope);
 }
-float linearizeDepthfDivisor(float d, float near) { // Returns 1 / linearizeDepthf
-    return (1 - d) / near;
+float linearizeDepthfDivisor(float d, float slope) { // Returns 1 / linearizeDepthf For matching results, slope should be set to 1/nearPlane
+    return (-d * slope) + slope;
 }
-float linearizeDepthfInverse(float ld, float near) { // Inverts linearizeDepthf
-    return 1 - near / ld;
+float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
+    return 1 / (-ld * slope) + 1;
 }
 
 float schlickFresnel(vec3 viewRay, vec3 normal, float refractiveIndex, float baseReflectiveness) {

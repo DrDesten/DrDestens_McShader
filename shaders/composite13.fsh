@@ -82,35 +82,6 @@ vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
 
-// TONEMAPPING
-/////////////////////////////////////////////////////////////////////////////////////////
-
-vec3 reinhard_tonemap(vec3 color, float a) {
-    return color / (a + color);
-}
-vec3 reinhard_luminance_tonemap(vec3 color, float a) {
-    float l = luminance(color);
-    return color / (a+l);
-}
-vec3 reinhard_jodie_tonemap(vec3 color, float a) {
-    float l   = luminance(color);
-    vec3 tmc  = color / (color + a);
-    return mix(color / (l+a), tmc, tmc);
-}
-vec3 reinhard_sqrt_tonemap(vec3 color, float a) {
-    return color / sqrt(color * color + a);
-}
-
-
-vec3 unreal_tonemap(vec3 color) {
-  return color / (color + 0.155) * 1.019;
-}
-
-
-vec3 exp_tonemap(vec3 color, float a) {
-    return 1 - exp(-color * a);
-}
-
 
 
 float roundVignette(vec2 coord) {
@@ -135,7 +106,7 @@ float squareVignette(vec2 coord) {
         vec2  tileOffset = vec2(1 - exp2(1-tile));
         vec2  tileCoord  = coord * tileScale  + tileOffset;
 
-        return textureBicubic(colortex4, tileCoord).rgb;
+        return textureBicubic(colortex4, tileCoord, screenSize, screenSizeInverse).rgb;
     }
 
     /* vec3 getBloom(vec2 coord, int tileLevel) {

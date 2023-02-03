@@ -77,12 +77,13 @@ struct position { // A struct for holding positions in different spaces
     vec3 vdir;
 };
 
-vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
-    vec3 reflection   = reflect(viewPos, normal);
+vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
     vec4 screenPos    = backToClipW(reflection) * .5 + .5;
-
-    if (clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) {
-        return vec4(getFog(toPlayerEye(reflection)), 0);
+    if (
+        clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || 
+        screenPos.w <= .5 || getDepth(screenPos.xy) == 1
+    ) {
+        return vec4(0);
     }
     return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
 }
@@ -153,12 +154,11 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 normal) {
     return vec4(getFog(viewReflection - pos.view), 0);
 } */
 
-vec4 efficientSSR(position pos, vec3 normal) {
-    vec3 reflection     = reflect(pos.vdir, normal);
+vec4 efficientSSR(position pos, vec3 reflection) {
     vec3 viewReflection = pos.view + reflection;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
-        return vec4(getFog(toPlayerEye(reflection)), 0);
+        return vec4(0);
     }
 
     vec3  screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
@@ -184,12 +184,13 @@ vec4 efficientSSR(position pos, vec3 normal) {
         hitDepth = getDepth(rayPos.xy);
 
         if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1 && abs(rayPos.z - hitDepth) < depthTolerance) {
+            return vec4(getAlbedo(rayPos.xy), saturate(1 - 5 * maxc(abs(rayPos.xy - 0.5))));
             return vec4(getAlbedo(rayPos.xy), 1);
         }
 
     }
 
-    return vec4(getFog(toPlayerEye(reflection)), 0);
+    return vec4(0);
 }
 
 
@@ -247,19 +248,23 @@ void main() {
         // SCREEN SPACE REFLECTION <WATER> /////////////////////////////////////////////////////////////
 
         #ifndef PHYSICALLY_BASED
-        vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
-        vec3  viewDir = normalize(viewPos);
-        vec3  normal  = getNormal(coord);
+        vec3 viewPos = toView(vec3(coord, depth) * 2 - 1);
+        vec3 viewDir = normalize(viewPos);
+        vec3 normal  = getNormal(coord);
         #endif
 
-        float fresnel = customFresnel(viewDir, normal, 0.05, 1, 3);
+        float fresnel        = customFresnel(viewDir, normal, 0.05, 1, 3);
+        vec3  reflectViewDir = reflect(viewDir, normal);
 
         #if SSR_MODE == 0
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-        vec4  reflection = efficientSSR(posData, normal);
+        vec4  reflection = efficientSSR(posData, reflectViewDir);
         #else
-        vec4  reflection = CubemapStyleReflection(viewPos, normal);
+        vec4  reflection = CubemapStyleReflection(viewPos, reflectViewDir);
         #endif
+        if (reflection.a != 1) {
+            reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
+        }
 
         #if defined END
         reflection.rgb *= saturate(0.5 + reflection.a);

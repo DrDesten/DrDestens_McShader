@@ -43,14 +43,6 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
     }
 }
 
-vec4 textureSmoothstep(sampler2D sampler, vec2 coord, vec2 samplerSize, vec2 samplerSizeInverse) {
-    vec2 icoord    = coord * samplerSize;
-    vec2 pixCoord  = fract(icoord);
-    //pixCoord       = pixCoord * (pixCoord * (4 * pixCoord - 6) + 3);
-    pixCoord       = pixCoord * (pixCoord * (2.22222 * pixCoord - 3.33333) + 2.11111);
-    return texture2D(sampler, (floor(icoord) + pixCoord) * samplerSizeInverse);
-}
-
 #ifdef TAA 
 /* DRAWBUFFERS:05 */
 #else
