@@ -19,19 +19,21 @@ in vec2  lmcoord;
 in vec2  coord;
 in vec4  glcolor;
 
-in mat3 tbn;
+flat in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
+#else
+/* DRAWBUFFERS:023 */
+#endif
 void main() {
-	vec3  normal         = tbn[2];
-	float reflectiveness = 0;
-	float height 		 = 1;
+	vec3 normal = tbn[2];
 
-	vec4 color		   = texture2D(texture, coord);
-	color.rgb 		  *= glcolor.rgb;
+	vec4 color = texture2D(texture, coord);
+	color.rgb *= glcolor.rgb;
 
 	#ifdef WHITE_WORLD
 	 color.rgb = vec3(1);
@@ -40,10 +42,9 @@ void main() {
 	#ifdef PHYSICALLY_BASED
 
 		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color       = color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-		gamma(mc_color);
+		vec3 mc_color       = gamma( color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) ) );
 
-		gamma(color.rgb);
+		color.rgb           = gamma(color.rgb);
 		vec3 ambientLight   = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		//gamma(ambientLight);
 
@@ -54,22 +55,23 @@ void main() {
 
 		color	           = Material.color;
 		normal	   	       = Material.normal;
-		reflectiveness     = Material.reflectiveness;
-		height             = MatTex.height;
-		
-		reflectiveness += Bayer4(gl_FragCoord.xy) * (1./255) - (0.5/255);
-    	reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
+
+		float reflectiveness = luminance(MatTex.f0);
+		float roughness      = MatTex.roughness;
+		float height         = MatTex.height;
 
 	#else
 
-		color.rgb 		  *= glcolor.a;	
-		color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		gamma(color.rgb);
+		color.rgb *= glcolor.a;	
+		color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
+		color.rgb  = gamma(color.rgb);
 
 	#endif
 
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
+	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	#endif
 }

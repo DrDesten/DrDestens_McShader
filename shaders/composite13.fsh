@@ -1,15 +1,16 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/composite_basics.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
 
-#ifdef TAA
-#include "/lib/kernels.glsl"
-#include "/lib/transform.glsl"
-uniform int frameCounter;
-uniform sampler2D colortex5;
+#ifdef BLOOM
+uniform sampler2D colortex4;
 #endif
+
+uniform float frameTimeCounter;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
@@ -81,122 +82,131 @@ vec3 luminanceNeutralize(vec3 col) {
     return (col * col) / (sum(col) * sum(col));
 }
 
-// TONEMAPPING
-/////////////////////////////////////////////////////////////////////////////////////////
 
-vec3 reinhard_tonemap(vec3 color, float a) {
-    return color / (a + color);
+
+float roundVignette(vec2 coord) {
+	return saturate(exp(-sq(sqmag(coord * 1.75 - 0.875))));
 }
-vec3 reinhard_luminance_tonemap(vec3 color, float a) {
-    float l = luminance(color);
-    return color / (a+l);
-}
-vec3 reinhard_jodie_tonemap(vec3 color, float a) {
-    float l   = luminance(color);
-    vec3 tmc  = color / (color + a);
-    return mix(color / (l+a), tmc, tmc);
-}
-vec3 reinhard_sqrt_tonemap(vec3 color, float a) {
-    return color / sqrt(color * color + a);
+float squareVignette(vec2 coord) {
+	return smoothstep( 0.7, 0.25, pow(sq(sq(coord.x - 0.5)) + sq(sq(coord.y - 0.5)), 0.25) );
 }
 
+#ifdef BLOOM
 
-vec3 unreal_tonemap(vec3 color) {
-  return color / (color + 0.155) * 1.019;
-}
+    vec3 readBloomTile(vec2 coord, float tile) {
+        float tileScale  = exp2(-tile);
+        vec2  tileOffset = vec2(1 - exp2(1-tile));
+        vec2  tileCoord  = coord * tileScale  + tileOffset;
 
-
-vec3 exp_tonemap(vec3 color, float a) {
-    return 1 - exp(-color * a);
-}
-
-
-
-float PeakAttenuation(float depthDiff, float peak) {
-    return peak - abs(depthDiff - peak);
-}
-void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {
-    minColor = vec3(1);
-    maxColor = vec3(0);
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            vec2 sample = vec2(x, y) * size * screenSizeInverse + coord;
-            vec3 color  = getAlbedo(sample);
-
-            minColor = min(minColor, color);
-            maxColor = max(maxColor, color);
-        }
+        return texture(colortex4, tileCoord).rgb;
     }
-}
 
-#ifdef TAA 
-/* DRAWBUFFERS:05 */
-#else
-/* DRAWBUFFERS:0 */
+    vec3 readBloomTileHQ(vec2 coord, float tile) {
+        float tileScale  = exp2(-tile);
+        vec2  tileOffset = vec2(1 - exp2(1-tile));
+        vec2  tileCoord  = coord * tileScale  + tileOffset;
+
+        return textureBicubic(colortex4, tileCoord, screenSize, screenSizeInverse).rgb;
+    }
+
+    /* vec3 getBloom(vec2 coord, int tileLevel) {
+        vec3 bloomColor = vec3(0);
+        for (int i = 0; i < tileLevel; i++) {
+            bloomColor += readBloomTile(coord, i);
+        }
+        return bloomColor / tileLevel;
+    } */
+    vec3 getBloom(vec2 coord, int tileLevel) {
+        vec3 bloomColor = vec3(0);
+        for (int i = 1; i <= tileLevel; i++) {
+            float tileScale  = exp2(-i);
+            vec2  tileOffset = vec2(1 - exp2(1-i));
+            vec2  tileCoord  = coord * tileScale  + tileOffset;
+
+            bloomColor     += texture(colortex4, tileCoord).rgb;
+        }
+        return bloomColor / tileLevel;
+    }
+
+    float edgeFade(vec2 coord) {
+        return saturate( -4 * max(abs(0.5 - coord.x), abs(0.5 - coord.y)) + 2);
+    }
+
+    vec3 getLensFlare(vec2 coord) {
+        vec2 invCoord = coord * -2 + 1; //Note: This is NDC
+
+        vec3 lf = vec3(0);
+        for (int i = 1; i <= 3; i++) {
+            vec2  lfco = (invCoord * sq( 2. / i ) ) * 0.5 + 0.5;
+            float w    = edgeFade(lfco);
+
+            lf += max(readBloomTile(lfco, 4).rgb - 2.5, 0) * w;
+        }
+        for (int i = 1; i <= 2; i++) {
+            vec2  lfco = (invCoord * -sq( 3. / i ) ) * 0.5 + 0.5;
+            float w    = edgeFade(lfco);
+
+            lf += max(readBloomTile(lfco, 4).rgb - 2.5, 0) * w;
+        }
+
+        lf = lf * lf * (1./5);
+
+        return lf;
+    }
+
 #endif
 
+/* DRAWBUFFERS:0 */
 void main() {
-    #ifdef TAA
-        vec2 unJitterCoord = coord + TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * screenSizeInverse;
+    
+    #ifdef RAIN_REFRACTION
+    if (getID(coord) == 53) {
+        float depth = pow(getDepth(coord), 250);
+        coord      += depth * RAIN_REFRACTION_STRENGTH * -(RAIN_REFRACTION_STRENGTH * .5);
+    }
+    #endif
+
+    #if CHROMATIC_ABERRATION != 0
+        vec3 color = ChromaticAbberation_HQ(coord, chromaticAberrationSimple, 5);
     #else
-        vec2 unJitterCoord = coord;
+        vec3 color = getAlbedo(coord);
     #endif
 
-    #if CHROMATIC_ABERRATION != 0 && DOF_MODE == 0 
-        vec3 color = ChromaticAbberation_HQ(unJitterCoord, chromaticAberrationSimple, 5);
-    #else
-        vec3 color = getAlbedo_int(unJitterCoord);
+    #ifdef BLOOM
+        color += sq( getBloom(coord, BLOOM_RADIUS) * BLOOM_AMOUNT);
     #endif
-
-
-    #ifdef TAA 
-
-        vec3  currentFrameColor = color;
-        float depth             = getDepth_int(unJitterCoord);
-        vec3  screenPos         = vec3(coord, depth);
-
-        vec3  reprojectPos      = reprojectTAA(screenPos);
-        
-        vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
-        vec3  lastFrameColor    = lastFrame.rgb;
-
-        // Anti - Ghosting
-        //////////////////////////////////////////////////////////////////////
-
-        vec3 lowerThresh, higherThresh;
-        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
-        #ifndef TAA_NOCLIP
-         lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
-        #endif
-
-        float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float blend       = saturate(boundsError + TAA_BLEND);
-
-        color         = mix(lastFrameColor, currentFrameColor, blend);
-        vec3 TAAcolor = max(color, 0.0);
-
-        //color = spikeError.xxx;
-
-    #endif
-
 
     #if TONEMAP == 1
-    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping
+    color = reinhard_sqrt_tonemap(color * EXPOSURE, .5); // Tone mapping 
     color = gamma_inv(color);
     #elif TONEMAP == 2
     color = unreal_tonemap(color * EXPOSURE); // Tone mapping
     #endif
 
     #if CONTRAST != 0
-    color = contrast(color, contrastValue);
-    #endif
-    #if SATURATION != 50
-    color = saturation(color, saturationValue);
-    #endif
+		const float contrastAmount = 1 / (1 - (CONTRAST / 300. + 0.5)) - 1;
+		color = applyContrast(color, contrastAmount);
+	#endif
+	#if VIBRANCE != 0
+		const float vibranceAmount = (VIBRANCE / 100.);
+		color = applyVibrance(color, vibranceAmount);
+	#endif
+	#if SATURATION != 0
+		const float saturationAmount = SATURATION / 100. + 1.;
+		color = applySaturation(color, saturationAmount);
+	#endif
+	#if BRIGHTNESS != 0
+		const float brightnessAmount      = 1 / (BRIGHTNESS / 250. + 0.5) - 1;
+		const float brightnessColorOffset = abs(BRIGHTNESS - 50.) / 500.;
+		color = applyBrightness(color, brightnessAmount, brightnessColorOffset);
+	#endif
+
+    #if VIGNETTE == 1
+		color *= roundVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);;
+	#elif VIGNETTE == 2
+		color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
+	#endif
 
     gl_FragData[0] = vec4(color, 1.0);
-    #ifdef TAA 
-    gl_FragData[1] = vec4(TAAcolor, 1.0);
-    #endif
 }
 

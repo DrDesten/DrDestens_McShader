@@ -2,13 +2,15 @@
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/vertex_transform_simple.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
+uniform mat4 gbufferModelView;
+
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform vec2 taaOffset;
 #endif
 
 #ifdef PHYSICALLY_BASED
@@ -23,17 +25,15 @@ out vec4 glcolor;
 #ifdef FRAG_NORMALS
 out vec3 N;
 #else
-out mat3 tbn;
+flat out mat3 tbn;
 #endif
 
 void main() {
-	vec4 clipPos = ftransform();
+	gl_Position = ftransform();
 	
 	#ifdef TAA
-		clipPos.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * clipPos.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
-
-	gl_Position  = clipPos;
 
 	#ifdef PHYSICALLY_BASED
 	viewpos = getView();
@@ -47,4 +47,9 @@ void main() {
 	#endif
 
 	glcolor = gl_Color;
+	#ifdef FRAG_NORMALS
+	glcolor.rgb *= oldLighting(N, gbufferModelView);
+	#else
+	glcolor.rgb *= oldLighting(tbn[2], gbufferModelView);
+	#endif
 }

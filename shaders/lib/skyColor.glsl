@@ -1,7 +1,5 @@
 uniform float daynight;
-#ifdef SKY_SUNSET
 uniform float sunset;
-#endif
 
 uniform float darknessFactor;
 uniform vec3 fogColor;
@@ -29,10 +27,10 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
 
     #elif defined END 
 
-        vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.55 + 0.45, 0, 1);
+        vec3  playerEyePos = mat3(gbufferModelViewInverse) * viewPos;
+        float viewHeight   = clamp(playerEyePos.y / sqrt(dot(playerEyePos, playerEyePos)) * 0.55 + 0.45, 0, 1);
 
-        float offset       = noise(vec2(atan(abs(eyePlayerPos.z / eyePlayerPos.x))) * PI);
+        float offset       = noise(vec2(atan(abs(playerEyePos.z / playerEyePos.x))) * PI);
         offset            *= 1 - sq(viewHeight * 2 - 1);
         offset             = offset * 0.1 - 0.05;
         viewHeight         = saturate(viewHeight + offset);
@@ -41,19 +39,15 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
 
     #else
 
-        vec3  eyePlayerPos = mat3(gbufferModelViewInverse) * viewPos;
-        float viewHeight   = clamp(eyePlayerPos.y / sqrt(dot(eyePlayerPos, eyePlayerPos)) * 0.9 + 0.1, 0, 1);
+        vec3  playerEyePos = mat3(gbufferModelViewInverse) * viewPos;
+        float viewHeight   = clamp(playerEyePos.y / sqrt(dot(playerEyePos, playerEyePos)) * 0.9 + 0.1, 0, 1);
 
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
         sky_up      = mix(sky_up, fogColor * 0.5, rain);
 
-        #ifdef SKY_SUNSET
-         vec3 sky_down = mix(fogColor, sunset_color, sunset);
-         sky_down      = mix(sky_down, fogColor, rain);
-         return mix(sky_down, sky_up, viewHeight) * (1. - darknessFactor); //Get sky
-        #else
-         return mix(fogColor, sky_up, viewHeight) * (1. - darknessFactor); //Get sky
-        #endif
+        vec3 sky_down = mix(fogColor, sunset_color, sunset);
+        sky_down      = mix(sky_down, fogColor, rain);
+        return mix(sky_down, sky_up, viewHeight); //Get sky
 
     #endif
 

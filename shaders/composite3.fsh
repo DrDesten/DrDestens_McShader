@@ -1,511 +1,309 @@
-
-/*
-
-const int colortex0Format = RGB16F; // Color
-
-const int colortex1Format = RG8;            // Reflectiveness, Height (and in the future other PBR values)
-const int colortex2Format = RGB16_SNORM;    // Normals
-
-const int colortex3Format = R8;             // colortex3 = blockId
-const int colortex4Format = RGB8;           // colortex4 = bloom
-
-const int colortex5Format = R11F_G11F_B10F; // TAA
-
-*/
-
-#if MC_VERSION >= 11900
-const bool colortex0Clear      = true;
-#else
-const bool colortex0Clear      = false;
-#endif
-const bool colortex1Clear      = false;
-const bool colortex2Clear      = false;
-//const bool colortex3Clear      = false;
-//const bool colortex4Clear      = false;
-const bool colortex5Clear      = false;
-
-const vec4 colortex1ClearColor = vec4(0,1,0,1);
-const vec4 colortex3ClearColor = vec4(0,0,0,0);
-const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
-
-const float eyeBrightnessHalflife = 1.0;
-
-const float sunPathRotation = -35; // [-50 -49 -48 -47 -46 -45 -44 -43 -42 -41 -40 -39 -38 -37 -36 -35 -34 -33 -32 -31 -30 -29 -28 -27 -26 -25 -24 -23 -22 -21 -20 -19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50]
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                         REFLECTIONS AND WATER EFFECTS
+//                                    DENOISE AND OUTLINE AND FOG
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/composite_basics.glsl"
-#include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/skyColor.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
+#include "/lib/kernels.glsl"
 
+#if defined GODRAYS && defined OVERWORLD
 uniform sampler2D depthtex1;
+uniform int   frameCounter;
+uniform vec4  lightPositionClip; // lightPositionClip returns the clip position of the light with the homogenous w-component
+uniform float aspectRatio;
+#endif
+
+#ifdef POM_ENABLED
 uniform sampler2D colortex1;
+#endif
+
+#ifdef HAND_INVISIBILITY_EFFECT
+uniform float isInvisibleSmooth;
+#endif
+
+#if FOG != 0 || (defined GODRAYS && defined OVERWORLD)
+uniform ivec2 eyeBrightnessSmooth;
+uniform float rainStrength;
+uniform float far;
+#include "/lib/sky.glsl"
+#endif
+
+uniform float frameTimeCounter;
+uniform float blindness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-uniform float near;
-uniform float far;
-uniform float frameTimeCounter;
-uniform float rainStrength;
-uniform int   isEyeInWater;
-
-uniform ivec2 eyeBrightnessSmooth;
-
-struct position { // A struct for holding positions in different spaces
-    vec3 screen;
-    vec3 clip;
-    vec3 view;
-    vec3 vdir;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-//                     SCREEN SPACE REFLECTION
-//////////////////////////////////////////////////////////////////////////////
-
-vec4 CubemapStyleReflection(position pos, vec3 normal, bool skipSame) {
-    vec3 reflection   = reflect(pos.view, normal);
-    vec4 screenPos    = backToClipW(reflection) * .5 + .5;
-
-    //return vec4(getSkyColor5_gamma(reflection, rainStrength), 0);
-    //return (saturate(screenPos.xy) != screenPos.xy || screenPos.w <= .5 || getDepth(screenPos.xy) == 1) ? vec4(getSkyColor5_gamma(reflection, rainStrength), 0) : vec4(getAlbedo_int(screenPos.xy), 1);
-    if (clamp(screenPos.xy, vec2(-.2 * SSR_DEPTH_TOLERANCE, -.025), vec2(.2 * SSR_DEPTH_TOLERANCE + 1., 1.025)) != screenPos.xy || screenPos.w <= .5 || getDepth_int(screenPos.xy) == 1) {
-        return vec4(getFogColor_gamma(reflection, rainStrength, isEyeInWater), 0);
+float depthEdge(vec2 coord, float depth) {
+    depth = texelFetch(depthtex0, ivec2(clamp(coord * screenSize - 2, vec2(0), screenSize)), 0).x;
+    float maxdiff  = 0;
+    for (int x = 0; x <= 2; x++) {
+        for (int y = 0; y <= 2; y++) {
+            float d = texelFetch(depthtex0, ivec2(clamp(coord * screenSize - 2, vec2(0), screenSize)) + ivec2(x, y), 0).x;
+            maxdiff = max(maxdiff, abs(d-depth));
+        }
     }
-    return vec4(getAlbedo_int(screenPos.xy), 1);
+    return clamp(pow(maxdiff * 2e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
 
-/* vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+float depthEdgeFast(vec2 coord, float depth) { // Essentially the same speed
+    ivec2 intcoord = ivec2(coord * screenSize);
+    float maxdiff  = 0;
+    for (int x = -1; x <= 1; x++) {
+        ivec2 c = intcoord; //ivec2(saturate(coord) * (screenSize - 2)) + 1;
+        c.x    += x;
+        float d = texelFetch(depthtex0, c, 0).x;
+        maxdiff = max(maxdiff, abs(d-depth));
     }
-
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                     // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    rayStep         /= SSR_STEPS;
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
-            #endif
-
-            vec2 hitPos   = rayPos.xy;
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            float condition;
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = getDepth(rayPos.xy);
-                rayStep  *= .5;
-
-                if (rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance) {
-                    hitPos   = rayPos.xy;
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
+    for (int y = -1; y <= 1; y++) {
+        ivec2 c = intcoord; //ivec2(saturate(coord) * (screenSize - 2)) + 1;
+        c.y    += y;
+        float d = texelFetch(depthtex0, c, 0).x;
+        maxdiff = max(maxdiff, abs(d-depth));
     }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-} */
-vec4 universalSSR(position pos, vec3 normal, bool skipSame) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
-
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-    }
-
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir         = fstep(0, screenSpaceRay.z);                                          // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float zCompression = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                    // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep      = screenSpaceRay * saturate(abs(zCompression / screenSpaceRay.z));  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    //if (zCompression / screenSpaceRay.z < 0.05 )    return vec4(1,0,0,1);
-
-    rayStep         *= (1. / SSR_STEPS);
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = abs(rayStep.z * max(abs(normal.x), abs(normal.y)) + rayStep.z) * SSR_DEPTH_TOLERANCE; // We have to consider: the ray step AND the angle at which the surface is hit
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if (hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
-            #endif
-
-            vec2  hitPos   = rayPos.xy;
-            float lastDiff = abs(rayPos.z - hitDepth);
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = getDepth(rayPos.xy);
-                rayStep  *= .5;
-
-                if (abs(rayPos.z - hitDepth) < lastDiff) {
-                    hitPos   = rayPos.xy;
-                    lastDiff = abs(rayPos.z - hitDepth);
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+    return clamp(pow(maxdiff * 2e2 * OUTLINE_DISTANCE, 7), 0, 1);
 }
 
-vec4 universalSSR(position pos, vec3 normal, bool skipSame, sampler2D depthSampler) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
+vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
+    if (sqmag(blur) < sq(screenSizeInverse.x)) { return getAlbedo(coord); }
 
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+    vec3 col      = vec3(0);
+    vec2 blurStep = blur / float(samples);
+    vec2 sample   = coord;
+
+    for (int i = 0; i < samples; i++) {
+        col    += getAlbedo(sample);
+        sample += blurStep;
     }
 
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
-
-    float zDir         = fstep(0, screenSpaceRay.z);                                          // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float zCompression = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);                    // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep      = screenSpaceRay * saturate(abs(zCompression / screenSpaceRay.z));  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    //if (zCompression / screenSpaceRay.z < 0.05 )    return vec4(1,0,0,1);
-
-    rayStep         *= (1. / SSR_STEPS);
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = abs(rayStep.z * max(abs(normal.x), abs(normal.y)) + rayStep.z) * SSR_DEPTH_TOLERANCE; // We have to consider: the ray step AND the angle at which the surface is hit
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if (hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = texture(depthSampler, rayPos.xy).x;
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
-            #endif
-
-            vec2  hitPos   = rayPos.xy;
-            float lastDiff = abs(rayPos.z - hitDepth);
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = texture(depthSampler, rayPos.xy).x;
-                rayStep  *= .5;
-
-                if (abs(rayPos.z - hitDepth) < lastDiff) {
-                    hitPos   = rayPos.xy;
-                    lastDiff = abs(rayPos.z - hitDepth);
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
+    return col / float(samples);
 }
 
-/* vec4 universalSSR(position pos, vec3 normal, float roughness, bool skipSame) {
-    // Reflect in View Space
-    vec3 viewReflection = reflect(pos.vdir, normal) + pos.view;
+float mapHeight(float height, float maxVal) {
+    return sq(sq(height)) * -maxVal + maxVal;
+}
+float mapHeightSimple(float height, float maxVal) {
+    return height * -maxVal + maxVal;
+}
 
-    if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This (for an unknown reason) happens when vieReflection.z is positive
-        return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-    }
 
-    // Project to Screen Space
-    vec3 screenSpaceRay = normalize(backToClip(viewReflection) - pos.clip);
-    
-    float randfac    = Bayer4(pos.screen.xy * screenSize) * 0.2;
+float customLength(vec2 vec, float power) {
+    return pow(pow(abs(vec.x), power) + pow(abs(vec.y), power), 1/power);
+}
+float customLengthPow(vec2 vec, float power) {
+    return pow(abs(vec.x), power) + pow(abs(vec.y), power);
+}
 
-    float zDir       = fstep(0, screenSpaceRay.z);                                            // Checks if Reflection is pointing towards the camera in the z-direction (depth)
-    float maxZtravel = mix(pos.screen.z - 0.56, 1 - pos.screen.z, zDir);         // Selects the maximum Z-Distance a ray can travel based on the information
-    vec3  rayStep    = screenSpaceRay * clamp(abs(maxZtravel / screenSpaceRay.z), 0.05, 1);  // Scales the vector so that the total Z-Distance corresponds to the maximum possible Z-Distance
-
-    rayStep         /= SSR_STEPS;
-    vec3 rayPos      = rayStep * randfac + pos.screen;
-
-    float depthTolerance = (abs(rayStep.z) + .2 * sqmag(rayStep.xy)) * SSR_DEPTH_TOLERANCE * 3;
-    float hitDepth       = 0;
-
-    for (int i = 0; i < SSR_STEPS; i++) {
-
-        if ( clamp(rayPos, 0, 1) != rayPos || hitDepth >= 1) {
-            break; // Break if out of bounds
-        }
-
-        rayPos  += rayStep;
-        
-        hitDepth = getDepth(rayPos.xy);
-
-        if (rayPos.z > hitDepth && hitDepth < 1 && hitDepth > 0.56 && abs(rayPos.z - hitDepth) < depthTolerance) { // Next: Binary Refinement
-            if (getType(pos.screen.xy) == getType(rayPos.xy) && skipSame) {break;}
-
-            #ifdef SSR_NO_REFINEMENT
-                return vec4(getAlbedo_int(rayPos.xy), 1);
-            #endif
-
-            vec2 hitPos   = rayPos.xy;
-
-            // We now want to refine between "rayPos - rayStep" (Last Step) and "rayPos" (Current Step)
-            rayStep      *= 0.5;
-            rayPos       -= rayStep; // Go back half a step to start binary search (you start in the middle)
-
-            float condition;
-            for (int o = 0; o < SSR_FINE_STEPS; o++) {
-                hitDepth  = getDepth(rayPos.xy);
-                rayStep  *= .5;
-
-                if (rayPos.z > hitDepth && (rayPos.z - hitDepth) < depthTolerance) {
-                    hitPos   = rayPos.xy;
-                    rayPos  -= rayStep;
-                } else {
-                    rayPos  += rayStep;
-                }
-            }
-
-            return vec4(texture(colortex0, rayPos.xy, 0).rgb, 1);
-        }
-    }
-
-    return vec4(getFogColor_gamma(viewReflection - pos.view, rainStrength, isEyeInWater), 0);
-} */
+vec2 warpCoord(vec2 co) {
+    return -1 / (exp(4 * (co-0.5)) + 1) + 1;
+}
 
 /* DRAWBUFFERS:0 */
+
 void main() {
-    #ifndef REFRACTION
-     vec3  color                  = getAlbedo(ivec2(gl_FragCoord.xy));
-     float transparentLinearDepth = linearizeDepth(texture(depthtex1, coord).x, near, far);
-    #endif
+    vec3  color = getAlbedo(ivec2(gl_FragCoord.xy));
+    float depth = getDepth(ivec2(gl_FragCoord.xy));
+    float id    = getID(ivec2(gl_FragCoord.xy));
 
-    float depth         = getDepth(ivec2(gl_FragCoord.xy));
-    float linearDepth   = linearizeDepth(depth, near, far);
-    vec3  normal        = getNormal(ivec2(gl_FragCoord.xy));
-    float type          = getType(ivec2(gl_FragCoord.xy));
+    //////////////////////////////////////////////////////////////////////////////
+    //                              POM
+    //////////////////////////////////////////////////////////////////////////////
 
-    vec3  screenPos     = vec3(coord, depth);
-    vec3  clipPos       = screenPos * 2 - 1;
-    vec3  viewPos       = toView(clipPos);
-    vec3  viewDir       = normalize(viewPos);
+    #ifdef POM_ENABLED
 
-    position Positions  = position(screenPos, clipPos, viewPos, viewDir);
-
-    //////////////////////////////////////////////////////////
-    //                  WATER EFFECTS
-    //////////////////////////////////////////////////////////
-
-    #ifdef WATER_EFFECTS
-
-    // Refraction
-    // This effect simpy distorts the texcoords for things seen through water
-    #ifdef REFRACTION
-
-        vec2 coordDistort = coord;
-
-        // In-Water refraction (distorts texcoords when in water/lava)
-        if (isEyeInWater != 0) {
-            coordDistort += vec2((noise((coord * 50) + (frameTimeCounter * 3)) - 0.5) * 0.1 * REFRACTION_AMOUNT);
-        }
-
-        if (type == 10) {
-            coordDistort -= 0.5;
-
-            // Simple Noise (coord is transformed to [-0.5, 0.5] in order to scale effect correctly)
-            vec2 noise    = vec2(noise((coord * 3 * linearDepth) + (frameTimeCounter * 2)));
-            coordDistort += (noise - 0.5) * (REFRACTION_AMOUNT / linearDepth);
-
-            coordDistort += 0.5;
-        }
-
-        vec3  color                  = getAlbedo_int(coordDistort);
-              depth                  = getDepth_int(coordDistort);
-              linearDepth            = linearizeDepth(depth, near, far);
-        float transparentLinearDepth = linearizeDepth(texture(depthtex1, coordDistort).x, near, far);
-
-    #endif
-
-    // Absorption Above Water
-    if (type == 10 && isEyeInWater == 0) {
-        // Height difference between water surface and ocean floor
-        float absorption = exp2(-(transparentLinearDepth - linearDepth) * 0.2 - WATER_ABSORPTION_BIAS);
-
-        color *= absorption;
-    }
-    
-
-    #ifdef SCREEN_SPACE_REFLECTION
-
-        // SSR for Water
-        if (type == 10) {
-
-            /* vec2 n           = N22(fract(coord + frameTimeCounter)) * 2 - 1;
-            vec3 roughNormal = normalize(vec3(n * 0.1, 1)) * arbitraryTBN(normal); */
-
-            float fresnel   = customFresnel(viewDir, normal, 0.05, 1, 3);
-
-            #if SSR_MODE == 0
-                vec4 Reflection = universalSSR(Positions, normal, false);
+        if (depth > 0.56 && depth < 0.998) {
+            #ifdef POM_DISTORTION
+             float height    = mapHeight(texture(colortex1, coord).g, POM_DEPTH);
             #else
-                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+             float height    = mapHeightSimple(texture(colortex1, coord).g, POM_DEPTH);
+            #endif
+            height         *= sq(depth * (1./0.56) - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
+
+            vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);
+            vec3 playerPos    = toPlayerEye(viewPos);
+            vec3 playerNormal = normalize(cross(dFdx(playerPos), dFdy(playerPos))); // Calculate normals based on derivatives (faster, accurate eniugh)
+
+            vec3 playerPOM = playerPos + (playerNormal * height);
+
+            vec3  POMPos   = backToScreen(eyeToView(playerPOM));
+            POMPos.xy      = mirrorClamp(POMPos.xy);
+            float POMdepth = getDepth(POMPos.xy);
+
+            float distSQ   = sqmag(playerPos);
+            bool error = POMdepth < 0.56 || distSQ > 500;
+            if (!error) {
+
+                color  = getAlbedo(POMPos.xy);
+
+                float distFade = saturate(map(distSQ, 300, 500, 1, 0.2));
+                //color *= texture(colortex1, POMPos.xy).g * distFade + (1 - distFade);
+
+                #ifdef POM_DEBUG
+                color  = vec3(height);
+                #endif
+
+            }
+            depth  = POMdepth;
+
+        } else if (depth <= 0.56) {
+            color *= texture(colortex1, coord).g;
+        }
+
+    #endif
+
+    //////////////////////////////////////////////////////////////////////////////
+    //                              OUTLINE
+    //////////////////////////////////////////////////////////////////////////////
+
+    #if OUTLINE != 0
+
+        float outline = depthEdge(coord, depth);
+        #if OUTLINE == 1
+         color = mix(color, vec3(1), outline * OUTLINE_BRIGHTNESS);
+        #elif OUTLINE == 2
+         color = color * saturate( -outline * OUTLINE_BRIGHTNESS + 1);
+        #else
+         color = mix(color, cos( ((frameTimeCounter * 0.5) + (coord * 4).xyx + vec3(0, 0, 4)) ) + 1, outline);
+        #endif
+        
+    #endif
+
+    //////////////////////////////////////////////////////////////////////////////
+    //                                 FOG
+    //////////////////////////////////////////////////////////////////////////////
+    
+    #if FOG != 0
+
+        vec3 viewPos        = toView(vec3(coord, depth) * 2 - 1);
+        vec3 playerEyePos   = toPlayerEye(viewPos);
+        vec3 customFogColor = getFog(playerEyePos);
+
+        if (depth < 1) { // NOT SKY
+
+        #if FOG == 1
+
+            float dist = length(viewPos);
+
+            #ifdef SUNSET_FOG
+            #ifdef OVERWORLD
+                dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
+            #endif
             #endif
 
             #ifdef END
-            Reflection.rgb *= saturate(0.5 + Reflection.a);
+                float fog       = 1 - exp(min(dist * (15e-3 * -FOG_AMOUNT) + 0.1, 0));
+            #elif defined NETHER
+                float fog       = 1 - exp(min(dist * (9e-3 * -FOG_AMOUNT) + 0.1, 0));
             #else
-            Reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + Reflection.a);
+                float fog       = 1 - exp(min(dist * (2e-3 * -FOG_AMOUNT) + 0.1, 0));
             #endif
 
-            color           = mix(color, Reflection.rgb, fresnel);
+            fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
 
-            #ifdef SSR_DEBUG
-                color = vec3(fresnel);
-            #endif
+        #else
 
-        }
+            const float fogStart = 0.5 / max(FOG_AMOUNT, 0.6);
+            const float fogEnd   = 1.0;
 
-        //////////////////////////////////////////////////////////
-        //                  OTHER REFLECTIVE SURFACES
-        //////////////////////////////////////////////////////////
-
-        // Reflections on PBR Materials
-        #ifdef PHYSICALLY_BASED
-
-        // SSR for other reflective surfaces
-        float reflectiveness = texture(colortex1, coord).r; // Fresnel is included here
-        if (reflectiveness > 0.6/255) {
-
-            //reflectiveness = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
-
-            #if SSR_MODE == 0
-                vec4 Reflection = universalSSR(Positions, normal, false);
+            float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
+            #if defined SUNSET_FOG && defined OVERWORLD
+            // if it is a cloud, apply set fog distances as they don't depend on render distance (cloud id is 52)
+            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
             #else
-                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
+            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart, far, dist);
             #endif
-
-            color              = mix(color, Reflection.rgb, reflectiveness * Reflection.a);
-
-            #ifdef SSR_DEBUG
-                color = vec3(1, 0,0);
-            #endif
-        }
-
-        // Reflections on Glass
-        #elif defined GLASS_REFLECTIONS
-
-        if (type == 11) { 
-
-            float fresnel   = customFresnel(viewDir, normal, 0.1, 1, 7);
-
-            #if SSR_MODE == 0
-                vec4 Reflection = universalSSR(Positions, normal, false, depthtex1);
-            #else
-                vec4 Reflection = CubemapStyleReflection(Positions, normal, false);
-            #endif
-
-            color           = mix(color, Reflection.rgb, fresnel);
-
-            #ifdef SSR_DEBUG
-                color = vec3(fresnel);
-            #endif
-
-        }
 
         #endif
-        
+
+        color = mix(color, customFogColor, fog);
+
+        }
 
     #endif
 
-    // Absorption Underwater
-    if (isEyeInWater != 0) {
-        // Distance to closest Surface
-        float absorption = exp2(linearDepth * -0.1);
+    //////////////////////////////////////////////////////////////////////////////
+    //                              GODRAYS
+    //////////////////////////////////////////////////////////////////////////////
 
-        color *= absorption;
-        if (isEyeInWater == 2) { // Lava
-            color = mix(pow(fogColor, vec3(GAMMA)), color, absorption * 0.75);
+    #if defined GODRAYS && defined OVERWORLD
+
+        if (lightPositionClip.w > 0 && rainStrength < 1) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
+            // Finish screen space transformation
+            vec2 sunScreen    = lightPositionClip.xy * 0.5 + 0.5;
+
+            // Create ray pointing from the current pixel to the sun
+            vec2 ray          = sunScreen - coord;
+            vec2 rayCorrected = vec2(ray.x * aspectRatio, ray.y); // Aspect Ratio corrected ray for accurate exponential decay
+
+            vec2 rayStep      = ray / GODRAY_STEPS;
+            #ifndef TAA
+            vec2 rayPos  = coord - (Bayer8(coord * screenSize) * rayStep);
+            #else
+            float dither = fract(Bayer8(coord * screenSize) + frameCounter * PHI);
+            vec2  rayPos = coord - ( dither * rayStep);
+            #endif
+
+            float light = 1;
+            for (int i = 0; i < GODRAY_STEPS; i++ ) {
+
+                rayPos += rayStep;
+
+                if (isEyeInWater != 0) {
+                    if (texture(depthtex1, rayPos).x != 1) { // Subtract from light when there is an occlusion
+                        light -= 1. / GODRAY_STEPS;
+                    }
+                } else {
+                    if (texture(depthtex0, rayPos).x != 1) { // Subtract from light when there is an occlusion
+                        light -= 1. / GODRAY_STEPS;
+                    }
+                }
+
+            }
+
+            // Exponential falloff (also making it FOV independent)
+            light *= exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
+
+            #if FOG != 0
+                color += saturate(light * GODRAY_STRENGTH * getGodrayColor()); // Additive Effect
+            #else
+                color += saturate(light * GODRAY_STRENGTH * fogColor); // Additive Effect
+            #endif
         }
+
+    #endif
+
+    
+    //////////////////////////////////////////////////////////////////////////////
+    //                              EFFECTS
+    //////////////////////////////////////////////////////////////////////////////
+
+    #ifdef HAND_INVISIBILITY_EFFECT
+
+        if (getID(coord) == 51 && isInvisibleSmooth > 0.0001) { // Hand invisbility Effect
+
+            vec2 seed1 = coord * 15 + vec2(0., frameTimeCounter * 2);
+            vec2 seed2 = coord * 15 + vec2(frameTimeCounter * 2, 0.);
+            vec2 noise = vec2(
+                fbm(seed1, 2, 5, .05), 
+                fbm(seed2, 2, 5, .05)
+            );
+            noise = normalize(noise - .25) * isInvisibleSmooth * 0.05;
+
+            color = vectorBlur(coord + noise, -(noise * Bayer4(coord * screenSize)), 5);
+        }
+
+    #endif
+
+    if (blindness > 0) { // Handling Blindness
+        float dist = sqmag(toView(vec3(coord, depth) * 2 - 1));
+        color     /= sq(dist * blindness + 1);
     }
 
-    #endif // WATER_EFFECTS
-
     //Pass everything forward
-    gl_FragData[0] = vec4(color, 1);
+    gl_FragData[0]          = vec4(color, 1);
 }

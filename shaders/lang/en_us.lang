@@ -3,38 +3,38 @@
 // DEPTH OF FIELD
 ///////////////////////////////////////////////////////////
 
-screen.DEPTH_OF_FIELD=Depth Of Field
+screen.DOF_OPTS=Depth Of Field
 
-option.DOF_MODE=DoF Type
-option.DOF_MODE.comment=Blurs non-focused objects, like a real camera. Adaptive Bokeh changes the quality based on the blur amount (inconsistent, but mostly better performance).
-value.DOF_MODE.0=OFF
-value.DOF_MODE.3=Bokeh
-value.DOF_MODE.4=Adaptive Bokeh
+option.DEPTH_OF_FIELD=Depth of Field
+option.DEPTH_OF_FIELD.comment=Blurs non-focused objects, like a real camera.
+
+option.DOF_SAMPLES=Bokeh Samples
+option.DOF_SAMPLES.comment=Quality of the blur. Higher is better. Significantly affects performance.
+
+option.DOF_STRENGTH=DoF Intensity
+option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. Low performance impact.
 
 option.DOF_MAXSIZE=Maximum Blur
-option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Hides artifacts when using lower quality blur.
+option.DOF_MAXSIZE.comment=Limits the strength of the DoF blur. Helps reduce artifacts when using lower sample counts and is better for gameplay.
 value.DOF_MAXSIZE.0.005=Low
 value.DOF_MAXSIZE.0.007=Medium
 value.DOF_MAXSIZE.0.03=High
 value.DOF_MAXSIZE.1.0=Unlimited
 
-option.DOF_STRENGTH=DoF Intensity
-option.DOF_STRENGTH.comment=Intensity of the Depth of Field effect. With Adaptive Bokeh, lower values might be faster.
-
-option.DOF_DITHER=Dither DoF
-
 option.DOF_DOWNSAMPLING=DoF Downsampling Amount
-option.DOF_DOWNSAMPLING.comment=Amount of downsampling that takes place for the Depth of Field effect. Does not affect performance. Reduces DoF artifacts, can create pixelation artifacts.
+option.DOF_DOWNSAMPLING.comment=Amount of Downsampling that takes place for the Depth of Field effect. Reduces DoF artifacts, increases pixelation artifacts. No/Low performance impact.
 
-option.DOF_KERNEL_SIZE=Bokeh Quality
-option.DOF_KERNEL_SIZE.comment=Quality of the blur. Significantly affects performance.
-value.DOF_KERNEL_SIZE.1=Low
-value.DOF_KERNEL_SIZE.2=Medium
-value.DOF_KERNEL_SIZE.3=High
-value.DOF_KERNEL_SIZE.4=Highest
+option.DOF_FAR_BLUR_ONLY=Far Blur Only
+option.DOF_FAR_BLUR_ONLY.comment=Only blurs far away things.
+
+option.DOF_SAMPLE_REJECTION=Sample Rejection
+option.DOF_SAMPLE_REJECTION.comment=Improved DoF Quality by (mostly) removing color bleeding. Can have a significant performance impact.
+
+option.centerDepthHalflife=Focus Delay
+option.centerDepthHalflife.comment=Sets how long the focus takes to adjust.
 
 option.DOF_CHROMATIC_ABERRATION=DoF Chromatic Aberration
-option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction. It is advised to only turn one Chromatic Aberration effect on.
+option.DOF_CHROMATIC_ABERRATION.comment=Color Diffraction.
 value.DOF_CHROMATIC_ABERRATION.0=§cOFF
 
 
@@ -58,6 +58,11 @@ value.SSR_DEPTH_TOLERANCE.1000=Infinite
 option.SSR_REFLECTION_THRESHOLD=Reflection Threshold
 option.SSR_REFLECTION_THRESHOLD.comment=PBR only. Sets the minimum required reflectiveness in order for SSR to enable. Higher values may introduce reflection cutoffs.
 
+option.REFLECTION_FADE=Fade Edges
+value.REFLECTION_FADE.0=§cOFF
+value.REFLECTION_FADE.1=Vertical
+value.REFLECTION_FADE.2=Full
+
 option.REFRACTION=Screen Space Refraction
 option.REFRACTION.comment=Distorts things seen through water.
 option.REFRACTION_AMOUNT=Refraction Strength
@@ -80,9 +85,19 @@ option.WATER_NORMALS_AMOUNT=Bump Amount
 option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
 option.WATER_NORMALS_SIZE=Bump Size
 
+option.WATER_ABSORPTION_DENSITY=Water Absorption Density
 option.WATER_ABSORPTION_BIAS=Water Absorption Bias
+option.WATER_ABSORPTION_BIAS.comment=Adds a constant to the water fog distance. Can help in making water more visible.
 
 option.WATER_TEXTURE_VISIBLE=Water Texture
+option.WATER_TEXTURE_VISIBLE.comment=Enables the vanilla water texture
+
+screen.WATER_COLOR_OPTS=Water Color Options
+
+option.WATER_ABSORPTION_COLOR_DAY_R=Water Absorption Color §cR
+option.WATER_ABSORPTION_COLOR_DAY_G=Water Absorption Color §2G
+option.WATER_ABSORPTION_COLOR_DAY_B=Water Absorption Color §9B
+option.WATER_ABSORPTION_COLOR_MULT=Absorption Color Multiplier
 
 ///////////////////////////////////////////////////////////
 // POST-PROCESSING
@@ -101,13 +116,6 @@ option.BLOOM_AMOUNT=Bloom Strength
 option.MOTION_BLUR=Motion Blur
 option.MOTION_BLUR_STRENGTH=Motion Blur Intensity
 
-option.MOTION_BLUR_FULL=Realistic Motion Blur
-option.MOTION_BLUR_FULL.comment=With this option enabled, the camera rotation as well as the distance to the terrain will be taken into account. Otherwise, only player movement affects motion blur.
-
-option.MOTION_BLUR_SAMPLES=Motion Blur Quality
-value.MOTION_BLUR_SAMPLES.1=Low
-value.MOTION_BLUR_SAMPLES.4=High
-
 option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
 option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=Screen Space Ambient Occlusion. Makes cavities dark. High performance impact.
 
@@ -121,7 +129,7 @@ option.SSAO_STRENGTH=SSAO Strength
 screen.TAA_OPTIONS=TAA Options
 option.TAA.comment=Temporal Anti-Aliasing. Smooths edges at the cost of a slightly blurrier image. Might cause problems with OptiFine's high-res screenshot feature.
 option.TAA_BLEND=TAA Blending Constant
-option.TAA_BLEND.comment=Controls the opacity of the current frame. Set this value lower for smoother TAA.
+option.TAA_BLEND.comment=Controls the opactity of the current frame. Set this value lower for smoother TAA.
 option.TAA_SHARPENING_AMOUNT=TAA Sharpening
 option.TAA_SHARPENING_AMOUNT.comment=Changes the strength of the sharpening effect.
 
@@ -186,32 +194,42 @@ option.SUNSET_FOG=Morning Fog
 option.SUNSET_FOG.comment=Increases fog amount during sunsets. Only works with fog in "Normal" mode. Requires fog and sunsets to be enabled.
 option.SUNSET_FOG_AMOUNT=Morning Fog Strength
 
+option.CAVE_FOG=Cave Fog 
+option.CAVE_FOG_BRIGHTNESS=Cave Fog Brightness
+
 option.GODRAYS=Godrays
 option.GODRAY_STRENGTH=Godray Strength
-option.GODRAY_STEPS=Godray Steps
-option.GODRAY_SIZE=Godray Size
+option.GODRAY_STEPS=Godray Samples
+option.GODRAY_SIZE=Godray Radius
 
-option.SKY_SUNSET=Sunset
+screen.GODRAY_OPTIONS=Godray Colors
+option.GODRAY_SUN_R=Godray Sun §cR
+option.GODRAY_SUN_G=Godray Sun §2G
+option.GODRAY_SUN_B=Godray Sun §9B
+option.GODRAY_MOON_R=Godray Moon §cR
+option.GODRAY_MOON_G=Godray Moon §2G
+option.GODRAY_MOON_B=Godray Moon §9B
 
-screen.SKY_OPTIONS=Sky Options
+screen.SKY_OPTIONS=Sky Colors
 option.SKY_DAY_R=Sky Day §cR
-option.SKY_DAY_G=Sky Day §aG
+option.SKY_DAY_G=Sky Day §2G
 option.SKY_DAY_B=Sky Day §9B
 option.SKY_NIGHT_R=Sky Night §cR
-option.SKY_NIGHT_G=Sky Night §aG
+option.SKY_NIGHT_G=Sky Night §2G
 option.SKY_NIGHT_B=Sky Night §9B
 option.SKY_SUNSET_R=Sky Sunset §cR
-option.SKY_SUNSET_G=Sky Sunset §aG
+option.SKY_SUNSET_G=Sky Sunset §2G
 option.SKY_SUNSET_B=Sky Sunset §9B
 
 option.END_SKY_UP_R=End Sky Upper §cR
-option.END_SKY_UP_G=End Sky Upper §aG
+option.END_SKY_UP_G=End Sky Upper §2G
 option.END_SKY_UP_B=End Sky Upper §9B
 option.END_SKY_DOWN_R=End Sky Lower §cR
-option.END_SKY_DOWN_G=End Sky Lower §aG
+option.END_SKY_DOWN_G=End Sky Lower §2G
 option.END_SKY_DOWN_B=End Sky Lower §9B
 
 option.sunPathRotation=Sun Angle
+suffix.sunPathRotation=°
 
 ///////////////////////////////////////////////////////////
 // CAMERA
@@ -226,9 +244,30 @@ value.TONEMAP.1=Custom Reinhard
 value.TONEMAP.2=Unreal
 
 option.CONTRAST=Contrast
-
+option.VIBRANCE=Vibrance
 option.SATURATION=Saturation
+option.BRIGHTNESS=Brightness
 
+option.VIGNETTE=Vignette
+option.VIGNETTE.comment=Darkens screen borders.
+value.VIGNETTE.0=OFF
+value.VIGNETTE.1=Round
+value.VIGNETTE.2=Square
+option.VIGNETTE_STRENGTH=Vignette Strength
+
+///////////////////////////////////////////////////////////
+// WEATHER
+///////////////////////////////////////////////////////////
+
+screen.WEATHER=Weather
+
+option.RAIN_DETECTION_MODE=Rain Detection
+value.RAIN_DETECTION_MODE.0=Temperature
+value.RAIN_DETECTION_MODE.1=Color
+
+option.RAIN_OPACITY=Rain Opacity
+option.RAIN_REFRACTION=Rain Refraction
+option.RAIN_REFRACTION_STRENGTH=Rain Refraction Strength
 
 ///////////////////////////////////////////////////////////
 // MISC
@@ -238,7 +277,7 @@ screen.MISC=Other Stuff
 
 option.OUTLINE=Outline
 option.OUTLINE_DISTANCE=Outline Distance
-value.OUTLINE.0=§cOFF
+value.OUTLINE.0=OFF
 value.OUTLINE.1=White
 value.OUTLINE.2=Black
 value.OUTLINE.3=Rainbow
@@ -267,4 +306,4 @@ option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from 
 option.CREDITS=§k###
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
 value.CREDITS.0=§r by §cDrDesten §r§k:###
-value.CREDITS.1=§r §aVersion 1.5.6 §r§k:###
+value.CREDITS.1=§r §aVersion 1.5.5 §r§k:###

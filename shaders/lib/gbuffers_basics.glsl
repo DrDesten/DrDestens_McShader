@@ -24,3 +24,7 @@ vec2 getBlocklightDir(vec2 lco, mat2 tbn) {
 float codeID(float blockId) {
     return blockId * .00392156862745; // 0.00392156862745 == 1/255
 }
+
+float DynamicLight(vec2 lmcoord) {
+    return lmcoord.x * lmcoord.x * TORCHLIGHT_EXTRA_BRIGHTNESS;
+}

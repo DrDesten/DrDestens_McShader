@@ -10,14 +10,19 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:031 */
+#else
+/* DRAWBUFFERS:03 */
+#endif
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
-	vec3 tmp   = sq(color.rgb);
-	color.rgb *= getLightmap(lmcoord).rgb;
-	gamma(color.rgb);
+	color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
+	color.rgb  = gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
 	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
-	gl_FragData[2] = vec4(0, vec3(1));  // Reflectance
+	#ifdef PHYSICALLY_BASED
+	gl_FragData[2] = PBR_EMPTY; // pbr
+	#endif
 }

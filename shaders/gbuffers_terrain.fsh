@@ -15,7 +15,7 @@ uniform ivec2 atlasSize;
 #endif
 #endif
 
-in float blockId;
+flat in int blockId;
 #ifdef PHYSICALLY_BASED
 in vec3  viewpos;
 #endif
@@ -24,16 +24,18 @@ in vec2  coord;
 
 in vec4  glcolor;
 
-in mat3 tbn;
+flat in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
+#ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
+#else
+/* DRAWBUFFERS:023 */
+#endif
 void main() {
-	vec3  normal         = tbn[2];
-	float reflectiveness = 0;
-	float height 		 = 1;
+	vec3  normal = tbn[2];
 
 	vec4 color = texture2D(texture, coord, 0);
 	color.rgb *= glcolor.rgb;
@@ -47,10 +49,9 @@ void main() {
 		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
 
 		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color = color.rgb * glcolor.a * lightmapColor;
-		gamma(mc_color);
+		vec3 mc_color = gamma(color.rgb * glcolor.a * lightmapColor);
 
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 		vec3 ambientLight   = lightmapColor;
 		//gamma(ambientLight);
 
@@ -61,8 +62,10 @@ void main() {
 
 		color	            = Material.color;
 		normal	   	        = Material.normal;
-		reflectiveness      = Material.reflectiveness;
-		height 				= MatTex.height;
+		
+		float reflectiveness = luminance(MatTex.f0);
+		float roughness      = MatTex.roughness;
+		float height         = MatTex.height;
 
 		#ifdef POM_ENABLED
 		#ifdef POM_SMOOTH
@@ -92,9 +95,6 @@ void main() {
 		#endif
 		#endif
 
-    	reflectiveness  = smoothCutoff(reflectiveness, SSR_REFLECTION_THRESHOLD, 0.5);
-		reflectiveness += Bayer4(gl_FragCoord.xy) * (1./255) - (0.5/255);
-
 	#else
 
 		vec3 tmp = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
@@ -115,7 +115,7 @@ void main() {
 		#endif
 
 		color.rgb *= glcolor.a;
-		gamma(color.rgb);
+		color.rgb  = gamma(color.rgb);
 
 		if (lmcoord.x > 14.5/15.) {
 			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
@@ -127,5 +127,7 @@ void main() {
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(normal, 1);
 	gl_FragData[2] = vec4(codeID(blockId), vec3(1));
+	#ifdef PHYSICALLY_BASED
 	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	#endif
 }

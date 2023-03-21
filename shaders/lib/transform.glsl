@@ -1,11 +1,6 @@
-uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView;
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferPreviousProjection;
+uniform vec3 cameraPosition, previousCameraPosition;
+uniform mat4 gbufferModelView, gbufferModelViewInverse, gbufferPreviousModelView;
+uniform mat4 gbufferProjection, gbufferProjectionInverse, gbufferPreviousProjection;
 
 float fovScale = gbufferProjection[1][1] * 0.7299270073;
 
@@ -96,7 +91,7 @@ vec3 previousReprojectClip(vec3 clipPos) {
 }
 
 vec3 reprojectTAA(vec3 screenPos) {
-    if (screenPos.z < 0.56) {return screenPos;}
+    if (screenPos.z < 0.56) return screenPos;
 
     // Project to World Space
     vec3 pos = toView(screenPos * 2 - 1);
@@ -109,26 +104,12 @@ vec3 reprojectTAA(vec3 screenPos) {
     return     toPrevScreen(pos);
 }
 
-vec3 screenSpaceMovement(vec3 clipPos) {
-    // Project to World Space
-    vec3 pos = toView(clipPos);
-    pos      = toPlayer(pos);
-    pos      = toWorld(pos);
-
-    // Project to previous Screen Space
-    pos      = toPrevPlayer(pos);
-    pos      = backToView(pos);
-    return     backToScreen(pos);
-}
-vec3 screenSpaceMovement(vec3 clipPos, vec3 weight) {
-    // Project to Player Space
-    vec3 pos = toView(clipPos);
-    pos      = toPlayer(pos);
-
-    // Calculate World Space
-    pos      += (cameraPosition - previousCameraPosition) * 1;
-
-    // Project to previous Screen Space
-    pos      = backToView(pos);
-    return     backToScreen(pos);
+vec2 motionBlur(vec3 screenPos) {
+    if (screenPos.z < 0.56) return vec2(0);
+    
+    vec3 prevScreenPos = toPrevScreen(toPrevView(toPrevPlayer(toWorld(toPlayer(toView(screenPos * 2 - 1))))));
+    vec2 motionVector  = screenPos.xy - prevScreenPos.xy;
+    motionVector      /= length(motionVector) + 0.25; //Basically Reinhard Tonemapping (but on motion blur lol)
+	
+    return motionVector * (0.25 * MOTION_BLUR_STRENGTH);
 }

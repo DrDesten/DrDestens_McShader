@@ -13,7 +13,11 @@
 in vec2 lmcoord;
 in vec4 glcolor;
 
+#ifdef PHYSICALLY_BASED
+/* DRAWBUFFERS:01 */
+#else
 /* DRAWBUFFERS:0 */
+#endif
 void main() {
 
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
@@ -36,9 +40,10 @@ void main() {
 
 	#endif
 
-
-	gamma(color.rgb);
+	color.rgb  = gamma(color.rgb);
 
 	gl_FragData[0] = color; //gcolor
-	
+	#ifdef PHYSICALLY_BASED
+	gl_FragData[1] = PBR_EMPTY; // no pbr
+	#endif
 }

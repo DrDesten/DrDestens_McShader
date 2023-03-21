@@ -1,24 +1,27 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
-#include "/lib/vertex_transform.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/vertex_transform.glsl"
+#include "/lib/vertex_lighting.glsl"
 
-uniform int   frameCounter;
+
+#ifdef TAA
+ uniform vec2 taaOffset;
+#endif
+
 uniform float frameTimeCounter;
-uniform vec2  screenSizeInverse;
 
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
 out float blockId;
-
 out vec2 coord;
 out vec2 lmcoord;
 out vec3 worldPos;
 out vec3 viewDir;
 
 out vec4 glcolor;
-out mat3 tbn;
+flat out mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
@@ -54,7 +57,7 @@ void main(){
 	#endif
 
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
 	tbn			 = getTBN(at_tangent);
@@ -65,5 +68,6 @@ void main(){
     coord 		 = getCoord();
 	lmcoord      = getLmCoord();
 	glcolor 	 = gl_Color;
+	glcolor.a   *= oldLighting(tbn[2], gbufferModelView);
 
 }

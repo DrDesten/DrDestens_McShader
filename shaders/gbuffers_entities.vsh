@@ -1,18 +1,19 @@
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
+#include "/lib/vertex_lighting.glsl"
 
 #ifdef WORLD_CURVE
  #include "/lib/vertex_transform.glsl"
 #else
  #include "/lib/vertex_transform_simple.glsl"
+ uniform mat4 gbufferModelView;
 #endif
 
 attribute vec4 at_tangent;
 
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform vec2 taaOffset;
 #endif
 
 #ifdef PHYSICALLY_BASED
@@ -27,7 +28,7 @@ out vec4 glcolor;
 #ifdef FRAG_NORMALS
 out vec3 N;
 #else
-out mat3 tbn;
+flat out mat3 tbn;
 #endif
 
 void main() {
@@ -38,7 +39,7 @@ void main() {
 	#endif
 	
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 	
 	#ifdef PHYSICALLY_BASED
@@ -53,4 +54,9 @@ void main() {
 	#endif
 
 	glcolor = gl_Color;
+	#ifdef FRAG_NORMALS
+	glcolor.rgb *= oldLighting(N, gbufferModelView);
+	#else
+	glcolor.rgb *= oldLighting(tbn[2], gbufferModelView);
+	#endif
 }

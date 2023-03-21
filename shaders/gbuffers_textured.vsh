@@ -9,8 +9,7 @@
 #endif
 
 #ifdef TAA
-uniform int  frameCounter;
-uniform vec2 screenSizeInverse;
+ uniform vec2 taaOffset;
 #endif
 
 out vec2 lmcoord;
@@ -26,7 +25,7 @@ void main() {
 	#endif
 
 	#ifdef TAA
-		gl_Position.xy += TAAOffsets[int( mod(frameCounter, 9) )] * TAA_JITTER_AMOUNT * gl_Position.w * screenSizeInverse * 2;
+		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
 	coord   = getCoord();

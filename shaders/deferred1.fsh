@@ -1,10 +1,12 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/kernels.glsl"
 #include "/lib/transform.glsl"
-#include "/lib/composite_basics.glsl"
+#include "/lib/composite/basics.glsl"
+#include "/lib/composite/color.glsl"
+#include "/lib/composite/depth.glsl"
+#include "/lib/composite/normal.glsl"
+#include "/lib/composite/id.glsl"
 
 uniform float near;
 uniform float aspectRatio;
@@ -61,7 +63,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
         sample      = TBN * sample;
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
     }
@@ -71,7 +73,7 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
 } */
 float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     vec3 viewPos      = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, near);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.9 + 0.1) * size;
@@ -84,22 +86,22 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size * 0.6, 3) * float(sample.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
-    return sq(hits);
+    return sqsq(hits);
 }
 
 float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     vec3  viewPos     = toView(screenPos * 2 - 1);
-    float linearDepth = linearizeDepthf(screenPos.z, near);
+    float linearDepth = linearizeDepthf(screenPos.z, nearInverse);
 
     #ifdef TAA
      float ditherTimesSize  = (fract(Bayer4(screenPos.xy * screenSize) + (frameCounter * 0.136)) * 0.85 + 0.15) * size;
@@ -113,23 +115,48 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
 
         vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
         sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                               // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        sample     += normal * 0.025;                              // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
         sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth_int(sample.xy);
+        float hitDepth = getDepth(sample.xy);
 
         float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size, 3) * float(sample.z > hitDepth);
+        hits += linearAttenuation(depthDiff, size * 0.5, 3) * float(sample.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
-    return sq(hits);
+    return sqsq(hits);
 }
+
+vec3 HBAO_like(vec3 screenPos, vec3 screenNormal, float radius) {
+    float dither = Bayer4(gl_FragCoord.xy);
+
+    float dirDither = dither * TWO_PI + (frameCounter);
+    vec2  dir       = vec2(sin(dirDither), cos(dirDither)) * radius;
+
+    float ao = 0;
+    for (int i = 0; i < 4; i++) {
+        vec2 sdir = dir * i;
+
+        float sd1 = getDepth(screenPos.xy + sdir);
+        float sd2 = getDepth(screenPos.xy - sdir);
+
+        vec3 s1 = normalize(vec3( sdir, sd1 - screenPos.z));
+        vec3 s2 = normalize(vec3(-sdir, sd2 - screenPos.z));
+
+        float angle1 = saturate(-dot(s1, screenNormal));
+        float angle2 = saturate(-dot(s2, screenNormal));
+        float occlusion = angle1 + angle2;
+
+        ao += occlusion * 0.125;
+    }
+
+    return vec3(ao * 1.05 - 0.05);
+}
+
 
 // Really Fast™ SSAO
 float SSAO(vec3 screenPos, float radius) {
-    if (screenPos.z >= 1.0) { return 1.0; };
-
     #ifdef TAA
      float dither = fract(Bayer8(screenPos.xy * screenSize) + (frameCounter * PHI_INV)) * 0.2;
     #else
@@ -146,7 +173,7 @@ float SSAO(vec3 screenPos, float radius) {
     float occlusion   = 0.0;
     for (int i = 0; i < 8; i++) {
 
-        vec2 offs = spiralOffset_full(sample, 4.5) * rad;
+        vec2 offs = spiralOffset_full(sample, 7.5 * PHI_INV) * rad;
 
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
@@ -157,7 +184,7 @@ float SSAO(vec3 screenPos, float radius) {
 
     }
 
-    occlusion = cb(1 - saturate(occlusion * 0.125));
+    occlusion = sqsq(1 - saturate(occlusion * 0.125));
     return occlusion;
 }
 
@@ -197,31 +224,36 @@ float SSAO(vec3 screenPos, float radius) {
 
 /* DRAWBUFFERS:0 */
 void main() {
-    vec3  color       = getAlbedo(coord);
-    float depth       = getDepth(coord);
-    float type        = getType(coord);
-
-    //////////////////////////////////////////////////////////
-    //                  SSAO
-    //////////////////////////////////////////////////////////
+    vec3 color = getAlbedo(coord);
 
     #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        if (type != 50 && type != 51 && depth != 1) {
+        float depth = getDepth(coord);
+        float id    = getID(coord);
+
+        vec3 screenPos = vec3(coord, depth);
+
+        //////////////////////////////////////////////////////////
+        //                  SSAO
+        //////////////////////////////////////////////////////////
+
+
+        if ((id < 50 || id > 52) && depth != 1) {
+            //color = vec3(1);
 
             #if   SSAO_QUALITY == 1
 
-                color        *= SSAO(vec3(coord, depth), 0.2) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 2
 
                 vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #elif SSAO_QUALITY == 3
 
                 vec3 normal = getNormal(coord);
-                color       *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.5) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+                color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
             #endif
             
