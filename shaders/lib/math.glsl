@@ -509,7 +509,7 @@ mat3 arbitraryTBN(vec3 normal) {
 
 vec3 contrast(vec3 col, float contrast) {
     vec3 lower = (contrast * col) * (col * col);
-    vec3 upper = vec3(1) - contrast * sq(col - 1);
+    vec3 upper = 1 - contrast * sq(col - 1);
     return mix(lower, upper, col);
 } */
 
@@ -721,8 +721,8 @@ float linearizeDepthInverse(float l, float nearPlane, float farPlane) { // Un-Li
 float linearizeDepthf(float d, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / ((-d * slope) + slope);
 }
-float linearizeDepthfDivisor(float d, float near) { // Returns 1 / linearizeDepthf
-    return (1 - d) / near;
+float linearizeDepthfDivisor(float d, float slope) { // Returns 1 / linearizeDepthf For matching results, slope should be set to 1/nearPlane
+    return (-d * slope) + slope;
 }
 float linearizeDepthfInverse(float ld, float slope) { // For matching results, slope should be set to 1/nearPlane
     return 1 / (-ld * slope) + 1;

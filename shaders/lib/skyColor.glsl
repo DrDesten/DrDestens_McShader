@@ -1,7 +1,6 @@
 uniform float daynight;
 uniform float sunset;
 
-uniform float darknessFactor;
 uniform vec3 fogColor;
 
 /* // My original values
@@ -23,7 +22,7 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
 
     #ifdef NETHER
 
-        return fogColor * (1. - darknessFactor);
+        return fogColor;
 
     #elif defined END 
 
@@ -35,7 +34,7 @@ vec3 getSkyColor5(vec3 viewPos, float rain) {
         offset             = offset * 0.1 - 0.05;
         viewHeight         = saturate(viewHeight + offset);
 
-        return mix(end_sky_down, end_sky_up, viewHeight) * (1. - darknessFactor);
+        return mix(end_sky_down, end_sky_up, viewHeight);
 
     #else
 
