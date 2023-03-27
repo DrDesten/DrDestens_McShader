@@ -306,16 +306,18 @@ void main() {
         if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
 
             float fresnel = schlickFresnel(viewDir, normal, f0);
+            vec3  reflectViewDir = reflect(viewDir, normal);
 
             #if SSR_MODE == 0
             position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-            vec4 reflection = efficientSSR(posData, normal);
+            vec4 reflection = efficientSSR(posData, reflectViewDir);
             #else
-            vec4 reflection = CubemapStyleReflection(Positions, normal, false);
+            vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
             #endif
 
-            /* vec3 albedoTint = normalizeColor(color);
-            color = mix(color, reflection.rgb * albedoTint, fresnel * reflection.a); */
+            /* if (reflection.a != 1) {
+                reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
+            } */
             color = mix(color, reflection.rgb, fresnel * reflection.a);
 
             #ifdef SSR_DEBUG
