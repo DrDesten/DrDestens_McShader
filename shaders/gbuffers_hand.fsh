@@ -19,16 +19,30 @@ in vec3  viewpos;
 in vec2  lmcoord;
 in vec2  coord;
 
-in vec4  glcolor;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in vec4 glcolor;
 
-// Switch on or off Fragment based normal mapping
-#ifdef FRAG_NORMALS
-	in vec3 N;
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        flat in vec3 N;
+    #else
+        flat in mat3 tbn;
+        // tbn[0] = tangent vector
+        // tbn[1] = binomial vector
+        // tbn[2] = normal vector
+    #endif
 #else
-	flat in mat3 tbn;
-	// tbn[0] = tangent vector
-	// tbn[1] = binomial vector
-	// tbn[2] = normal vector
+    in vec4 glcolor;
+
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        in vec3 N;
+    #else
+        in mat3 tbn;
+        // tbn[0] = tangent vector
+        // tbn[1] = binomial vector
+        // tbn[2] = normal vector
+    #endif
 #endif
 
 #ifdef PHYSICALLY_BASED

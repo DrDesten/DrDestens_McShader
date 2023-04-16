@@ -12,9 +12,15 @@
  uniform vec2 taaOffset;
 #endif
 
-out vec3 normal;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out vec3 normal;
+    flat out vec4 glcolor;
+#else
+    out vec3 normal;
+    out vec4 glcolor;
+#endif
+
 out vec2 coord;
-out vec4 glcolor;
 
 void main() {
 	gl_Position = ftransform();

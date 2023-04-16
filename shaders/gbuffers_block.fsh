@@ -10,19 +10,27 @@ uniform int worldTime;
 
 uniform vec3 fogColor;
 
-in float blockId;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in float blockId;
+    flat in vec4  glcolor;
+    flat in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#else
+    in float blockId;
+    in vec4  glcolor;
+    in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#endif
 
 #ifdef PHYSICALLY_BASED
-in vec3 viewpos;
+    in vec3 viewpos;
 #endif
-in vec2  lmcoord;
-in vec2  coord;
-in vec4  glcolor;
-
-flat in mat3 tbn;
-// tbn[0] = tangent vector
-// tbn[1] = binomial vector
-// tbn[2] = normal vector
+in vec2 lmcoord;
+in vec2 coord;
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */

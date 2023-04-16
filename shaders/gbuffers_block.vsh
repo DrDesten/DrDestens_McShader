@@ -4,10 +4,10 @@
 #include "/lib/vertex_lighting.glsl"
 
 #ifdef WORLD_CURVE
- #include "/lib/vertex_transform.glsl"
+    #include "/lib/vertex_transform.glsl"
 #else
- #include "/lib/vertex_transform_simple.glsl"
- uniform mat4 gbufferModelView;
+    #include "/lib/vertex_transform_simple.glsl"
+    uniform mat4 gbufferModelView;
 #endif
 
 attribute vec2 mc_midTexCoord;
@@ -15,19 +15,24 @@ attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
-out float blockId;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out float blockId;
+    flat out vec4  glcolor;
+    flat out mat3  tbn;
+#else
+    out float blockId;
+    out vec4  glcolor;
+    out mat3  tbn;
+#endif
 
 #ifdef PHYSICALLY_BASED
-out vec3 viewpos;
+    out vec3 viewpos;
 #endif
 out vec2 lmcoord;
 out vec2 coord;
-out vec4 glcolor;
-
-flat out mat3 tbn;
 
 void main() {
 	gl_Position = ftransform();

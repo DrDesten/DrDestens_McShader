@@ -24,10 +24,17 @@ in vec2  coord;
 
 in vec4  glcolor;
 
-flat in mat3 tbn;
-// tbn[0] = tangent vector
-// tbn[1] = binomial vector
-// tbn[2] = normal vector
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#else
+    in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#endif
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */

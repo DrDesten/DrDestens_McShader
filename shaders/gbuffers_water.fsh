@@ -18,10 +18,18 @@ in vec3 worldPos;
 in vec3 viewDir;
 
 in vec4 glcolor;
-flat in mat3 tbn;
-// tbn[0] = tangent vector
-// tbn[1] = binomial vector
-// tbn[2] = normal vector
+
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#else
+    in mat3  tbn;
+    // tbn[0] = tangent vector
+    // tbn[1] = binomial vector
+    // tbn[2] = normal vector
+#endif
 
 vec2 worley(vec2 coord, float size, int complexity, float time) {
     vec2 uv  = coord;

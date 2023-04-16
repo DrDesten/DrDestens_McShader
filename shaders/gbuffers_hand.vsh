@@ -19,13 +19,24 @@ out vec3 viewpos;
 out vec2  lmcoord;
 out vec2  coord;
 
-out vec4 glcolor;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out vec4 glcolor;
 
-// Switch on or off Fragment based normal mapping
-#ifdef FRAG_NORMALS
-out vec3 N;
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        flat out vec3 N;
+    #else
+        flat out mat3 tbn;
+    #endif
 #else
-flat out mat3 tbn;
+    out vec4 glcolor;
+
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        out vec3 N;
+    #else
+        out mat3 tbn;
+    #endif
 #endif
 
 void main() {

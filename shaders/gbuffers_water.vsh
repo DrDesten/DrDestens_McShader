@@ -21,10 +21,12 @@ out vec3 worldPos;
 out vec3 viewDir;
 
 out vec4 glcolor;
-flat out mat3 tbn;
-// tbn[0] = tangent vector
-// tbn[1] = binomial vector
-// tbn[2] = normal vector
+
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out mat3 tbn;
+#else
+    out mat3 tbn;
+#endif
 
 void main(){
 

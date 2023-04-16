@@ -2,9 +2,16 @@
 #include "/lib/math.glsl"
 #include "/lib/gbuffers_basics.glsl"
 
-in vec3 normal;
+
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in vec3 normal;
+    flat in vec4 glcolor;
+#else
+    in vec3 normal;
+    in vec4 glcolor;
+#endif
+
 in vec2 coord;
-in vec4 glcolor;
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */

@@ -4,31 +4,42 @@
 #include "/lib/vertex_lighting.glsl"
 
 #ifdef WORLD_CURVE
- #include "/lib/vertex_transform.glsl"
+    #include "/lib/vertex_transform.glsl"
 #else
- #include "/lib/vertex_transform_simple.glsl"
- uniform mat4 gbufferModelView;
+    #include "/lib/vertex_transform_simple.glsl"
+    uniform mat4 gbufferModelView;
 #endif
 
 attribute vec4 at_tangent;
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
 #ifdef PHYSICALLY_BASED
-out vec3 viewpos;
+    out vec3 viewpos;
 #endif
 out vec2 lmcoord;
 out vec2 coord;
 
-out vec4 glcolor;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out vec4 glcolor;
 
-// Switch on or off Fragment based normal mapping
-#ifdef FRAG_NORMALS
-out vec3 N;
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        flat out vec3 N;
+    #else
+        flat out mat3 tbn;
+    #endif
 #else
-flat out mat3 tbn;
+    out vec4 glcolor;
+
+    // Switch on or off Fragment based normal mapping
+    #ifdef FRAG_NORMALS
+        out vec3 N;
+    #else
+        out mat3 tbn;
+    #endif
 #endif
 
 void main() {

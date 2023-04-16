@@ -10,22 +10,27 @@ attribute vec4 at_tangent;
 
 uniform float frameTimeCounter;
 uniform int   frameCounter;
-uniform vec3 upPosition;
+uniform vec3  upPosition;
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
 flat out int blockId;
+
 #ifdef PHYSICALLY_BASED
-out vec3  viewpos;
+    out vec3 viewpos;
 #endif
-out vec2  lmcoord;
-out vec2  coord;
+out vec2 lmcoord;
+out vec2 coord;
 
 out vec4 glcolor;
 
-flat out mat3 tbn;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat out mat3 tbn;
+#else
+    out mat3 tbn;
+#endif
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
