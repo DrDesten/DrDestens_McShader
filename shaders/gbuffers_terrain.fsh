@@ -10,31 +10,29 @@ uniform int worldTime;
 
 #ifdef POM_ENABLED
 #ifdef POM_SMOOTH
-uniform vec2  atlasSizeInverse;
-uniform ivec2 atlasSize;
+    uniform vec2  atlasSizeInverse;
+    uniform ivec2 atlasSize;
 #endif
+#endif
+
+
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in mat3 tbn;
+#else
+    in mat3 tbn;
+#endif
+// tbn[0] = tangent vector
+// tbn[1] = binomial vector
+// tbn[2] = normal vector
+
+#ifdef PHYSICALLY_BASED
+    in vec3  viewpos;
 #endif
 
 flat in int blockId;
-#ifdef PHYSICALLY_BASED
-in vec3  viewpos;
-#endif
-in vec2  lmcoord;
-in vec2  coord;
-
-in vec4  glcolor;
-
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
-#else
-    in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
-#endif
+in vec2 lmcoord;
+in vec2 coord;
+in vec4 glcolor;
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
@@ -48,7 +46,7 @@ void main() {
 	color.rgb *= glcolor.rgb;
 	
 	#ifdef WHITE_WORLD
-	 color.rgb = vec3(1);
+	    color.rgb = vec3(1);
 	#endif
 	
 	#ifdef PHYSICALLY_BASED

@@ -1,5 +1,3 @@
-
-
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
@@ -11,24 +9,21 @@ uniform int worldTime;
 uniform vec3 fogColor;
 
 #ifdef OPTIMIZE_INTERPOLATION
-    flat in float blockId;
     flat in vec4  glcolor;
     flat in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
 #else
-    in float blockId;
     in vec4  glcolor;
     in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
 #endif
+// tbn[0] = tangent vector
+// tbn[1] = binomial vector
+// tbn[2] = normal vector
 
 #ifdef PHYSICALLY_BASED
     in vec3 viewpos;
 #endif
+
+flat in int blockId;
 in vec2 lmcoord;
 in vec2 coord;
 
@@ -44,7 +39,7 @@ void main() {
 	color.rgb *= glcolor.rgb;
 
 	#ifdef WHITE_WORLD
-	 color.rgb = vec3(1);
+	    color.rgb = vec3(1);
 	#endif
 
 	#ifdef PHYSICALLY_BASED

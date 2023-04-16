@@ -4,13 +4,13 @@
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
-out vec2 coord;
-out vec3 normal;
 out vec3 viewPos;
-out vec4 glcolor;
+out vec2 coord;
+flat out vec3 normal;
+flat out vec4 glcolor;
 
 void main() {
 	gl_Position = ftransform();

@@ -3,11 +3,11 @@
 #include "/lib/gbuffers_basics.glsl"
 
 #if SELECTION_OUTLINE != 0
- uniform int   renderStage;
+    uniform int   renderStage;
 #endif
 #if SELECTION_OUTLINE == 2
- uniform float frameTimeCounter;
- uniform vec2  screenSizeInverse;
+    uniform float frameTimeCounter;
+    uniform vec2  screenSizeInverse;
 #endif
 
 in vec2 lmcoord;

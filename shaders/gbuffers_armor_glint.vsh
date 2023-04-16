@@ -1,12 +1,10 @@
-
-
 #include "/lib/settings.glsl"
 #include "/lib/math.glsl"
 #include "/lib/vertex_transform_simple.glsl"
 #include "/lib/kernels.glsl"
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
 out vec2 lmcoord;

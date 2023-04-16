@@ -13,15 +13,6 @@ uniform vec3 fogColor;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-#ifdef PHYSICALLY_BASED
-    in vec3 viewpos;
-#endif
-in vec2 lmcoord;
-in vec2 coord;
-
-
-
-
 #ifdef OPTIMIZE_INTERPOLATION
     flat in vec4 glcolor;
 
@@ -30,9 +21,6 @@ in vec2 coord;
         flat in vec3 N;
     #else
         flat in mat3 tbn;
-        // tbn[0] = tangent vector
-        // tbn[1] = binomial vector
-        // tbn[2] = normal vector
     #endif
 #else
     in vec4 glcolor;
@@ -42,11 +30,18 @@ in vec2 coord;
         in vec3 N;
     #else
         in mat3 tbn;
-        // tbn[0] = tangent vector
-        // tbn[1] = binomial vector
-        // tbn[2] = normal vector
     #endif
 #endif
+// tbn[0] = tangent vector
+// tbn[1] = binomial vector
+// tbn[2] = normal vector
+
+#ifdef PHYSICALLY_BASED
+    in vec3 viewpos;
+#endif
+
+in vec2 lmcoord;
+in vec2 coord;
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
@@ -64,7 +59,7 @@ void main() {
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
 	
 	#ifdef WHITE_WORLD
-	color.rgb = vec3(1);
+	    color.rgb = vec3(1);
 	#endif
 
 	#ifdef PHYSICALLY_BASED

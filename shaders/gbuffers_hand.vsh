@@ -10,14 +10,8 @@ attribute vec4 at_tangent;
 uniform mat4 gbufferModelView;
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
-
-#ifdef PHYSICALLY_BASED
-out vec3 viewpos;
-#endif
-out vec2  lmcoord;
-out vec2  coord;
 
 #ifdef OPTIMIZE_INTERPOLATION
     flat out vec4 glcolor;
@@ -38,6 +32,13 @@ out vec2  coord;
         out mat3 tbn;
     #endif
 #endif
+
+
+#ifdef PHYSICALLY_BASED
+    out vec3 viewpos;
+#endif
+out vec2 lmcoord;
+out vec2 coord;
 
 void main() {
 	gl_Position = ftransform();

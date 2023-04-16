@@ -10,26 +10,21 @@ uniform int worldTime;
 
 uniform float frameTimeCounter;
 
-in float blockId;
+#ifdef OPTIMIZE_INTERPOLATION
+    flat in mat3 tbn;
+#else
+    in mat3 tbn;
+#endif
+// tbn[0] = tangent vector
+// tbn[1] = binomial vector
+// tbn[2] = normal vector
 
-in vec2 coord;
-in vec2 lmcoord;
+flat in int blockId;
 in vec3 worldPos;
 in vec3 viewDir;
-
+in vec2 lmcoord;
+in vec2 coord;
 in vec4 glcolor;
-
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
-#else
-    in mat3  tbn;
-    // tbn[0] = tangent vector
-    // tbn[1] = binomial vector
-    // tbn[2] = normal vector
-#endif
 
 vec2 worley(vec2 coord, float size, int complexity, float time) {
     vec2 uv  = coord;
@@ -153,14 +148,13 @@ vec3 waveNormals(vec2 coord, float strength) {
 void main(){
     vec3  surfaceNormal  = tbn[2];
 	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
-    float id             = floor(blockId + 0.5);
 
     #ifdef PHYSICALLY_BASED
     float reflectiveness, roughness = 0;
     #endif
 
     // Reduce opacity and saturation of only water
-    if (id == 10) {
+    if (blockId == 10) {
 
         #ifdef WATER_TEXTURE_VISIBLE
          color.rgb = sq(color.rgb * getLightmap(lmcoord).rgb) * 0.75;
@@ -222,7 +216,7 @@ void main(){
     
     gl_FragData[0] = color; // Color
     gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(codeID(id), vec3(1)); // Type (colortex3)
+    gl_FragData[2] = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
     #ifdef PHYSICALLY_BASED
     gl_FragData[3] = vec4(reflectiveness, vec3(1));
     #endif

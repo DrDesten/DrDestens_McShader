@@ -37,9 +37,9 @@ vec4 viewToClip(vec4 viewPos) {
     return gl_ProjectionMatrix * viewPos;
 }
 
-float getID(vec4 entityAttribute) {
-    return entityAttribute.x - 1000;
+int getID(vec4 entityAttribute) {
+    return int(entityAttribute.x) - 1000;
 }
-float getID(int entityId) {
-    return float(entityId - 1000);
+int getID(int entityId) {
+    return entityId - 1000;
 }

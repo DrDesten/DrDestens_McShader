@@ -3,7 +3,7 @@
 #include "/lib/gbuffers_basics.glsl"
 
 #if RAIN_DETECTION_MODE == 0
-uniform float temperature;
+    uniform float temperature;
 #endif
 
 in vec2 lmcoord;

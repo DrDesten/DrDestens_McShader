@@ -16,21 +16,21 @@ uniform vec3  upPosition;
     uniform vec2 taaOffset;
 #endif
 
-flat out int blockId;
-
-#ifdef PHYSICALLY_BASED
-    out vec3 viewpos;
-#endif
-out vec2 lmcoord;
-out vec2 coord;
-
-out vec4 glcolor;
-
 #ifdef OPTIMIZE_INTERPOLATION
     flat out mat3 tbn;
 #else
     out mat3 tbn;
 #endif
+
+#ifdef PHYSICALLY_BASED
+    out vec3 viewpos;
+#endif
+
+flat out int blockId;
+out vec2 lmcoord;
+out vec2 coord;
+out vec4 glcolor;
+
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
@@ -50,7 +50,7 @@ void main() {
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
-	blockId = int(getID(mc_Entity));
+	blockId = getID(mc_Entity);
 	glcolor = gl_Color;
 
 	if (!(1030 <= mc_Entity.x && mc_Entity.x <= 1032)) glcolor.a *= oldLighting(tbn[2], gbufferModelView);

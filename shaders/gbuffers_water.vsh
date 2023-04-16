@@ -4,9 +4,8 @@
 #include "/lib/vertex_transform.glsl"
 #include "/lib/vertex_lighting.glsl"
 
-
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
 uniform float frameTimeCounter;
@@ -14,19 +13,18 @@ uniform float frameTimeCounter;
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
-out float blockId;
-out vec2 coord;
-out vec2 lmcoord;
-out vec3 worldPos;
-out vec3 viewDir;
-
-out vec4 glcolor;
-
 #ifdef OPTIMIZE_INTERPOLATION
     flat out mat3 tbn;
 #else
     out mat3 tbn;
 #endif
+
+flat out int blockId;
+out vec3 worldPos;
+out vec3 viewDir;
+out vec2 lmcoord;
+out vec2 coord;
+out vec4 glcolor;
 
 void main(){
 

@@ -19,11 +19,9 @@ attribute vec4 at_tangent;
 #endif
 
 #ifdef OPTIMIZE_INTERPOLATION
-    flat out float blockId;
     flat out vec4  glcolor;
     flat out mat3  tbn;
 #else
-    out float blockId;
     out vec4  glcolor;
     out mat3  tbn;
 #endif
@@ -31,6 +29,8 @@ attribute vec4 at_tangent;
 #ifdef PHYSICALLY_BASED
     out vec3 viewpos;
 #endif
+
+flat out int blockId;
 out vec2 lmcoord;
 out vec2 coord;
 
@@ -52,7 +52,7 @@ void main() {
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);
 
-	blockId = getID(mc_Entity);
+	blockId    = getID(mc_Entity);
 	glcolor    = gl_Color;
 	glcolor.a *= oldLighting(tbn[2], gbufferModelView);
 }

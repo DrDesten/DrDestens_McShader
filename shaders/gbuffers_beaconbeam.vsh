@@ -3,13 +3,13 @@
 #include "/lib/kernels.glsl"
 
 #ifdef WORLD_CURVE
- #include "/lib/vertex_transform.glsl"
+    #include "/lib/vertex_transform.glsl"
 #else
- #include "/lib/vertex_transform_simple.glsl"
+    #include "/lib/vertex_transform_simple.glsl"
 #endif
 
 #ifdef TAA
- uniform vec2 taaOffset;
+    uniform vec2 taaOffset;
 #endif
 
 #ifdef OPTIMIZE_INTERPOLATION

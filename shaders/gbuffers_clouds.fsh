@@ -8,10 +8,10 @@ uniform vec3  fogColor;
 uniform float lightBrightness;
 uniform vec3  lightPosition;
 
-in vec2 coord;
-in vec3 normal;
 in vec3 viewPos;
-in vec4 glcolor;
+in vec2 coord;
+flat in vec3 normal;
+flat in vec4 glcolor;
 
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
