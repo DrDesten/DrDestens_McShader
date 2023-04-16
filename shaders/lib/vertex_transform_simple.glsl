@@ -18,9 +18,10 @@ vec2 getLmCoord() { // Intel Version (Less Optimised)
 #endif
 
 mat3 getTBN(vec4 tangentAttribute) {
-	vec3 normal  = normalize(gl_NormalMatrix * gl_Normal);
-    vec3 tangent = normalize(gl_NormalMatrix * (tangentAttribute.xyz / tangentAttribute.w));
-	return mat3(tangent, cross(tangent, normal), normal);
+	vec3 normal   = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 tangent  = normalize(gl_NormalMatrix * (tangentAttribute.xyz / tangentAttribute.w));
+    vec3 binormal = normalize(gl_NormalMatrix * cross(tangentAttribute.xyz, gl_Normal.xyz) /* * tangentAttribute.w */ );
+	return mat3(tangent, binormal, normal);
 }
 
 vec3 getView() {
