@@ -23,7 +23,11 @@ void main() {
     
     if (depth >= 1) { // SKY
 
-        color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+        #ifdef OVERWORLD
+            color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+        #else
+            color = getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+        #endif
 
     } else { // NO SKY
 
