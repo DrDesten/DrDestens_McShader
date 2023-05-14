@@ -45,8 +45,9 @@ value.DOF_CHROMATIC_ABERRATION.0=§cOFF
 screen.SSR=Reflections
 
 option.SSR_MODE=Reflection Mode
-value.SSR_MODE.0=Raytraced
+value.SSR_MODE.0=OFF
 value.SSR_MODE.1=Flipped Image
+value.SSR_MODE.2=Raytraced
 
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower is faster.

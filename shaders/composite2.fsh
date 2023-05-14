@@ -273,11 +273,13 @@ void main() {
         float fresnel        = customFresnel(viewDir, normal, 0.05, 1, 3);
         vec3  reflectViewDir = reflect(viewDir, normal);
 
-        #if SSR_MODE == 0
+        #if SSR_MODE == 2
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4  reflection = efficientSSR(posData, reflectViewDir);
-        #else
+        #elif SSR_MODE == 1
         vec4  reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+        #else
+        vec4  reflection = vec4(0);
         #endif
         if (reflection.a != 1) {
             reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
@@ -308,11 +310,13 @@ void main() {
             float fresnel = schlickFresnel(viewDir, normal, f0);
             vec3  reflectViewDir = reflect(viewDir, normal);
 
-            #if SSR_MODE == 0
+            #if SSR_MODE == 2
             position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
             vec4 reflection = efficientSSR(posData, reflectViewDir);
-            #else
+            #elif SSR_MODE == 1
             vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+            #else
+            vec4 reflection = vec4(0);
             #endif
 
             /* if (reflection.a != 1) {
