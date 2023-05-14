@@ -298,6 +298,8 @@ void main() {
         #endif
 
     }
+    #else 
+    vec3 color = getAlbedo(coord);
     #endif
 
     #ifdef PHYSICALLY_BASED

@@ -313,7 +313,7 @@ option.OPTIMIZE_INTERPOLATION.comment=Disable when using custom models with smoo
 //value.CREDITS.0=§r by §cDrDesten §r§k:###
 //value.CREDITS.1=§r §aVersion 2.0.2§r§k:###
 
-option.CREDITS=§cv2.0.2 
+option.CREDITS=§cv2.0.3
 value.CREDITS.0=§eby §aDrDesten
 value.CREDITS.1=§efrom Togo §awith ❤
 
