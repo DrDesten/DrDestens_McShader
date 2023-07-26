@@ -52,14 +52,11 @@ void main(){
 		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
-	tbn			 = getTBN(at_tangent);
-
-	viewDir      = normalize(viewPos.xyz);
-
-	blockId 	 = getID(mc_Entity);
-    coord 		 = getCoord();
-	lmcoord      = getLmCoord();
-	glcolor 	 = gl_Color;
-	glcolor.a   *= oldLighting(tbn[2], gbufferModelView);
-
+	tbn         = getTBN(at_tangent);
+	viewDir     = normalize(viewPos.xyz);
+	blockId     = getID(mc_Entity);
+    coord       = getCoord();
+	lmcoord     = getLmCoord();
+	glcolor     = gl_Color;
+	glcolor.a  *= oldLighting(tbn[2], gbufferModelView);
 }

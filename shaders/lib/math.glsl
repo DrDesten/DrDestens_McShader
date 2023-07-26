@@ -3,6 +3,9 @@
 
 #define GAMMA 2.2
 
+#define MAT2_ROT(angle, scale) \
+    mat2(cos(angle) * scale, sin(angle) * scale, -sin(angle) * scale, cos(angle) * scale)
+
 const float TWO_PI  = 6.2831853071795864769252867665590057683943387987502;
 const float PI      = 3.1415926535897932384626433832795028841971693993751;
 const float HALF_PI = 1.5707963267948966192313216916397514420985846996876;

@@ -8,6 +8,8 @@ uniform int worldTime;
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
 
+#include "/lib/water.glsl"
+
 uniform float frameTimeCounter;
 
 #ifdef OPTIMIZE_INTERPOLATION
@@ -172,9 +174,11 @@ void main(){
             // "Fake" Waves
             vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
             float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
-            vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+            //vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+            vec3  noiseNormals = waterNormalsSine(worldPos, frameTimeCounter);
 
             surfaceNormal      = normalize(tbn * noiseNormals);
+            //surfaceNormal      = noiseNormals;
 
         #endif
 
