@@ -1,0 +1,3 @@
+[submodule "shaders/core"]
+	path = shaders/core
+	url = https://github.com/DrDesten/ShaderCore.git
