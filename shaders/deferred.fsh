@@ -1,6 +1,6 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/transform.glsl"
+#include "/core/math.glsl"
+#include "/core/transform.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"

@@ -1,7 +1,7 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/kernels.glsl"
-#include "/lib/vertex_transform_simple.glsl"
+#include "/core/math.glsl"
+#include "/core/kernels.glsl"
+#include "/core/vertex_transform_simple.glsl"
 #include "/lib/vertex_lighting.glsl"
 
 attribute vec4 mc_Entity;

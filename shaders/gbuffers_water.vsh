@@ -1,10 +1,10 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/kernels.glsl"
-#include "/lib/vertex_transform.glsl"
+#include "/core/math.glsl"
+#include "/core/kernels.glsl"
+#include "/core/vertex_transform.glsl"
 #include "/lib/vertex_lighting.glsl"
 
-#include "/lib/water.glsl"
+#include "/core/water.glsl"
 
 #ifdef TAA
     uniform vec2 taaOffset;

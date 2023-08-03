@@ -3,8 +3,8 @@
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/gbuffers_basics.glsl"
+#include "/core/math.glsl"
+#include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 

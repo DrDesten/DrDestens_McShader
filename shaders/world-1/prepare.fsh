@@ -1,7 +1,7 @@
 #version 130
 #define NETHER
 
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 uniform vec3 fogColor;
 
 /* DRAWBUFFERS:0 */

@@ -1,6 +1,6 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/gbuffers_basics.glsl"
+#include "/core/math.glsl"
+#include "/core/gbuffers_basics.glsl"
 
 #if RAIN_DETECTION_MODE == 0
     uniform float temperature;

@@ -6,16 +6,16 @@
 
 
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
-#include "/lib/kernels.glsl"
+#include "/core/kernels.glsl"
 
 #ifdef MOTION_BLUR
-#include "/lib/transform.glsl"
+#include "/core/transform.glsl"
 #endif
 
 #ifdef BLOOM

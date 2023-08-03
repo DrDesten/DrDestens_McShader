@@ -1,5 +1,5 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 
 in vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
 

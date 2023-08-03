@@ -2,13 +2,13 @@ uniform int worldTime;
 //uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/gbuffers_basics.glsl"
+#include "/core/math.glsl"
+#include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
 
-#include "/lib/water.glsl"
+#include "/core/water.glsl"
 
 uniform float frameTimeCounter;
 

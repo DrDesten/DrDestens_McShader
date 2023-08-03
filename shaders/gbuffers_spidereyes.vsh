@@ -1,7 +1,7 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/vertex_transform_simple.glsl"
-#include "/lib/kernels.glsl"
+#include "/core/math.glsl"
+#include "/core/vertex_transform_simple.glsl"
+#include "/core/kernels.glsl"
 
 #ifdef TAA
  uniform vec2 taaOffset;

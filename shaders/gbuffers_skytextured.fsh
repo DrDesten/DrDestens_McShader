@@ -1,5 +1,5 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 
 uniform sampler2D texture;
 

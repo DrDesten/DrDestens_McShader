@@ -1,4 +1,4 @@
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 
 uniform sampler2D lightmap;
 uniform sampler2D texture;

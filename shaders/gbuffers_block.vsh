@@ -1,12 +1,12 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
-#include "/lib/kernels.glsl"
+#include "/core/math.glsl"
+#include "/core/kernels.glsl"
 #include "/lib/vertex_lighting.glsl"
 
 #ifdef WORLD_CURVE
-    #include "/lib/vertex_transform.glsl"
+    #include "/core/vertex_transform.glsl"
 #else
-    #include "/lib/vertex_transform_simple.glsl"
+    #include "/core/vertex_transform_simple.glsl"
     uniform mat4 gbufferModelView;
 #endif
 

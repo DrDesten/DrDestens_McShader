@@ -1,5 +1,5 @@
 #include "/lib/settings.glsl"
-#include "/lib/math.glsl"
+#include "/core/math.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
