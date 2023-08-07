@@ -58,19 +58,20 @@ void main(){
 
         #endif
 
-        #ifdef WATER_NORMALS
-
+        #if WATER_NORMALS != 0
             float surfaceDot   = dot(viewDir, surfaceNormal);
-            
-            // "Fake" Waves
-            vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-            float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
-            //vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
-            vec3  noiseNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
 
-            surfaceNormal      = normalize(tbn * noiseNormals);
+            #if WATER_NORMALS == 1
+                vec2  seed        = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
+                float blend       = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));
+                vec3  waveNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+            #else 
+                float blend       = saturate(-surfaceDot * 3);
+                vec3  waveNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
+            #endif
+
+            surfaceNormal      = normalize(tbn * waveNormals);
             //surfaceNormal      = noiseNormals;
-
         #endif
 
     } else {

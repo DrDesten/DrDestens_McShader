@@ -77,14 +77,17 @@ option.GLASS_REFLECTIONS.comment=Adds reflections to tinted glass blocks.
 
 screen.WATER=Water
 
-option.WATER_WAVES=Waves
+option.WATER_WAVES=Waving Water
 option.WATER_WAVES.comment="Physical" Waves. Moves the water surface.
 option.WATER_WAVE_AMOUNT=Wave Height
 
-option.WATER_NORMALS=Bump Mapping
-option.WATER_NORMALS_AMOUNT=Bump Amount
+option.WATER_NORMALS=Wave Normals
+value.WATER_NORMALS.0=OFF
+value.WATER_NORMALS.1=Noise
+value.WATER_NORMALS.2=Sine
+option.WATER_NORMALS_AMOUNT=Normals Strength
 option.WATER_NORMALS_AMOUNT.comment=Fake Waves, pretending to be real ones. Added detail.
-option.WATER_NORMALS_SIZE=Bump Size
+option.WATER_NORMALS_SIZE=Normals Scale
 
 option.WATER_ABSORPTION_DENSITY=Water Absorption Density
 option.WATER_ABSORPTION_BIAS=Water Absorption Bias
