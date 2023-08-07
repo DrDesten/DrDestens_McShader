@@ -28,17 +28,6 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-vec3 noiseNormals(vec2 coord, float strength) {
-    vec2  e = vec2(0.01, 0);
-    float C = fbm(coord,        2);
-    float R = fbm(coord + e.xy, 2);
-    float B = fbm(coord + e.yx, 2);
-
-    vec3 n  = vec3(R-C, B-C, e.x);
-    n.xy   *= strength;
-    return normalize(n);
-}
-
 #ifndef PHYSICALLY_BASED
 /* DRAWBUFFERS:023 */
 #else
@@ -77,7 +66,7 @@ void main(){
             vec2  seed         = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
             float blend        = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));              // Reducing the normals at small angles to avoid high noise
             //vec3  noiseNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
-            vec3  noiseNormals = waterNormalsSine(worldPos, frameTimeCounter);
+            vec3  noiseNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
 
             surfaceNormal      = normalize(tbn * noiseNormals);
             //surfaceNormal      = noiseNormals;
