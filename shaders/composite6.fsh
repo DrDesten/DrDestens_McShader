@@ -60,6 +60,7 @@ void main() {
     #else
 
         vec3 color = vec3(0);
+        float coc = 0;
         discard;
 
     #endif
