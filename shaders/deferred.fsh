@@ -21,16 +21,15 @@ void main() {
     vec3  screenPos = vec3(coord, depth);
     vec3  color     = getAlbedo(coord);
     
-    if (depth >= 1) { // SKY
+    if (depth == 1) { // SKY
 
-        #ifdef OVERWORLD
-            color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
-        #else
-            color = getSky(toPlayerEye(toView(screenPos * 2 - 1)));
-        #endif
+#ifdef OVERWORLD
+        color += getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+#else
+        color = getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+#endif
 
     } else { // NO SKY
-
 
     }
     

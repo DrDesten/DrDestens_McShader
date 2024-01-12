@@ -15,15 +15,15 @@ in vec4 glcolor;
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
+#if RAIN_DETECTION_MODE == 0
+	bool isRain = temperature >= 0.15;                                 // Rain (detected based on player temperature)
+#elif RAIN_DETECTION_MODE == 1
+	vec3 normalizedColor = normalize(color.rgb);
+	bool isRain          = saturate((color.b) - avg(color.rg)) > 0.25; // Rain (detected based on blue dominance)
+#endif
 
 	float rain = 0;
-	#if RAIN_DETECTION_MODE == 0
-	if (temperature >= 0.15) { // Rain (detected based on player temperature)
-	#elif RAIN_DETECTION_MODE == 1
-	vec3 normalizedColor = normalize(color.rgb);
-	if (saturate((color.b) - mean(color.rg)) > 0.25) { // Rain (detected based on blue dominance)
-	#endif
-
+	if (isRain) {
 		rain    = float(color.a > 0.01);
 		color.a = rain * RAIN_OPACITY;
 	}
