@@ -312,14 +312,9 @@ screen.OPTIMISATION=Optimisation
 option.OPTIMIZE_INTERPOLATION=Flat Vertices
 option.OPTIMIZE_INTERPOLATION.comment=Disable when using custom models with smooth surfaces.
 
-//option.CREDITS=§k###
+option.CREDITS=v2.1
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
-//value.CREDITS.0=§r by §cDrDesten §r§k:###
-//value.CREDITS.1=§r §aVersion 2.0.2§r§k:###
-
-option.CREDITS=§cv2.1
-value.CREDITS.0=§eby §aDrDesten
-value.CREDITS.1=§efrom Togo §awith ❤
+value.CREDITS.0=by DrDesten
 
 option.SUPER_SECRET_SETTING=Super Secret Settings 
 value.SUPER_SECRET_SETTING.0=
