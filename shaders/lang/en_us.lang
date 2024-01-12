@@ -46,8 +46,9 @@ screen.SSR=Reflections
 
 option.SSR_MODE=Reflection Mode
 value.SSR_MODE.0=OFF
-value.SSR_MODE.1=Flipped Image
-value.SSR_MODE.2=Raytraced
+value.SSR_MODE.1=Sky
+value.SSR_MODE.2=Flipped Image
+value.SSR_MODE.3=Raytraced
 
 option.SSR_STEPS=Raytracing Quality
 option.SSR_STEPS.comment=Number of raytracing iterations. Lower is faster.

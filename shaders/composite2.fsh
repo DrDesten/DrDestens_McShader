@@ -14,6 +14,7 @@ const int colortex5Format = R11F_G11F_B10F; // TAA
 
 */
 
+
 const bool colortex0Clear      = true;
 const bool colortex1Clear      = false;
 const bool colortex2Clear      = false;
@@ -218,7 +219,7 @@ void main() {
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth = linearizeDepthf(depth, nearInverse);
     
-    #ifdef WATER_EFFECTS
+#ifdef WATER_EFFECTS
     #ifdef REFRACTION
     if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
 
@@ -264,6 +265,8 @@ void main() {
 
         // SCREEN SPACE REFLECTION <WATER> /////////////////////////////////////////////////////////////
 
+#if SSR_MODE != 0
+
         #ifndef PHYSICALLY_BASED
         vec3 viewPos = toView(vec3(coord, depth) * 2 - 1);
         vec3 viewDir = normalize(viewPos);
@@ -273,10 +276,11 @@ void main() {
         float fresnel        = customFresnel(viewDir, normal, 0.05, 1, 3);
         vec3  reflectViewDir = reflect(viewDir, normal);
 
-        #if SSR_MODE == 2
+
+        #if SSR_MODE == 3
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4  reflection = efficientSSR(posData, reflectViewDir);
-        #elif SSR_MODE == 1
+        #elif SSR_MODE == 2
         vec4  reflection = CubemapStyleReflection(viewPos, reflectViewDir);
         #else
         vec4  reflection = vec4(0);
@@ -297,44 +301,50 @@ void main() {
         color = vec3(0, reflection.a, fresnel);
         #endif
 
+#endif
+
     }
-    #else 
+#else
     vec3 color = getAlbedo(coord);
-    #endif
+#endif
 
-    #ifdef PHYSICALLY_BASED
+#ifdef PHYSICALLY_BASED
 
-        // SCREEN SPACE REFLECTION <PBR> /////////////////////////////////////////////////////////////
+    // SCREEN SPACE REFLECTION <PBR> /////////////////////////////////////////////////////////////
 
-        float f0 = texture(colortex1, coord).r;
-        if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
+#if SSR_MODE != 0
 
-            float fresnel = schlickFresnel(viewDir, normal, f0);
-            vec3  reflectViewDir = reflect(viewDir, normal);
+    float f0 = texture(colortex1, coord).r;
+    if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
 
-            #if SSR_MODE == 2
-            position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
-            vec4 reflection = efficientSSR(posData, reflectViewDir);
-            #elif SSR_MODE == 1
-            vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
-            #else
-            vec4 reflection = vec4(0);
-            #endif
+        float fresnel = schlickFresnel(viewDir, normal, f0);
+        vec3  reflectViewDir = reflect(viewDir, normal);
 
-            /* if (reflection.a != 1) {
-                reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
-            } */
-            color = mix(color, reflection.rgb, fresnel * reflection.a);
+        #if SSR_MODE == 3
+        position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
+        vec4 reflection = efficientSSR(posData, reflectViewDir);
+        #elif SSR_MODE == 2
+        vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+        #else
+        vec4 reflection = vec4(0);
+        #endif
 
-            #ifdef SSR_DEBUG
-            color = vec3(fresnel, reflection.a, 0);
-            #endif
+        /* if (reflection.a != 1) {
+            reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
+        } */
+        color = mix(color, reflection.rgb, fresnel * reflection.a);
 
-        }
+        #ifdef SSR_DEBUG
+        color = vec3(fresnel, reflection.a, 0);
+        #endif
 
-    #endif
+    }
+
+#endif
+#endif
     
-    #ifdef WATER_EFFECTS
+#ifdef WATER_EFFECTS
+
     // ABSORPTION <IN MEDIUM> /////////////////////////////////////////////////////////////
     if (isEyeInWater == 1) {
 
@@ -348,7 +358,8 @@ void main() {
         color            = mix(gamma(fogColor), color, absorption);
 
     }
-    #endif
+
+#endif
     
     //Pass everything forward
     gl_FragData[0] = vec4(max(color, vec3(0)), 1);
