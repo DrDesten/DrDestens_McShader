@@ -24,13 +24,15 @@ void main() {
 	color.rgb *= getLightmap(lmcoord);
 
 	#if SELECTION_OUTLINE != 0
-
+		
+		bool isBlockOutline;
 		#if MC_VERSION >= 11605
-		if (renderStage == MC_RENDER_STAGE_OUTLINE) {
+		isBlockOutline = renderStage == MC_RENDER_STAGE_OUTLINE;
 		#else
-		if (abs(glcolor.a - 0.5) < 0.2) { // Workaround for detecting the block outline in versions prior to 1.16.5
+		isBlockOutline = abs(glcolor.a - 0.5) < 0.2; // Workaround for detecting the block outline in versions prior to 1.16.5
 		#endif
-
+		
+		if (isBlockOutline) {
 			#if SELECTION_OUTLINE == 1
 				color.rgb = vec3(1.5);
 			#else
