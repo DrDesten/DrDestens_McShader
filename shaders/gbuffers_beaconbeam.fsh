@@ -18,6 +18,12 @@ in vec2 coord;
 #else
 /* DRAWBUFFERS:023 */
 #endif
+
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+
 void main() {
 
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
@@ -25,10 +31,10 @@ void main() {
 	color.rgb  = gamma(color.rgb);
 
 
-	gl_FragData[0] = color;
-	gl_FragData[1] = vec4(normal, 1);
-	gl_FragData[2] = vec4(codeID(50), vec3(1));
+	FragOut0 = color;
+	FragOut1 = vec4(normal, 1);
+	FragOut2 = vec4(codeID(50), vec3(1));
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[3] = PBR_EMPTY; // no pbr
+	FragOut3 = PBR_EMPTY; // no pbr
 	#endif
 }

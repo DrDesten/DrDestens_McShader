@@ -213,6 +213,7 @@ vec4 efficientSSR(position pos, vec3 reflection) {
 
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
 void main() {
 
     float id          = getID(ivec2(gl_FragCoord.xy));
@@ -362,5 +363,5 @@ void main() {
 #endif
     
     //Pass everything forward
-    gl_FragData[0] = vec4(max(color, vec3(0)), 1);
+    FragOut0 = vec4(max(color, vec3(0)), 1);
 }

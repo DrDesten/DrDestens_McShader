@@ -157,6 +157,8 @@ float squareVignette(vec2 coord) {
 #endif
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
+
 void main() {
     
     #ifdef RAIN_REFRACTION
@@ -207,6 +209,6 @@ void main() {
 		color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
 	#endif
 
-    gl_FragData[0] = vec4(color, 1.0);
+    FragOut0 = vec4(color, 1.0);
 }
 

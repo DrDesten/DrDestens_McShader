@@ -48,6 +48,8 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
 #else
 /* DRAWBUFFERS:0 */
 #endif
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
 
 void main() {
     #ifdef TAA
@@ -110,8 +112,8 @@ void main() {
     #endif
 
     //Pass everything forward
-    gl_FragData[0]          = vec4(color, coc);
+    FragOut0 = vec4(color, coc);
     #ifdef TAA 
-    gl_FragData[1]          = vec4(TAAcolor, 1);
+    FragOut1 = vec4(TAAcolor, 1);
     #endif
 }

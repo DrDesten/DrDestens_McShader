@@ -18,6 +18,12 @@ flat in vec4 glcolor;
 #else
 /* DRAWBUFFERS:023 */
 #endif
+
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+
 void main() {
 	vec4 color    = texture2D(texture, coord);
 	vec3 lightPos = normalize(lightPosition);
@@ -36,10 +42,10 @@ void main() {
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
-	gl_FragData[0] = color; //color
-	gl_FragData[1] = vec4(normal, 1);   //normals
-	gl_FragData[2] = vec4(codeID(52), vec3(1)); //block id (50, SSAO mask)
+	FragOut0 = color; //color
+	FragOut1 = vec4(normal, 1);   //normals
+	FragOut2 = vec4(codeID(52), vec3(1)); //block id (50, SSAO mask)
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[3] = vec4(0, vec3(1));  // Reflectance
+	FragOut3 = vec4(0, vec3(1));  // Reflectance
 	#endif
 }

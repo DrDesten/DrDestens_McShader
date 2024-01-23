@@ -15,14 +15,19 @@ in vec4 glcolor;
 #else
 /* DRAWBUFFERS:03 */
 #endif
+
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 	color.rgb  = gamma(color.rgb);
 
-	gl_FragData[0] = color; //gcolor
-	gl_FragData[1] = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
+	FragOut0 = color; //gcolor
+	FragOut1 = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[2] = PBR_EMPTY; // pbr
+	FragOut2 = PBR_EMPTY; // pbr
 	#endif
 }

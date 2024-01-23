@@ -30,6 +30,8 @@ uniform float far;
 uniform float aspectRatio;
 
 /* DRAWBUFFERS:04 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
 
 void main() {
 
@@ -63,6 +65,6 @@ void main() {
     #endif
 
     //Pass everything forward
-    gl_FragData[0]          = vec4(color1,  coc);
-    gl_FragData[1]          = vec4(color1 + color2,  1);
+    FragOut0 = vec4(color1,  coc);
+    FragOut1 = vec4(color1 + color2,  1);
 }

@@ -32,6 +32,8 @@ uniform float aspectRatio;
 
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
+
 void main() {
     
     #ifdef DEPTH_OF_FIELD
@@ -66,5 +68,5 @@ void main() {
     #endif
 
     //Pass everything forward
-    gl_FragData[0] = vec4(color, coc);
+    FragOut0 = vec4(color, coc);
 }

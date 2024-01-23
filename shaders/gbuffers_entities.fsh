@@ -48,6 +48,12 @@ in vec2 coord;
 #else
 /* DRAWBUFFERS:023 */
 #endif
+
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+
 void main() {
 	#ifdef FRAG_NORMALS
 	vec3  normal = N;
@@ -95,10 +101,10 @@ void main() {
 
 	#endif
 
-	gl_FragData[0] = vec4(color); //color
-	gl_FragData[1] = vec4(normal, 1); //normal
-	gl_FragData[2] = vec4(codeID(54), vec3(1)); //Type
+	FragOut0 = vec4(color); //color
+	FragOut1 = vec4(normal, 1); //normal
+	FragOut2 = vec4(codeID(54), vec3(1)); //Type
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[3] = vec4(reflectiveness, height, vec2(1));
+	FragOut3 = vec4(reflectiveness, height, vec2(1));
 	#endif
 }

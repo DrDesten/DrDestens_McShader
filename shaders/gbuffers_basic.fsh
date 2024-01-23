@@ -18,6 +18,9 @@ in vec4 glcolor;
 #else
 /* DRAWBUFFERS:0 */
 #endif
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+
 void main() {
 
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
@@ -31,7 +34,7 @@ void main() {
 		#else
 		isBlockOutline = abs(glcolor.a - 0.5) < 0.2; // Workaround for detecting the block outline in versions prior to 1.16.5
 		#endif
-		
+
 		if (isBlockOutline) {
 			#if SELECTION_OUTLINE == 1
 				color.rgb = vec3(1.5);
@@ -44,8 +47,8 @@ void main() {
 
 	color.rgb  = gamma(color.rgb);
 
-	gl_FragData[0] = color; //gcolor
+	FragOut0 = color; //gcolor
 	#ifdef PHYSICALLY_BASED
-	gl_FragData[1] = PBR_EMPTY; // no pbr
+	FragOut1 = PBR_EMPTY; // no pbr
 	#endif
 }

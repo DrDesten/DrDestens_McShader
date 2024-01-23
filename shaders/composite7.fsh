@@ -80,6 +80,8 @@ vec3 getBloomTilesBlur(vec2 coord) {
 
 
 /* DRAWBUFFERS:04 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
 
 void main() {
     #if !defined BLOOM && !defined MOTION_BLUR
@@ -100,6 +102,6 @@ void main() {
     #endif
 
     //Pass everything forward
-    gl_FragData[0]          = vec4(color,  1);
-    gl_FragData[1]          = vec4(bloom,  1);
+    FragOut0 = vec4(color,  1);
+    FragOut1 = vec4(bloom,  1);
 }

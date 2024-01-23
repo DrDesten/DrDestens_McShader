@@ -28,15 +28,16 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifndef PHYSICALLY_BASED
-/* DRAWBUFFERS:023 */
-#else
 #ifdef PHYSICALLY_BASED
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
 #endif
-#endif
+
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
 
 void main(){
     vec3  surfaceNormal  = tbn[2];
@@ -110,12 +111,12 @@ void main(){
     }
 
     
-    gl_FragData[0] = color; // Color
-    //gl_FragData[0] = vec4(surfaceNormal, 1); // Color
-    //gl_FragData[0] = vec4(surfaceNormal * .5 + .5, 1); // Color
-    gl_FragData[1] = vec4(surfaceNormal, 1); // Normal
-    gl_FragData[2] = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
+    FragOut0 = color; // Color
+    //FragOut0 = vec4(surfaceNormal, 1); // Color
+    //FragOut0 = vec4(surfaceNormal * .5 + .5, 1); // Color
+    FragOut1 = vec4(surfaceNormal, 1); // Normal
+    FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
     #ifdef PHYSICALLY_BASED
-    gl_FragData[3] = vec4(reflectiveness, vec3(1));
+    FragOut3 = vec4(reflectiveness, vec3(1));
     #endif
 }

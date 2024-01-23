@@ -12,6 +12,9 @@ in vec4 glcolor;
 // gbuffers_weather does not generate useful normals
 
 /* DRAWBUFFERS:03 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
@@ -31,6 +34,6 @@ void main() {
 	color.rgb *= getLightmap(lmcoord);
 	color.rgb  = gamma(color.rgb);
 
-	gl_FragData[0] = color; //gcolor
-	gl_FragData[1] = vec4(vec3(codeID(rain * 53)), 1); //gcolor
+	FragOut0 = color; //gcolor
+	FragOut1 = vec4(vec3(codeID(rain * 53)), 1); //gcolor
 }

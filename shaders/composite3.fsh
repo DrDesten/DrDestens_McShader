@@ -104,6 +104,7 @@ vec2 warpCoord(vec2 co) {
 }
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
 
 void main() {
     vec3  color = getAlbedo(ivec2(gl_FragCoord.xy));
@@ -305,5 +306,5 @@ void main() {
     }
 
     //Pass everything forward
-    gl_FragData[0]          = vec4(color, 1);
+    FragOut0 = vec4(color, 1);
 }

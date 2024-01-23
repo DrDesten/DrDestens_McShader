@@ -104,6 +104,9 @@ vec3 lanczos(vec2 coord, int r) {
     return total;
 }
 
+/* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
+
 void main() {
     #if SUPER_SECRET_SETTING == 1
     coord += sin(coord.x * TWO_PI) * 0.1;
@@ -124,6 +127,6 @@ void main() {
     const float displayPrecision = 1./255.;
     color += (Bayer4(coord * screenSize) - .5) * displayPrecision;
 
-    gl_FragColor = vec4(color, 1.0);
+    FragOut0 = vec4(color, 1.0);
 }
 

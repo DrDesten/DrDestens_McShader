@@ -188,6 +188,8 @@ float SSAO(vec3 screenPos, float radius) {
 }
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
+
 void main() {
     vec3 color = getAlbedo(coord);
 
@@ -226,5 +228,5 @@ void main() {
 
     #endif
 
-    gl_FragData[0] = vec4(color, 1.0);
+    FragOut0 = vec4(color, 1.0);
 }

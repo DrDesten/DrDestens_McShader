@@ -16,6 +16,8 @@ uniform float rainStrength;
 //////////////////////////////////////////////////////////////////////////////
 
 /* DRAWBUFFERS:0 */
+layout(location = 0) out vec4 FragOut0;
+
 void main() {
     float depth     = getDepth(coord);
     vec3  screenPos = vec3(coord, depth);
@@ -33,5 +35,5 @@ void main() {
 
     }
     
-    gl_FragData[0] = vec4(color, 1.0);
+    FragOut0 = vec4(color, 1.0);
 }
