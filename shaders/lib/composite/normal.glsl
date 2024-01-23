@@ -1,15 +1,15 @@
-uniform sampler2D colortex2; // Normal Buffer
+uniform sampler2D colortex1; // Normal Buffer
 
 vec3 getNormal(vec2 coord) {
-    return texture(colortex2, coord).rgb;
+    return texture(colortex1, coord).rgb;
 }
 vec3 getNormal(vec2 coord, float lod) {
-    return texture(colortex2, coord, lod).rgb;
+    return texture(colortex1, coord, lod).rgb;
 }
 
 vec3 getNormal(ivec2 icoord) {
-    return texelFetch(colortex2, icoord, 0).rgb;
+    return texelFetch(colortex1, icoord, 0).rgb;
 }
 vec3 getNormal(ivec2 icoord, int lod) {
-    return texelFetch(colortex2, icoord, lod).rgb;
+    return texelFetch(colortex1, icoord, lod).rgb;
 }

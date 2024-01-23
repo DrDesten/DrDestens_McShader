@@ -11,9 +11,9 @@ in vec2 coord;
 in vec4 glcolor;
 
 #ifdef PBR
-/* DRAWBUFFERS:031 */
+/* DRAWBUFFERS:023 */
 #else
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:02 */
 #endif
 
 layout(location = 0) out vec4 FragOut0;

@@ -14,9 +14,9 @@
 in vec2 coord;
 
 #ifdef PBR
-/* DRAWBUFFERS:0231 */
+/* DRAWBUFFERS:0123 */
 #else
-/* DRAWBUFFERS:023 */
+/* DRAWBUFFERS:012 */
 #endif
 
 layout(location = 0) out vec4 FragOut0;

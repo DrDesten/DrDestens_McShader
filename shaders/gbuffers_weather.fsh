@@ -11,7 +11,7 @@ in vec2 coord;
 in vec4 glcolor;
 // gbuffers_weather does not generate useful normals
 
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:02 */
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 

@@ -3,7 +3,7 @@
 
 in vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
 
-/* DRAWBUFFERS:03 */
+/* DRAWBUFFERS:02 */
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 

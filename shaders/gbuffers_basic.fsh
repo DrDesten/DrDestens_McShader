@@ -14,7 +14,7 @@ in vec2 lmcoord;
 in vec4 glcolor;
 
 #ifdef PBR
-/* DRAWBUFFERS:01 */
+/* DRAWBUFFERS:02 */
 #else
 /* DRAWBUFFERS:0 */
 #endif

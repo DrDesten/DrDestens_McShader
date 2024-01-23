@@ -1,12 +1,14 @@
 
 /*
 
-const int colortex0Format = RGBA16F; // Color
+const int colortex0Format = RGBA16F;    // Color / Albedo
+const int colortex1Format = RGB8_SNORM; // Normals
+const int colortex2Format = R8;         // blockId
 
-const int colortex1Format = RGB8;          // f0, roughness, Height (and in the future other PBR values)
-const int colortex2Format = RGB8_SNORM;    // Normals
+// PBR
+// Roughness, Reflectance, Emission, Height
+const int colortex3Format = RGBA8;
 
-const int colortex3Format = R8;             // colortex3 = blockId
 const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0) + Bloom
 
 const int colortex5Format = R11F_G11F_B10F; // TAA
@@ -17,14 +19,14 @@ const int colortex5Format = R11F_G11F_B10F; // TAA
 
 const bool colortex0Clear      = true;
 const bool colortex1Clear      = false;
-const bool colortex2Clear      = false;
-//const bool colortex3Clear      = false;
+//const bool colortex2Clear      = false;
+const bool colortex3Clear      = false;
 const bool colortex4Clear      = false;
 const bool colortex5Clear      = false;
 
 const vec4 colortex0ClearColor = vec4(0,0,0,1);
-const vec4 colortex1ClearColor = vec4(0,1,0,1);
-const vec4 colortex3ClearColor = vec4(0,0,0,0);
+const vec4 colortex2ClearColor = vec4(0,0,0,0);
+const vec4 colortex3ClearColor = vec4(0,1,0,1);
 const vec4 colortex4ClearColor = vec4(.5, .5, .5, 1);
 
 const float eyeBrightnessHalflife = 1.0;
@@ -54,7 +56,7 @@ uniform float rainStrength;
 
 uniform sampler2D depthtex1;
 #ifdef PBR
-uniform sampler2D colortex1;
+uniform sampler2D colortex3;
 #endif
 
 uniform float frameTimeCounter;
@@ -315,7 +317,7 @@ void main() {
 
 #if SSR_MODE != 0
 
-    float f0 = texture(colortex1, coord).r;
+    float f0 = texture(colortex3, coord).r;
     if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
 
         float fresnel = schlickFresnel(viewDir, normal, f0);
