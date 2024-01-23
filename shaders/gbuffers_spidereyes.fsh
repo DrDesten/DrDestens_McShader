@@ -1,3 +1,5 @@
+#include "/lib/settings.glsl"
+
 uniform sampler2D texture;
 
 in vec2 coord;
@@ -12,4 +14,5 @@ void main() {
 	color *= 2;
 
 	FragOut0 = color; //gcolor
+    ALPHA_DISCARD(FragOut0);
 }

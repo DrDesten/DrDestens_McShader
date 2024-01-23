@@ -1,3 +1,4 @@
+#include "/lib/settings.glsl"
 #include "/core/math.glsl"
 
 uniform sampler2D lightmap;
@@ -16,4 +17,5 @@ void main() {
 	color.rgb  = gamma(color.rgb);
 
 	FragOut0 = color; //gcolor
+    ALPHA_DISCARD(FragOut0);
 }

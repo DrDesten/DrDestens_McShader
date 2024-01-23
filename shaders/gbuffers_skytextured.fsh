@@ -18,4 +18,5 @@ void main() {
 	#endif
 
 	FragOut0 = color; //gcolor
+    ALPHA_DISCARD(FragOut0);
 }

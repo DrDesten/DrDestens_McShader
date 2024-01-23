@@ -36,4 +36,5 @@ void main() {
 
 	FragOut0 = color; //gcolor
 	FragOut1 = vec4(vec3(codeID(rain * 53)), 1); //gcolor
+    ALPHA_DISCARD(FragOut0);
 }

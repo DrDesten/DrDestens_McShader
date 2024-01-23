@@ -30,4 +30,5 @@ void main() {
 	#ifdef PHYSICALLY_BASED
 	FragOut2 = PBR_EMPTY; // pbr
 	#endif
+    ALPHA_DISCARD(FragOut0);
 }

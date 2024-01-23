@@ -1,6 +1,10 @@
 #define WATER_EFFECTS
 #define HIGH_PRECISION_COLOR
 
+#define ALPHA_DISCARD_THRESHOLD 0.1
+#define ALPHA_DISCARD(var) \
+    if ((var).a < ALPHA_DISCARD_THRESHOLD) { discard; }
+
 // Optimisation
 /////////////////////////////////////////////////////////////////////////////////////////
 

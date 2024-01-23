@@ -48,4 +48,5 @@ void main() {
 	#ifdef PHYSICALLY_BASED
 	FragOut3 = vec4(0, vec3(1));  // Reflectance
 	#endif
+    ALPHA_DISCARD(FragOut0);
 }
