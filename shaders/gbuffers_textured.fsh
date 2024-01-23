@@ -10,7 +10,7 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:031 */
 #else
 /* DRAWBUFFERS:03 */
@@ -27,7 +27,7 @@ void main() {
 
 	FragOut0 = color; //gcolor
 	FragOut1 = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut2 = PBR_EMPTY; // pbr
 	#endif
     ALPHA_DISCARD(FragOut0);

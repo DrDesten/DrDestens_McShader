@@ -22,7 +22,7 @@ uniform vec3  upPosition;
     out mat3 tbn;
 #endif
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
     out vec3 viewpos;
 #endif
 
@@ -44,7 +44,7 @@ void main() {
 
 	gl_Position = ftransform();
 
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	viewpos = getView();
 	#endif
 	lmcoord = getLmCoord();

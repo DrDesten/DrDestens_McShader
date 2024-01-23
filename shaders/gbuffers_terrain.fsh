@@ -25,7 +25,7 @@ uniform int worldTime;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
     in vec3  viewpos;
 #endif
 
@@ -34,7 +34,7 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
@@ -55,7 +55,7 @@ void main() {
 	    color.rgb = vec3(1);
 	#endif
 	
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 
 		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
 
@@ -138,7 +138,7 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(normal, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut3 = vec4(reflectiveness, height, vec2(1));
 	#endif
     ALPHA_DISCARD(FragOut0);

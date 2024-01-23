@@ -13,7 +13,7 @@ in vec2 coord;
 flat in vec3 normal;
 flat in vec4 glcolor;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
@@ -45,7 +45,7 @@ void main() {
 	FragOut0 = color; //color
 	FragOut1 = vec4(normal, 1);   //normals
 	FragOut2 = vec4(codeID(52), vec3(1)); //block id (50, SSAO mask)
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut3 = vec4(0, vec3(1));  // Reflectance
 	#endif
     ALPHA_DISCARD(FragOut0);

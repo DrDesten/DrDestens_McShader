@@ -13,7 +13,7 @@
 
 in vec2 coord;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
@@ -34,7 +34,7 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(normal, 1);
 	FragOut2 = vec4(codeID(50), vec3(1));
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut3 = PBR_EMPTY; // no pbr
 	#endif
     ALPHA_DISCARD(FragOut0);

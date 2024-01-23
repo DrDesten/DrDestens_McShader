@@ -36,14 +36,14 @@ uniform vec2 screenSizeInverse;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
     in vec3 viewpos;
 #endif
 
 in vec2 lmcoord;
 in vec2 coord;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
@@ -68,7 +68,7 @@ void main() {
 	    color.rgb = vec3(1);
 	#endif
 
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 
 		// Get the Dafault render color, used for PBR Blending
 		vec3 mc_color      = color.rgb * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
@@ -104,7 +104,7 @@ void main() {
 	FragOut0 = vec4(color); //color
 	FragOut1 = vec4(normal, 1); //normal
 	FragOut2 = vec4(codeID(54), vec3(1)); //Type
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut3 = vec4(reflectiveness, height, vec2(1));
 	#endif
     ALPHA_DISCARD(FragOut0);

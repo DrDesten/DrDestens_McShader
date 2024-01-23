@@ -26,7 +26,7 @@ attribute vec4 at_tangent;
     out mat3  tbn;
 #endif
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
     out vec3 viewpos;
 #endif
 
@@ -45,7 +45,7 @@ void main() {
 		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	viewpos = getView();
 	#endif
 	lmcoord = getLmCoord();

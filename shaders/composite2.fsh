@@ -53,7 +53,7 @@ uniform float rainStrength;
 #include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 uniform sampler2D colortex1;
 #endif
 
@@ -241,7 +241,7 @@ void main() {
     depth       = getDepth(coord);
     linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
-    #ifdef PHYSICALLY_BASED
+    #ifdef PBR
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
     vec3  viewDir = normalize(viewPos);
     vec3  normal  = normalize(getNormal(coord));
@@ -268,7 +268,7 @@ void main() {
 
 #if SSR_MODE != 0
 
-        #ifndef PHYSICALLY_BASED
+        #ifndef PBR
         vec3 viewPos = toView(vec3(coord, depth) * 2 - 1);
         vec3 viewDir = normalize(viewPos);
         vec3 normal  = getNormal(coord);
@@ -309,7 +309,7 @@ void main() {
     vec3 color = getAlbedo(coord);
 #endif
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 
     // SCREEN SPACE REFLECTION <PBR> /////////////////////////////////////////////////////////////
 

@@ -28,7 +28,7 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:0231 */
 #else
 /* DRAWBUFFERS:023 */
@@ -43,7 +43,7 @@ void main(){
     vec3  surfaceNormal  = tbn[2];
 	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
 
-    #ifdef PHYSICALLY_BASED
+    #ifdef PBR
     float reflectiveness, roughness = 0;
     #endif
 
@@ -77,7 +77,7 @@ void main(){
 
     } else {
 
-        #ifdef PHYSICALLY_BASED
+        #ifdef PBR
 
 		    // Get the Dafault render color, used for PBR Blending
             vec3 mc_color = gamma(color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) ));
@@ -116,7 +116,7 @@ void main(){
     //FragOut0 = vec4(surfaceNormal * .5 + .5, 1); // Color
     FragOut1 = vec4(surfaceNormal, 1); // Normal
     FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
-    #ifdef PHYSICALLY_BASED
+    #ifdef PBR
     FragOut3 = vec4(reflectiveness, vec3(1));
     #endif
     ALPHA_DISCARD(FragOut0);

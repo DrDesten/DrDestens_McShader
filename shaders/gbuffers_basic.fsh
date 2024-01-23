@@ -13,7 +13,7 @@
 in vec2 lmcoord;
 in vec4 glcolor;
 
-#ifdef PHYSICALLY_BASED
+#ifdef PBR
 /* DRAWBUFFERS:01 */
 #else
 /* DRAWBUFFERS:0 */
@@ -48,7 +48,7 @@ void main() {
 	color.rgb  = gamma(color.rgb);
 
 	FragOut0 = color; //gcolor
-	#ifdef PHYSICALLY_BASED
+	#ifdef PBR
 	FragOut1 = PBR_EMPTY; // no pbr
 	#endif
     ALPHA_DISCARD(FragOut0);
