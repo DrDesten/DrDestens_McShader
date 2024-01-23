@@ -102,7 +102,7 @@ void main() {
 	FragOut1 = vec4(normal, 1);
 	FragOut2 = vec4(codeID(51), vec3(1));
 	#ifdef PBR
-	FragOut3 = vec4(reflectiveness, vec3(1));
+	FragOut3 = vec4(roughness, reflectiveness, 0, 1);
 	#endif
     ALPHA_DISCARD(FragOut0);
 }

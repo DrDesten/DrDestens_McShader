@@ -42,11 +42,11 @@ void main() {
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
 
-	FragOut0 = color; //color
-	FragOut1 = vec4(normal, 1);   //normals
-	FragOut2 = vec4(codeID(52), vec3(1)); //block id (50, SSAO mask)
+	FragOut0 = color;                     // color
+	FragOut1 = vec4(normal, 1);           // normals
+	FragOut2 = vec4(codeID(52), vec3(1)); // block id (50, SSAO mask)
 	#ifdef PBR
-	FragOut3 = vec4(0, vec3(1));  // Reflectance
+	FragOut3 = vec4(1, 0, 0, 1);
 	#endif
     ALPHA_DISCARD(FragOut0);
 }

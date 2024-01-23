@@ -317,7 +317,7 @@ void main() {
 
 #if SSR_MODE != 0
 
-    float f0 = texture(colortex3, coord).r;
+    float f0 = texture(colortex3, coord).y;
     if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
 
         float fresnel = schlickFresnel(viewDir, normal, f0);

@@ -117,7 +117,7 @@ void main(){
     FragOut1 = vec4(surfaceNormal, 1); // Normal
     FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
     #ifdef PBR
-    FragOut3 = vec4(reflectiveness, vec3(1));
+    FragOut3 = vec4(roughness, reflectiveness, 0, 1);
     #endif
     ALPHA_DISCARD(FragOut0);
 }

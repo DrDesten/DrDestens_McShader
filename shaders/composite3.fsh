@@ -119,9 +119,9 @@ void main() {
 
         if (depth > 0.56 && depth < 0.998) {
             #ifdef POM_DISTORTION
-             float height    = mapHeight(texture(colortex3, coord).g, POM_DEPTH);
+             float height    = mapHeight(texture(colortex3, coord).w, POM_DEPTH);
             #else
-             float height    = mapHeightSimple(texture(colortex3, coord).g, POM_DEPTH);
+             float height    = mapHeightSimple(texture(colortex3, coord).w, POM_DEPTH);
             #endif
             height         *= sq(depth * (1./0.56) - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
@@ -142,7 +142,7 @@ void main() {
                 color  = getAlbedo(POMPos.xy);
 
                 float distFade = saturate(map(distSQ, 300, 500, 1, 0.2));
-                //color *= texture(colortex3, POMPos.xy).g * distFade + (1 - distFade);
+                //color *= texture(colortex3, POMPos.xy).w * distFade + (1 - distFade);
 
                 #ifdef POM_DEBUG
                 color  = vec3(height);
@@ -152,7 +152,7 @@ void main() {
             depth  = POMdepth;
 
         } else if (depth <= 0.56) {
-            color *= texture(colortex3, coord).g;
+            color *= texture(colortex3, coord).w;
         }
 
     #endif
