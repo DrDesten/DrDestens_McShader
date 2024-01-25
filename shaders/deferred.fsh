@@ -6,7 +6,8 @@
 #include "/lib/composite/depth.glsl"
 
 #ifdef PBR
-#include "/lib/pbr.glsl"
+#include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/ambient.glsl"
 uniform sampler2D colortex3;
 #endif
 
@@ -62,6 +63,8 @@ void main() {
         }
 
         MaterialTexture material = decodeMaterial(samples, sampleIds);
+
+        color *= getAmbientLight(material.lightmap, material.ao);
 
 #endif
 

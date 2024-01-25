@@ -5,9 +5,10 @@ uniform int worldTime;
 #include "/core/transform.glsl"
 #include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
-#include "/lib/pbr.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
+
+#include "/lib/pbr/pbr.glsl"
 
 #ifdef POM_ENABLED
 #ifdef POM_SMOOTH
@@ -47,10 +48,9 @@ layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
 
 void main() {
-	vec3  normal = tbn[2];
-
-	vec4 color = texture2D(texture, coord, 0);
-	color.rgb *= glcolor.rgb;
+	vec3 normal = tbn[2];
+	vec4 color  = texture2D(texture, coord, 0);
+	color.rgb  *= glcolor.rgb;
 	
 	#ifdef WHITE_WORLD
 	    color.rgb = vec3(1);
@@ -71,6 +71,8 @@ void main() {
 		height      = material.height;
 		ao          = material.ao * glcolor.a;
 		lightmap    = lmcoord;
+
+		normal      = normalize(tbn * material.normal);
 /* 
 		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
 
