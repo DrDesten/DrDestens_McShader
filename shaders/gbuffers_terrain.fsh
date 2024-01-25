@@ -5,6 +5,7 @@ uniform int worldTime;
 #include "/core/transform.glsl"
 #include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
+#include "/lib/pbr.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
 
@@ -57,6 +58,20 @@ void main() {
 	
 	#ifdef PBR
 
+		float roughness, reflectance, emission, height, ao;
+		vec2  lightmap;
+
+		vec4 normalTex       = NormalTex(coord);
+		vec4 specularTex     = SpecularTex(coord);
+		RawMaterial material = readMaterial(normalTex, specularTex);
+
+		roughness   = material.roughness;
+		reflectance = material.reflectance;
+		emission    = material.emission;
+		height      = material.height;
+		ao          = material.ao * glcolor.a;
+		lightmap    = lmcoord;
+/* 
 		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
 
 		// Get the Dafault render color, used for PBR Blending
@@ -105,7 +120,7 @@ void main() {
 
 		#endif
 		#endif
-
+ */
 	#else
 
 		vec3 tmp = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
@@ -139,7 +154,16 @@ void main() {
 	FragOut1 = vec4(normal, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
 	#ifdef PBR
-	FragOut3 = vec4(roughness, reflectiveness, 0, height);
+	FragOut3 = encodeMaterial(
+		MaterialTexture(
+			roughness, 
+			reflectance, 
+			emission, 
+			height, 
+			ao, 
+			lightmap
+		), ivec2(gl_FragCoord.xy)
+	);
 	#endif
     ALPHA_DISCARD(FragOut0);
 }
