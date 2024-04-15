@@ -204,7 +204,7 @@ void main() {
 	#endif
 
     #if VIGNETTE == 1
-		color *= roundVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);;
+		color *= roundVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
 	#elif VIGNETTE == 2
 		color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
 	#endif

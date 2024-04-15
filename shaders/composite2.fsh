@@ -219,7 +219,7 @@ void main() {
     float id          = getID(ivec2(gl_FragCoord.xy));
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth = linearizeDepthf(depth, nearInverse);
-    
+
 #ifdef WATER_EFFECTS
     #ifdef REFRACTION
     if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
