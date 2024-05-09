@@ -15,24 +15,13 @@ uniform vec3 fogColor;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in vec4 glcolor;
+OPT_FLAT in vec4 glcolor;
 
-    // Switch on or off Fragment based normal mapping
-    #ifdef FRAG_NORMALS
-        flat in vec3 N;
-    #else
-        flat in mat3 tbn;
-    #endif
+// Switch on or off Fragment based normal mapping
+#ifdef FRAG_NORMALS
+	OPT_FLAT in vec3 N;
 #else
-    in vec4 glcolor;
-
-    // Switch on or off Fragment based normal mapping
-    #ifdef FRAG_NORMALS
-        in vec3 N;
-    #else
-        in mat3 tbn;
-    #endif
+	OPT_FLAT in mat3 tbn;
 #endif
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector

@@ -17,11 +17,7 @@ uniform float frameTimeCounter;
 attribute vec4 mc_Entity;
 attribute vec4 at_tangent;
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat out mat3 tbn;
-#else
-    out mat3 tbn;
-#endif
+OPT_FLAT out mat3 tbn;
 
 flat out int blockId;
 out vec3 worldPos;

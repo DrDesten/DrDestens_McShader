@@ -10,13 +10,8 @@ uniform int worldTime;
 
 uniform vec3 fogColor;
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in vec4  glcolor;
-    flat in mat3  tbn;
-#else
-    in vec4  glcolor;
-    in mat3  tbn;
-#endif
+OPT_FLAT in vec4  glcolor;
+OPT_FLAT in mat3  tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector

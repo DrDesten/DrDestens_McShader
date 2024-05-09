@@ -4,14 +4,8 @@
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 
-
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in vec3 normal;
-    flat in vec4 glcolor;
-#else
-    in vec3 normal;
-    in vec4 glcolor;
-#endif
+OPT_FLAT in vec3 normal;
+OPT_FLAT in vec4 glcolor;
 
 in vec2 coord;
 

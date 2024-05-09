@@ -1,7 +1,6 @@
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
 
-
 uniform sampler2D texture;
 
 in vec2 coord;

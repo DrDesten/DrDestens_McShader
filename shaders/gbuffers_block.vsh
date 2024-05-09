@@ -20,13 +20,8 @@ attribute vec4 at_tangent;
     uniform vec2 taaOffset;
 #endif
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat out vec4  glcolor;
-    flat out mat3  tbn;
-#else
-    out vec4  glcolor;
-    out mat3  tbn;
-#endif
+OPT_FLAT out vec4  glcolor;
+OPT_FLAT out mat3  tbn;
 
 #ifdef PBR
     out vec3 viewpos;

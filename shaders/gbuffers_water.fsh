@@ -14,11 +14,7 @@ uniform int worldTime;
 
 uniform float frameTimeCounter;
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat in mat3 tbn;
-#else
-    in mat3 tbn;
-#endif
+OPT_FLAT in mat3 tbn;
 // tbn[0] = tangent vector
 // tbn[1] = binomial vector
 // tbn[2] = normal vector

@@ -14,14 +14,8 @@
     uniform vec2 taaOffset;
 #endif
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat out vec3 normal;
-    flat out vec4 glcolor;
-#else
-    out vec3 normal;
-    out vec4 glcolor;
-#endif
-
+OPT_FLAT out vec3 normal;
+OPT_FLAT out vec4 glcolor;
 out vec2 coord;
 
 void main() {

@@ -18,11 +18,7 @@ uniform vec3  upPosition;
     uniform vec2 taaOffset;
 #endif
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat out mat3 tbn;
-#else
-    out mat3 tbn;
-#endif
+OPT_FLAT out mat3 tbn;
 
 #ifdef PBR
     out vec3 viewpos;

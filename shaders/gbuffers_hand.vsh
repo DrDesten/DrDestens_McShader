@@ -15,24 +15,13 @@ uniform mat4 gbufferModelView;
     uniform vec2 taaOffset;
 #endif
 
-#ifdef OPTIMIZE_INTERPOLATION
-    flat out vec4 glcolor;
+OPT_FLAT out vec4 glcolor;
 
-    // Switch on or off Fragment based normal mapping
-    #ifdef FRAG_NORMALS
-        flat out vec3 N;
-    #else
-        flat out mat3 tbn;
-    #endif
+// Switch on or off Fragment based normal mapping
+#ifdef FRAG_NORMALS
+	OPT_FLAT out vec3 N;
 #else
-    out vec4 glcolor;
-
-    // Switch on or off Fragment based normal mapping
-    #ifdef FRAG_NORMALS
-        out vec3 N;
-    #else
-        out mat3 tbn;
-    #endif
+	OPT_FLAT out mat3 tbn;
 #endif
 
 
