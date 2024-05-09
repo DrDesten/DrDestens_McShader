@@ -56,6 +56,7 @@ void main() {
 
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
+	color.a = 1;
 	
 	#ifdef WHITE_WORLD
 	    color.rgb = vec3(1);
@@ -90,7 +91,7 @@ void main() {
 
 	#endif
 
-	FragOut0 = vec4(color); //color
+	FragOut0 = color; //color
 	FragOut1 = vec4(normal, 1); //normal
 	FragOut2 = vec4(codeID(54), vec3(1)); //Type
 	#ifdef PBR

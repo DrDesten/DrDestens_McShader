@@ -29,7 +29,7 @@ void main() {
 	color.rgb *= getLightmap(lmcoord);
 		
 	bool isBlockOutline;
-	#if MC_VERSION >= 11605
+	#if MC_VERSION >= 11605 && false
 	isBlockOutline = renderStage == MC_RENDER_STAGE_OUTLINE;
 	#else
 	isBlockOutline = abs(glcolor.a - 0.5) < 0.2; // Workaround for detecting the block outline in versions prior to 1.16.5
