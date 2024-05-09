@@ -56,7 +56,6 @@ void main() {
 
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb  = mix(color.rgb, entityColor.rgb, entityColor.a);
-	color.a = 1;
 	
 	#ifdef WHITE_WORLD
 	    color.rgb = vec3(1);
@@ -106,5 +105,7 @@ void main() {
 		), ivec2(gl_FragCoord.xy)
 	);
 	#endif
-    ALPHA_DISCARD(FragOut0);
+	/* 
+    ALPHA_DISCARD(FragOut0); 
+	*/
 }
