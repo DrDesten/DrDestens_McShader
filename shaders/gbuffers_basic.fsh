@@ -4,9 +4,7 @@
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 
-#if SELECTION_OUTLINE != 0
-    uniform int   renderStage;
-#endif
+uniform int renderStage;
 #if SELECTION_OUTLINE == 2
     uniform float frameTimeCounter;
     uniform vec2  screenSizeInverse;
@@ -29,7 +27,7 @@ void main() {
 	color.rgb *= getLightmap(lmcoord);
 		
 	bool isBlockOutline;
-	#if MC_VERSION >= 11605 && false
+	#if MC_VERSION >= 11605
 	isBlockOutline = renderStage == MC_RENDER_STAGE_OUTLINE;
 	#else
 	isBlockOutline = abs(glcolor.a - 0.5) < 0.2; // Workaround for detecting the block outline in versions prior to 1.16.5
