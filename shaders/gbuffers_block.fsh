@@ -8,7 +8,7 @@ uniform int worldTime;
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 
-#include "/pbr/pbr.glsl"
+#include "/lib/pbr/pbr.glsl"
 
 uniform vec3 fogColor;
 

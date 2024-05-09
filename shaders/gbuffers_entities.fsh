@@ -8,7 +8,7 @@ uniform int worldTime;
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 
-#include "/pbr/pbr.glsl"
+#include "/lib/pbr/pbr.glsl"
 
 uniform vec4 entityColor;
 
@@ -105,7 +105,5 @@ void main() {
 		), ivec2(gl_FragCoord.xy)
 	);
 	#endif
-	/* 
     ALPHA_DISCARD(FragOut0); 
-	*/
 }
