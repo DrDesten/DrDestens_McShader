@@ -6,6 +6,8 @@
 
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"

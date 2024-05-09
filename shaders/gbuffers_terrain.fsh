@@ -1,6 +1,8 @@
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/transform.glsl"
 #include "/core/gbuffers_basics.glsl"

@@ -1,4 +1,6 @@
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/transform.glsl"
 #include "/lib/composite/basics.glsl"
@@ -56,9 +58,7 @@ void main() {
         if (sampleCoords[3].y == -1) sampleCoords[1].y = 1;
 
         for (int i = 0; i < 4; i++) {
-            samples[i] = texelFetch(colortex3, sampleCoords[i], 0);
-        }
-        for (int i = 0; i < 4; i++) {
+            samples[i]   = texelFetch(colortex3, sampleCoords[i], 0);
             sampleIds[i] = getCoordinateId(sampleCoords[i]);
         }
 

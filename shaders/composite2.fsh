@@ -5,8 +5,8 @@ const int colortex1Format = RGB8_SNORM; // Normals
 const int colortex2Format = R8;         // blockId
 
 // PBR
-// Full Res:    Roughness, Reflectance, Emission
-// Quarter Res: Height, AO, Lightmap (2)
+// Full Res:    Lightmap (2), Emission
+// Quarter Res: Roughness, Reflectance, Height, AO
 const int colortex3Format = RGBA8;
 
 const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0) + Bloom
@@ -40,6 +40,8 @@ const float ambientOcclusionLevel = 1.00; // [0.00 0.01 0.02 0.03 0.04 0.05 0.06
 //const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"

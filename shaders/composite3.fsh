@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/transform.glsl"
 #include "/lib/composite/basics.glsl"

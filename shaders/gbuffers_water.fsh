@@ -2,6 +2,8 @@ uniform int worldTime;
 //uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"

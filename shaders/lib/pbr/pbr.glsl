@@ -63,15 +63,15 @@ int getCoordinateId(vec2 fragCoord) {
 vec4 encodeMaterial(MaterialTexture material, ivec2 fragCoord) {
     vec4 encoded;
 
-    encoded.x = material.roughness;
-    encoded.y = material.reflectance;
+    encoded.x = material.lightmap.x;
+    encoded.y = material.lightmap.y;
     encoded.z = material.emission;
     
     int id = getCoordinateId(fragCoord);
-    if (id == 0) encoded.w = material.height;
-    if (id == 1) encoded.w = material.ao;
-    if (id == 2) encoded.w = material.lightmap.x;
-    if (id == 3) encoded.w = material.lightmap.y;
+    if (id == 0) encoded.w = material.roughness;
+    if (id == 1) encoded.w = material.reflectance;
+    if (id == 2) encoded.w = material.height;
+    if (id == 3) encoded.w = material.ao;
 
     return encoded;
 }
@@ -79,15 +79,15 @@ vec4 encodeMaterial(MaterialTexture material, ivec2 fragCoord) {
 MaterialTexture decodeMaterial(vec4 samples[4], int ids[4]) {
     MaterialTexture material;
 
-    material.roughness   = samples[0].x;
-    material.reflectance = samples[0].y;
-    material.emission    = samples[0].z;
+    material.lightmap.x = samples[0].x;
+    material.lightmap.y = samples[0].y;
+    material.emission   = samples[0].z;
 
     for (int i = 0; i < 4; i++) {
-        if (ids[i] == 0) material.height     = samples[i].w;
-        if (ids[i] == 1) material.ao         = samples[i].w;
-        if (ids[i] == 2) material.lightmap.x = samples[i].w;
-        if (ids[i] == 3) material.lightmap.y = samples[i].w;
+        if (ids[i] == 0) material.roughness   = samples[i].w;
+        if (ids[i] == 1) material.reflectance = samples[i].w;
+        if (ids[i] == 2) material.height      = samples[i].w;
+        if (ids[i] == 3) material.ao          = samples[i].w;
     }
 
     return material;

@@ -1,4 +1,6 @@
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/kernels.glsl"
 #include "/core/vertex_transform_simple.glsl"

@@ -3,10 +3,14 @@
 uniform int worldTime;
 
 #include "/lib/settings.glsl"
+#include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
+
+#include "/lib/pbr/pbr.glsl"
 
 uniform vec3 fogColor;
 
@@ -64,7 +68,24 @@ void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 
 	#ifdef PBR
+	
 
+		float roughness, reflectance, emission, height, ao;
+		vec2  lightmap;
+
+		vec4 normalTex       = NormalTex(coord);
+		vec4 specularTex     = SpecularTex(coord);
+		RawMaterial material = readMaterial(normalTex, specularTex);
+
+		roughness   = material.roughness;
+		reflectance = material.reflectance;
+		emission    = material.emission;
+		height      = material.height;
+		ao          = material.ao;
+		lightmap    = lmcoord;
+
+		normal      = normalize(tbn * material.normal);
+/* 
 		// Get the Dafault render color, used for PBR Blending
 		vec3 mc_color      = color.rgb * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
 		gamma(mc_color);
@@ -87,7 +108,7 @@ void main() {
 		
 		float reflectiveness = luminance(MatTex.f0);
 		float roughness      = MatTex.roughness;
-		float height         = MatTex.height;
+		float height         = MatTex.height; */
 
 	#else
 
@@ -102,7 +123,16 @@ void main() {
 	FragOut1 = vec4(normal, 1);
 	FragOut2 = vec4(codeID(51), vec3(1));
 	#ifdef PBR
-	FragOut3 = vec4(roughness, reflectiveness, 0, 1);
+	FragOut3 = encodeMaterial(
+		MaterialTexture(
+			roughness, 
+			reflectance, 
+			emission, 
+			height, 
+			ao, 
+			lightmap
+		), ivec2(gl_FragCoord.xy)
+	);
 	#endif
     ALPHA_DISCARD(FragOut0);
 }
