@@ -8,6 +8,8 @@ uniform int worldTime;
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 
+#include "/pbr/pbr.glsl"
+
 uniform vec4 entityColor;
 
 uniform vec3 fogColor;
@@ -60,30 +62,26 @@ void main() {
 	#endif
 
 	#ifdef PBR
-
-		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color      = color.rgb * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-		gamma(mc_color);
-
+	
 		#ifdef FRAG_NORMALS
-		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
+		mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 		#endif
 
-		color.rgb  = gamma(color.rgb);
-		vec3 ambientLight  = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		//gamma(ambientLight);
+		float roughness, reflectance, emission, height, ao;
+		vec2  lightmap;
 
-		MaterialInfo MatTex = FullMaterial(coord, color);
-		//MatTex.AO 		   *= sq(glcolor.a);
+		vec4 normalTex       = NormalTex(coord);
+		vec4 specularTex     = SpecularTex(coord);
+		RawMaterial material = readMaterial(normalTex, specularTex);
 
-		PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
+		roughness   = material.roughness;
+		reflectance = material.reflectance;
+		emission    = material.emission;
+		height      = material.height;
+		ao          = material.ao;
+		lightmap    = lmcoord;
 
-		color	           = Material.color;
-		normal	   	       = Material.normal;
-		
-		float reflectiveness = luminance(MatTex.f0);
-		float roughness      = MatTex.roughness;
-		float height         = MatTex.height;
+		normal      = normalize(tbn * material.normal);
 
 	#else
 
@@ -96,7 +94,16 @@ void main() {
 	FragOut1 = vec4(normal, 1); //normal
 	FragOut2 = vec4(codeID(54), vec3(1)); //Type
 	#ifdef PBR
-	FragOut3 = vec4(roughness, reflectiveness, 0, height);
+	FragOut3 = encodeMaterial(
+		MaterialTexture(
+			roughness, 
+			reflectance, 
+			emission, 
+			height, 
+			ao, 
+			lightmap
+		), ivec2(gl_FragCoord.xy)
+	);
 	#endif
     ALPHA_DISCARD(FragOut0);
 }

@@ -17,6 +17,48 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 #endif
 
+#ifdef DEBUG
+
+#include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/read.glsl"
+#include "/lib/pbr/ambient.glsl"
+
+vec3 debugViewNormals(vec2 coord) {
+    return getNormal(coord) * .5 + .5;
+}
+
+vec3 debugViewLightmap(vec2 coord) {
+    return vec3(0);
+}
+
+vec3 debugViewPBR(vec2 coord) {
+    MaterialTexture material = getPBR(ivec2(coord * screenSize));
+
+#if DEBUG_VIEW_PBR == 0 // Roughness
+    return vec3(material.roughness);
+#elif DEBUG_VIEW_PBR == 1 // Reflectance
+    return vec3(material.reflectance);
+#elif DEBUG_VIEW_PBR == 2 // Height
+    return vec3(material.height);
+#elif DEBUG_VIEW_PBR == 3 // Emission
+    return vec3(material.emission);
+#elif DEBUG_VIEW_PBR == 4 // AO
+    return vec3(material.ao);
+#endif
+}
+
+vec3 debugView(vec2 coord) {
+#if DEBUG_VIEW == 0 // Normals
+    return debugViewNormals(coord);
+#elif DEBUG_VIEW == 1 // Lightmap
+    return debugViewLightmap(coord);
+#elif DEBUG_VIEW == 2 // PBR
+    return debugViewPBR(coord);
+#endif
+}
+
+#endif
+
 vec3 gaussian_3x3(vec2 coord) {
     vec2 e = vec2(-.5, .5) / MC_RENDER_QUALITY;
     vec3 color  = texture(colortex0, screenSizeInverse * e.yy + coord).rgb;
@@ -114,14 +156,19 @@ void main() {
     coord += sin(coord.x * TWO_PI) * 0.1;
     #endif
 
-    #ifdef TAA
-        float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.25 * TAA_SHARPENING_AMOUNT, 1.0) * TAA_SHARPENING_AMOUNT;
-        //vec3  color = sharpen2(coord, sharpen_amount);
-        vec3  color = sharpen(getSharpenData(coord), getAlbedo(coord), sharpen_amount);
-    #else
-        vec3  color = getAlbedo(coord);
-        //color = smartUpscale(colortex0, coord).rgb;
-    #endif
+#ifdef TAA
+    float sharpen_amount = clamp(length(cameraPosition - previousCameraPosition) * 1e2, 0.25 * TAA_SHARPENING_AMOUNT, 1.0) * TAA_SHARPENING_AMOUNT;
+    //vec3  color = sharpen2(coord, sharpen_amount);
+    vec3  color = sharpen(getSharpenData(coord), getAlbedo(coord), sharpen_amount);
+#else
+    vec3  color = getAlbedo(coord);
+    //color = smartUpscale(colortex0, coord).rgb;
+#endif
+
+    
+#ifdef DEBUG 
+    color = debugView(coord);
+#endif
 
     //color = mix(color, color * color * vec3(1,.5,.5), isHurtSmooth * 0.5);
 

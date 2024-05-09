@@ -58,6 +58,9 @@ void main() {
 
 	#ifdef PBR
 	
+		#ifdef FRAG_NORMALS
+		mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
+		#endif
 
 		float roughness, reflectance, emission, height, ao;
 		vec2  lightmap;
@@ -74,30 +77,6 @@ void main() {
 		lightmap    = lmcoord;
 
 		normal      = normalize(tbn * material.normal);
-/* 
-		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color      = color.rgb * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) );
-		gamma(mc_color);
-
-		#ifdef FRAG_NORMALS
-		mat3 tbn     	   = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
-		#endif
-
-		color.rgb  = gamma(color.rgb);
-		vec3 ambientLight  = getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
-		//gamma(ambientLight);
-
-		MaterialInfo MatTex = FullMaterial(coord, color);
-		//MatTex.AO 		   *= sq(glcolor.a);
-
-		PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
-
-		color	           = Material.color;
-		normal	   	       = Material.normal;
-		
-		float reflectiveness = luminance(MatTex.f0);
-		float roughness      = MatTex.roughness;
-		float height         = MatTex.height; */
 
 	#else
 

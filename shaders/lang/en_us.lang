@@ -1,5 +1,23 @@
 
 ///////////////////////////////////////////////////////////
+// DEBUG
+///////////////////////////////////////////////////////////
+
+screen.DEBUG_OPTS=Debug
+
+option.DEBUG_VIEW=Debug
+value.DEBUG_VIEW.0=Normals
+value.DEBUG_VIEW.1=Lightmap
+value.DEBUG_VIEW.2=PBR
+
+option.DEBUG_VIEW_PBR=PBR Debug
+value.DEBUG_VIEW_PBR.0=Roughness
+value.DEBUG_VIEW_PBR.1=Reflectance
+value.DEBUG_VIEW_PBR.2=Height
+value.DEBUG_VIEW_PBR.3=Emission
+value.DEBUG_VIEW_PBR.4=Ambient Occlusion
+
+///////////////////////////////////////////////////////////
 // DEPTH OF FIELD
 ///////////////////////////////////////////////////////////
 
