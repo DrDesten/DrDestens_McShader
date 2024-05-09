@@ -94,6 +94,7 @@ const float chromaticAberrationSimple = float(CHROMATIC_ABERRATION) * 0.00333333
 #define OUTLINE_BRIGHTNESS 1.0          // How bright is the outline
 
 #define SELECTION_OUTLINE 0             // Style of the Selection Outline [0 1 2]
+#define SELECTION_OUTLINE_OPACITY 1.00  // [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 #define EMISSION_STRENGTH 1
 

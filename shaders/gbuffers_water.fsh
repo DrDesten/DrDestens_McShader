@@ -49,12 +49,10 @@ void main(){
     if (blockId == 10) {
 
         #ifdef WATER_TEXTURE_VISIBLE
-         color.rgb = sq(color.rgb * getLightmap(lmcoord).rgb) * 0.75;
+            color.rgb = sq(color.rgb * getLightmap(lmcoord).rgb) * 0.75;
         #else
-
             color.rgb          = vec3(0);
-            color.a            = 0.01;
-
+            color.a            = PI;
         #endif
 
         #if WATER_NORMALS != 0
@@ -117,5 +115,9 @@ void main(){
     #ifdef PBR
     FragOut3 = vec4(roughness, reflectiveness, 0, 1);
     #endif
-    ALPHA_DISCARD(FragOut0);
+    if (FragOut0.a != PI) {
+        ALPHA_DISCARD(FragOut0);
+    } else {
+        FragOut0.a = 0;
+    }
 }

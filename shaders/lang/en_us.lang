@@ -310,6 +310,7 @@ option.SELECTION_OUTLINE.comment=§c§n/!\§r Only works with newer OptiFine ver
 value.SELECTION_OUTLINE.0=Black
 value.SELECTION_OUTLINE.1=White
 value.SELECTION_OUTLINE.2=Rainbow
+option.SELECTION_OUTLINE_OPACITY=Block Selection Outline Opacity
 
 option.WAVY_BLOCKS=Wavy Blocks
 
