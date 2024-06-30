@@ -34,8 +34,8 @@ void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float s
     maxColor = vec3(0);
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-            vec2 sample = vec2(x, y) * size * screenSizeInverse + coord;
-            vec3 color  = getAlbedo(sample);
+            vec2 scoord = vec2(x, y) * size * screenSizeInverse + coord;
+            vec3 color  = getAlbedo(scoord);
 
             minColor = min(minColor, color);
             maxColor = max(maxColor, color);

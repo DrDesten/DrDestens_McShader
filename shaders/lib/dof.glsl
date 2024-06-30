@@ -34,11 +34,11 @@ vec2 aspectCorrect(float circular, float aspect) {
 vec3 hexBokehVectorBlur_noReject(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
+    vec2 scoord   = blurStep * 0.5 + coord;
 
     for (int i = 0; i < samples; i++) {        
-        col     += textureLod(tex, sample, lod).rgb;
-        sample  += blurStep;
+        col     += textureLod(tex, scoord, lod).rgb;
+        scoord  += blurStep;
     }
 
     return col * samplesInv;
@@ -47,7 +47,7 @@ vec3 hexBokehVectorBlur_noReject(sampler2D tex, vec2 coord, vec2 vector, int sam
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
+    vec2 scoord   = blurStep * 0.5 + coord;
     
     float stepLength = length(blurStep);
     float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
@@ -56,8 +56,8 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
 
     float tw = 0;
     for (int i = 0; i < samples; i++) {
-        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
-        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
+        vec3  sampleColor = textureLod(tex, scoord, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(tex, scoord + blurStep * lod, lod).a; // Sample CoC
 
         sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
         //sampleCoc = length(aspectCorrect(sampleCoc, aspect));
@@ -66,14 +66,14 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
         
         col     += sampleColor;
         tw      += 1;
-        sample  += blurStep;
+        scoord  += blurStep;
     }
 
     return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
 }
 vec3 hexBokehVectorBlur_ChromAbb(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect) {
     vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
+    vec2 scoord   = blurStep * 0.5 + coord;
     
     float stepLength = length(blurStep);
     float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
@@ -82,8 +82,8 @@ vec3 hexBokehVectorBlur_ChromAbb(sampler2D tex, vec2 coord, vec2 vector, int sam
 
     vec3  totalTint, col = vec3(0);
     for (int i = 0; i < samples; i++) {
-        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
-        float sampleCoc   = textureLod(tex, sample + blurStep * lod, lod).a; // Sample CoC
+        vec3  sampleColor = textureLod(tex, scoord, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(tex, scoord + blurStep * lod, lod).a; // Sample CoC
 
         sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
         //sampleCoc = length(aspectCorrect(sampleCoc, aspect));
@@ -94,7 +94,7 @@ vec3 hexBokehVectorBlur_ChromAbb(sampler2D tex, vec2 coord, vec2 vector, int sam
 
         col       += sampleColor * tint;
         totalTint += tint;
-        sample    += blurStep;
+        scoord    += blurStep;
     }
 
     //return col / totalTint;
@@ -104,7 +104,7 @@ vec3 hexBokehVectorBlur_ChromAbb(sampler2D tex, vec2 coord, vec2 vector, int sam
 vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, float samplesInv, float lod, float aspect, sampler2D coctex) {
     vec3 col      = vec3(0);
     vec2 blurStep = vector * samplesInv;
-    vec2 sample   = blurStep * 0.5 + coord;
+    vec2 scoord   = blurStep * 0.5 + coord;
 
     float stepLength = length(blurStep);
     float cocBias    = screenSizeInverse.x * lod + screenSizeInverse.x;
@@ -113,8 +113,8 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
 
     float tw = 0;
     for (int i = 0; i < samples; i++) {
-        vec3  sampleColor = textureLod(tex, sample, lod).rgb; // Sample Color
-        float sampleCoc   = textureLod(coctex, sample + blurStep * lod, lod).a; // Sample Coc
+        vec3  sampleColor = textureLod(tex, scoord, lod).rgb; // Sample Color
+        float sampleCoc   = textureLod(coctex, scoord + blurStep * lod, lod).a; // Sample Coc
 
         sampleCoc = saturate(sampleCoc - cocBias) * aspectLengthChange;
         //sampleCoc = length(aspectCorrect(sampleCoc, aspect)); aspectLengthChange does the equivalent
@@ -123,7 +123,7 @@ vec3 hexBokehVectorBlur(sampler2D tex, vec2 coord, vec2 vector, int samples, flo
         
         col     += sampleColor;
         tw      += 1;
-        sample  += blurStep;
+        scoord  += blurStep;
     }
 
     return tw <= 0 ? textureLod(tex, coord, 0).rgb : col / tw;
