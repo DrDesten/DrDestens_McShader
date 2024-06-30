@@ -36,11 +36,11 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples, float dither) {
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
-    vec2 sample   = blurStep * dither + coord;
+    vec2 scoord   = blurStep * dither + coord;
 
     for (int i = 0; i < samples; i++) {
-        col    += textureLod(colortex0, sample, 0).rgb;
-        sample += blurStep;
+        col    += textureLod(colortex0, scoord, 0).rgb;
+        scoord += blurStep;
     }
 
     return col / float(samples);

@@ -58,16 +58,16 @@ float cubicAttenuation2(float depthDiff, float cutoff) {
     float depthTolerance   = 0.075/-viewPos.z;
 
     float hits = 0;
-    vec3 sample;
+    vec3 scoord;
     for (int i = 0; i < 8; i++) {
-        sample      = half_sphere_8[i] * ditherTimesSize; 
-        sample.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
-        sample      = TBN * sample;
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
+        scoord      = half_sphere_8[i] * ditherTimesSize; 
+        scoord.z   += 0.05;                                                       // Adding a small (5cm) z-offset to avoid clipping into the block due to precision errors
+        scoord      = TBN * scoord;
+        scoord      = backToClip(scoord + viewPos) * 0.5 + 0.5;                  // Converting Sample to screen space, since normals are in view space
     
-        float hitDepth = getDepth(sample.xy);
+        float hitDepth = getDepth(scoord.xy);
 
-        hits += float(sample.z > hitDepth && (sample.z - hitDepth) < depthTolerance);
+        hits += float(scoord.z > hitDepth && (scoord.z - hitDepth) < depthTolerance);
     }
 
     hits  = -hits * 0.125 + 1;
@@ -86,15 +86,15 @@ float AmbientOcclusionLOW(vec3 screenPos, vec3 normal, float size) {
     float hits = 0;
     for (int i = 0; i < 8; i++) {
 
-        vec3 sample = vogel_sphere_8[i] * ditherTimesSize;
-        sample     *= sign(dot(normal, sample));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+        vec3 scoord = vogel_sphere_8[i] * ditherTimesSize;
+        scoord     *= sign(dot(normal, scoord));                        // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        scoord     += normal * 0.05;                                    // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        scoord      = backToClip(scoord + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth(sample.xy);
+        float hitDepth = getDepth(scoord.xy);
 
-        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 0.6, 3) * float(sample.z > hitDepth);
+        float depthDiff = saturate(scoord.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size * 0.6, 3) * float(scoord.z > hitDepth);
     }
 
     hits  = saturate(-hits * 0.125 + 1.125);
@@ -115,15 +115,15 @@ float AmbientOcclusionHIGH(vec3 screenPos, vec3 normal, float size) {
     float hits = 0;
     for (int i = 0; i < 16; i++) {
 
-        vec3 sample = vogel_sphere_16[i] * ditherTimesSize;
-        sample     *= sign(dot(normal, sample));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
-        sample     += normal * 0.025;                              // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
-        sample      = backToClip(sample + viewPos) * 0.5 + 0.5;
+        vec3 scoord = vogel_sphere_16[i] * ditherTimesSize;
+        scoord     *= sign(dot(normal, scoord));                   // Inverts the sample position if its pointing towards the surface (thus being within it). Much more efficient than using a tbn
+        scoord     += normal * 0.025;                              // Adding a small offset away from the surface to avoid self-occlusion and SSAO acne
+        scoord      = backToClip(scoord + viewPos) * 0.5 + 0.5;
 
-        float hitDepth = getDepth(sample.xy);
+        float hitDepth = getDepth(scoord.xy);
 
-        float depthDiff = saturate(sample.z - hitDepth) * linearDepth;
-        hits += linearAttenuation(depthDiff, size * 0.5, 3) * float(sample.z > hitDepth);
+        float depthDiff = saturate(scoord.z - hitDepth) * linearDepth;
+        hits += linearAttenuation(depthDiff, size * 0.5, 3) * float(scoord.z > hitDepth);
     }
 
     hits  = -hits * 0.0625 + 1;
@@ -169,19 +169,19 @@ float SSAO(vec3 screenPos, float radius) {
     float dscale = 20 / radZ;
     vec2  rad    = vec2(radZ * fovScale, radZ * fovScale * aspectRatio);
 
-    float sample      = 0.2 + dither;
+    float scoord      = 0.2 + dither;
     float increment   = radius * PHI_INV;
     float occlusion   = 0.0;
     for (int i = 0; i < 8; i++) {
 
-        vec2 offs = spiralOffset_full(sample, 7.5 * PHI_INV) * rad;
+        vec2 offs = spiralOffset_full(scoord, 7.5 * PHI_INV) * rad;
 
         float sdepth = getDepth(screenPos.xy + offs);
         float diff   = screenPos.z - sdepth;
 
         occlusion   += clamp(diff * dscale, -1, 1) * cubicAttenuation2(diff, radZ);
 
-        sample += increment;
+        scoord += increment;
 
     }
 

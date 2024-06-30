@@ -76,11 +76,11 @@ vec3 vectorBlur(vec2 coord, vec2 blur, int samples) {
 
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
-    vec2 sample   = coord;
+    vec2 scoord   = coord;
 
     for (int i = 0; i < samples; i++) {
-        col    += getAlbedo(sample);
-        sample += blurStep;
+        col    += getAlbedo(scoord);
+        scoord += blurStep;
     }
 
     return col / float(samples);
