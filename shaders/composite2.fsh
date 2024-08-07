@@ -22,8 +22,11 @@ uniform float rainStrength;
 #include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
+
 #ifdef PBR
-uniform sampler2D colortex3;
+#include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/read.glsl"
+//#include "/lib/pbr/ambient.glsl"
 #endif
 
 uniform float frameTimeCounter;
@@ -284,8 +287,9 @@ void main() {
 
 #if SSR_MODE != 0
 
-    float f0 = texture(colortex3, coord).y;
-    if (f0 > SSR_REFLECTION_THRESHOLD && depth < 1.0) {
+    MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy));
+    float f0 = 1;
+    if (material.reflectance > 0.5 && depth < 1.0) {
 
         float fresnel = schlickFresnel(viewDir, normal, f0);
         vec3  reflectViewDir = reflect(viewDir, normal);

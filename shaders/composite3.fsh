@@ -22,7 +22,8 @@ uniform float aspectRatio;
 #endif
 
 #ifdef POM_ENABLED
-uniform sampler2D colortex3;
+#include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/read.glsl"
 #endif
 
 #ifdef HAND_INVISIBILITY_EFFECT
@@ -117,14 +118,15 @@ void main() {
     //                              POM
     //////////////////////////////////////////////////////////////////////////////
 
-    #ifdef POM_ENABLED
+#ifdef POM_ENABLED
 
         if (depth > 0.56 && depth < 0.998) {
-            #ifdef POM_DISTORTION
-             float height    = mapHeight(texture(colortex3, coord).w, POM_DEPTH);
-            #else
-             float height    = mapHeightSimple(texture(colortex3, coord).w, POM_DEPTH);
-            #endif
+            MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy));
+#ifdef POM_DISTORTION
+            float height    = mapHeight(material.height, POM_DEPTH);
+#else
+            float height    = mapHeightSimple(material.height, POM_DEPTH);
+#endif
             height         *= sq(depth * (1./0.56) - 1); // Reduce POM height closer to the camera (anything closer than the hand does not have POM anymore)
 
             vec3 viewPos      = toView(vec3(coord, depth) * 2 -1);

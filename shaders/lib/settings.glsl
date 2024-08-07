@@ -131,7 +131,7 @@ const float RESOURCE_PACK_RESOLUTION_INVERSE = 1./RESOURCE_PACK_RESOLUTION;
 
 #ifdef PBR
 #ifdef PARALLAX_OCCLUSION
-    // POM_ENABLED determines if POM should the enabled. It is only true, if PBR and POM are enabled (Thats why this weird setup exists, there are no boolean preprocessor commands)
+    // POM_ENABLED determines if POM should the enabled. It is only true, if PBR and POM are enabled
     #define POM_ENABLED
 #endif
 #endif
