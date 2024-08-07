@@ -110,7 +110,7 @@ void main(){
     FragOut0 = color; // Color
     //FragOut0 = vec4(surfaceNormal, 1); // Color
     //FragOut0 = vec4(surfaceNormal * .5 + .5, 1); // Color
-    FragOut1 = vec4(surfaceNormal, 1); // Normal
+    FragOut1 = vec4(spheremapEncode(surfaceNormal), 1, 1); // Normal
     FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
     #ifdef PBR
     FragOut3 = vec4(roughness, reflectiveness, 0, 1);

@@ -91,7 +91,7 @@ void main() {
 	#endif
 
 	FragOut0 = color; //color
-	FragOut1 = vec4(normal, 1); //normal
+	FragOut1 = vec4(spheremapEncode(normal), 1, 1); //normal
 	FragOut2 = vec4(codeID(54), vec3(1)); //Type
 	#ifdef PBR
 	FragOut3 = encodeMaterial(
