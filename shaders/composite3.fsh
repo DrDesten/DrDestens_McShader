@@ -248,7 +248,7 @@ void main() {
         // Exponential falloff (also making it FOV independent)
         float falloff     = exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
 
-        if (falloff > 2./256) {
+        if (falloff > 1./256) {
 
             vec2 rayStep      = ray / GODRAY_STEPS;
             #ifndef TAA
