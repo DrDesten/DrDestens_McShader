@@ -11,3 +11,7 @@
 #define OPT_NOPERSPECTIVE smooth
 
 #endif
+
+// Macro shorthands
+
+#define SUPPORTS_RENDERSTAGE ( MC_VERSION >= 11605 )

@@ -236,14 +236,19 @@ void main() {
     //////////////////////////////////////////////////////////////////////////////
 
     #if defined GODRAYS && defined OVERWORLD
+    if (lightPositionClip.w > 0 && rainStrength < 1) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
 
-        if (lightPositionClip.w > 0 && rainStrength < 1) { // If w is negative, the sun is on the opposite side of the screen (this causes bugs, I don't want that)
-            // Finish screen space transformation
-            vec2 sunScreen    = lightPositionClip.xy * 0.5 + 0.5;
+        // Finish screen space transformation
+        vec2 sunScreen    = lightPositionClip.xy * 0.5 + 0.5;
 
-            // Create ray pointing from the current pixel to the sun
-            vec2 ray          = sunScreen - coord;
-            vec2 rayCorrected = vec2(ray.x * aspectRatio, ray.y); // Aspect Ratio corrected ray for accurate exponential decay
+        // Create ray pointing from the current pixel to the sun
+        vec2 ray          = sunScreen - coord;
+        vec2 rayCorrected = vec2(ray.x * aspectRatio, ray.y); // Aspect Ratio corrected ray for accurate exponential decay
+
+        // Exponential falloff (also making it FOV independent)
+        float falloff     = exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
+
+        if (falloff > 2./256) {
 
             vec2 rayStep      = ray / GODRAY_STEPS;
             #ifndef TAA
@@ -270,16 +275,14 @@ void main() {
 
             }
 
-            // Exponential falloff (also making it FOV independent)
-            light *= exp2(-sqmag(rayCorrected / (fovScale * GODRAY_SIZE)));
-
             #if FOG != 0
-                color += saturate(light * GODRAY_STRENGTH * getGodrayColor()); // Additive Effect
+                color += saturate(light * falloff * GODRAY_STRENGTH * getGodrayColor()); // Additive Effect
             #else
-                color += saturate(light * GODRAY_STRENGTH * fogColor); // Additive Effect
+                color += saturate(light * falloff * GODRAY_STRENGTH * fogColor); // Additive Effect
             #endif
         }
 
+    }
     #endif
 
     

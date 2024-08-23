@@ -5,6 +5,7 @@
 #include "/core/gbuffers_basics.glsl"
 
 uniform int renderStage;
+
 #if SELECTION_OUTLINE == 2
     uniform float frameTimeCounter;
     uniform vec2  screenSizeInverse;
@@ -22,12 +23,11 @@ layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 
 void main() {
-
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
 	color.rgb *= getLightmap(lmcoord);
 		
 	bool isBlockOutline;
-	#if MC_VERSION >= 11605
+	#if SUPPORTS_RENDERSTAGE
 	isBlockOutline = renderStage == MC_RENDER_STAGE_OUTLINE;
 	#else
 	isBlockOutline = abs(glcolor.a - 0.5) < 0.2; // Workaround for detecting the block outline in versions prior to 1.16.5
