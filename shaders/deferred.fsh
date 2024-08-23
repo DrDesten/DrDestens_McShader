@@ -109,9 +109,6 @@ void main() {
 
 			// mix: <color> with <starcolor>, depending on <is there a star?> and <is it night?> and <is it blocked by sun or moon?>
 			skyGradient = mix(skyGradient, vec3(1), stars * customStarBlend * saturate(abs(dot(viewDir, sunDir)) * -200 + 199));
-
-
-            //skyGradient = vec3(distorsion[0] * .5 + .5, 0);
 		}
 
 		color += skyGradient;
