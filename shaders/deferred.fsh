@@ -79,7 +79,7 @@ void main() {
 			vec2  skyCoord    = octahedralEncode(skyDir);
 
             vec2  vinput    = skyCoord * STAR_DENSITY;
-            vec2  vcoord    = starVoronoi_getCoord(vinput, 0.85);
+            vec2  vcoord    = starVoronoi_getCoord(vinput, 0.9);
             vec3  vdir      = octahedralDecode(vcoord / STAR_DENSITY);
 			float starNoise = sqmag(skyDir - vdir) * 75;
 
