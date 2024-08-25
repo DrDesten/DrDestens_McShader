@@ -17,11 +17,11 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
+uniform float frameTimeCounter;
 #include "/lib/sky.glsl"
 
 uniform float normalizedTime;
 uniform float customStarBlend;
-uniform float frameTimeCounter;
 uniform vec3 sunDir;
 
 float starVoronoi(vec2 coord, float maxDeviation) {

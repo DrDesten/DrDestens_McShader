@@ -30,6 +30,7 @@ uniform float aspectRatio;
 uniform float isInvisibleSmooth;
 #endif
 
+uniform float frameTimeCounter;
 #if FOG != 0 || (defined GODRAYS && defined OVERWORLD)
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
@@ -37,7 +38,6 @@ uniform float far;
 #include "/lib/sky.glsl"
 #endif
 
-uniform float frameTimeCounter;
 uniform float blindness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;

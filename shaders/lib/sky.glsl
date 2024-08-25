@@ -22,12 +22,21 @@ const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 const vec3 end_sky_up   = vec3(END_SKY_UP_R, END_SKY_UP_G, END_SKY_UP_B);  // Color of the upper sky in the end
 const vec3 end_sky_down = vec3(END_SKY_DOWN_R, END_SKY_DOWN_G, END_SKY_DOWN_B); // Color of the lower sky in the end
 
+vec3 skyBaseGradient(vec3 playerDir, vec4 colorParameter) {
+    const float softmaxFactor = 2;
+    const float softmaxCorrection = exp2(-softmaxFactor) + 1;
+
+    float softmax = 1 / ( exp2(softmaxFactor * -playerDir.y) + 1 );
+    float baseMix = softmax * softmaxCorrection * playerDir.y;
+
+    return exp2( -abs(baseMix + colorParameter.a) / colorParameter.rgb );
+}
 
 vec3 getSky(vec3 playerEyePos) {
 
     vec3 color;
 
-    #ifdef NETHER
+    #if defined NETHER
 
         color = fogColor;
 
@@ -43,6 +52,8 @@ vec3 getSky(vec3 playerEyePos) {
 
     #else
 
+        #if 0
+
         float viewHeight = saturate(playerEyePos.y * inversesqrt(sqmag(playerEyePos)));
 
         vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
@@ -54,6 +65,17 @@ vec3 getSky(vec3 playerEyePos) {
         color = mix(sky_down, sky_up, viewHeight); // Get sky
         #ifdef CAVE_FOG
         color = mix(vec3(CAVE_FOG_BRIGHTNESS), color, saturate(eyeBrightnessSmooth.y * (5./240))); // Get sky
+        #endif
+
+        #else
+
+        vec3 playerDir = normalize(playerEyePos);
+
+        const vec4 noon = vec4(.2, .32, .6, 0);
+        const vec4 midnight = vec4(.2, .24, .3, 1.5);
+
+        color = skyBaseGradient(playerDir, mix(noon, midnight, sin(frameTimeCounter) * .5 + .5));
+
         #endif
 
     #endif

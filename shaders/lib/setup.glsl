@@ -1,7 +1,7 @@
 /*
 
 const int colortex0Format = RGBA16F;   // Color / Albedo
-const int colortex1Format = RG8; // Normals
+const int colortex1Format = RG8;       // Normals
 const int colortex2Format = R8;        // blockId
 
 // PBR

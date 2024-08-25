@@ -19,6 +19,7 @@
 
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
+uniform float frameTimeCounter;
 #include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
@@ -28,8 +29,6 @@ uniform sampler2D depthtex1;
 #include "/lib/pbr/read.glsl"
 //#include "/lib/pbr/ambient.glsl"
 #endif
-
-uniform float frameTimeCounter;
 
 uniform float nearInverse;
 uniform float aspectRatio;
