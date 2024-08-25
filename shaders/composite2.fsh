@@ -220,7 +220,7 @@ void main() {
 
     vec3  color = getAlbedo(coord);
 
-    if (id == 10 || (id == 53 && depth != 1)) {
+    if (id == 10) {
 
         // ABSORPTION <SEE THROUGH> /////////////////////////////////////////////////////////////
         if (isEyeInWater == 0) {
