@@ -10,14 +10,12 @@ const vec3 end_sky_up   = vec3(0.2, 0, 0.3);  // Color of the upper sky in the e
 const vec3 end_sky_down = vec3(0.05, 0, 0.1); // Color of the lower sky in the end
 */
 
+const vec4 sky_noon = vec4(SKY_NOON_R, SKY_NOON_G, SKY_NOON_B, 0);
+const vec4 sky_midnight = vec4(SKY_MIDNIGHT_R, SKY_MIDNIGHT_G, SKY_MIDNIGHT_B, 1.5);
+const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 
 const vec3 sun_color = vec3(GODRAY_SUN_R, GODRAY_SUN_G, GODRAY_SUN_B);
 const vec3 moon_color = vec3(GODRAY_MOON_R, GODRAY_MOON_G, GODRAY_MOON_B);
-
-const vec3 sky_up_day   = vec3(SKY_DAY_R,   SKY_DAY_G,   SKY_DAY_B);   //Color of upper part of sky at noon
-const vec3 sky_up_night = vec3(SKY_NIGHT_R, SKY_NIGHT_G, SKY_NIGHT_B); //Color of upper part of sky at midnight
-
-const vec3 sunset_color = vec3(SKY_SUNSET_R, SKY_SUNSET_G, SKY_SUNSET_B);
 
 const vec3 end_sky_up   = vec3(END_SKY_UP_R, END_SKY_UP_G, END_SKY_UP_B);  // Color of the upper sky in the end
 const vec3 end_sky_down = vec3(END_SKY_DOWN_R, END_SKY_DOWN_G, END_SKY_DOWN_B); // Color of the lower sky in the end
@@ -57,14 +55,11 @@ vec3 getSky(vec3 playerEyePos) {
 
         vec3 playerDir = normalize(playerEyePos);
 
-        const vec4 noon     = vec4(.2, .32, .6, 0);
-        const vec4 midnight = vec4(.2, .24, .3, 1.5);
-
         float baseColorMixFactor  = smoothstep(0, 1, daynight);
         float baseOffsetMixFactor = smoothstep(0, 1, baseColorMixFactor);
         vec4  baseColorMix        = vec4(
-            mix(noon.rgb, midnight.rgb, baseColorMixFactor),
-            mix(noon.a, midnight.a, baseOffsetMixFactor)
+            mix(sky_noon.rgb, sky_midnight.rgb, baseColorMixFactor),
+            mix(sky_noon.a, sky_midnight.a, baseOffsetMixFactor)
         );
 
         vec3 baseGradient = skyBaseGradient(playerDir, baseColorMix);
