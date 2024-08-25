@@ -78,9 +78,9 @@ void main() {
         //////////////////////////////////////////////////////////////////////
 
         #ifndef TAA_NOCLIP
-         vec3 lowerThresh, higherThresh;
-         neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
-         lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
+        vec3 lowerThresh, higherThresh;
+        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
+        lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
         #endif
 
         float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
