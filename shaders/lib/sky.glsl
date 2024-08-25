@@ -26,10 +26,13 @@ vec3 skyBaseGradient(vec3 playerDir, vec4 colorParameter) {
     const float softmaxFactor = 2;
     const float softmaxCorrection = exp2(-softmaxFactor) + 1;
 
-    float softmax = 1 / ( exp2(softmaxFactor * -playerDir.y) + 1 );
-    float baseMix = softmax * softmaxCorrection * playerDir.y;
+    float softmax    = 1 / ( exp2(softmaxFactor * -playerDir.y) + 1 );
+    float softheight = softmax * softmaxCorrection * playerDir.y;
 
-    return exp2( -abs(baseMix + colorParameter.a) / colorParameter.rgb );
+    vec3  baseColor = exp2( -abs(softheight + colorParameter.a) / colorParameter.rgb );
+    float sunsetMix = exp2( -abs(softheight) * 4 ) * sunset;
+
+    return mix(baseColor, sunset_color, sunsetMix);
 }
 
 vec3 getSky(vec3 playerEyePos) {
@@ -52,63 +55,27 @@ vec3 getSky(vec3 playerEyePos) {
 
     #else
 
-        #if 0
-
-        float viewHeight = saturate(playerEyePos.y * inversesqrt(sqmag(playerEyePos)));
-
-        vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-        sky_up      = mix(sky_up, fogColor * 0.5, rainStrength);
-
-        vec3 sky_down = mix(fogColor, sunset_color, sunset);
-        sky_down      = mix(sky_down, fogColor, rainStrength);
-        
-        color = mix(sky_down, sky_up, viewHeight); // Get sky
-        #ifdef CAVE_FOG
-        color = mix(vec3(CAVE_FOG_BRIGHTNESS), color, saturate(eyeBrightnessSmooth.y * (5./240))); // Get sky
-        #endif
-
-        #else
-
         vec3 playerDir = normalize(playerEyePos);
 
-        const vec4 noon = vec4(.2, .32, .6, 0);
+        const vec4 noon     = vec4(.2, .32, .6, 0);
         const vec4 midnight = vec4(.2, .24, .3, 1.5);
 
-        color = skyBaseGradient(playerDir, mix(noon, midnight, sin(frameTimeCounter) * .5 + .5));
+        float baseColorMixFactor  = smoothstep(0, 1, daynight);
+        float baseOffsetMixFactor = smoothstep(0, 1, baseColorMixFactor);
+        vec4  baseColorMix        = vec4(
+            mix(noon.rgb, midnight.rgb, baseColorMixFactor),
+            mix(noon.a, midnight.a, baseOffsetMixFactor)
+        );
 
-        #endif
+        vec3 baseGradient = skyBaseGradient(playerDir, baseColorMix);
+        vec3 rainGradient = mix(fogColor, fogColor * 0.5, saturate(playerDir.y * .75 + 0.25));
 
-    #endif
-
-    return pow(color, vec3(GAMMA));
-
-}
-
-vec3 getSky(float viewHeight) {
-
-    vec3 color;
-
-    #ifdef NETHER
-
-        color = fogColor;
-
-    #elif defined END 
-
-        color = mix(end_sky_down, end_sky_up, viewHeight);
-
-    #else
-
-        vec3 sky_up = mix(sky_up_day, sky_up_night, daynight);
-        sky_up      = mix(sky_up, fogColor * 0.5, rainStrength);
-
-        vec3 sky_down = mix(fogColor, sunset_color, sunset);
-        sky_down      = mix(sky_down, fogColor, rainStrength);
+        color = mix(baseGradient, rainGradient, rainStrength);
         
-        color = mix(sky_down, sky_up, viewHeight); // Get sky
         #ifdef CAVE_FOG
         color = mix(vec3(CAVE_FOG_BRIGHTNESS), color, saturate(eyeBrightnessSmooth.y * (5./240))); // Get sky
         #endif
-        
+
     #endif
 
     return pow(color, vec3(GAMMA));
