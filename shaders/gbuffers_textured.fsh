@@ -12,6 +12,15 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
+#if FOG != 0
+uniform float frameTimeCounter;
+uniform ivec2 eyeBrightnessSmooth;
+uniform float rainStrength;
+uniform float far;
+#include "/lib/sky.glsl"
+in vec3 playerPos;
+#endif
+
 #ifdef PBR
 /* DRAWBUFFERS:023 */
 #else
@@ -26,6 +35,13 @@ void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
 	color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 	color.rgb  = gamma(color.rgb);
+
+#if FOG != 0
+
+    float fog = getFogFactor(playerPos);
+    color.rgb = mix(color.rgb, getFog(normalize(playerPos)), fog);
+
+#endif
 
 	FragOut0 = color; //gcolor
 	FragOut1 = vec4(codeID(50), vec3(1)); // Id (SSAO Mask)

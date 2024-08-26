@@ -12,6 +12,8 @@
 uniform sampler2D colortex4;
 #endif
 
+uniform sampler2D colortex6;
+
 uniform float frameTimeCounter;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
@@ -210,6 +212,9 @@ void main() {
 	#elif VIGNETTE == 2
 		color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
 	#endif
+
+    vec4 weather = texture(colortex6, coord);
+    color = mix(color, weather.rgb, weather.a);
 
     FragOut0 = vec4(color, 1.0);
 }

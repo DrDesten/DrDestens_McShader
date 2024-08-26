@@ -20,18 +20,18 @@ attribute vec4 at_tangent;
 OPT_FLAT out mat3 tbn;
 
 flat out int blockId;
-out vec3 worldPos;
 out vec3 viewDir;
+out vec3 playerPos;
 out vec2 lmcoord;
 out vec2 coord;
 out vec4 glcolor;
 
 void main(){
 
-	gl_Position    = ftransform();
-	vec3 viewPos   = getView();
-	vec3 playerPos = toPlayer(viewPos);
-	worldPos       = playerPos + cameraPosition;
+	gl_Position   = ftransform();
+	vec3 viewPos  = getView();
+	playerPos     = toPlayer(viewPos);
+	vec3 worldPos = playerPos + cameraPosition;
 
 	#ifdef WATER_WAVES
 
@@ -51,7 +51,7 @@ void main(){
 	#endif
 
 	tbn         = getTBN(at_tangent);
-	viewDir     = normalize(viewPos.xyz);
+	viewDir     = normalize(viewPos);
 	blockId     = getID(mc_Entity);
     coord       = getCoord();
 	lmcoord     = getLmCoord();

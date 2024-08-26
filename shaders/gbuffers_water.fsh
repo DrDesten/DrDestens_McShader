@@ -12,7 +12,16 @@ uniform int worldTime;
 
 #include "/core/water.glsl"
 
+uniform vec3 cameraPosition;
+
 uniform float frameTimeCounter;
+uniform ivec2 eyeBrightnessSmooth;
+uniform float rainStrength;
+uniform float far;
+
+#ifdef FOG
+#include "/lib/sky.glsl"
+#endif
 
 OPT_FLAT in mat3 tbn;
 // tbn[0] = tangent vector
@@ -20,8 +29,8 @@ OPT_FLAT in mat3 tbn;
 // tbn[2] = normal vector
 
 flat in int blockId;
-in vec3 worldPos;
 in vec3 viewDir;
+in vec3 playerPos;
 in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
@@ -52,11 +61,12 @@ void main(){
             color.rgb = sq(color.rgb * getLightmap(lmcoord).rgb) * 0.75;
         #else
             color.rgb          = vec3(0);
-            color.a            = PI;
+            color.a            = 0;
         #endif
 
         #if WATER_NORMALS != 0
-            float surfaceDot   = dot(viewDir, surfaceNormal);
+            vec3  worldPos   = playerPos + cameraPosition;
+            float surfaceDot = dot(viewDir, surfaceNormal);
 
             #if WATER_NORMALS == 1
                 vec2  seed        = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
@@ -106,6 +116,12 @@ void main(){
 
     }
 
+#if FOG != 0
+
+    float fog = getFogFactor(playerPos);
+    color.rgb = mix(color.rgb, getFog(normalize(playerPos)), fog);
+
+#endif
     
     FragOut0 = color; // Color
     //FragOut0 = vec4(surfaceNormal, 1); // Color
@@ -115,9 +131,4 @@ void main(){
     #ifdef PBR
     FragOut3 = vec4(roughness, reflectiveness, 0, 1);
     #endif
-    if (FragOut0.a != PI) {
-        ALPHA_DISCARD(FragOut0);
-    } else {
-        FragOut0.a = 0;
-    }
 }

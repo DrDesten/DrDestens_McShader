@@ -11,6 +11,7 @@ const int colortex3Format = RGBA8;
 
 const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0) & Bloom
 const int colortex5Format = R11F_G11F_B10F; // TAA
+const int colortex6Format = RGBA8;          // Weather
 
 */
 

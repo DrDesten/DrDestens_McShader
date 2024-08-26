@@ -195,40 +195,34 @@ layout(location = 0) out vec4 FragOut0;
 void main() {
     vec3 color = getAlbedo(coord);
 
-    #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
+#ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-        float depth = getDepth(coord);
-        float id    = getID(coord);
+    float depth = getDepth(coord);
+    float id    = getID(coord);
 
-        vec3 screenPos = vec3(coord, depth);
+    vec3 screenPos = vec3(coord, depth);
 
-        //////////////////////////////////////////////////////////
-        //                  SSAO
-        //////////////////////////////////////////////////////////
+    if ((id < 50 || id > 52) && depth != 1) {
 
+        #if   SSAO_QUALITY == 1
 
-        if ((id < 50 || id > 52) && depth != 1) {
-            //color = vec3(1);
+            color      *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #if   SSAO_QUALITY == 1
+        #elif SSAO_QUALITY == 2
 
-                color      *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            vec3 normal = getNormal(coord);
+            color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #elif SSAO_QUALITY == 2
+        #elif SSAO_QUALITY == 3
 
-                vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            vec3 normal = getNormal(coord);
+            color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
-            #elif SSAO_QUALITY == 3
+        #endif
+        
+    }
 
-                vec3 normal = getNormal(coord);
-                color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
-
-            #endif
-            
-        }
-
-    #endif
+#endif
 
     FragOut0 = vec4(color, 1.0);
 }

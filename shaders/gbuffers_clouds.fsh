@@ -4,13 +4,19 @@
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
-uniform vec3  fogColor;
+uniform float far;
+
+#ifdef FOG
+#include "/lib/sky.glsl"
+#endif
 
 uniform float lightBrightness;
 uniform vec3  lightPosition;
 
 in vec3 viewPos;
+in vec3 playerPos;
 in vec2 coord;
 flat in vec3 normal;
 flat in vec4 glcolor;
@@ -43,10 +49,18 @@ void main() {
 	color.a    = fstep(0.5, color.a);
 
 	color.rgb = mix(color.rgb, fogColor * 0.1, rainStrength); // Weather Stuff
+	
+#ifdef FOG
 
-	FragOut0 = color;                     // color
-	FragOut1 = vec4(spheremapEncode(normal), 1, 1);           // normals
-	FragOut2 = vec4(codeID(52), vec3(1)); // block id (50, SSAO mask)
+	float dist = sqmag(playerPos.xz);
+	float fog  = smoothstep(sq(200), sq(500), dist);
+	color.rgb  = mix(color.rgb, getSky(normalize(playerPos)), fog);
+
+#endif
+
+	FragOut0 = color;                               // color
+	FragOut1 = vec4(spheremapEncode(normal), 1, 1); // normals
+	FragOut2 = vec4(codeID(52), vec3(1));           // block id (50, SSAO mask)
 	#ifdef PBR
 	FragOut3 = vec4(1, 0, 0, 1);
 	#endif

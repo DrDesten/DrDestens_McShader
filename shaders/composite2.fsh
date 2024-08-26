@@ -20,6 +20,7 @@
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 uniform float frameTimeCounter;
+uniform float far;
 #include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
@@ -268,7 +269,14 @@ void main() {
         reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + reflection.a);
         #endif
 
+        #if FOG != 0
+        vec3  playerPos = toPlayerEye(viewPos);
+        float fog       = getFogFactor(playerPos);
         color = mix(color, reflection.rgb, fresnel);
+        color = mix(color, getFog(normalize(playerPos)), fog);
+        #else
+        color = mix(color, reflection.rgb, fresnel);
+        #endif
 
         #ifdef SSR_DEBUG
         color = vec3(0, reflection.a, fresnel);

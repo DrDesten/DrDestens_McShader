@@ -4,6 +4,15 @@
 #include "/core/math.glsl"
 #include "/core/gbuffers_basics.glsl"
 
+#if FOG != 0
+uniform ivec2 eyeBrightnessSmooth;
+uniform float rainStrength;
+uniform float frameTimeCounter;
+uniform float far;
+#include "/lib/sky.glsl"
+in vec3 playerPos;
+#endif
+
 #if RAIN_DETECTION_MODE == 0
     uniform float temperature;
 #endif
@@ -13,9 +22,8 @@ in vec2 coord;
 in vec4 glcolor;
 // gbuffers_weather does not generate useful normals
 
-/* DRAWBUFFERS:02 */
+/* DRAWBUFFERS:6 */
 layout(location = 0) out vec4 FragOut0;
-layout(location = 1) out vec4 FragOut1;
 
 void main() {
 	vec4 color = texture2D(texture, coord, 0) * glcolor;
@@ -27,16 +35,12 @@ void main() {
 	bool isRain          = saturate((color.b) - avg(color.rg)) > 0.25; // Rain (detected based on blue dominance)
 #endif
 
-	float rain = 0;
-	if (isRain) {
-		rain    = float(color.a > 0.01);
-		color.a = rain * RAIN_OPACITY;
-	}
-	
 	color.rgb *= getLightmap(lmcoord);
-	color.rgb  = gamma(color.rgb);
+
+#if FOG != 0
+	color.a *= 1 - getFogFactor(playerPos);
+#endif
 
 	FragOut0 = color; //gcolor
-	FragOut1 = vec4(vec3(codeID(rain * 53)), 1); //gcolor
     ALPHA_DISCARD(FragOut0);
 }

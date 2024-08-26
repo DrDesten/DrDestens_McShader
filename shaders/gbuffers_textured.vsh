@@ -4,7 +4,7 @@
 #include "/core/math.glsl"
 #include "/core/kernels.glsl"
 
-#ifdef WORLD_CURVE
+#if defined WORLD_CURVE || FOG != 0
     #include "/core/vertex_transform.glsl"
 #else
     #include "/core/vertex_transform_simple.glsl"
@@ -17,6 +17,9 @@
 out vec2 lmcoord;
 out vec2 coord;
 out vec4 glcolor;
+#if FOG != 0
+out vec3 playerPos;
+#endif
 
 void main() {
 
@@ -30,7 +33,10 @@ void main() {
 		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
 	#endif
 
-	coord   = getCoord();
-	lmcoord = getLmCoord();
-	glcolor = gl_Color;
+	coord     = getCoord();
+	lmcoord   = getLmCoord();
+	glcolor   = gl_Color;
+#if FOG != 0
+	playerPos = getPlayer();
+#endif
 }
