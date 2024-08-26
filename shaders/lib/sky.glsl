@@ -89,3 +89,44 @@ vec3 getGodrayColor() {
     if (daynight < 0.5) return mix(sun_color, sunset_color * 2, sunset) * (1 - rainStrength);
     return moon_color * (1 - rainStrength);
 }
+
+float getFogFactor(vec3 playerPos) {
+    float fog;
+    
+#if FOG == 1
+
+    #if defined END
+    const float fogScale = 15e-3;
+    #elif defined NETHER
+    const float fogScale = 9e-3;
+    #else
+    const float fogScale = 2e-3;
+    #endif
+
+    float dist = length(playerPos);
+
+    #ifdef SUNSET_FOG
+    #ifdef OVERWORLD
+        dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
+    #endif
+    #endif
+
+    fog = 1 - exp(min(dist * fogScale * -FOG_AMOUNT + 0.1, 0));
+    fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
+
+#else
+
+    const float fogStart = 0.5 / max(FOG_AMOUNT, 0.6);
+    const float fogEnd   = 1.0;
+
+    float dist = length(playerPos * vec3(1,0.1,1));
+    #if defined SUNSET_FOG && defined OVERWORLD
+    fog = smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
+    #else
+    fog = smoothstep(far * fogStart, far, dist);
+    #endif
+
+#endif
+
+    return fog;
+}
