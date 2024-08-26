@@ -74,6 +74,11 @@ vec3 getSky(vec3 playerDir) {
 
 }
 
+vec3 getFog(vec3 playerDir, vec3 skyColor) {
+    if (isEyeInWater == 0)      return skyColor;
+    else if (isEyeInWater == 1) return pow(fogColor * 0.25, vec3(GAMMA));
+    else                        return pow(fogColor, vec3(GAMMA));
+}
 vec3 getFog(vec3 playerDir) {
     if (isEyeInWater == 0)      return getSky(playerDir);
     else if (isEyeInWater == 1) return pow(fogColor * 0.25, vec3(GAMMA));
