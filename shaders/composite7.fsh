@@ -97,7 +97,21 @@ void main() {
     #endif
 
     #ifdef MOTION_BLUR
-    vec2 motionVector = motionBlur(vec3(coord, getDepth(coord))).xy;
+    vec3 screenPos          = vec3(coord, getDepth(coord));
+    vec3 viewPos            = toView(screenPos * 2 - 1);
+    vec3 worldPos           = toWorld(toPlayerEye(viewPos));
+    vec3 lastScreenPos      = backToScreen(eyeToPrevView(toPrevPlayer(worldPos)));
+    vec3 lastWorldProjected = backToScreen(eyeToView(toPrevPlayer(worldPos)));
+
+    vec2  screenMotionVector      = screenPos.xy - lastScreenPos.xy;
+    vec2  worldScreenMotionVector = screenPos.xy - lastWorldProjected.xy;
+    float a        = sqmag(worldScreenMotionVector);
+    float b        = sqmag(screenMotionVector);
+    float selector = 1 / ( exp2(a/b - b/a) + 1 );
+
+    vec2 motionReprojection = mix(lastScreenPos, lastWorldProjected, selector).xy;
+    vec2 motionVector = (screenPos.xy - motionReprojection) * float(screenPos.z > 0.56);
+    motionVector     /= length(motionVector) + 3;
     vec3 color        = vectorBlur(coord, motionVector, 4, Bayer4(gl_FragCoord.xy)); 
     #else 
     vec3 color = getAlbedo(coord);
