@@ -268,12 +268,12 @@ void main() {
         #else
         reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + reflection.a);
         #endif
-
+        
         #if FOG != 0
         vec3  playerPos = toPlayerEye(viewPos);
         float fog       = getFogFactor(playerPos);
         color = mix(color, reflection.rgb, fresnel);
-        color = mix(color, getFog(normalize(playerPos)), fog);
+        color = mix(color, getFog(normalize(playerPos)), fog * (1 - reflection.a));
         #else
         color = mix(color, reflection.rgb, fresnel);
         #endif
