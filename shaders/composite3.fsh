@@ -186,7 +186,7 @@ void main() {
 
         vec3 viewPos        = toView(vec3(coord, depth) * 2 - 1);
         vec3 playerEyePos   = toPlayerEye(viewPos);
-        vec3 customFogColor = getFog(playerEyePos);
+        vec3 customFogColor = getFog(normalize(playerEyePos));
 
         if (depth < 1) { // NOT SKY
 

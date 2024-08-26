@@ -33,7 +33,7 @@ vec3 skyBaseGradient(vec3 playerDir, vec4 colorParameter) {
     return mix(baseColor, sunset_color, sunsetMix);
 }
 
-vec3 getSky(vec3 playerEyePos) {
+vec3 getSky(vec3 playerDir) {
 
     vec3 color;
 
@@ -43,17 +43,14 @@ vec3 getSky(vec3 playerEyePos) {
 
     #elif defined END 
 
-        float viewHeight = playerEyePos.y * inversesqrt(sqmag(playerEyePos));
-
-        float offset     = noise(vec2(abs(atan(playerEyePos.z, playerEyePos.x))) * 4.4) - 0.5;
+        float viewHeight = playerDir.y;
+        float offset     = noise(vec2(abs(atan(playerDir.z, playerDir.x))) * 4.4) - 0.5;
         offset          *= sq(1 - sq(viewHeight)) * 0.25;
         viewHeight       = saturate(viewHeight * 0.5 + 0.5 + offset);
 
         color = mix(end_sky_down, end_sky_up, viewHeight);
 
     #else
-
-        vec3 playerDir = normalize(playerEyePos);
 
         float baseColorMixFactor  = smoothstep(0, 1, daynight);
         float baseOffsetMixFactor = smoothstep(0, 1, baseColorMixFactor);
@@ -77,8 +74,8 @@ vec3 getSky(vec3 playerEyePos) {
 
 }
 
-vec3 getFog(vec3 playerEyePos) {
-    if (isEyeInWater == 0)      return getSky(playerEyePos);
+vec3 getFog(vec3 playerDir) {
+    if (isEyeInWater == 0)      return getSky(playerDir);
     else if (isEyeInWater == 1) return pow(fogColor * 0.25, vec3(GAMMA));
     else                        return pow(fogColor, vec3(GAMMA));
 }

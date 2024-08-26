@@ -66,7 +66,7 @@ void main() {
         vec3 playerPos = toPlayer(viewPos);
         vec3 playerDir = normalize(playerPos);
 
-        vec3  skyGradient = getSky(playerPos);
+        vec3  skyGradient = getSky(playerDir);
         float starMask    = smoothstep(-0.2, 1, playerDir.y); 
 
 		if (customStarBlend > 1e-6 && starMask > 0) {
@@ -113,7 +113,7 @@ void main() {
 
 		color += skyGradient;
 #else
-        color = getSky(toPlayerEye(toView(screenPos * 2 - 1)));
+        color = getSky(normalize(toPlayerEye(toView(screenPos * 2 - 1))));
 #endif
 
     } else { // NO SKY

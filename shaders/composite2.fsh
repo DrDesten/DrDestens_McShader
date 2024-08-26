@@ -230,7 +230,7 @@ void main() {
 
             float absorption = exp(-abs(transparentLinearDepth - linearDepth) * WATER_ABSORPTION_DENSITY - (WATER_ABSORPTION_DENSITY * WATER_ABSORPTION_BIAS));
 
-            vec3  waterColor = waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * getSky(vec3(1,1,0));
+            vec3  waterColor = waterAbsorptionColor * (eyeBrightnessSmooth.y * (.9/140) + .01) * getSky(normalize(vec3(1,1,0)));
             color = mix(waterColor, color, absorption);
 
         }
@@ -258,7 +258,8 @@ void main() {
         vec4  reflection = vec4(0);
         #endif
         if (reflection.a != 1) {
-            reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
+            vec3 playerDir = normalize(toPlayerEye(reflectViewDir));
+            reflection.rgb = mix(getFog(playerDir), reflection.rgb, reflection.a);
         }
 
         #if defined END
