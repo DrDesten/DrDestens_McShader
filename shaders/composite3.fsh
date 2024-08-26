@@ -179,59 +179,6 @@ void main() {
     #endif
 
     //////////////////////////////////////////////////////////////////////////////
-    //                                 FOG
-    //////////////////////////////////////////////////////////////////////////////
-    
-    #if FOG != 0
-
-        vec3 viewPos        = toView(vec3(coord, depth) * 2 - 1);
-        vec3 playerEyePos   = toPlayerEye(viewPos);
-        vec3 customFogColor = getFog(normalize(playerEyePos));
-
-        if (depth < 1) { // NOT SKY
-
-        #if FOG == 1
-
-            float dist = length(viewPos);
-
-            #ifdef SUNSET_FOG
-            #ifdef OVERWORLD
-                dist = dist * (sunset * SUNSET_FOG_AMOUNT + 1);
-            #endif
-            #endif
-
-            #ifdef END
-                float fog       = 1 - exp(min(dist * (15e-3 * -FOG_AMOUNT) + 0.1, 0));
-            #elif defined NETHER
-                float fog       = 1 - exp(min(dist * (9e-3 * -FOG_AMOUNT) + 0.1, 0));
-            #else
-                float fog       = 1 - exp(min(dist * (2e-3 * -FOG_AMOUNT) + 0.1, 0));
-            #endif
-
-            fog = 2 * sq(fog) / (1 + fog); // Make a smooth transition
-
-        #else
-
-            const float fogStart = 0.5 / max(FOG_AMOUNT, 0.6);
-            const float fogEnd   = 1.0;
-
-            float dist = length(vec3(playerEyePos.x, playerEyePos.y * 0.1, playerEyePos.z));
-            #if defined SUNSET_FOG && defined OVERWORLD
-            // if it is a cloud, apply set fog distances as they don't depend on render distance (cloud id is 52)
-            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart * (-sunset * (SUNSET_FOG_AMOUNT / 10) + 1), far, dist);
-            #else
-            float fog  = id == 52 ? smoothstep(200, 300, dist) : smoothstep(far * fogStart, far, dist);
-            #endif
-
-        #endif
-
-        color = mix(color, customFogColor, fog);
-
-        }
-
-    #endif
-
-    //////////////////////////////////////////////////////////////////////////////
     //                              GODRAYS
     //////////////////////////////////////////////////////////////////////////////
 
