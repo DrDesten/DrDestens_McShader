@@ -22,8 +22,7 @@ float shootingStar(vec2 coord, vec2 dir, float thickness, float slope) {
     return saturate((thickness - d) * slope + 1) * t;
 }
 
-vec4 getStars(vec3 playerPos, vec3 playerDir) {
-    float starMask = smoothstep(-0.2, 1, playerDir.y); 
+vec4 getStars(vec3 playerDir, float starMask) {
     if (customStarBlend < 1e-6 || starMask == 0) return vec4(vec3(1), 0);
 
     // STARS
@@ -44,7 +43,7 @@ vec4 getStars(vec3 playerPos, vec3 playerDir) {
 #ifdef SHOOTING_STARS
 
     // SHOOTING STARS //
-    vec2 shootingStarCoord = normalize(playerPos * vec3(1,2,1)).xz * shooting_stars_length;
+    vec2 shootingStarCoord = normalize(playerDir * vec3(1,2,1)).xz * shooting_stars_length;
 
     const vec2 lineDir = vec2(sin(SHOOTING_STARS_ANGLE * TWO_PI), cos(SHOOTING_STARS_ANGLE * TWO_PI));
     shootingStarCoord -= frameTimeCounter * vec2(lineDir * 2 * SHOOTING_STARS_SPEED);
@@ -62,4 +61,8 @@ vec4 getStars(vec3 playerPos, vec3 playerDir) {
 #endif
 
     return vec4(vec3(1), stars * customStarBlend);
+}
+vec4 getStars(vec3 playerDir) {
+    float starMask = smoothstep(-0.2, 1, playerDir.y); 
+    return getStars(playerDir, starMask);
 }

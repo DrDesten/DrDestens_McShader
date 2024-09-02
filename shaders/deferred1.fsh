@@ -60,7 +60,7 @@ void main() {
 
 #ifdef OVERWORLD
 
-		vec4 stars  = getStars(playerPos, playerDir);
+		vec4 stars  = getStars(playerDir);
 		stars.a    *= saturate(abs(dot(viewDir, sunDir)) * -200 + 199);
 		skyGradient = mix(skyGradient, stars.rgb, stars.a);
 
