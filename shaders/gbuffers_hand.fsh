@@ -80,7 +80,7 @@ void main() {
 
 	#else
 
-		color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
+		color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		color.rgb  = gamma(color.rgb);
 
 	#endif
@@ -90,7 +90,7 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(51), vec3(1));
-	#ifdef PBR
+#ifdef PBR
 	FragOut3 = encodeMaterial(
 		MaterialTexture(
 			roughness, 
@@ -101,6 +101,6 @@ void main() {
 			lightmap
 		), ivec2(gl_FragCoord.xy)
 	);
-	#endif
+#endif
     ALPHA_DISCARD(FragOut0);
 }

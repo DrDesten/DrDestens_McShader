@@ -1,3 +1,6 @@
+#if !defined PBR_PBR_GLSL
+#define PBR_PBR_GLSL
+
 struct RawMaterial {
     vec3  normal;
     float roughness;
@@ -13,6 +16,17 @@ struct MaterialTexture {
     float height;
     float ao;
     vec2  lightmap;
+};
+struct Material {
+    vec3  albedo;
+    float roughness;
+    vec3  f0;
+    float emission;
+    float height;
+    float ao;
+    vec2  lightmap;
+    float subsurface;
+    float porosity;
 };
 
 // NORMAL TEXTURE
@@ -38,6 +52,7 @@ float readEmission(vec4 sTex) {
     return sTex.a * float(sTex.a != 1);
 }
 
+// Reading, Encoding and Decoding
 RawMaterial readMaterial(vec4 normaltex, vec4 speculartex) {
     RawMaterial material;
 
@@ -91,3 +106,21 @@ MaterialTexture decodeMaterial(vec4 samples[4], int ids[4]) {
 
     return material;
 }
+
+// Material
+
+Material getMaterial(MaterialTexture tex, vec3 albedo) {
+    return Material(
+        albedo,
+        tex.roughness,
+        vec3(tex.reflectance),
+        tex.emission,
+        tex.height,
+        tex.ao,
+        tex.lightmap,
+        0,
+        0
+    );
+}
+
+#endif

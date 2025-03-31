@@ -9,9 +9,11 @@
 #include "/lib/composite/id.glsl"
 
 #ifdef PBR
+#include "/lib/composite/normal.glsl"
 #include "/lib/pbr/pbr.glsl"
 #include "/lib/pbr/read.glsl"
 #include "/lib/pbr/ambient.glsl"
+#include "/lib/pbr/lighting.glsl"
 #endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
@@ -76,9 +78,21 @@ void main() {
 
 #ifdef PBR
 
-		MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy));
+	#if FOG == 0
+		vec3 viewPos   = toView(screenPos * 2 - 1);
+		vec3 viewDir   = normalize(viewPos);
+	#endif
 
-		color *= getAmbientLight(material.lightmap, material.ao);
+		vec3 normal = getNormal(ivec2(gl_FragCoord.xy));
+
+		MaterialTexture matTex   = getPBR(ivec2(gl_FragCoord.xy));
+		Material        material = getMaterial(matTex, color);
+		
+		vec3 ambient = getAmbientLight(material.lightmap, material.ao) * 0;
+		
+		vec3 PBRColor = RenderPBR(material, normal, viewDir, ambient);
+
+		color.rgb = PBRColor;
 
 #endif
 

@@ -1,5 +1,7 @@
-uniform vec3  lightPosition;
-uniform float lightBrightness;
+#if !defined PBR_LIGHTING_GLSL
+#define PBR_LIGHTING_GLSL
+
+#include "include.glsl"
 
 float NDF_GGX(float NdotH, float alpha) {
     float a2     = alpha * alpha;
@@ -19,16 +21,13 @@ float G_Smith(float NdotL, float NdotV, float k) {
     float viewObstruction = GO_SchlickGGX(NdotV, k);
     return lightObstrction * viewObstruction;
 }
-float G_Phong(float NdotL, float NdotV, float k) {
-    return NdotL * NdotV;
-}
 
 // Fresnel function (Schlick)
-float Fresnel(float cosTheta, float F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+float Fresnel(float NdotH, float F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - NdotH, 5.0);
 }
-vec3 Fresnel(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+vec3 Fresnel(float NdotH, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(1.0 - NdotH, 5.0);
 }
 
 vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
@@ -127,68 +126,52 @@ vec3 nkTof0(vec3 n, vec3 k) {
 
 // FULL PBR MATERIAL FUNCTION ///////////////////////////////////////////////////////////////
 
-struct PBRout {
-	vec4  color;
-	vec3  normal;
-};
 
-PBRout PBRMaterial(MaterialInfo tex, vec3 default_render_color, vec2 lmcoord, mat3 tbn, vec3 viewpos, vec3 ambient) {
-    
-	vec3  lightPos	 = lightPosition;
-    vec4  color      = tex.color;
-
+vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
     // Specular Blending Factor (Removes specular highlights in occluded areas)
-    float specBlend  = clamp(mix( -1.5, 1, lmcoord.y ), 0, 1); 
+    float specBlend  = clamp(mix( -1.5, 1, mat.lightmap.y ), 0, 1); 
     // Total BRDF brightness
-    float brightness = sq(sq(lmcoord.y)) * tex.AO * lightBrightness;
+    float brightness = sq(sq(mat.lightmap.y)) * mat.ao * lightBrightness;
 
-    vec3  normalMap  = tex.normal;
-	vec3  normal     = normalize(tbn * normalMap);
+	float ao 		 = mat.ao;
+#ifdef HEIGHT_AO
+    ao              *= sq(mat.height);
+#endif
 
-	float AO 		 = tex.AO;
-    #ifdef HEIGHT_AO
-		AO          *= sq(tex.height);
-	#endif
+	float roughness  = mat.roughness;
+	vec3  f0 		 = mat.f0;
 
-	float roughness  = tex.roughness;
-	vec3  f0 		 = tex.f0;
+    float subsurf    = mat.subsurface;
+    float porosity   = mat.porosity;
 
-    float subsurf    = tex.subsurface;
-    float porosity   = tex.porosity;
+	float emission   = mat.emission * 4;
 
-	float emission   = tex.emission * 4;
-
-    vec3  lightDir   = normalize(lightPos);
-    vec3  viewDir    = normalize(-viewpos);
+    vec3  lightDir   = normalize(lightPosition);
+    viewDir          = -viewDir;
 
     // Get PBR Material
-    #ifdef OVERWORLD
-	 vec3 BRDF		 = CookTorrance(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
-    #else
-	 vec3 BRDF	     = CookTorrance_diffonly(color.rgb, normal, viewDir, lightDir, roughness, f0, specBlend);
-    #endif
+#ifdef OVERWORLD
+    vec3 color = CookTorrance(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
+#else
+    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
+#endif
 
-    BRDF.rgb        *= brightness; //Reduce brightness at night and according to minecrafts abient light
+    color *= brightness; //Reduce brightness at night and according to minecrafts abient light
     
-    #ifdef SUBSURAFCE_SCATTERING
-     if (subsurf >= 0.1) {
-        vec3 SSSc   = simpleSubsurface2(color.rgb, normal, viewDir, lightDir, subsurf) * brightness;
-        BRDF.rgb   += SSSc;
-     }
-    #endif
+#ifdef SUBSURAFCE_SCATTERING
+    if (subsurf >= 0.1) {
+    vec3 SSSc   = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, subsurf) * brightness;
+    color   += SSSc;
+    }
+#endif
 
     // Emission and Ambient Light
-	BRDF.rgb 		+= color.rgb * ((ambient * AO * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
-    //BRDF.rgb = ambient;
+	color += mat.albedo * ((ambient * ao * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
+    //color = ambient;
 
-	// Blend between normal MC rendering and PBR rendering
-	color.rgb 	     = mix(default_render_color, BRDF.rgb, PBR_BLEND);
-
-    color.rgb = max(color.rgb, 0); // Prevent Negative values
-
-	PBRout Material  = PBRout(color, normal);
-	return Material;
-
+    color = max(color, 0); // Prevent Negative values
+	return color;
 }
 
 
+#endif

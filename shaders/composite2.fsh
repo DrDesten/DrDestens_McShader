@@ -161,7 +161,7 @@ vec4 efficientSSR(position pos, vec3 reflection) {
 
         rayPos += rayStep;
 
-        if (saturate(rayPos.y) != rayPos.y) break;
+        if( saturate(rayPos.y) != rayPos.y) break;
 
         hitDepth = getDepth(rayPos.xy);
 

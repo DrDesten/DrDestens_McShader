@@ -1,3 +1,6 @@
+#if !defined PBR_READ_GLSL
+#define PBR_READ_GLSL
+
 uniform sampler2D colortex3;
 
 MaterialTexture getPBR(ivec2 icoord) {
@@ -22,3 +25,5 @@ MaterialTexture getPBR(ivec2 icoord) {
 
     return decodeMaterial(samples, sampleIds);
 }
+
+#endif
