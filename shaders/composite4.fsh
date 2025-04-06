@@ -97,11 +97,7 @@ layout(location = 1) out vec4 FragOut1;
 
 void main() {
     #ifdef TAA
-        vec2  jitterOffset = taaOffset * TAA_JITTER_AMOUNT;
-        vec3  color        = getAlbedo(coord + jitterOffset);
         float depth        = getDepth(coord);
-
-        vec3  sourceColor  = color;
         vec3  screenPos    = vec3(coord, depth);
         vec3  reprojectPos = reprojectTAA(screenPos);
         vec4  lastFrame    = texture(colortex5, reprojectPos.xy);
@@ -109,6 +105,7 @@ void main() {
         // Anti - Ghosting
         //////////////////////////////////////////////////////////////////////
 
+        vec3  sourceColor;
         vec3  historyColor  = lastFrame.rgb;
         float sourceWeight  = TAA_BLEND;
         float historyWeight = 1 - sourceWeight;
@@ -121,7 +118,7 @@ void main() {
 
         #endif
 
-        color         = mix(sourceColor, historyColor, historyWeight);
+        vec3 color    = mix(sourceColor, historyColor, historyWeight);
         vec3 TAAcolor = max(color, 0.0);
 
     #else 
