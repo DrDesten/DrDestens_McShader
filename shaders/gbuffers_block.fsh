@@ -3,14 +3,14 @@ uniform int worldTime;
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
 
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
+
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 
 #include "/lib/pbr/pbr.glsl"
-
-uniform vec3 fogColor;
 
 OPT_FLAT in vec4  glcolor;
 OPT_FLAT in mat3  tbn;
@@ -27,21 +27,22 @@ in vec2 lmcoord;
 in vec2 coord;
 
 #ifdef PBR
-/* DRAWBUFFERS:0123 */
+/* DRAWBUFFERS:01237 */
 #else
-/* DRAWBUFFERS:012 */
+/* DRAWBUFFERS:0123 */
 #endif
 
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
+layout(location = 4) out vec4 FragOut4;
 
 void main() {
-	vec3 normal = tbn[2];
-
-	vec4 color = texture2D(texture, coord);
-	color.rgb *= glcolor.rgb;
+	vec3 lightmap = vec3(lmcoord, glcolor.a);
+	vec3 normal   = tbn[2];
+	vec4 color    = getAlbedo(coord);
+	color.rgb    *= glcolor.rgb;
 
 	#ifdef WHITE_WORLD
 	    color.rgb = vec3(1);
@@ -49,8 +50,7 @@ void main() {
 
 	#ifdef PBR
 
-		float roughness, reflectance, emission, height, ao;
-		vec2  lightmap;
+		float roughness, reflectance, emission, height;
 
 		vec4 normalTex       = NormalTex(coord);
 		vec4 specularTex     = SpecularTex(coord);
@@ -60,15 +60,12 @@ void main() {
 		reflectance = material.reflectance;
 		emission    = material.emission;
 		height      = material.height;
-		ao          = material.ao * glcolor.a;
-		lightmap    = lmcoord;
+		lightmap.z *= material.ao;
 
 		normal      = normalize(tbn * material.normal);
 
 	#else
 
-		color.rgb *= glcolor.a;	
-		color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		color.rgb  = gamma(color.rgb);
 
 	#endif
@@ -76,17 +73,6 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
-	#ifdef PBR
-	FragOut3 = encodeMaterial(
-		MaterialTexture(
-			roughness, 
-			reflectance, 
-			emission, 
-			height, 
-			ao, 
-			lightmap
-		), ivec2(gl_FragCoord.xy)
-	);
-	#endif
+	FragOut3 = vec4(lightmap, 1);
     ALPHA_DISCARD(FragOut0);
 }

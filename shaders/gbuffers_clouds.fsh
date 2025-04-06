@@ -1,19 +1,15 @@
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
-
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
 
-uniform ivec2 eyeBrightnessSmooth;
-uniform float rainStrength;
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
+
 uniform float far;
 
 #ifdef FOG
 #include "/lib/sky.glsl"
 #endif
-
-uniform float lightBrightness;
-uniform vec3  lightPosition;
 
 in vec3 viewPos;
 in vec3 playerPos;
@@ -21,19 +17,14 @@ in vec2 coord;
 flat in vec3 normal;
 flat in vec4 glcolor;
 
-#ifdef PBR
 /* DRAWBUFFERS:0123 */
-#else
-/* DRAWBUFFERS:012 */
-#endif
-
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
 
 void main() {
-	vec4 color    = texture2D(texture, coord);
+	vec4 color    = getAlbedo(coord);
 	vec3 lightPos = normalize(lightPosition);
 
 	// "Volumetrics" (not actually)
@@ -61,8 +52,6 @@ void main() {
 	FragOut0 = color;                               // color
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1); // normals
 	FragOut2 = vec4(codeID(52), vec3(1));           // block id (50, SSAO mask)
-	#ifdef PBR
-	FragOut3 = vec4(1, 0, 0, 1);
-	#endif
+	FragOut3 = LIGHTING_BUF_MAX_SKY;
     ALPHA_DISCARD(FragOut0);
 }

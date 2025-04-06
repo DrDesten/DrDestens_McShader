@@ -1,5 +1,4 @@
-uniform vec3  lightPosition;
-uniform float lightBrightness;
+#include "uniforms/lighting.glsl"
 
 float NDF_GGX(float NdotH, float alpha) {
     float a2     = alpha * alpha;

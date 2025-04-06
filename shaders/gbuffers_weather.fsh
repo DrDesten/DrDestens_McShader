@@ -2,11 +2,11 @@
 #include "/lib/stddef.glsl"
 
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
+#include "/lib/gbuffers/lightmap.glsl"
 
 #if FOG != 0
-uniform ivec2 eyeBrightnessSmooth;
-uniform float rainStrength;
 uniform float frameTimeCounter;
 uniform float far;
 #include "/lib/sky.glsl"
@@ -26,7 +26,7 @@ in vec4 glcolor;
 layout(location = 0) out vec4 FragOut0;
 
 void main() {
-	vec4 color = texture2D(texture, coord, 0) * glcolor;
+	vec4 color = getAlbedo(coord) * glcolor;
 
 #if RAIN_DETECTION_MODE == 0
 	bool isRain = temperature >= 0.15;                                 // Rain (detected based on player temperature)

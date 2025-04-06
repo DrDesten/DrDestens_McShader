@@ -6,13 +6,12 @@ uniform int worldTime;
 #include "/lib/stddef.glsl"
 
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
 
 #include "/lib/pbr/pbr.glsl"
-
-uniform vec3 fogColor;
 
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
@@ -36,12 +35,7 @@ OPT_FLAT in vec4 glcolor;
 in vec2 lmcoord;
 in vec2 coord;
 
-#ifdef PBR
 /* DRAWBUFFERS:0123 */
-#else
-/* DRAWBUFFERS:012 */
-#endif
-
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
@@ -54,7 +48,8 @@ void main() {
 	vec3  normal = tbn[2];
 	#endif
 	
-	vec4 color = texture2D(texture, coord, 0) * glcolor;
+	vec3 lightmap = vec3(lmcoord, 1);
+	vec4 color    = getAlbedo(coord) * glcolor;
 
 	#ifdef PBR
 	
@@ -62,8 +57,7 @@ void main() {
 		mat3 tbn = cotangentFrame(normal, -viewpos, gl_FragCoord.xy * screenSizeInverse);
 		#endif
 
-		float roughness, reflectance, emission, height, ao;
-		vec2  lightmap;
+		float roughness, reflectance, emission, height;
 
 		vec4 normalTex       = NormalTex(coord);
 		vec4 specularTex     = SpecularTex(coord);
@@ -73,14 +67,12 @@ void main() {
 		reflectance = material.reflectance;
 		emission    = material.emission;
 		height      = material.height;
-		ao          = material.ao;
-		lightmap    = lmcoord;
+		lightmap.z *= material.ao;
 
 		normal      = normalize(tbn * material.normal);
 
 	#else
 
-		color.rgb *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
 		color.rgb  = gamma(color.rgb);
 
 	#endif
@@ -90,17 +82,6 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(51), vec3(1));
-#ifdef PBR
-	FragOut3 = encodeMaterial(
-		MaterialTexture(
-			roughness, 
-			reflectance, 
-			emission, 
-			height, 
-			ao, 
-			lightmap
-		), ivec2(gl_FragCoord.xy)
-	);
-#endif
+	FragOut3 = vec4(lightmap, 1);
     ALPHA_DISCARD(FragOut0);
 }

@@ -1,8 +1,9 @@
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
-
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
+
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/lightmap.glsl"
 
 uniform int renderStage;
 
@@ -14,13 +15,8 @@ uniform int renderStage;
 in vec2 lmcoord;
 in vec4 glcolor;
 
-#ifdef PBR
-/* DRAWBUFFERS:02 */
-#else
 /* DRAWBUFFERS:0 */
-#endif
 layout(location = 0) out vec4 FragOut0;
-layout(location = 1) out vec4 FragOut1;
 
 void main() {
 	vec4 color = vec4(glcolor.rgb, fstep(0.01, glcolor.a));
@@ -47,8 +43,5 @@ void main() {
 	color.rgb  = gamma(color.rgb);
 
 	FragOut0 = color; //gcolor
-	#ifdef PBR
-	FragOut1 = PBR_EMPTY; // no pbr
-	#endif
     ALPHA_DISCARD(FragOut0);
 }

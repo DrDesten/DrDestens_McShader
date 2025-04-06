@@ -2,13 +2,15 @@ uniform int worldTime;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
-
 #include "/core/math.glsl"
+
 #include "/core/transform.glsl"
-#include "/core/gbuffers_basics.glsl"
 #include "/lib/unpackPBR.glsl"
 #include "/lib/lighting.glsl"
 #include "/lib/generatePBR.glsl"
+
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
 
 #include "/lib/pbr/pbr.glsl"
 
@@ -33,21 +35,17 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifdef PBR
 /* DRAWBUFFERS:0123 */
-#else
-/* DRAWBUFFERS:012 */
-#endif
-
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
 
 void main() {
-	vec3 normal = tbn[2];
-	vec4 color  = texture2D(texture, coord, 0);
-	color.rgb  *= glcolor.rgb;
+	vec3 lightmap = vec3(lmcoord, glcolor.a);
+	vec3 normal   = tbn[2];
+	vec4 color    = getAlbedo(coord);
+	color.rgb    *= glcolor.rgb;
 	
 	#ifdef WHITE_WORLD
 	    color.rgb = vec3(1);
@@ -56,7 +54,6 @@ void main() {
 	#ifdef PBR
 
 		float roughness, reflectance, emission, height, ao;
-		vec2  lightmap;
 
 		vec4 normalTex       = NormalTex(coord);
 		vec4 specularTex     = SpecularTex(coord);
@@ -66,8 +63,7 @@ void main() {
 		reflectance = material.reflectance;
 		emission    = material.emission;
 		height      = material.height;
-		ao          = material.ao * glcolor.a;
-		lightmap    = lmcoord;
+		lightmap.z *= material.ao;
 
 		normal      = normalize(tbn * material.normal);
 /* 
@@ -125,24 +121,18 @@ void main() {
 		vec3 tmp = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
 
 		#ifdef DIRECTIONAL_LIGHTMAP
-			vec2 blockLightDir = getBlocklightDir(lmcoord, mat2(tbn));
+			vec2 blockLightDir = getBlocklightDir(lightmap, mat2(tbn));
 			vec3 normalMap     = extractNormal(NormalTex(coord), vec4(0));
-			vec2 newlm         = lmcoord;
 
 			// Blocklight
-			float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lmcoord.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
-			newlm.x *= saturate(1 - sq(1 - blockLightShade));
-			newlm.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens
-
-			color.rgb *= getLightmap(newlm) + DynamicLight(newlm);
-		#else
-			color.rgb *= getLightmap(lmcoord) + DynamicLight(lmcoord);
+			float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lightmap.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
+			lightmap.x *= saturate(1 - sq(1 - blockLightShade));
+			lightmap.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens		
 		#endif
 
-		color.rgb *= glcolor.a;
 		color.rgb  = gamma(color.rgb);
 
-		if (lmcoord.x > 14.5/15.) {
+		if (lightmap.x > 14.5/15.) {
 			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
 		}
 		
@@ -152,17 +142,6 @@ void main() {
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
-	#ifdef PBR
-	FragOut3 = encodeMaterial(
-		MaterialTexture(
-			roughness, 
-			reflectance, 
-			emission, 
-			height, 
-			ao, 
-			lightmap
-		), ivec2(gl_FragCoord.xy)
-	);
-	#endif
+	FragOut3 = vec4(lightmap, 1);
     ALPHA_DISCARD(FragOut0);
 }

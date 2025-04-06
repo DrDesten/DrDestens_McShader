@@ -17,8 +17,6 @@
 #include "/lib/composite/id.glsl"
 #include "/core/transform.glsl"
 
-uniform ivec2 eyeBrightnessSmooth;
-uniform float rainStrength;
 uniform float frameTimeCounter;
 uniform float far;
 #include "/lib/sky.glsl"
@@ -33,8 +31,6 @@ uniform sampler2D depthtex1;
 
 uniform float nearInverse;
 uniform float aspectRatio;
-
-uniform float lightBrightness;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 

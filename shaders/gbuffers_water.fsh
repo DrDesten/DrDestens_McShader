@@ -3,20 +3,21 @@ uniform int worldTime;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
-
 #include "/core/math.glsl"
-#include "/core/gbuffers_basics.glsl"
+
 #include "/lib/unpackPBR.glsl"
 #include "/lib/generatePBR.glsl"
 #include "/lib/lighting.glsl"
+
+#include "/lib/gbuffers/basics.glsl"
+#include "/lib/gbuffers/color.glsl"
+#include "/lib/gbuffers/lightmap.glsl"
 
 #include "/core/water.glsl"
 
 uniform vec3 cameraPosition;
 
 uniform float frameTimeCounter;
-uniform ivec2 eyeBrightnessSmooth;
-uniform float rainStrength;
 uniform float far;
 
 #ifdef FOG
@@ -35,20 +36,15 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-#ifdef PBR
-/* DRAWBUFFERS:0123 */
-#else
 /* DRAWBUFFERS:012 */
-#endif
-
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
-layout(location = 3) out vec4 FragOut3;
 
 void main(){
     vec3  surfaceNormal  = tbn[2];
-	vec4  color          = texture2D(texture, coord, 0) * vec4(glcolor.rgb, 1);
+	vec4  color          = getAlbedo(coord);
+    color.rgb           *= glcolor.rgb;
 
     #ifdef PBR
     float reflectiveness, roughness = 0;
@@ -128,7 +124,4 @@ void main(){
     //FragOut0 = vec4(surfaceNormal * .5 + .5, 1); // Color
     FragOut1 = vec4(spheremapEncode(surfaceNormal), 1, 1); // Normal
     FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
-    #ifdef PBR
-    FragOut3 = vec4(roughness, reflectiveness, 0, 1);
-    #endif
 }

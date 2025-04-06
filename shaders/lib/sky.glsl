@@ -1,7 +1,4 @@
-uniform float daynight;
-uniform float sunset;
-uniform vec3  fogColor;
-uniform int   isEyeInWater;
+#include "/lib/uniforms/lighting.glsl"
 
 /* // My original values
 const vec3 sky_up_day   = vec3(0.1, 0.35, 1.0);  //Color of upper part of sky at noon

@@ -7,6 +7,7 @@
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/id.glsl"
+#include "/lib/composite/lightmap.glsl"
 
 #ifdef PBR
 #include "/lib/composite/normal.glsl"
@@ -18,13 +19,11 @@
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-uniform ivec2 eyeBrightnessSmooth;
-uniform float rainStrength;
 uniform float frameTimeCounter;
-uniform vec3  sunDir;
 uniform float far;
 #include "/lib/sky.glsl"
 #include "/lib/stars.glsl"
+#include "/lib/lightmap.glsl"
 
 //////////////////////////////////////////////////////////////////////////////
 //                     SKY RENDERING
@@ -75,6 +74,9 @@ void main() {
 #endif
 
     } else { // NO SKY
+
+		vec3 lightmap = getLightmapData(ivec2(gl_FragCoord.xy));
+		color.rgb    *= getCustomLightmap(lightmap, customLightmapBlend);
 
 #ifdef PBR
 
