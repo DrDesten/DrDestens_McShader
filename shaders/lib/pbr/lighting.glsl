@@ -175,6 +175,10 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
     vec3  lightDir   = normalize(lightPosition);
     viewDir          = -viewDir;
 
+#if SSR_MODE != 0
+    mat.albedo *= (1 - maxc(mat.f0));
+#endif
+
     // Get PBR Material
 #ifdef OVERWORLD
     vec3 color = CookTorrance_speconly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);

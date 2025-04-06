@@ -121,7 +121,8 @@ const vec3 metalsF0[8] = vec3[8](
 vec3 decodeReflectance(float reflectance, vec3 albedo) {
 #ifdef HARDCODED_METALS
     return reflectance < 229.5/255 
-        ? vec3(reflectance) : ( reflectance < 237.5/255 
+        ? vec3(reflectance) 
+        : ( reflectance < 237.5/255 
             ? metalsF0[int((reflectance * 255) + 0.5) - 230] 
             : albedo 
         );
@@ -131,12 +132,30 @@ vec3 decodeReflectance(float reflectance, vec3 albedo) {
         : albedo;
 #endif
 }
+vec3 decodeReflectanceTint(float reflectance, vec3 albedo) {
+#ifdef HARDCODED_METALS
+    return reflectance < 229.5/255 
+        ? vec3(1) 
+        : ( reflectance < 237.5/255 
+            ? metalsF0[int((reflectance * 255) + 0.5) - 230] 
+            : albedo 
+        );
+#else
+    return reflectance < 229.5/255 
+        ? vec3(1) 
+        : albedo;
+#endif
+}
+
 
 // Old PBR
 #else 
 
 vec3 decodeReflectance(float reflectance, vec3 albedo) {
     return reflectance * albedo;
+}
+vec3 decodeReflectanceTint(float reflectance, vec3 albedo) {
+    return vec3(1);
 }
 
 #endif

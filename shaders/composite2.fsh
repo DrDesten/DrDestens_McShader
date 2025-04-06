@@ -268,7 +268,7 @@ void main() {
         vec3  playerPos = toPlayerEye(viewPos);
         float fog       = getFogFactor(playerPos);
         color = mix(color, reflection.rgb, fresnel);
-        color = mix(color, getFog(normalize(playerPos)), fog * (1 - reflection.a));
+        color = mix(color, getFog(normalize(playerPos)), fog);
         #else
         color = mix(color, reflection.rgb, fresnel);
         #endif
@@ -292,6 +292,7 @@ void main() {
 
     MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy)); 
     vec3 reflectance         = decodeReflectance(material.reflectance, vec3(1));
+    vec3 reflectanceTint     = decodeReflectanceTint(material.reflectance, min(color / maxc(color), vec3(1)));
     if (material.reflectance > 0.5 && depth < 1.0) { 
 
         vec3 fresnel        = schlickFresnel(viewDir, normal, reflectance);
@@ -300,17 +301,26 @@ void main() {
 #if SSR_MODE == 3
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4 reflection = efficientSSR(posData, reflectViewDir);
+        if (reflection.a == 0) {
+            reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+        }
 #elif SSR_MODE == 2
         vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
 #else
         vec4 reflection = vec4(0);
-#endif
-    
+#endif  
+
         color = mix(
-            color + getFog(toPlayerEye(reflectViewDir)) * fresnel, 
-            reflection.rgb, 
+            color + getFog(toPlayerEye(reflectViewDir)) * reflectanceTint * fresnel, 
+            reflection.rgb * reflectanceTint, 
             fresnel * reflection.a
         );
+        
+        #if FOG != 0
+        vec3  playerPos = toPlayerEye(viewPos);
+        float fog       = getFogFactor(playerPos);
+        color = mix(color, getFog(normalize(playerPos)), fog);
+        #endif
 
         #ifdef SSR_DEBUG
         color = vec3(avg(fresnel), reflection.a, 0);
