@@ -1,21 +1,58 @@
 
 ///////////////////////////////////////////////////////////
-// DEBUG
+// LIGHTING
 ///////////////////////////////////////////////////////////
 
-screen.DEBUG_OPTS=Debug
+screen.LIGHTING=Lighting
 
-option.DEBUG_VIEW=Debug
-value.DEBUG_VIEW.0=Normals
-value.DEBUG_VIEW.1=Lightmap
-value.DEBUG_VIEW.2=PBR
+option.LIGHTMAP_SKYLIGHT_AO=Skylight AO
+option.LIGHTMAP_SKYLIGHT_AO.comment=Specifies the amount of ambient occlusion on skylight.
+suffix.LIGHTMAP_SKYLIGHT_AO=%
+option.LIGHTMAP_BLOCKLIGHT_AO=Blocklight AO
+option.LIGHTMAP_BLOCKLIGHT_AO.comment=Specifies the amount of ambient occlusion on blocklight.
+suffix.LIGHTMAP_BLOCKLIGHT_AO=%
+option.LIGHTMAP_SKYLIGHT_CONTRAST=Skylight Gamma
+option.LIGHTMAP_SKYLIGHT_CONTRAST.comment=Higher = Darker. Lower = Brighter.
+option.LIGHTMAP_BLOCKLIGHT_CONTRAST=Blocklight Gamma
+option.LIGHTMAP_BLOCKLIGHT_CONTRAST.comment=Higher = Darker. Lower = Brighter.
 
-option.DEBUG_VIEW_PBR=PBR Debug
-value.DEBUG_VIEW_PBR.0=Roughness
-value.DEBUG_VIEW_PBR.1=Reflectance
-value.DEBUG_VIEW_PBR.2=Height
-value.DEBUG_VIEW_PBR.3=Emission
-value.DEBUG_VIEW_PBR.4=Ambient Occlusion
+option.LIGHTMAP_MINIMUM_LIGHT=Minimum Light
+option.LIGHTMAP_MINIMUM_LIGHT.comment=Restricts blocklight to never go below this value. Prevents caves from being pitch black (unless you set it to zero that is)
+
+screen.LIGHTMAP_COLOR=Lightmap Colors
+
+option.LIGHTMAP_NETHER_SKY_BRIGHTNESS=Nether Ambient Brightness
+option.LIGHTMAP_END_SKY_BRIGHTNESS=End Ambient Brightness
+option.LIGHTMAP_END_SKY_SATURATION=End Ambient Saturation
+
+option.LIGHTMAP_BLOCKLIGHT_REDUCTION=Adaptive Blocklight Reduction
+option.LIGHTMAP_BLOCKLIGHT_REDUCTION.comment=Reduces blocklight when the sky is bright to avoid clipping. If the blocklight is too bright during daytime, increase this slider.
+
+option.LIGHTMAP_SKY_DAY_R=Skylight Day §cR
+option.LIGHTMAP_SKY_DAY_G=Skylight Day §2G
+option.LIGHTMAP_SKY_DAY_B=Skylight Day §9B
+option.LIGHTMAP_SKY_NIGHT_R=Skylight Night §cR
+option.LIGHTMAP_SKY_NIGHT_G=Skylight Night §2G
+option.LIGHTMAP_SKY_NIGHT_B=Skylight Night §9B
+option.LIGHTMAP_BLOCK_R=Blocklight §cR
+option.LIGHTMAP_BLOCK_R.comment=Select blocklight color (torches, glowstone, etc.). If "Complex Blocklight" is enabled, this color will §cNOT§r be used.
+option.LIGHTMAP_BLOCK_G=Blocklight §2G
+option.LIGHTMAP_BLOCK_G.comment=Select blocklight color (torches, glowstone, etc.). If "Complex Blocklight" is enabled, this color will §cNOT§r be used.
+option.LIGHTMAP_BLOCK_B=Blocklight §9B
+option.LIGHTMAP_BLOCK_B.comment=Select blocklight color (torches, glowstone, etc.). If "Complex Blocklight" is enabled, this color will §cNOT§r be used.
+
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT=Complex Blocklight
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT.comment=Allows you to select two colors for blocklight. One for dark parts, one for bright parts
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT_BLEND_CURVE=Blend Curve
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT_BLEND_CURVE.comment=Higher: Emphasize "Bright" color. Lower: Emphasize "Dark" color. 50 = linear transition
+
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_R=Complex Blocklight Bright §cR
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_G=Complex Blocklight Bright §2G
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_B=Complex Blocklight Bright §9B
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_R=Complex Blocklight Dark §cR
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_G=Complex Blocklight Dark §2G
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_B=Complex Blocklight Dark §9B
+
 
 ///////////////////////////////////////////////////////////
 // DEPTH OF FIELD
@@ -330,6 +367,27 @@ option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=Changes the brightness of light from 
 screen.OPTIMISATION=Optimisation
 option.OPTIMIZE_INTERPOLATION=Flat Vertices
 option.OPTIMIZE_INTERPOLATION.comment=Disable when using custom models with smooth surfaces.
+
+
+///////////////////////////////////////////////////////////
+// DEBUG
+///////////////////////////////////////////////////////////
+
+screen.DEBUG=Debug
+screen.DUMP=Ze Dumpster
+
+option.DEBUG_VIEW=Debug
+value.DEBUG_VIEW.0=Normals
+value.DEBUG_VIEW.1=Lightmap
+value.DEBUG_VIEW.2=PBR
+
+option.DEBUG_VIEW_PBR=PBR Debug
+value.DEBUG_VIEW_PBR.0=Roughness
+value.DEBUG_VIEW_PBR.1=Reflectance
+value.DEBUG_VIEW_PBR.2=Height
+value.DEBUG_VIEW_PBR.3=Emission
+value.DEBUG_VIEW_PBR.4=Ambient Occlusion
+
 
 option.CREDITS=v2.1
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
