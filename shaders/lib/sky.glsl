@@ -83,7 +83,7 @@ vec3 getFog(vec3 playerDir) {
 }
 
 vec3 getGodrayColor() {
-    if (daynight < 0.5) return mix(sun_color, sunset_color * 2, sunset) * (1 - rainStrength);
+    if (daynight > 0.5) return mix(sun_color, sunset_color * 2, sunset) * (1 - rainStrength);
     return moon_color * (1 - rainStrength);
 }
 

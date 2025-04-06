@@ -108,11 +108,11 @@ void main() {
 
     }
 
-	vec4 chart = BarChart(coord, 
+	/* vec4 chart = BarChart(coord, 
 		vec3(0, 1, daynight),
 		vec3(0, 1, customLightmapBlend)
 	);
-	color.rgb = mix(color.rgb, chart.rgb, chart.a);
+	color.rgb = mix(color.rgb, chart.rgb, chart.a); */
     
     FragOut0 = vec4(color, 1.0);
 }
