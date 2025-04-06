@@ -24,9 +24,8 @@ uniform float far;
 uniform sampler2D depthtex1;
 
 #ifdef PBR
-#include "/lib/pbr/pbr.glsl"
 #include "/lib/pbr/read.glsl"
-//#include "/lib/pbr/ambient.glsl"
+#include "/lib/pbr/pbr.glsl"
 #endif
 
 uniform float nearInverse;
@@ -291,29 +290,30 @@ void main() {
 
 #if SSR_MODE != 0
 
-    MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy));
-    float f0 = 1;
-    if (material.reflectance > 0.5 && depth < 1.0) {
+    MaterialTexture material = getPBR(ivec2(gl_FragCoord.xy)); 
+    vec3 reflectance         = decodeReflectance(material.reflectance, vec3(1));
+    if (material.reflectance > 0.5 && depth < 1.0) { 
 
-        float fresnel = schlickFresnel(viewDir, normal, f0);
-        vec3  reflectViewDir = reflect(viewDir, normal);
+        vec3 fresnel        = schlickFresnel(viewDir, normal, reflectance);
+        vec3 reflectViewDir = reflect(viewDir, normal);
 
-        #if SSR_MODE == 3
+#if SSR_MODE == 3
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4 reflection = efficientSSR(posData, reflectViewDir);
-        #elif SSR_MODE == 2
+#elif SSR_MODE == 2
         vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
-        #else
+#else
         vec4 reflection = vec4(0);
-        #endif
-
-        /* if (reflection.a != 1) {
-            reflection.rgb = mix(getFog(toPlayerEye(reflectViewDir)), reflection.rgb, reflection.a);
-        } */
-        color = mix(color, reflection.rgb, fresnel * reflection.a);
+#endif
+    
+        color = mix(
+            color + getFog(toPlayerEye(reflectViewDir)) * fresnel, 
+            reflection.rgb, 
+            fresnel * reflection.a
+        );
 
         #ifdef SSR_DEBUG
-        color = vec3(fresnel, reflection.a, 0);
+        color = vec3(avg(fresnel), reflection.a, 0);
         #endif
 
     }

@@ -11,7 +11,7 @@
 //#define DEBUG
 
 #define DEBUG_VIEW 0     // [0 1 2]
-#define DEBUG_VIEW_PBR 0 // [0 1 2 3 4]
+#define DEBUG_VIEW_PBR 0 // [0 1 2 3]
 
 // Optimisation
 /////////////////////////////////////////////////////////////////////////////////////////

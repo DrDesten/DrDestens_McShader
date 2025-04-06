@@ -153,8 +153,6 @@ void main() {
             }
             depth  = POMdepth;
 
-        } else if (depth <= 0.56) {
-            color *= texture(colortex3, coord).w;
         }
 
     #endif

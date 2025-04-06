@@ -5,13 +5,11 @@ uniform int worldTime;
 #include "/core/math.glsl"
 
 #include "/core/transform.glsl"
-#include "/lib/unpackPBR.glsl"
-#include "/lib/lighting.glsl"
-#include "/lib/generatePBR.glsl"
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
 
+#include "/lib/pbr/gbuffers.glsl"
 #include "/lib/pbr/pbr.glsl"
 
 #ifdef POM_ENABLED
@@ -35,11 +33,20 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
+#ifdef PBR
+/* DRAWBUFFERS:01237 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+layout(location = 4) out vec4 FragOut4;
+#else
 /* DRAWBUFFERS:0123 */
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
+#endif
 
 void main() {
 	vec3 lightmap = vec3(lmcoord, glcolor.a);
@@ -53,17 +60,17 @@ void main() {
 	
 	#ifdef PBR
 
-		float roughness, reflectance, emission, height, ao;
+		MaterialTexture materialTexture;
 
 		vec4 normalTex       = NormalTex(coord);
 		vec4 specularTex     = SpecularTex(coord);
 		RawMaterial material = readMaterial(normalTex, specularTex);
 
-		roughness   = material.roughness;
-		reflectance = material.reflectance;
-		emission    = material.emission;
-		height      = material.height;
-		lightmap.z *= material.ao;
+		materialTexture.roughness   = material.roughness;
+		materialTexture.reflectance = material.reflectance;
+		materialTexture.emission    = material.emission;
+		materialTexture.height      = material.height;
+		lightmap.z                 *= material.ao;
 
 		normal      = normalize(tbn * material.normal);
 /* 
@@ -143,5 +150,8 @@ void main() {
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
 	FragOut3 = vec4(lightmap, 1);
+#ifdef PBR
+	FragOut4 = encodeMaterial(materialTexture);
+#endif
     ALPHA_DISCARD(FragOut0);
 }

@@ -36,7 +36,7 @@ vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
 
-    float radiance = 7;
+    float radiance = 5;
 
     float k = sq(roughness + 1) / 8;
 
@@ -50,7 +50,7 @@ vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
 
     vec3  num   = D * G * F;
     float div   = 4 * NdotV * NdotL;
-    vec3  spec  = num / max(div, 0.01) * specular;
+    vec3  spec  = num / max(div, 0.05) * specular;
     spec        = min(spec, 5);
 
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
@@ -64,6 +64,32 @@ vec3 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness,
     vec3  BRDF     = (albedo / PI) * radiance * NdotL;
 
     return (BRDF);
+}
+vec3 CookTorrance_speconly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+    vec3  H     = normalize(V + L);
+    float NdotH = saturate(dot(N, H));
+    float NdotL = saturate(dot(N, L));
+    float NdotV = saturate(dot(N, V));
+
+    float radiance = 3;
+
+    float k = sq(roughness + 1) / 8;
+
+    float D = NDF_GGX(NdotH, roughness);
+    float G = G_Smith(NdotL, NdotV, k);
+    vec3  F = Fresnel(NdotH, f0);
+
+    vec3 kS = F;
+    vec3 kD = 1 - kS;
+    //kD *= 1 - metallic;
+
+    vec3  num   = D * G * F;
+    float div   = 4 * NdotV * NdotL;
+    vec3  spec  = num / max(div, 0.05) * specular;
+    spec        = min(spec, 5);
+
+    vec3  BRDF  = spec * radiance;
+    return BRDF;
 }
 
 vec3 simpleSubsurface(vec3 albedo, vec3 N, vec3 V, vec3 L, float subsurface) {
@@ -151,7 +177,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 
     // Get PBR Material
 #ifdef OVERWORLD
-    vec3 color = CookTorrance(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
+    vec3 color = CookTorrance_speconly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
 #else
     vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
 #endif
@@ -166,10 +192,8 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 #endif
 
     // Emission and Ambient Light
-	color += mat.albedo * ((ambient * ao * PBR_AMBIENT_LIGHT_MULTIPLIER) + emission);
-    //color = ambient;
-
-    color = max(color, 0); // Prevent Negative values
+	color += mat.albedo * (ambient * ao + emission);
+    color  = max(color, 0); // Prevent Negative values
 	return color;
 }
 

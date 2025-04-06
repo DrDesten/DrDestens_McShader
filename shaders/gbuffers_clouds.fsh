@@ -17,11 +17,20 @@ in vec2 coord;
 flat in vec3 normal;
 flat in vec4 glcolor;
 
+#ifdef PBR
+/* DRAWBUFFERS:01237 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+layout(location = 4) out vec4 FragOut4;
+#else
 /* DRAWBUFFERS:0123 */
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
+#endif
 
 void main() {
 	vec4 color    = getAlbedo(coord);

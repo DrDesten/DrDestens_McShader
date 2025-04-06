@@ -1,23 +1,23 @@
 uniform int worldTime;
+uniform float frameTimeCounter;
 //uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
 #include "/core/math.glsl"
 
-#include "/lib/unpackPBR.glsl"
-#include "/lib/generatePBR.glsl"
-#include "/lib/lighting.glsl"
+#include "/lib/pbr/gbuffers.glsl"
+#include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/lighting.glsl"
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
-#include "/lib/gbuffers/lightmap.glsl"
+#include "/lib/lightmap.glsl"
 
 #include "/core/water.glsl"
 
 uniform vec3 cameraPosition;
 
-uniform float frameTimeCounter;
 uniform float far;
 
 #ifdef FOG
@@ -36,18 +36,29 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
-/* DRAWBUFFERS:012 */
+#ifdef PBR
+/* DRAWBUFFERS:01237 */
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+layout(location = 4) out vec4 FragOut4;
+#else
+/* DRAWBUFFERS:0123 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+#endif
 
 void main(){
+    vec3  lightmap       = vec3(lmcoord, glcolor.a);
     vec3  surfaceNormal  = tbn[2];
 	vec4  color          = getAlbedo(coord);
     color.rgb           *= glcolor.rgb;
 
     #ifdef PBR
-    float reflectiveness, roughness = 0;
+    MaterialTexture tex;
     #endif
 
     // Reduce opacity and saturation of only water
@@ -79,24 +90,24 @@ void main(){
 
     } else {
 
+        vec3 lightmapColor = getCustomLightmap(lightmap, customLightmapBlend);
+
         #ifdef PBR
 
-		    // Get the Dafault render color, used for PBR Blending
-            vec3 mc_color = gamma(color.rgb * glcolor.a * ( getLightmap(lmcoord).rgb + DynamicLight(lmcoord) ));
-            color.rgb     = gamma(color.rgb);
+            vec4 normalTex       = NormalTex(coord);
+            vec4 specularTex     = SpecularTex(coord);
+            RawMaterial raw = readMaterial(normalTex, specularTex);
 
-            vec3 ambientLight  = getLightmap(lmcoord).rgb;
+            tex.roughness   = raw.roughness;
+            tex.reflectance = raw.reflectance;
+            tex.emission    = raw.emission;
+            tex.height      = raw.height;
+            lightmap.z     *= raw.ao;
 
-		    MaterialInfo MatTex = FullMaterial(coord, color);
-            MatTex.AO 		   *= sq(glcolor.a);
-
-            PBRout Material    = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewDir, 0.1 * ambientLight + DynamicLight(lmcoord));
-
-            color	           = Material.color;
-            surfaceNormal      = Material.normal;
+            Material material = getMaterial(raw, lightmap, color.rgb);
             
-            reflectiveness = luminance(MatTex.f0);
-            roughness      = MatTex.roughness;
+            vec3 PBRColor = RenderPBR(material, surfaceNormal, viewDir, lightmapColor);
+            color.rgb     = PBRColor;
 
         #else
 
@@ -104,9 +115,8 @@ void main(){
             color.rgb = vec3(1);
             #endif
 
-	        color.rgb         *= glcolor.a;
-            color.rgb         *= getLightmap(lmcoord).rgb + DynamicLight(lmcoord);
             color.rgb  = gamma(color.rgb);
+            color.rgb *= lightmapColor;
 
         #endif
 
@@ -120,8 +130,10 @@ void main(){
 #endif
     
     FragOut0 = color; // Color
-    //FragOut0 = vec4(surfaceNormal, 1); // Color
-    //FragOut0 = vec4(surfaceNormal * .5 + .5, 1); // Color
     FragOut1 = vec4(spheremapEncode(surfaceNormal), 1, 1); // Normal
-    FragOut2 = vec4(codeID(blockId), vec3(1)); // Type (colortex3)
+    FragOut2 = vec4(codeID(blockId), vec3(1)); // Type 
+	FragOut3 = vec4(lightmap, 1);
+#ifdef PBR
+	FragOut4 = encodeMaterial(tex);
+#endif
 }

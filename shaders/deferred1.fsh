@@ -14,7 +14,6 @@
 #include "/lib/composite/normal.glsl"
 #include "/lib/pbr/pbr.glsl"
 #include "/lib/pbr/read.glsl"
-#include "/lib/pbr/ambient.glsl"
 #include "/lib/pbr/lighting.glsl"
 #endif
 
@@ -76,8 +75,8 @@ void main() {
 
     } else { // NO SKY
 
-		vec3 lightmap = getLightmapData(ivec2(gl_FragCoord.xy));
-		color.rgb    *= getCustomLightmap(lightmap, customLightmapBlend);
+		vec3 lightmap      = getLightmapData(ivec2(gl_FragCoord.xy));
+		vec3 lightmapColor = getCustomLightmap(lightmap, customLightmapBlend);
 
 #ifdef PBR
 
@@ -89,13 +88,14 @@ void main() {
 		vec3 normal = getNormal(ivec2(gl_FragCoord.xy));
 
 		MaterialTexture matTex   = getPBR(ivec2(gl_FragCoord.xy));
-		Material        material = getMaterial(matTex, color);
+		Material        material = getMaterial(matTex, lightmap, color);
 		
-		vec3 ambient = getAmbientLight(material.lightmap, material.ao) * 0;
-		
-		vec3 PBRColor = RenderPBR(material, normal, viewDir, ambient);
+		vec3 PBRColor = RenderPBR(material, normal, viewDir, lightmapColor);
+		color.rgb     = PBRColor;
 
-		color.rgb = PBRColor;
+#else 
+
+		color.rgb *= lightmapColor;
 
 #endif
 

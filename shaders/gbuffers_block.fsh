@@ -2,14 +2,12 @@ uniform int worldTime;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
+#include "/core/math.glsl"
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
 
-#include "/core/math.glsl"
-#include "/lib/unpackPBR.glsl"
-#include "/lib/lighting.glsl"
-
+#include "/lib/pbr/gbuffers.glsl"
 #include "/lib/pbr/pbr.glsl"
 
 OPT_FLAT in vec4  glcolor;

@@ -21,7 +21,6 @@ uniform vec3 previousCameraPosition;
 
 #include "/lib/pbr/pbr.glsl"
 #include "/lib/pbr/read.glsl"
-#include "/lib/pbr/ambient.glsl"
 
 vec3 debugViewNormals(vec2 coord) {
     return getNormal(coord) * .5 + .5;
@@ -42,8 +41,6 @@ vec3 debugViewPBR(vec2 coord) {
     return vec3(material.height);
 #elif DEBUG_VIEW_PBR == 3 // Emission
     return vec3(material.emission);
-#elif DEBUG_VIEW_PBR == 4 // AO
-    return vec3(material.ao);
 #endif
 }
 

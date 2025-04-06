@@ -9,7 +9,7 @@ const int colortex4Format = R11F_G11F_B10F; // DOF 2 (DOF1 is colortex0) & Bloom
 const int colortex5Format = RGB16F;         // TAA
 const int colortex6Format = RGBA8;          // Weather
 
-const int colortex7Format = RGBA8;          // PBR: Roughness, Reflectance, Height, Emission
+const int colortex7Format = RG16;          // PBR: Roughness, Reflectance, Height, Emission
 
 */
 
