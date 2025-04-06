@@ -24,10 +24,6 @@ OPT_FLAT in mat3 tbn;
 // tbn[1] = binomial vector
 // tbn[2] = normal vector
 
-#ifdef PBR
-    in vec3  viewpos;
-#endif
-
 flat in int blockId;
 in vec2 lmcoord;
 in vec2 coord;
@@ -73,28 +69,7 @@ void main() {
 		lightmap.z                 *= material.ao;
 
 		normal      = normalize(tbn * material.normal);
-/* 
-		vec3 lightmapColor = getLightmap(lmcoord) + DynamicLight(lmcoord);
-
-		// Get the Dafault render color, used for PBR Blending
-		vec3 mc_color = gamma(color.rgb * glcolor.a * lightmapColor);
-
-		color.rgb  = gamma(color.rgb);
-		vec3 ambientLight   = lightmapColor;
-		//gamma(ambientLight);
-
-		MaterialInfo MatTex = FullMaterial(coord, color);
-		MatTex.AO 		   *= sq(glcolor.a);
-
-		PBRout Material     = PBRMaterial(MatTex, mc_color, lmcoord, tbn, viewpos, 0.1 * ambientLight);
-
-		color	            = Material.color;
-		normal	   	        = Material.normal;
-		
-		float reflectiveness = luminance(MatTex.f0);
-		float roughness      = MatTex.roughness;
-		float height         = MatTex.height;
-
+/*
 		#ifdef POM_ENABLED
 		#ifdef POM_SMOOTH
 
@@ -122,10 +97,9 @@ void main() {
 
 		#endif
 		#endif
- */
-	#else
+*/
 
-		vec3 tmp = sq(color.rgb); // Isolate unlightmapped color, else emission would depend on the lightmap
+	#else
 
 		#ifdef DIRECTIONAL_LIGHTMAP
 			vec2 blockLightDir = getBlocklightDir(lightmap, mat2(tbn));
@@ -137,10 +111,10 @@ void main() {
 			lightmap.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens		
 		#endif
 
-		color.rgb  = gamma(color.rgb);
+		color.rgb = gamma(color.rgb);
 
 		if (lightmap.x > 14.5/15.) {
-			color.rgb = tmp * EMISSION_STRENGTH + color.rgb;
+			color.rgb *= ( 1 + EMISSION_STRENGTH );
 		}
 		
 	#endif

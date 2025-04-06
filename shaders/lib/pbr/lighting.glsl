@@ -1,6 +1,7 @@
 #if !defined PBR_LIGHTING_GLSL
 #define PBR_LIGHTING_GLSL
 
+#include "structs.glsl"
 #include "../uniforms/lighting.glsl"
 
 float NDF_GGX(float NdotH, float alpha) {

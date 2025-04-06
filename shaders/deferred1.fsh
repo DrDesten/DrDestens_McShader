@@ -17,6 +17,10 @@
 #include "/lib/pbr/lighting.glsl"
 #endif
 
+#include "/core/dh/uniforms.glsl"
+#include "/core/dh/textures.glsl"
+#include "/core/dh/transform.glsl"
+
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform float frameTimeCounter;
@@ -38,6 +42,11 @@ void main() {
     vec3  color     = getAlbedo(ivec2(gl_FragCoord.xy));
     float id        = getID(ivec2(gl_FragCoord.xy));
 
+#if defined DISTANT_HORIZONS
+	float dhDepth     = getDepthDH(coord);
+	vec3  dhScreenPos = vec3(coord, dhDepth);
+#endif
+
 #if FOG != 0
 	vec3 viewPos   = toView(screenPos * 2 - 1);
 	vec3 viewDir   = normalize(viewPos);
@@ -46,9 +55,26 @@ void main() {
 
 	vec3 skyGradient = getSky(playerDir);
 	vec3 fogGradient = getFog(playerDir, skyGradient);
+	
+#if defined DISTANT_HORIZONS
+	vec3  dhViewPos   = screenToViewDH(dhScreenPos);
+	vec3  dhPlayerPos = toPlayer(dhViewPos);
+
+	vec3  combinedViewPos   = depth < 1 ? viewPos : dhViewPos;
+	vec3  combinedPlayerPos = depth < 1 ? playerPos : dhPlayerPos;
+#else
+	vec3  combinedViewPos   = viewPos;
+	vec3  combinedPlayerPos = playerPos;
+#endif
+#endif
+
+#if defined DISTANT_HORIZONS
+#define isSky (depth == 1 && dhDepth == 1)
+#else
+#define isSky (depth == 1)
 #endif
 	
-    if (depth == 1) { // SKY
+    if (isSky) { // SKY
 
 #if FOG == 0
 		vec3 viewPos   = toView(screenPos * 2 - 1);
@@ -101,7 +127,7 @@ void main() {
 
 #if FOG != 0
 
-    float fog = getFogFactor(playerPos);
+    float fog = getFogFactor(combinedPlayerPos);
     color     = mix(color, fogGradient, fog);
 
 #endif

@@ -132,6 +132,16 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
 } */
 
 vec4 efficientSSR(position pos, vec3 reflection) {
+
+#if defined DISTANT_HORIZONS
+
+    if (pos.screen.z == 1) {
+        return CubemapStyleReflection(pos.view, reflection);
+    }
+
+#endif
+
+
     vec3 viewReflection = pos.view + reflection;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
@@ -246,22 +256,33 @@ void main() {
 
 
         #if SSR_MODE == 3
+
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4  reflection = efficientSSR(posData, reflectViewDir);
+
         #elif SSR_MODE == 2
+
         vec4  reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+
         #else
+
         vec4  reflection = vec4(0);
+
         #endif
+
         if (reflection.a != 1) {
             vec3 playerDir = normalize(toPlayerEye(reflectViewDir));
             reflection.rgb = mix(getFog(playerDir), reflection.rgb, reflection.a);
         }
 
         #if defined END
+
         reflection.rgb *= saturate(0.5 + reflection.a);
+
         #else
+
         reflection.rgb *= saturate(eyeBrightnessSmooth.y * (1./140) + reflection.a);
+
         #endif
         
         #if FOG != 0
@@ -299,15 +320,22 @@ void main() {
         vec3 reflectViewDir = reflect(viewDir, normal);
 
 #if SSR_MODE == 3
+
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
         vec4 reflection = efficientSSR(posData, reflectViewDir);
+
         if (reflection.a == 0) {
             reflection = CubemapStyleReflection(viewPos, reflectViewDir);
         }
+
 #elif SSR_MODE == 2
+
         vec4 reflection = CubemapStyleReflection(viewPos, reflectViewDir);
+
 #else
+
         vec4 reflection = vec4(0);
+
 #endif  
 
         color = mix(

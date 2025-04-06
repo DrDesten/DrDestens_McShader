@@ -20,10 +20,6 @@ uniform vec3  upPosition;
 
 OPT_FLAT out mat3 tbn;
 
-#ifdef PBR
-    out vec3 viewpos;
-#endif
-
 flat out int blockId;
 out vec2 lmcoord;
 out vec2 coord;
@@ -42,9 +38,6 @@ void main() {
 
 	gl_Position = ftransform();
 
-	#ifdef PBR
-	viewpos = getView();
-	#endif
 	lmcoord = getLmCoord();
 	coord   = getCoord();
 	tbn     = getTBN(at_tangent);

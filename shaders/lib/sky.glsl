@@ -1,4 +1,5 @@
 #include "/lib/uniforms/lighting.glsl"
+#include "/core/dh/uniforms.glsl"
 
 /* // My original values
 const vec3 sky_up_day   = vec3(0.1, 0.35, 1.0);  //Color of upper part of sky at noon
@@ -87,6 +88,10 @@ vec3 getGodrayColor() {
     return moon_color * (1 - rainStrength);
 }
 
+#if defined DISTANT_HORIZONS
+#define far (dhFarPlane / SQRT2)
+#endif
+
 float getFogFactor(vec3 playerPos) {
     float fog;
     
@@ -127,3 +132,5 @@ float getFogFactor(vec3 playerPos) {
 
     return fog;
 }
+
+#undef far

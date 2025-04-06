@@ -1,40 +1,36 @@
 uniform int worldTime;
 uniform float frameTimeCounter;
-//uniform vec2 atlasSizeInverse;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
 #include "/core/math.glsl"
 
-#include "/lib/pbr/gbuffers.glsl"
-#include "/lib/pbr/pbr.glsl"
-#include "/lib/pbr/lighting.glsl"
-
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
 #include "/lib/lightmap.glsl"
+#include "/lib/pbr/lighting.glsl"
 
 #include "/core/water.glsl"
 
-uniform vec3 cameraPosition;
+#include "/core/dh/uniforms.glsl"
+#include "/core/dh/transform.glsl"
+#include "/core/transform.glsl"
 
+uniform sampler2D depthtex0;
+uniform float near;
 uniform float far;
+uniform vec2 screenSize;
+uniform vec2 screenSizeInverse;
 
 #ifdef FOG
 #include "/lib/sky.glsl"
 #endif
 
-OPT_FLAT in mat3 tbn;
-// tbn[0] = tangent vector
-// tbn[1] = binomial vector
-// tbn[2] = normal vector
-
 in vec2 lmcoord;
-in vec2 coord;
-in vec4 glcolor;
-flat in int blockId;
-in vec3 viewDir;
-in vec3 playerPos;
+flat in vec4 glcolor;
+in vec3 viewPos;
+flat in vec3 normal;
+flat in int materialId;
 
 #ifdef PBR
 /* DRAWBUFFERS:01237 */
@@ -51,19 +47,44 @@ layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
 #endif
 
-void main(){
-    vec3  lightmap       = vec3(lmcoord, glcolor.a);
-    vec3  surfaceNormal  = tbn[2];
-	vec4  color          = getAlbedo(coord);
-    color.rgb           *= glcolor.rgb;
+void main() {
+    vec3 lightmap  = vec3(lmcoord, 1);
+    vec3 playerPos = toPlayer(viewPos);
+    vec3 worldPos  = toWorld(playerPos);
+    vec3 surfaceNormal = normal;
 
-    #ifdef PBR
-    MaterialTexture tex;
-    #endif
+    // Discarding Logic
+    
+#ifdef DH_TRANSPARENT_DISCARD
+    float borderTolerance = (materialId == DH_BLOCK_WATER ? 0 : 1e-5) + DH_TRANSPARENT_DISCARD_TOLERANCE;
+    if ( discardDH(worldPos, borderTolerance) ) {
+        discard;
+    }
+#else
+    float fade = smoothstep( dhNearPlane, min(dhNearPlane * 2 + 32, far * 0.5), -viewPos.z ) - sq(Bayer8(gl_FragCoord.xy));
+    if ( fade < 0 ) {
+        discard;
+    }
+#endif
 
-    // Reduce opacity and saturation of only water
-    if (blockId == 10) {
+    float depth         = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).x;
+    float dhDepth       = gl_FragCoord.z;
+    vec3  dhScreenPos   = vec3(gl_FragCoord.xy * screenSizeInverse, dhDepth);
+    vec3  dhViewPos     = screenToViewDH(dhScreenPos);
+    float dhMappedDepth = backToScreen(dhViewPos).z;
 
+    if (depth < 1 && depth < dhMappedDepth) {
+        discard;
+    }
+    
+    vec4 color   = glcolor;
+    int  blockId = materialId == DH_BLOCK_WATER ? 10 : 0;
+
+    if (materialId == DH_BLOCK_WATER) {
+        
+		mat3 tbn     = cotangentFrame(surfaceNormal, -viewPos, gl_FragCoord.xy * screenSizeInverse);
+        vec3 viewDir = normalize(viewPos);
+        
         #ifdef WATER_TEXTURE_VISIBLE
             color.rgb = sq(color.rgb * getCustomLightmap(lightmap, customLightmapBlend)) * 0.75;
         #else
@@ -84,43 +105,19 @@ void main(){
                 vec3  waveNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
             #endif
 
-            surfaceNormal      = normalize(tbn * waveNormals);
-            //surfaceNormal      = noiseNormals;
-        #endif
-
-    } else {
-
-        vec3 lightmapColor = getCustomLightmap(lightmap, customLightmapBlend);
-
-        #ifdef PBR
-
-            vec4 normalTex       = NormalTex(coord);
-            vec4 specularTex     = SpecularTex(coord);
-            RawMaterial raw = readMaterial(normalTex, specularTex);
-
-            tex.roughness   = raw.roughness;
-            tex.reflectance = raw.reflectance;
-            tex.emission    = raw.emission;
-            tex.height      = raw.height;
-            lightmap.z     *= raw.ao;
-
-            Material material = getMaterial(raw, lightmap, color.rgb);
-            
-            vec3 PBRColor = RenderPBR(material, surfaceNormal, viewDir, lightmapColor);
-            color.rgb     = PBRColor;
-
-        #else
-
-            #ifdef WHITE_WORLD
-            color.rgb = vec3(1);
-            #endif
-
-            color.rgb  = gamma(color.rgb);
-            color.rgb *= lightmapColor;
-
+            surfaceNormal = normalize(tbn * waveNormals);
         #endif
 
     }
+
+    vec3 lightmapColor = getCustomLightmap(lightmap, customLightmapBlend);
+
+    #ifdef WHITE_WORLD
+    color.rgb = vec3(1);
+    #endif
+
+    color.rgb  = gamma(color.rgb);
+    color.rgb *= lightmapColor;
 
 #if FOG != 0
 
@@ -128,12 +125,12 @@ void main(){
     color.rgb = mix(color.rgb, getFog(normalize(playerPos)), fog);
 
 #endif
-    
+
     FragOut0 = color; // Color
     FragOut1 = vec4(spheremapEncode(surfaceNormal), 1, 1); // Normal
     FragOut2 = vec4(codeID(blockId), vec3(1)); // Type 
 	FragOut3 = vec4(lightmap, 1);
 #ifdef PBR
-	FragOut4 = encodeMaterial(tex);
+	FragOut4 = vec4(0,0,0,1);
 #endif
 }
