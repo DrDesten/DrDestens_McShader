@@ -52,8 +52,8 @@ vec3 getSky(vec3 playerDir) {
         float baseColorMixFactor  = smoothstep(0, 1, daynight);
         float baseOffsetMixFactor = smoothstep(0, 1, baseColorMixFactor);
         vec4  baseColorMix        = vec4(
-            mix(sky_noon.rgb, sky_midnight.rgb, baseColorMixFactor),
-            mix(sky_noon.a, sky_midnight.a, baseOffsetMixFactor)
+            mix(sky_midnight.rgb, sky_noon.rgb, baseColorMixFactor),
+            mix(sky_midnight.a, sky_noon.a, baseOffsetMixFactor)
         );
 
         vec3 baseGradient = skyBaseGradient(playerDir, baseColorMix);

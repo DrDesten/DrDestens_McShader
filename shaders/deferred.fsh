@@ -5,10 +5,10 @@
 #include "/core/kernels.glsl"
 #include "/core/transform.glsl"
 #include "/lib/composite/basics.glsl"
-#include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
+#include "/lib/composite/lightmap.glsl"
 
 uniform float nearInverse;
 uniform float aspectRatio;
@@ -189,16 +189,16 @@ float SSAO(vec3 screenPos, float radius) {
     return occlusion;
 }
 
-/* DRAWBUFFERS:0 */
+/* DRAWBUFFERS:3 */
 layout(location = 0) out vec4 FragOut0;
 
 void main() {
-    vec3 color = getAlbedo(coord);
+    vec3 lightmap = getLightmapData(ivec2(gl_FragCoord.xy));
 
 #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 
-    float depth = getDepth(coord);
-    float id    = getID(coord);
+    float depth = getDepth(ivec2(gl_FragCoord.xy));
+    float id    = getID(ivec2(gl_FragCoord.xy));
 
     vec3 screenPos = vec3(coord, depth);
 
@@ -206,17 +206,17 @@ void main() {
 
         #if   SSAO_QUALITY == 1
 
-            color      *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            lightmap.z *= SSAO(vec3(coord, depth), 0.15) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
         #elif SSAO_QUALITY == 2
 
             vec3 normal = getNormal(coord);
-            color      *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            lightmap.z *= AmbientOcclusionLOW(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
         #elif SSAO_QUALITY == 3
 
             vec3 normal = getNormal(coord);
-            color      *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
+            lightmap.z *= AmbientOcclusionHIGH(vec3(coord, depth), normal, 0.375) * SSAO_STRENGTH + (1 - SSAO_STRENGTH);
 
         #endif
         
@@ -224,5 +224,5 @@ void main() {
 
 #endif
 
-    FragOut0 = vec4(color, 1.0);
+    FragOut0 = vec4(lightmap, 1);
 }

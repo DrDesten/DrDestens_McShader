@@ -3,6 +3,7 @@
 
 #include "/core/math.glsl"
 #include "/core/transform.glsl"
+#include "/core/debug.glsl"
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
@@ -106,6 +107,12 @@ void main() {
 #endif
 
     }
+
+	vec4 chart = BarChart(coord, 
+		vec3(0, 1, daynight),
+		vec3(0, 1, customLightmapBlend)
+	);
+	color.rgb = mix(color.rgb, chart.rgb, chart.a);
     
     FragOut0 = vec4(color, 1.0);
 }
