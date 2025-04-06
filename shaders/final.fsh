@@ -170,8 +170,6 @@ void main() {
     color = debugView(coord);
 #endif
 
-    //color = mix(color, color * color * vec3(1,.5,.5), isHurtSmooth * 0.5);
-
     // Remove Banding (yay)
     const float displayPrecision = 1./255.;
     color += (Bayer4(coord * screenSize) - .5) * displayPrecision;

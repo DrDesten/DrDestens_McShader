@@ -4,8 +4,8 @@
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
-
 #include "/core/math.glsl"
+
 #include "/lib/composite/basics.glsl"
 #include "/lib/composite/color.glsl"
 #include "/lib/composite/depth.glsl"
@@ -31,18 +31,60 @@ uniform float far;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-void neighborhoodClamp(vec2 coord, out vec3 minColor, out vec3 maxColor, float size) {
-    minColor = vec3(1e35);
-    maxColor = vec3(0);
+
+vec3 clipAABB(vec3 color, vec3 minAABB, vec3 maxAABB) {
+    vec3 p_clip = 0.5 * (maxAABB + minAABB);
+    vec3 e_clip = 0.5 * (maxAABB - minAABB);
+
+    vec3  v_clip  = color - p_clip;
+    vec3  v_unit  = v_clip.xyz / e_clip;
+    vec3  a_unit  = abs(v_unit);
+    float ma_unit = max(a_unit.x, max(a_unit.y, a_unit.z));
+
+    if (ma_unit > 1.0)
+        return p_clip + v_clip / ma_unit;
+    else
+        return color; // point inside aabb
+}
+
+vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut) {
+    vec3 mins = vec3(1e35);
+    vec3 maxs = vec3(0);
+    vec3 m1 = vec3(0);
+    vec3 m2 = vec3(0);
+
+    vec2 jitterOffset = taaOffset * TAA_JITTER_AMOUNT * screenSize;
+    vec3 sourceColor  = vec3(0);
+    vec3 sourceWeight = vec3(0);
+
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-            vec2 scoord = vec2(x, y) * size * screenSizeInverse + coord;
-            vec3 color  = getAlbedo(scoord);
+            float sweight = sincWindowed(x - jitterOffset.x) * sincWindowed(y - jitterOffset.y);
+            ivec2 scoord  = icoord + ivec2(x, y);
+            vec3  scol    = getAlbedo(scoord);
 
-            minColor = min(minColor, color);
-            maxColor = max(maxColor, color);
+            sourceColor  += scol * sweight;
+            sourceWeight += sweight;
+
+            mins = min(mins, scol);
+            maxs = max(maxs, scol);
+            m1  += scol;
+            m2  += sq(scol);
         }
     }
+
+    sourceColor /= sourceWeight;
+    sourceColorOut = sourceColor;
+
+    vec3 mu    = m1 * (1./9);
+    vec3 sigma = sqrt(abs(m2 * (1./9) - sq(mu)));
+    vec3 minc  = mu - sigma * 0.75;
+    vec3 maxc  = mu + sigma * 0.75;
+
+    historyColor = clamp(historyColor, mins, maxs);
+    historyColor = clipAABB(historyColor, minc, maxc);
+
+    return historyColor;
 }
 
 #ifdef TAA 
@@ -55,39 +97,37 @@ layout(location = 1) out vec4 FragOut1;
 
 void main() {
     #ifdef TAA
-        vec2 jitterCoord = coord + taaOffset * TAA_JITTER_AMOUNT;
-        vec3 color = getAlbedo(jitterCoord);
-    #else
-        vec3 color = getAlbedo(coord);
-    #endif
+        vec2  jitterOffset = taaOffset * TAA_JITTER_AMOUNT;
+        vec3  color        = getAlbedo(coord + jitterOffset);
+        float depth        = getDepth(coord);
 
-    float depth = getDepth(coord);
-
-    #ifdef TAA 
-
-        vec3  currentFrameColor = color;
-        vec3  screenPos         = vec3(coord, depth);
-
-        vec3  reprojectPos      = reprojectTAA(screenPos);
-        
-        vec4  lastFrame         = texture(colortex5, reprojectPos.xy);
-        vec3  lastFrameColor    = lastFrame.rgb;
-
+        vec3  sourceColor  = color;
+        vec3  screenPos    = vec3(coord, depth);
+        vec3  reprojectPos = reprojectTAA(screenPos);
+        vec4  lastFrame    = texture(colortex5, reprojectPos.xy);
 
         // Anti - Ghosting
         //////////////////////////////////////////////////////////////////////
 
+        vec3  historyColor  = lastFrame.rgb;
+        float sourceWeight  = TAA_BLEND;
+        float historyWeight = 1 - sourceWeight;
+
+        historyWeight *= float(saturate(reprojectPos.xy) == reprojectPos.xy);
+
         #ifndef TAA_NOCLIP
-        vec3 lowerThresh, higherThresh;
-        neighborhoodClamp(coord, lowerThresh, higherThresh, 1);
-        lastFrameColor = clamp(lastFrameColor, lowerThresh, higherThresh);
+
+        historyColor = neighborhoodClamp(ivec2(gl_FragCoord.xy), historyColor, sourceColor);
+
         #endif
 
-        float boundsError = float(saturate(reprojectPos.xy) != reprojectPos.xy);
-        float blend       = saturate(boundsError + TAA_BLEND);
-
-        color         = mix(lastFrameColor, currentFrameColor, blend);
+        color         = mix(sourceColor, historyColor, historyWeight);
         vec3 TAAcolor = max(color, 0.0);
+
+    #else 
+
+        vec3  color = getAlbedo(coord);
+        float depth = getDepth(coord);
 
     #endif
 
