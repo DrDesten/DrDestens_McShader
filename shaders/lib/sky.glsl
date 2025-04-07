@@ -89,7 +89,7 @@ vec3 getGodrayColor() {
 }
 
 #if defined DISTANT_HORIZONS
-#define far (dhFarPlane / SQRT2)
+#define far dhFarPlane
 #endif
 
 float getFogFactor(vec3 playerPos) {
