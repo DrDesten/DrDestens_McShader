@@ -1,5 +1,5 @@
-uniform sampler2D texture;  // Color
+uniform sampler2D gcolor;  // Color
 
 vec4 getAlbedo(vec2 coord) {
-    return texture(texture, coord);
+    return texture(gcolor, coord);
 }
