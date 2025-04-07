@@ -28,6 +28,10 @@ uniform sampler2D depthtex1;
 #include "/lib/pbr/pbr.glsl"
 #endif
 
+#include "/core/dh/uniforms.glsl"
+#include "/core/dh/textures.glsl"
+#include "/core/dh/transform.glsl"
+
 uniform float nearInverse;
 uniform float aspectRatio;
 
@@ -51,17 +55,18 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
         return vec4(0);
     }
 
-    #if REFLECTION_FADE == 0
-    return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
-    #elif REFLECTION_FADE == 1
-    vec2 hit = distortClamp(screenPos.xy);
-    return vec4(getAlbedo(hit), smoothstep(0, 1, 5 - 5 * abs(hit.y * 2 - 1)));
-    #elif REFLECTION_FADE == 2
+    #ifdef REFLECTION_FADE
+
     vec2 hit = distortClamp(screenPos.xy);
     return vec4(
         getAlbedo(hit),
         smoothstep(0, 1, 3.5 - 3.5 * max(abs(hit.x * 1.5 - .75), abs(hit.y * 2 - 1)))
     );
+
+    #else
+
+    return vec4(getAlbedo(distortClamp(screenPos.xy)), 1);
+
     #endif
 }
 
@@ -132,16 +137,6 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
 } */
 
 vec4 efficientSSR(position pos, vec3 reflection) {
-
-#if defined DISTANT_HORIZONS
-
-    if (pos.screen.z == 1) {
-        return CubemapStyleReflection(pos.view, reflection);
-    }
-
-#endif
-
-
     vec3 viewReflection = pos.view + reflection;
 
     if (viewReflection.z > 0) { // A bug causes reflections near the player to mess up. This happens when viewReflection.z is positive
@@ -171,15 +166,17 @@ vec4 efficientSSR(position pos, vec3 reflection) {
         hitDepth = getDepth(rayPos.xy);
 
         if (hitDepth < rayPos.z && hitDepth > 0.56 && hitDepth < 1 && abs(rayPos.z - hitDepth) < depthTolerance) {
-            #if REFLECTION_FADE == 0
-            return vec4(getAlbedo(rayPos.xy), 1);
-            #elif REFLECTION_FADE == 1
-            return vec4(getAlbedo(rayPos.xy), smoothstep(0, 1, 5 - 5 * abs(rayPos.y * 2 - 1)));
-            #elif REFLECTION_FADE == 2
+            #ifdef REFLECTION_FADE
+
             return vec4(
                 getAlbedo(rayPos.xy),
                 smoothstep(0, 1, 3.5 - 3.5 * max(abs(rayPos.x * 1.5 - .75), abs(rayPos.y * 2 - 1)))
             );
+
+            #else
+
+            return vec4(getAlbedo(rayPos.xy), 1);
+
             #endif
         }
 
@@ -196,8 +193,14 @@ void main() {
     float id          = getID(ivec2(gl_FragCoord.xy));
     float depth       = getDepth(ivec2(gl_FragCoord.xy));
     float linearDepth = linearizeDepthf(depth, nearInverse);
+    
+#if defined DISTANT_HORIZONS
+	float dhDepth     = getDepthDH(coord);
+    linearDepth       = min(linearDepth, linearizeDepthf(dhDepth, 1. / dhNearPlane));
+#endif
 
 #ifdef WATER_EFFECTS
+
     #ifdef REFRACTION
     if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
 
@@ -216,7 +219,14 @@ void main() {
     #endif
 
     depth       = getDepth(coord);
-    linearDepth = min( linearizeDepthf(depth, nearInverse), 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
+    linearDepth = linearizeDepthf(depth, nearInverse);
+
+#if defined DISTANT_HORIZONS
+	dhDepth     = getDepthDH(coord);
+    linearDepth = min(linearDepth, linearizeDepthf(dhDepth, 1. / dhNearPlane));
+#endif
+
+    linearDepth = min(linearDepth, 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
     #ifdef PBR
     vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);

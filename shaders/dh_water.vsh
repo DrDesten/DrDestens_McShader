@@ -35,7 +35,7 @@ void main() {
     viewPos     = getView();
     gl_Position = getPosition();
     
-	#ifdef TAA
-		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
-	#endif
+#ifdef TAA
+    gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
+#endif
 }

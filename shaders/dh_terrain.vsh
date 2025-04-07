@@ -77,7 +77,7 @@ void main() {
     glcolor.a = shade;
     normal    = viewNormal;
     
-	#ifdef TAA
-		gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
-	#endif
+#ifdef TAA
+    gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
+#endif
 }

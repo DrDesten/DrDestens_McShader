@@ -85,28 +85,32 @@ void main() {
 		mat3 tbn     = cotangentFrame(surfaceNormal, -viewPos, gl_FragCoord.xy * screenSizeInverse);
         vec3 viewDir = normalize(viewPos);
         
-        #ifdef WATER_TEXTURE_VISIBLE
-            color.rgb = sq(color.rgb * getCustomLightmap(lightmap, customLightmapBlend)) * 0.75;
+#ifdef WATER_TEXTURE_VISIBLE
+        color.rgb = sq(color.rgb * getCustomLightmap(lightmap, customLightmapBlend)) * 0.75;
+#else
+        color.rgb = vec3(0);
+        color.a   = 0;
+#endif
+
+#if WATER_NORMALS != 0
+        vec3  worldPos   = playerPos + cameraPosition;
+        float surfaceDot = dot(viewDir, surfaceNormal);
+
+        #if WATER_NORMALS == 1
+        
+            vec2  seed        = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
+            float blend       = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));
+            vec3  waveNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
+
         #else
-            color.rgb          = vec3(0);
-            color.a            = 0;
+
+            float blend       = saturate(-surfaceDot * 3);
+            vec3  waveNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
+
         #endif
 
-        #if WATER_NORMALS != 0
-            vec3  worldPos   = playerPos + cameraPosition;
-            float surfaceDot = dot(viewDir, surfaceNormal);
-
-            #if WATER_NORMALS == 1
-                vec2  seed        = (worldPos.xz * WATER_NORMALS_SIZE) + (frameTimeCounter * 0.5);
-                float blend       = saturate(map(abs(surfaceDot), 0.005, 0.2, 0.05, 1));
-                vec3  waveNormals = noiseNormals(seed, WATER_NORMALS_AMOUNT * 0.1 * blend);
-            #else 
-                float blend       = saturate(-surfaceDot * 3);
-                vec3  waveNormals = waterNormalsSine(worldPos, frameTimeCounter, WATER_NORMALS_AMOUNT * blend);
-            #endif
-
-            surfaceNormal = normalize(tbn * waveNormals);
-        #endif
+        surfaceNormal = normalize(tbn * waveNormals);
+#endif
 
     }
 
