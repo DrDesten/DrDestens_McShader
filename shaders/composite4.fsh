@@ -25,8 +25,6 @@
 #ifdef DEPTH_OF_FIELD
 #include "/lib/dof.glsl"
 uniform float centerDepthSmooth;
-uniform float near;
-uniform float far;
 #endif
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;

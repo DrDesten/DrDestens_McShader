@@ -10,7 +10,6 @@
 #include "/lib/composite/id.glsl"
 #include "/lib/composite/lightmap.glsl"
 
-uniform float nearInverse;
 uniform float aspectRatio;
 
 uniform int   frameCounter;

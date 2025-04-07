@@ -24,7 +24,6 @@
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
 uniform float frameTimeCounter;
-uniform float far;
 #include "/lib/sky.glsl"
 #include "/lib/stars.glsl"
 #include "/lib/lightmap.glsl"

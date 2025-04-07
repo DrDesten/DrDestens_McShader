@@ -32,7 +32,6 @@ uniform float isInvisibleSmooth;
 
 uniform float frameTimeCounter;
 #if FOG != 0 || (defined GODRAYS && defined OVERWORLD)
-uniform float far;
 #include "/lib/sky.glsl"
 #endif
 

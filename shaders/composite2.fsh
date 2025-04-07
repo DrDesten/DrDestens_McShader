@@ -18,7 +18,6 @@
 #include "/core/transform.glsl"
 
 uniform float frameTimeCounter;
-uniform float far;
 #include "/lib/sky.glsl"
 
 uniform sampler2D depthtex1;
@@ -32,7 +31,6 @@ uniform sampler2D depthtex1;
 #include "/core/dh/textures.glsl"
 #include "/core/dh/transform.glsl"
 
-uniform float nearInverse;
 uniform float aspectRatio;
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
@@ -47,10 +45,14 @@ struct position { // A struct for holding positions in different spaces
 };
 
 vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
-    vec4 screenPos    = backToClipW(reflection) * .5 + .5;
+    vec4 screenPos = backToScreenW(reflection);
     if (
-        clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || 
-        screenPos.w <= .5 || getDepth(screenPos.xy) == 1
+        clamp(screenPos.xy, vec2(-.5 * SSR_DEPTH_TOLERANCE, -.1), vec2(.5 * SSR_DEPTH_TOLERANCE + 1., 1.1)) != screenPos.xy || screenPos.w <= .5 
+#if ! defined DISTANT_HORIZONS
+    || getDepth(screenPos.xy) == 1
+#else 
+    || (getDepth(screenPos.xy) == 1 && getDepthDH(screenPos.xy) == 1)
+#endif
     ) {
         return vec4(0);
     }
@@ -60,7 +62,7 @@ vec4 CubemapStyleReflection(vec3 viewPos, vec3 reflection) {
     vec2 hit = distortClamp(screenPos.xy);
     return vec4(
         getAlbedo(hit),
-        smoothstep(0, 1, 3.5 - 3.5 * max(abs(hit.x * 1.5 - .75), abs(hit.y * 2 - 1)))
+        saturate(1 - 25 * sqmag(saturate(screenPos.xy) - screenPos.xy))
     );
 
     #else
@@ -154,7 +156,8 @@ vec4 efficientSSR(position pos, vec3 reflection) {
     float dither  = Bayer4(gl_FragCoord.xy) * 0.2;
     vec3  rayPos  = rayStep * dither + pos.screen;
 
-    float depthTolerance = max(abs(rayStep.z) * 3, .02 / sq(pos.view.z)) * SSR_DEPTH_TOLERANCE; // Increase depth tolerance when close, because it is usually too small in these situations
+    // Increase depth tolerance when close, because it is usually too small in these situations
+    float depthTolerance = max(abs(rayStep.z) * 3, .02 / sq(pos.view.z)) * SSR_DEPTH_TOLERANCE; 
 
     float hitDepth = 0;
     for (int i = 0; i < SSR_STEPS; i++) {
@@ -170,7 +173,7 @@ vec4 efficientSSR(position pos, vec3 reflection) {
 
             return vec4(
                 getAlbedo(rayPos.xy),
-                smoothstep(0, 1, 3.5 - 3.5 * max(abs(rayPos.x * 1.5 - .75), abs(rayPos.y * 2 - 1)))
+                saturate(1 - 25 * sqmag(saturate(rayPos.xy) - rayPos.xy))
             );
 
             #else

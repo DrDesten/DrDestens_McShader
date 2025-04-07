@@ -3,7 +3,9 @@ uniform float frameTimeCounter;
 
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
+
 #include "/core/math.glsl"
+#include "/core/transform.glsl"
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
@@ -14,11 +16,9 @@ uniform float frameTimeCounter;
 
 #include "/core/dh/uniforms.glsl"
 #include "/core/dh/transform.glsl"
-#include "/core/transform.glsl"
+#include "/core/dh/discard.glsl"
 
 uniform sampler2D depthtex0;
-uniform float near;
-uniform float far;
 uniform vec2 screenSize;
 uniform vec2 screenSizeInverse;
 
@@ -50,14 +50,13 @@ layout(location = 3) out vec4 FragOut3;
 void main() {
     vec3 lightmap  = vec3(lmcoord, 1);
     vec3 playerPos = toPlayer(viewPos);
-    vec3 worldPos  = toWorld(playerPos);
     vec3 surfaceNormal = normal;
 
     // Discarding Logic
     
 #ifdef DH_TRANSPARENT_DISCARD
     float borderTolerance = (materialId == DH_BLOCK_WATER ? 0 : 1e-5) + DH_TRANSPARENT_DISCARD_TOLERANCE;
-    if ( discardDH(worldPos, borderTolerance) ) {
+    if ( discardDHSimple(playerPos) ) {
         discard;
     }
 #else

@@ -27,8 +27,6 @@ const bool    colortex0MipmapEnabled = true; //Enabling Mipmapping
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 
-uniform float near;
-uniform float far;
 uniform float aspectRatio;
 
 /* DRAWBUFFERS:04 */

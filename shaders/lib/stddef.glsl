@@ -22,3 +22,10 @@
 // Macro shorthands
 
 #define SUPPORTS_RENDERSTAGE ( MC_VERSION >= 11605 )
+
+
+#if defined DISTANT_HORIZONS
+    #define DH(expression) expression
+#else 
+    #define DH(expression) 
+#endif

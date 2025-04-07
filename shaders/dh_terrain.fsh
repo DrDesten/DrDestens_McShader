@@ -7,6 +7,10 @@
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
+#include "/lib/pbr/gbuffers.glsl"
+#include "/lib/pbr/pbr.glsl"
+
+#include "/core/dh/discard.glsl"
 
 flat in vec3 normal;
 in vec2 lmcoord;
@@ -32,7 +36,7 @@ layout(location = 3) out vec4 FragOut3;
 void main() {
     bool isCloud =  worldPos.y > 500; 
 #ifdef DH_TERRAIN_DISCARD
-    if ( !isCloud && discardDH(worldPos, DH_TERRAIN_DISCARD_TOLERANCE) ) {
+    if ( !isCloud && discardDHSimple(backToPlayer(worldPos)) ) {
         discard;
     }
 #endif
@@ -67,8 +71,24 @@ void main() {
 
     }
 
+#ifdef PBR
+
+    MaterialTexture material;
+    material.roughness = 0.8;
+    material.reflectance = 0.0;
+    material.height = 1.0;
+    material.emission = 0.0;
+
+    if (materialId == DH_BLOCK_LAVA) {
+        material.emission = 1.0;
+    }
+
+#else 
+
     color.rgb = gamma(color.rgb);
-    
+
+#endif
+
     if (lightmap.x > 14.5/15.) {
         color.rgb *= ( 1 + EMISSION_STRENGTH );
     }
@@ -78,6 +98,6 @@ void main() {
 	FragOut2 = vec4(codeID(0), vec3(1));
 	FragOut3 = vec4(lightmap, 1);
 #ifdef PBR
-	FragOut4 = vec4(0,0,0,1);
+	FragOut4 = encodeMaterial(material);
 #endif
 }
