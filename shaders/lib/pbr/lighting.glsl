@@ -78,7 +78,7 @@ vec3 CookTorrance_custom(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, v
 
     float D = NDF_GGX(NdotH, roughness);
     float G = G_Smith(NdotL, NdotV, k);
-    vec3  F = Fresnel(NdotH, f0);
+    vec3  F = Fresnel(NdotH, f0) * min(f0, vec3(0.1));
 
     vec3 kS = F;
     vec3 kD = 1 - kS;

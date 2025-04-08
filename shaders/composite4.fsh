@@ -45,9 +45,9 @@ vec3 clipAABB(vec3 color, vec3 minAABB, vec3 maxAABB) {
         return color; // point inside aabb
 }
 
-vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut) {
-    vec3 mins = vec3(1e35);
-    vec3 maxs = vec3(0);
+vec4 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut) {
+    vec3 minsrc = vec3(1e35);
+    vec3 maxsrc = vec3(0);
     vec3 m1 = vec3(0);
     vec3 m2 = vec3(0);
 
@@ -65,8 +65,8 @@ vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
             sourceColor  += scol * sweight;
             sourceWeight += sweight;
 
-            mins = min(mins, scol);
-            maxs = max(maxs, scol);
+            minsrc = min(minsrc, scol);
+            maxsrc = max(maxsrc, scol);
             m1  += scol;
             m2  += sq(scol);
             
@@ -76,15 +76,17 @@ vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
     sourceColor /= sourceWeight;
     sourceColorOut = sourceColor;
 
-    vec3 mu    = m1 * (1./9);
-    vec3 sigma = sqrt(abs(m2 * (1./9) - sq(mu)));
-    vec3 minc  = mu - sigma * 0.75;
-    vec3 maxc  = mu + sigma * 0.75;
+    vec3 mu     = m1 * (1./9);
+    vec3 sigma  = sqrt(abs(m2 * (1./9) - sq(mu)));
+    vec3 mincol = mu - sigma * 0.75;
+    vec3 maxcol = mu + sigma * 0.75;
 
-    historyColor = clamp(historyColor, mins, maxs);
-    historyColor = clipAABB(historyColor, minc, maxc);
+    vec3 historyPreClamp = historyColor;
 
-    return historyColor;
+    historyColor = clamp(historyColor, minsrc, maxsrc);
+    historyColor = clipAABB(historyColor, mincol, maxcol);
+
+    return vec4(historyColor, 1);
 }
 
 #ifdef TAA 
@@ -114,12 +116,16 @@ void main() {
 
         #ifndef TAA_NOCLIP
 
-        historyColor = neighborhoodClamp(ivec2(gl_FragCoord.xy), historyColor, sourceColor);
+        vec4 clampResult = neighborhoodClamp(ivec2(gl_FragCoord.xy), historyColor, sourceColor);
+        historyColor     = clampResult.rgb;
+        historyWeight   *= clampResult.a;
 
         #endif
 
         vec3 color    = mix(sourceColor, historyColor, historyWeight);
         vec3 TAAcolor = max(color, 0.0);
+
+        //color = clampResult.aaa;
 
     #else 
 

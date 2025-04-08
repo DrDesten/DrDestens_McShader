@@ -55,13 +55,7 @@ void main() {
     // Discarding Logic
     
 #ifdef DH_TRANSPARENT_DISCARD
-    float borderTolerance = (materialId == DH_BLOCK_WATER ? 0 : 1e-5) + DH_TRANSPARENT_DISCARD_TOLERANCE;
-    if ( discardDHSimple(playerPos) ) {
-        discard;
-    }
-#else
-    float fade = smoothstep( dhNearPlane, min(dhNearPlane * 2 + 32, far * 0.5), -viewPos.z ) - sq(Bayer8(gl_FragCoord.xy));
-    if ( fade < 0 ) {
+    if ( discardDHDithered(playerPos, gl_FragCoord.xy) ) {
         discard;
     }
 #endif

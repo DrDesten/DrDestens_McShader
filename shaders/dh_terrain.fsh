@@ -36,7 +36,7 @@ layout(location = 3) out vec4 FragOut3;
 void main() {
     bool isCloud =  worldPos.y > 500; 
 #ifdef DH_TERRAIN_DISCARD
-    if ( !isCloud && discardDHSimple(backToPlayer(worldPos)) ) {
+    if ( !isCloud && discardDHDithered(backToPlayer(worldPos), gl_FragCoord.xy) ) {
         discard;
     }
 #endif
