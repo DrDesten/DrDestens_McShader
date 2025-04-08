@@ -91,7 +91,7 @@ vec3 CookTorrance_custom(vec3 ambientAlbedo, vec3 N, vec3 V, vec3 L, float rough
 
     vec3  BRDF  = (
         ambientAlbedo * ((kD * NdotL) * 0.5/PI + 0.5/PI) +
-        spec * NdotL
+        spec * sq(NdotL)
     ) * radiance;
     return BRDF;
 }
