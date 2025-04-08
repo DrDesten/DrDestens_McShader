@@ -232,7 +232,7 @@ void main() {
     float linearDepth = linearizeDepthf(depth, nearInverse);
     
 #if defined DISTANT_HORIZONS
-	float dhDepth     = getDepthDH(coord);
+	float dhDepth     = getDepthDH(ivec2(gl_FragCoord.xy));
     linearDepth       = min(linearDepth, linearizeDepthf(dhDepth, 1. / dhNearPlane));
 #endif
 

@@ -15,6 +15,8 @@
 
 #if defined TAA || defined DEPTH_OF_FIELD
 #include "/core/transform.glsl"
+#include "/core/dh/textures.glsl"
+#include "/core/dh/transform.glsl"
 #endif
 
 #ifdef TAA
@@ -58,7 +60,7 @@ vec4 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
 
-            float sweight = sincWindowed(x - jitterOffset.x) * sincWindowed(y - jitterOffset.y);
+            float sweight = triangle(x - jitterOffset.x) * triangle(y - jitterOffset.y);
             ivec2 scoord  = icoord + ivec2(x, y);
             vec3  scol    = getAlbedo(scoord);
 
@@ -99,9 +101,24 @@ layout(location = 1) out vec4 FragOut1;
 
 void main() {
     #ifdef TAA
-        float depth        = getDepth(coord);
+        float depth        = getDepth(ivec2(gl_FragCoord.xy));
         vec3  screenPos    = vec3(coord, depth);
+
+        #if ! defined DISTANT_HORIZONS
+
         vec3  reprojectPos = reprojectTAA(screenPos);
+
+        #else
+
+        vec3  reprojectPos;
+        if (depth < 1) {
+            reprojectPos = reprojectTAA(screenPos);
+        } else {
+            reprojectPos = reprojectTAADH(vec3(coord, getDepthDH(ivec2(gl_FragCoord.xy))));
+        }
+
+        #endif
+
         vec4  lastFrame    = texture(colortex5, reprojectPos.xy);
 
         // Anti - Ghosting
@@ -114,18 +131,17 @@ void main() {
 
         historyWeight *= float(saturate(reprojectPos.xy) == reprojectPos.xy);
 
+        vec4 clampResult = neighborhoodClamp(ivec2(gl_FragCoord.xy), historyColor, sourceColor);
+        
         #ifndef TAA_NOCLIP
 
-        vec4 clampResult = neighborhoodClamp(ivec2(gl_FragCoord.xy), historyColor, sourceColor);
         historyColor     = clampResult.rgb;
         historyWeight   *= clampResult.a;
 
         #endif
 
-        vec3 color    = mix(sourceColor, historyColor, historyWeight);
-        vec3 TAAcolor = max(color, 0.0);
-
-        //color = clampResult.aaa;
+        vec3 color    = max(mix(sourceColor, historyColor, historyWeight), 0.0);
+        vec3 TAAcolor = color;
 
     #else 
 
