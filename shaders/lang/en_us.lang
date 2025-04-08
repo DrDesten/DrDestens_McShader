@@ -196,8 +196,6 @@ option.PBR_FORMAT=PBR Format
 value.PBR_FORMAT.1=LabPBR 1.3
 value.PBR_FORMAT.2=SeusPBR / OldPBR
 
-option.RESOURCE_PACK_RESOLUTION=Resource Pack Resolution
-
 option.PBR=PBR
 option.PBR.comment=Enables Physically Based Rendering. Make sure you enable Normal and Specular mapsm in the OptiFine shader options.
 

@@ -30,6 +30,9 @@ in vec2 lmcoord;
 in vec2 coord;
 in vec4 glcolor;
 
+flat in vec2 spriteSize;
+flat in vec2 midTexCoord;
+
 #ifdef PBR
 /* DRAWBUFFERS:01237 */
 layout(location = 0) out vec4 FragOut0;
@@ -70,35 +73,33 @@ void main() {
 	lightmap.z                 *= material.ao;
 
 	normal      = normalize(tbn * material.normal);
-/*
+	
 	#ifdef POM_ENABLED
 	#ifdef POM_SMOOTH
 
-		// Getting the Atlas Coordinates
 		vec2  pcoord   = coord * atlasSize;
 		vec2  interpol = fract(pcoord - 0.5);
 
-		// Getting the in-block corrdinates to be able to wrap around
-		vec2  blockcoord       = floor(pcoord * RESOURCE_PACK_RESOLUTION_INVERSE) * RESOURCE_PACK_RESOLUTION;
-		vec2  intrablockcoord  = pcoord - blockcoord;
-
+		vec2  imidtexcoord    = midTexCoord * atlasSize;
+		vec2  ispritesize     = spriteSize * atlasSize;
+		vec2  blockcoord      = imidtexcoord - ispritesize;
+		vec2  intrablockcoord = pcoord - blockcoord;
+		
 		// Sample All four pixel corners
 		vec4 heightSamples = vec4(
-			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0))
+			readHeight(texelFetch(normals, ivec2(blockcoord + clamp(intrablockcoord + vec2(-.5,-.5), vec2(0), ispritesize * 2)), 0), vec4(0)),
+			readHeight(texelFetch(normals, ivec2(blockcoord + clamp(intrablockcoord + vec2( .5,-.5), vec2(0), ispritesize * 2)), 0), vec4(0)),
+			readHeight(texelFetch(normals, ivec2(blockcoord + clamp(intrablockcoord + vec2(-.5, .5), vec2(0), ispritesize * 2)), 0), vec4(0)),
+			readHeight(texelFetch(normals, ivec2(blockcoord + clamp(intrablockcoord + vec2( .5, .5), vec2(0), ispritesize * 2)), 0), vec4(0))
 		);
-
+		
 		float heightX1 = mix(heightSamples.x, heightSamples.y, interpol.x);
 		float heightX2 = mix(heightSamples.z, heightSamples.w, interpol.x);
 
-		height = mix(heightX1, heightX2, interpol.y);
-
+		materialTexture.height = mix(heightX1, heightX2, interpol.y);
 
 	#endif
 	#endif
-*/
 
 #else
 

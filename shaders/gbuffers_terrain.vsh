@@ -25,6 +25,8 @@ out vec2 lmcoord;
 out vec2 coord;
 out vec4 glcolor;
 
+flat out vec2 spriteSize;
+flat out vec2 midTexCoord;
 
 vec3 wavyPlants(vec3 worldPos, float amount) {
 	vec2 time    = vec2(frameTimeCounter * 1.5, -frameTimeCounter * 2);
@@ -43,6 +45,9 @@ void main() {
 	tbn     = getTBN(at_tangent);
 	blockId = getID(mc_Entity);
 	glcolor = gl_Color;
+	
+	spriteSize  = abs(coord - mc_midTexCoord.xy);
+	midTexCoord = mc_midTexCoord.xy;
 
 	if (!(1030 <= mc_Entity.x && mc_Entity.x <= 1032)) glcolor.a *= oldLighting(tbn[2], gbufferModelView);
 	

@@ -81,7 +81,7 @@ const float lightmap_complex_blocklight_blend_curve = ( ((100 - LIGHTMAP_COMPLEX
 
 #define SCREEN_SPACE_AMBIENT_OCCLUSION
 #define SSAO_QUALITY 1                  // SSAO Quality                                 [1 2 3]
-#define SSAO_STRENGTH 0.90              // SSAO Strength                                [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
+#define SSAO_STRENGTH 0.25              // SSAO Strength                                [0.00  0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00]
 
 //#define GLASS_REFLECTIONS
 #ifdef GLASS_REFLECTIONS // I have to add this so that optifine recognizes the option (maybe?)
@@ -148,8 +148,6 @@ const float chromaticAberrationDoF = float(DOF_CHROMATIC_ABERRATION) * 0.1;
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #define PBR_FORMAT 1                   // [1 2]
-#define RESOURCE_PACK_RESOLUTION 16   // [4 8 16 32 64 128 256 512 1024 2048 4096]
-const float RESOURCE_PACK_RESOLUTION_INVERSE = 1./RESOURCE_PACK_RESOLUTION;
 
 //#define PBR
 #define FRAG_NORMALS            // Calculates the TBN matrix in the fragment instead of in the vertex shader (more performance intensive, but fixes at_tangent not working for some elements of the game)

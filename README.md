@@ -21,7 +21,6 @@ labPBR and OldPBR/SeusPBR support
 &emsp;Enables Physically Based Rendering  
 &emsp;Make sure you enable Normal and Specular mapsm in the OptiFine shader options
  - PBR Format - *LabPBR 1.3, SeusPBR / OldPBR*
- - Resource Pack Resolution
  - **Physically Based Rendering**
    - Height as AO  
 &emsp;Uses the Height information for Ambient occlusion
