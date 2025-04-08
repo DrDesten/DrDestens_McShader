@@ -57,6 +57,7 @@ vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
 
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
+
             float sweight = sincWindowed(x - jitterOffset.x) * sincWindowed(y - jitterOffset.y);
             ivec2 scoord  = icoord + ivec2(x, y);
             vec3  scol    = getAlbedo(scoord);
@@ -68,6 +69,7 @@ vec3 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
             maxs = max(maxs, scol);
             m1  += scol;
             m2  += sq(scol);
+            
         }
     }
 

@@ -267,7 +267,6 @@ void main() {
         float fresnel        = customFresnel(viewDir, normal, 0.05, 1, 3);
         vec3  reflectViewDir = reflect(viewDir, normal);
 
-
         #if SSR_MODE == 3
 
         position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
@@ -299,16 +298,22 @@ void main() {
         #endif
         
         #if FOG != 0
+
         vec3  playerPos = toPlayerEye(viewPos);
         float fog       = getFogFactor(playerPos);
         color = mix(color, reflection.rgb, fresnel);
         color = mix(color, getFog(normalize(playerPos)), fog);
+
         #else
+
         color = mix(color, reflection.rgb, fresnel);
+
         #endif
 
         #ifdef SSR_DEBUG
+
         color = vec3(0, reflection.a, fresnel);
+
         #endif
 
 #endif
@@ -358,13 +363,17 @@ void main() {
         );
         
         #if FOG != 0
+
         vec3  playerPos = toPlayerEye(viewPos);
         float fog       = getFogFactor(playerPos);
-        color = mix(color, getFog(normalize(playerPos)), fog);
+        color           = mix(color, getFog(normalize(playerPos)), fog);
+
         #endif
 
         #ifdef SSR_DEBUG
+
         color = vec3(avg(fresnel), reflection.a, 0);
+
         #endif
 
     }

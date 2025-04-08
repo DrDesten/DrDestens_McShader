@@ -114,6 +114,10 @@ void main() {
 
 		MaterialTexture matTex   = getPBR(ivec2(gl_FragCoord.xy));
 		Material        material = getMaterial(matTex, lightmap, color);
+
+		if (id >= 30 && id <= 33 ) {
+			material.subsurface = 1;
+		}
 		
 		vec3 PBRColor = RenderPBR(material, normal, viewDir, lightmapColor);
 		color.rgb     = PBRColor;

@@ -37,7 +37,7 @@ vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
 
-    float radiance = 5;
+    float radiance = 7;
 
     float k = sq(roughness + 1) / 8;
 
@@ -61,18 +61,18 @@ vec3 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness,
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
 
-    float radiance = 5;
+    float radiance = 7;
     vec3  BRDF     = (albedo / PI) * radiance * NdotL;
 
     return (BRDF);
 }
-vec3 CookTorrance_speconly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+vec3 CookTorrance_custom(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     vec3  H     = normalize(V + L);
     float NdotH = saturate(dot(N, H));
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
 
-    float radiance = 3;
+    float radiance = 7;
 
     float k = sq(roughness + 1) / 8;
 
@@ -160,18 +160,11 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
     // Total BRDF brightness
     float brightness = sq(sq(mat.lightmap.y)) * mat.ao * lightBrightness;
 
-	float ao 		 = mat.ao;
 #ifdef HEIGHT_AO
-    ao              *= sq(mat.height);
+    mat.ao *= sq(mat.height);
 #endif
 
-	float roughness  = mat.roughness;
-	vec3  f0 		 = mat.f0;
-
-    float subsurf    = mat.subsurface;
-    float porosity   = mat.porosity;
-
-	float emission   = mat.emission * 4;
+	mat.emission *= 4;
 
     vec3  lightDir   = normalize(lightPosition);
     viewDir          = -viewDir;
@@ -182,22 +175,22 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 
     // Get PBR Material
 #ifdef OVERWORLD
-    vec3 color = CookTorrance_speconly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
+    vec3 color = CookTorrance_custom(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
 #else
-    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, roughness, f0, specBlend);
+    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
 #endif
 
     color *= brightness; //Reduce brightness at night and according to minecrafts abient light
     
 #ifdef SUBSURAFCE_SCATTERING
-    if (subsurf >= 0.1) {
-    vec3 SSSc   = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, subsurf) * brightness;
-    color   += SSSc;
+    if (mat.subsurface >= 0.1) {
+        vec3 SSSc = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, mat.subsurface) * brightness;
+        color    += SSSc;
     }
 #endif
 
     // Emission and Ambient Light
-	color += mat.albedo * (ambient * ao + emission);
+	color += mat.albedo * (ambient * mat.ao + mat.emission);
     color  = max(color, 0); // Prevent Negative values
 	return color;
 }

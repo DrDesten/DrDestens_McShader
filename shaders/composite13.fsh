@@ -165,22 +165,20 @@ layout(location = 0) out vec4 FragOut0;
 
 void main() {
     
-    #ifdef RAIN_REFRACTION
+#ifdef RAIN_REFRACTION
+
     if (getID(coord) == 53) {
         float depth = pow(getDepth(coord), 250);
         coord      += depth * RAIN_REFRACTION_STRENGTH * -(RAIN_REFRACTION_STRENGTH * .5);
     }
-    #endif
+    
+#endif
 
-    #if CHROMATIC_ABERRATION != 0
-        vec3 color = ChromaticAbberation_HQ(coord, chromaticAberrationSimple, 5);
-    #else
-        vec3 color = getAlbedo(coord);
-    #endif
+#ifdef BLOOM
 
-    #ifdef BLOOM
-        color += sq( getBloom(coord, BLOOM_RADIUS) * BLOOM_AMOUNT);
-    #endif
+    color += sq( getBloom(coord, BLOOM_RADIUS) * BLOOM_AMOUNT);
+
+#endif
 
     #if TONEMAP == 1
     color = tm_reinhard_sqrt(color * EXPOSURE, .5); // Tone mapping 
@@ -189,29 +187,41 @@ void main() {
     color = tm_unreal(color * EXPOSURE); // Tone mapping
     #endif
 
-    #if CONTRAST != 0
-		const float contrastAmount = 1 / (1 - (CONTRAST / 300. + 0.5)) - 1;
-		color = applyContrast(color, contrastAmount);
-	#endif
-	#if VIBRANCE != 0
-		const float vibranceAmount = (VIBRANCE / 100.);
-		color = applyVibrance(color, vibranceAmount);
-	#endif
-	#if SATURATION != 0
-		const float saturationAmount = SATURATION / 100. + 1.;
-		color = applySaturation(color, saturationAmount);
-	#endif
-	#if BRIGHTNESS != 0
-		const float brightnessAmount      = 1 / (BRIGHTNESS / 250. + 0.5) - 1;
-		const float brightnessColorOffset = abs(BRIGHTNESS - 50.) / 500.;
-		color = applyBrightness(color, brightnessAmount, brightnessColorOffset);
-	#endif
+#if CONTRAST != 0
 
-    #if VIGNETTE == 1
-		color *= roundVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
-	#elif VIGNETTE == 2
-		color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
-	#endif
+    const float contrastAmount = 1 / (1 - (CONTRAST / 300. + 0.5)) - 1;
+    color = applyContrast(color, contrastAmount);
+
+#endif
+#if VIBRANCE != 0
+
+    const float vibranceAmount = (VIBRANCE / 100.);
+    color = applyVibrance(color, vibranceAmount);
+
+#endif
+#if SATURATION != 0
+
+    const float saturationAmount = SATURATION / 100. + 1.;
+    color = applySaturation(color, saturationAmount);
+
+#endif
+#if BRIGHTNESS != 0
+
+    const float brightnessAmount      = 1 / (BRIGHTNESS / 250. + 0.5) - 1;
+    const float brightnessColorOffset = abs(BRIGHTNESS - 50.) / 500.;
+    color = applyBrightness(color, brightnessAmount, brightnessColorOffset);
+
+#endif
+
+#if VIGNETTE == 1
+
+    color *= roundVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
+
+#elif VIGNETTE == 2
+
+    color *= squareVignette(coord) * VIGNETTE_STRENGTH + (1 - VIGNETTE_STRENGTH);
+
+#endif
 
     vec4 weather = texture(colortex6, coord);
     color = mix(color, weather.rgb, weather.a);

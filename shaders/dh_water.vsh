@@ -26,16 +26,16 @@ void main() {
     
     vec4 vertexPos = gl_Vertex;
 
+#ifdef TAA
+    vertexPos.xy += taaOffset * TAA_JITTER_AMOUNT * vertexPos.w * 2;
+#endif
+
     // Move down to match vanilla
     if (materialId == DH_BLOCK_WATER) {
         vertexPos.y -= 1.8/16.0;
     }
 
     normal      = getNormal();
-    viewPos     = getView();
-    gl_Position = getPosition();
-    
-#ifdef TAA
-    gl_Position.xy += taaOffset * TAA_JITTER_AMOUNT * gl_Position.w * 2;
-#endif
+    viewPos     = getView(vertexPos);
+    gl_Position = getPosition(vertexPos);
 }

@@ -11,6 +11,7 @@ uniform int worldTime;
 
 #include "/lib/pbr/gbuffers.glsl"
 #include "/lib/pbr/pbr.glsl"
+#include "/lib/pbr/generate.glsl"
 
 #ifdef POM_ENABLED
 #ifdef POM_SMOOTH
@@ -50,75 +51,78 @@ void main() {
 	vec4 color    = getAlbedo(coord);
 	color.rgb    *= glcolor.rgb;
 	
-	#ifdef WHITE_WORLD
-	    color.rgb = vec3(1);
-	#endif
-	
-	#ifdef PBR
+#ifdef PBR
 
-		MaterialTexture materialTexture;
+	MaterialTexture materialTexture;
 
-		vec4 normalTex       = NormalTex(coord);
-		vec4 specularTex     = SpecularTex(coord);
-		RawMaterial material = readMaterial(normalTex, specularTex);
+	vec4 normalTex       = NormalTex(coord);
+	vec4 specularTex     = SpecularTex(coord);
+	RawMaterial material = readMaterial(normalTex, specularTex);
 
-		materialTexture.roughness   = material.roughness;
-		materialTexture.reflectance = material.reflectance;
-		materialTexture.emission    = material.emission;
-		materialTexture.height      = material.height;
-		lightmap.z                 *= material.ao;
+#ifdef GENERATE_PBR
 
-		normal      = normalize(tbn * material.normal);
+#endif
+
+	materialTexture.roughness   = material.roughness;
+	materialTexture.reflectance = material.reflectance;
+	materialTexture.emission    = material.emission;
+	materialTexture.height      = material.height;
+	lightmap.z                 *= material.ao;
+
+	normal      = normalize(tbn * material.normal);
 /*
-		#ifdef POM_ENABLED
-		#ifdef POM_SMOOTH
+	#ifdef POM_ENABLED
+	#ifdef POM_SMOOTH
 
-			// Getting the Atlas Coordinates
-			vec2  pcoord   = coord * atlasSize;
-			vec2  interpol = fract(pcoord - 0.5);
+		// Getting the Atlas Coordinates
+		vec2  pcoord   = coord * atlasSize;
+		vec2  interpol = fract(pcoord - 0.5);
 
-			// Getting the in-block corrdinates to be able to wrap around
-			vec2  blockcoord       = floor(pcoord * RESOURCE_PACK_RESOLUTION_INVERSE) * RESOURCE_PACK_RESOLUTION;
-			vec2  intrablockcoord  = pcoord - blockcoord;
+		// Getting the in-block corrdinates to be able to wrap around
+		vec2  blockcoord       = floor(pcoord * RESOURCE_PACK_RESOLUTION_INVERSE) * RESOURCE_PACK_RESOLUTION;
+		vec2  intrablockcoord  = pcoord - blockcoord;
 
-			// Sample All four pixel corners
-			vec4 heightSamples = vec4(
-				extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-				extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-				extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
-				extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0))
-			);
+		// Sample All four pixel corners
+		vec4 heightSamples = vec4(
+			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
+			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5,-.5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
+			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2(-.5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0)),
+			extractHeight(texelFetch(normals, ivec2(blockcoord + mod(intrablockcoord + vec2( .5, .5), vec2(RESOURCE_PACK_RESOLUTION))), 0), vec4(0))
+		);
 
-			float heightX1 = mix(heightSamples.x, heightSamples.y, interpol.x);
-			float heightX2 = mix(heightSamples.z, heightSamples.w, interpol.x);
+		float heightX1 = mix(heightSamples.x, heightSamples.y, interpol.x);
+		float heightX2 = mix(heightSamples.z, heightSamples.w, interpol.x);
 
-			height = mix(heightX1, heightX2, interpol.y);
+		height = mix(heightX1, heightX2, interpol.y);
 
 
-		#endif
-		#endif
+	#endif
+	#endif
 */
 
-	#else
+#else
 
-		#ifdef DIRECTIONAL_LIGHTMAP
-			vec2 blockLightDir = getBlocklightDir(lightmap, mat2(tbn));
-			vec3 normalMap     = extractNormal(NormalTex(coord), vec4(0));
+#ifdef DIRECTIONAL_LIGHTMAP
+	vec2 blockLightDir = getBlocklightDir(lightmap, mat2(tbn));
+	vec3 normalMap     = extractNormal(NormalTex(coord), vec4(0));
 
-			// Blocklight
-			float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lightmap.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
-			lightmap.x *= saturate(1 - sq(1 - blockLightShade));
-			lightmap.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens		
-		#endif
+	// Blocklight
+	float blockLightShade = saturate( dot(normalMap, normalize(vec3( blockLightDir, lightmap.x ))) ) * DIRECTIONAL_LIGHTMAP_STRENGTH + (1. - DIRECTIONAL_LIGHTMAP_STRENGTH);
+	lightmap.x *= saturate(1 - sq(1 - blockLightShade));
+	lightmap.x += 0.03125; // Lightmap coordinates have to be at least 0.03125, else funky stuff happens		
+#endif
 
-		color.rgb = gamma(color.rgb);
+	color.rgb = gamma(color.rgb);
 
-		if (lightmap.x > 14.5/15.) {
-			color.rgb *= ( 1 + EMISSION_STRENGTH );
-		}
-		
-	#endif
+	if (lightmap.x > 14.5/15.) {
+		color.rgb *= ( 1 + EMISSION_STRENGTH );
+	}
+	
+#endif
 
+#ifdef WHITE_WORLD
+	color.rgb = vec3(1);
+#endif
 
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);

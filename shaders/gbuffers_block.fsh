@@ -26,15 +26,18 @@ in vec2 coord;
 
 #ifdef PBR
 /* DRAWBUFFERS:01237 */
-#else
-/* DRAWBUFFERS:0123 */
-#endif
-
 layout(location = 0) out vec4 FragOut0;
 layout(location = 1) out vec4 FragOut1;
 layout(location = 2) out vec4 FragOut2;
 layout(location = 3) out vec4 FragOut3;
 layout(location = 4) out vec4 FragOut4;
+#else
+/* DRAWBUFFERS:0123 */
+layout(location = 0) out vec4 FragOut0;
+layout(location = 1) out vec4 FragOut1;
+layout(location = 2) out vec4 FragOut2;
+layout(location = 3) out vec4 FragOut3;
+#endif
 
 void main() {
 	vec3 lightmap = vec3(lmcoord, glcolor.a);
@@ -42,35 +45,38 @@ void main() {
 	vec4 color    = getAlbedo(coord);
 	color.rgb    *= glcolor.rgb;
 
-	#ifdef WHITE_WORLD
-	    color.rgb = vec3(1);
-	#endif
+#ifdef WHITE_WORLD
+	color.rgb = vec3(1);
+#endif
 
-	#ifdef PBR
+#ifdef PBR
 
-		float roughness, reflectance, emission, height;
+	MaterialTexture materialTexture;
 
-		vec4 normalTex       = NormalTex(coord);
-		vec4 specularTex     = SpecularTex(coord);
-		RawMaterial material = readMaterial(normalTex, specularTex);
+	vec4 normalTex       = NormalTex(coord);
+	vec4 specularTex     = SpecularTex(coord);
+	RawMaterial material = readMaterial(normalTex, specularTex);
 
-		roughness   = material.roughness;
-		reflectance = material.reflectance;
-		emission    = material.emission;
-		height      = material.height;
-		lightmap.z *= material.ao;
+	materialTexture.roughness   = material.roughness;
+	materialTexture.reflectance = material.reflectance;
+	materialTexture.emission    = material.emission;
+	materialTexture.height      = material.height;
+	lightmap.z                 *= material.ao;
 
-		normal      = normalize(tbn * material.normal);
+	normal      = normalize(tbn * material.normal);
 
-	#else
+#else
 
-		color.rgb  = gamma(color.rgb);
+	color.rgb  = gamma(color.rgb);
 
-	#endif
+#endif
 
 	FragOut0 = color;
 	FragOut1 = vec4(spheremapEncode(normal), 1, 1);
 	FragOut2 = vec4(codeID(blockId), vec3(1));
 	FragOut3 = vec4(lightmap, 1);
+#ifdef PBR
+	FragOut4 = encodeMaterial(materialTexture);
+#endif
     ALPHA_DISCARD(FragOut0);
 }

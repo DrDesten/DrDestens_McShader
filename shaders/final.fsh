@@ -8,6 +8,7 @@
 #include "/lib/composite/depth.glsl"
 #include "/lib/composite/normal.glsl"
 #include "/lib/composite/id.glsl"
+#include "/lib/composite/lightmap.glsl"
 #include "/core/kernels.glsl"
 
 vec2 coord = gl_FragCoord.xy * screenSizeInverse * MC_RENDER_QUALITY;
@@ -27,7 +28,7 @@ vec3 debugViewNormals(vec2 coord) {
 }
 
 vec3 debugViewLightmap(vec2 coord) {
-    return vec3(0);
+    return getLightmapData(coord);
 }
 
 vec3 debugViewPBR(vec2 coord) {
