@@ -66,7 +66,7 @@ vec3 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness,
 
     return (BRDF);
 }
-vec3 CookTorrance_custom(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+vec3 CookTorrance_custom(vec3 ambientAlbedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     vec3  H     = normalize(V + L);
     float NdotH = saturate(dot(N, H));
     float NdotL = saturate(dot(N, L));
@@ -78,7 +78,7 @@ vec3 CookTorrance_custom(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, v
 
     float D = NDF_GGX(NdotH, roughness);
     float G = G_Smith(NdotL, NdotV, k);
-    vec3  F = Fresnel(NdotH, f0) * min(f0, vec3(0.1));
+    vec3  F = Fresnel(NdotH, f0);
 
     vec3 kS = F;
     vec3 kD = 1 - kS;
@@ -89,7 +89,10 @@ vec3 CookTorrance_custom(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, v
     vec3  spec  = num / max(div, 0.05) * specular;
     spec        = min(spec, 5);
 
-    vec3  BRDF  = spec * radiance;
+    vec3  BRDF  = (
+        ambientAlbedo * ((kD * NdotL) * 0.67/PI + 0.33/PI) +
+        spec * NdotL
+    ) * radiance;
     return BRDF;
 }
 
@@ -175,7 +178,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 
     // Get PBR Material
 #ifdef OVERWORLD
-    vec3 color = CookTorrance_custom(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
+    vec3 color = CookTorrance_custom(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
 #else
     vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
 #endif
@@ -190,7 +193,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 #endif
 
     // Emission and Ambient Light
-	color += mat.albedo * (ambient * mat.ao + mat.emission);
+	color += mat.albedo * mat.emission;
     color  = max(color, 0); // Prevent Negative values
 	return color;
 }
