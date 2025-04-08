@@ -189,6 +189,40 @@ vec4 efficientSSR(position pos, vec3 reflection) {
 }
 
 
+#if defined DISTANT_HORIZONS
+
+#define DEFINE_POS_SCREENCLIP()                    \
+    vec3 screenPos   = vec3(coord, depth);         \
+    vec3 clipPos     = screenPos * 2 - 1;          \
+    vec3 dhScreenPos = vec3(coord, dhDepth);       \
+    vec3 dhClipPos   = dhScreenPos * 2 - 1;  
+
+#define DEFINE_POSITIONS()                         \
+    DEFINE_POS_SCREENCLIP()                        \
+    vec3 viewPos;                                  \
+    if (depth != 1) viewPos = toView(clipPos);     \
+    else            viewPos = toViewDH(dhClipPos);
+
+#define DEFINE_POS_PLAYEREYE()                   \
+    vec3 playerEyePos = toPlayerEye(viewPos); \
+
+#else
+
+#define DEFINE_POS_SCREENCLIP()               \
+    vec3 screenPos = vec3(coord, depth);      \
+    vec3 clipPos   = screenPos * 2 - 1;    
+
+#define DEFINE_POSITIONS()                    \
+    DEFINE_POS_SCREENCLIP()                   \
+    vec3 viewPos   = toView(clipPos);
+
+#define DEFINE_POS_PLAYEREYE()                   \
+    vec3 playerEyePos = toPlayerEye(viewPos); \
+
+#endif
+
+
+
 /* DRAWBUFFERS:0 */
 layout(location = 0) out vec4 FragOut0;
 void main() {
@@ -219,8 +253,7 @@ void main() {
         coord += distort;
 
     }
-    #endif
-
+    
     depth       = getDepth(coord);
     linearDepth = linearizeDepthf(depth, nearInverse);
 
@@ -229,13 +262,15 @@ void main() {
     linearDepth = min(linearDepth, linearizeDepthf(dhDepth, 1. / dhNearPlane));
 #endif
 
+    #endif
+
     linearDepth = min(linearDepth, 1e5); // I have to clamp it else the sky is inf (resulting in NaNs)
 
-    #ifdef PBR
-    vec3  viewPos = toView(vec3(coord, depth) * 2 - 1);
+#ifdef PBR
+    DEFINE_POSITIONS();
     vec3  viewDir = normalize(viewPos);
-    vec3  normal  = normalize(getNormal(coord));
-    #endif
+    vec3  normal  = getNormal(coord);
+#endif
 
     vec3  color = getAlbedo(coord);
 
@@ -258,18 +293,21 @@ void main() {
 
 #if SSR_MODE != 0
 
-        #ifndef PBR
-        vec3 viewPos = toView(vec3(coord, depth) * 2 - 1);
+#ifndef PBR
+        DEFINE_POSITIONS();
         vec3 viewDir = normalize(viewPos);
         vec3 normal  = getNormal(coord);
-        #endif
+#endif
+#if FOG != 0
+        DEFINE_POS_PLAYEREYE();
+#endif
 
         float fresnel        = customFresnel(viewDir, normal, 0.05, 1, 3);
         vec3  reflectViewDir = reflect(viewDir, normal);
 
         #if SSR_MODE == 3
 
-        position posData = position(vec3(coord, depth), vec3(coord, depth) * 2 - 1, viewPos, viewDir);
+        position posData = position(screenPos, clipPos, viewPos, viewDir);
         vec4  reflection = efficientSSR(posData, reflectViewDir);
 
         #elif SSR_MODE == 2
@@ -299,10 +337,9 @@ void main() {
         
         #if FOG != 0
 
-        vec3  playerPos = toPlayerEye(viewPos);
-        float fog       = getFogFactor(playerPos);
-        color = mix(color, reflection.rgb, fresnel);
-        color = mix(color, getFog(normalize(playerPos)), fog);
+        float fog = getFogFactor(playerEyePos);
+        color     = mix(color, reflection.rgb, fresnel);
+        color     = mix(color, getFog(normalize(playerEyePos)), fog);
 
         #else
 

@@ -171,8 +171,10 @@ void main() {
         float depth = pow(getDepth(coord), 250);
         coord      += depth * RAIN_REFRACTION_STRENGTH * -(RAIN_REFRACTION_STRENGTH * .5);
     }
-    
+
 #endif
+
+    vec3 color = getAlbedo(coord);
 
 #ifdef BLOOM
 
