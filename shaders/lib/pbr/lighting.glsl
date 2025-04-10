@@ -179,7 +179,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 #ifdef OVERWORLD
     vec3 color = CookTorrance_custom(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular);
 #else
-    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specular);
+    vec3 color = CookTorrance_diffonly(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular); // TODO: TEST
 #endif
     
 #ifdef SUBSURAFCE_SCATTERING

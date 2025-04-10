@@ -60,7 +60,7 @@ vec4 neighborhoodClamp(ivec2 icoord, vec3 historyColor, out vec3 sourceColorOut)
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
 
-            float sweight = triangle(x - jitterOffset.x) * triangle(y - jitterOffset.y);
+            float sweight = lanczos3(x - jitterOffset.x) * lanczos3(y - jitterOffset.y);
             ivec2 scoord  = icoord + ivec2(x, y);
             vec3  scol    = getAlbedo(scoord);
 
@@ -137,6 +137,11 @@ void main() {
 
         historyColor     = clampResult.rgb;
         historyWeight   *= clampResult.a;
+
+        #endif
+        #ifdef TAA_ALLCLIP
+
+        historyWeight *= 0.;
 
         #endif
 
