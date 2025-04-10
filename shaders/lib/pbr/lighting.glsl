@@ -57,14 +57,9 @@ vec3 CookTorrance(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0,
     vec3  BRDF  = (kD * albedo / PI + spec) * radiance * NdotL;
     return BRDF;
 }
-vec3 CookTorrance_diffonly(vec3 albedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
+vec3 CookTorrance_custom_diffonly(vec3 ambientAlbedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     float NdotL = saturate(dot(N, L));
-    float NdotV = saturate(dot(N, V));
-
-    float radiance = 7;
-    vec3  BRDF     = (albedo / PI) * radiance * NdotL;
-
-    return (BRDF);
+    return ambientAlbedo * (NdotL * 0.5 + 0.5);
 }
 vec3 CookTorrance_custom(vec3 ambientAlbedo, vec3 N, vec3 V, vec3 L, float roughness, vec3 f0, float specular) {
     vec3  H     = normalize(V + L);
@@ -179,7 +174,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 #ifdef OVERWORLD
     vec3 color = CookTorrance_custom(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular);
 #else
-    vec3 color = CookTorrance_diffonly(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular); // TODO: TEST
+    vec3 color = CookTorrance_custom_diffonly(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular); // TODO: TEST
 #endif
     
 #ifdef SUBSURAFCE_SCATTERING
