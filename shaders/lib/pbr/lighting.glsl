@@ -159,9 +159,8 @@ vec3 nkTof0(vec3 n, vec3 k) {
 
 vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
     // Specular Blending Factor (Removes specular highlights in occluded areas)
-    float specBlend  = clamp(mix( -1.5, 1, mat.lightmap.y ), 0, 1); 
-    // Total BRDF brightness
-    float brightness = sq(sq(mat.lightmap.y)) * mat.ao * lightBrightness;
+    float specular = clamp(mix( -1.5, 1, mat.lightmap.y ), 0, 1)
+                   * sq(sq(mat.lightmap.y)) * lightBrightness;
 
 #ifdef HEIGHT_AO
     mat.ao *= sq(mat.height);
@@ -178,16 +177,14 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
 
     // Get PBR Material
 #ifdef OVERWORLD
-    vec3 color = CookTorrance_custom(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
+    vec3 color = CookTorrance_custom(mat.albedo * ambient * mat.ao, normal, viewDir, lightDir, mat.roughness, mat.f0, specular);
 #else
-    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specBlend);
+    vec3 color = CookTorrance_diffonly(mat.albedo, normal, viewDir, lightDir, mat.roughness, mat.f0, specular);
 #endif
-
-    color *= brightness; //Reduce brightness at night and according to minecrafts abient light
     
 #ifdef SUBSURAFCE_SCATTERING
     if (mat.subsurface >= 0.1) {
-        vec3 SSSc = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, mat.subsurface) * brightness;
+        vec3 SSSc = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, mat.subsurface) * lightBrightness;
         color    += SSSc;
     }
 #endif
