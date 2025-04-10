@@ -179,7 +179,7 @@ vec3 RenderPBR(Material mat, vec3 normal, vec3 viewDir, vec3 ambient) {
     
 #ifdef SUBSURAFCE_SCATTERING
     if (mat.subsurface >= 0.1) {
-        vec3 SSSc = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, mat.subsurface) * lightBrightness;
+        vec3 SSSc = simpleSubsurface2(mat.albedo, normal, viewDir, lightDir, mat.subsurface) * specular;
         color    += SSSc;
     }
 #endif
