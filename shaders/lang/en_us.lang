@@ -25,9 +25,6 @@ option.LIGHTMAP_NETHER_SKY_BRIGHTNESS=Nether Ambient Brightness
 option.LIGHTMAP_END_SKY_BRIGHTNESS=End Ambient Brightness
 option.LIGHTMAP_END_SKY_SATURATION=End Ambient Saturation
 
-option.LIGHTMAP_BLOCKLIGHT_REDUCTION=Adaptive Blocklight Reduction
-option.LIGHTMAP_BLOCKLIGHT_REDUCTION.comment=Reduces blocklight when the sky is bright to avoid clipping. If the blocklight is too bright during daytime, increase this slider.
-
 option.LIGHTMAP_SKY_DAY_R=Skylight Day §cR
 option.LIGHTMAP_SKY_DAY_G=Skylight Day §2G
 option.LIGHTMAP_SKY_DAY_B=Skylight Day §9B
@@ -375,7 +372,7 @@ value.DEBUG_VIEW_PBR.3=Emission
 value.DEBUG_VIEW_PBR.4=Ambient Occlusion
 
 
-option.CREDITS=v2.1.1
+option.CREDITS=v2.1.2
 //value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
 value.CREDITS.0=by DrDesten
 
