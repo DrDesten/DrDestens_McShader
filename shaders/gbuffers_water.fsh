@@ -68,7 +68,11 @@ void main(){
             color.rgb = sq(color.rgb * getCustomLightmap(lightmap, customLightmapBlend)) * 0.75;
         #else
             color.rgb          = vec3(0);
+            #if MC_VERSION >= 11900
             color.a            = 0;
+            #else 
+            color.a            = 0.101;
+            #endif
         #endif
 
         #if WATER_NORMALS != 0
