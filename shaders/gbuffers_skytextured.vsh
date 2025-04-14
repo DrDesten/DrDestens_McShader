@@ -10,7 +10,7 @@
 #endif
 
 out vec2 coord;
-out vec4 glcolor;
+flat out vec4 glcolor;
 
 void main() {
 	gl_Position = ftransform();
