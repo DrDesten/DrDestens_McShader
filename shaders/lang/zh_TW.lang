@@ -1,0 +1,380 @@
+///////////////////////////////////////////////////////////
+// 光照
+///////////////////////////////////////////////////////////
+
+screen.LIGHTING=光照
+
+option.LIGHTMAP_SKYLIGHT_AO=天空光環境光遮蔽
+option.LIGHTMAP_SKYLIGHT_AO.comment=指定天空光上的環境光遮蔽量。
+suffix.LIGHTMAP_SKYLIGHT_AO=%
+option.LIGHTMAP_BLOCKLIGHT_AO=方塊光環境光遮蔽
+option.LIGHTMAP_BLOCKLIGHT_AO.comment=指定方塊光上的環境光遮蔽量。
+suffix.LIGHTMAP_BLOCKLIGHT_AO=%
+option.LIGHTMAP_SKYLIGHT_CONTRAST=天空光伽瑪
+option.LIGHTMAP_SKYLIGHT_CONTRAST.comment=較高 = 較暗。較低 = 較亮。
+option.LIGHTMAP_BLOCKLIGHT_CONTRAST=方塊光伽瑪
+option.LIGHTMAP_BLOCKLIGHT_CONTRAST.comment=較高 = 較暗。較低 = 較亮。
+
+option.LIGHTMAP_MINIMUM_LIGHT=最小光量
+option.LIGHTMAP_MINIMUM_LIGHT.comment=限制方塊光永遠不低於此值。防止洞穴漆黑一片（除非您將其設定為零）。
+
+screen.LIGHTMAP_COLOR=光照貼圖顏色
+
+option.LIGHTMAP_NETHER_SKY_BRIGHTNESS=地獄環境亮度
+option.LIGHTMAP_END_SKY_BRIGHTNESS=終界環境亮度
+option.LIGHTMAP_END_SKY_SATURATION=終界環境飽和度
+
+option.LIGHTMAP_SKY_DAY_R=天空光 (白天) §cR
+option.LIGHTMAP_SKY_DAY_G=天空光 (白天) §2G
+option.LIGHTMAP_SKY_DAY_B=天空光 (白天) §9B
+option.LIGHTMAP_SKY_NIGHT_R=天空光 (夜晚) §cR
+option.LIGHTMAP_SKY_NIGHT_G=天空光 (夜晚) §2G
+option.LIGHTMAP_SKY_NIGHT_B=天空光 (夜晚) §9B
+option.LIGHTMAP_BLOCK_R=方塊光 §cR
+option.LIGHTMAP_BLOCK_R.comment=選擇方塊光顏色 (火把、螢石等)。如果啟用「複雜方塊光」，則§c不會§r使用此顏色。
+option.LIGHTMAP_BLOCK_G=方塊光 §2G
+option.LIGHTMAP_BLOCK_G.comment=選擇方塊光顏色 (火把、螢石等)。如果啟用「複雜方塊光」，則§c不會§r使用此顏色。
+option.LIGHTMAP_BLOCK_B=方塊光 §9B
+option.LIGHTMAP_BLOCK_B.comment=選擇方塊光顏色 (火把、螢石等)。如果啟用「複雜方塊光」，則§c不會§r使用此顏色。
+
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT=複雜方塊光
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT.comment=允許您為方塊光選擇兩種顏色。一種用於黑暗部分，一種用於明亮部分。
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT_BLEND_CURVE=混合曲線
+option.LIGHTMAP_COMPLEX_BLOCKLIGHT_BLEND_CURVE.comment=較高：強調「明亮」顏色。較低：強調「黑暗」顏色。50 = 線性過渡。
+
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_R=複雜方塊光 (明亮) §cR
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_G=複雜方塊光 (明亮) §2G
+option.LIGHTMAP_COMPLEX_BLOCK_BRIGHT_B=複雜方塊光 (明亮) §9B
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_R=複雜方塊光 (黑暗) §cR
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_G=複雜方塊光 (黑暗) §2G
+option.LIGHTMAP_COMPLEX_BLOCK_DARK_B=複雜方塊光 (黑暗) §9B
+
+
+///////////////////////////////////////////////////////////
+// 景深
+///////////////////////////////////////////////////////////
+
+screen.DOF_OPTS=景深
+
+option.DEPTH_OF_FIELD=景深
+option.DEPTH_OF_FIELD.comment=模糊非焦點物體，如同真實相機。
+
+option.DOF_SAMPLES=散景採樣
+option.DOF_SAMPLES.comment=模糊品質。越高越好。顯著影響效能。
+
+option.DOF_STRENGTH=景深強度
+option.DOF_STRENGTH.comment=景深效果的強度。低效能影響。
+
+option.DOF_MAXSIZE=最大模糊
+option.DOF_MAXSIZE.comment=限制景深模糊的強度。有助於減少使用較低採樣數時的瑕疵，更適合遊戲。
+value.DOF_MAXSIZE.0.005=低
+value.DOF_MAXSIZE.0.007=中
+value.DOF_MAXSIZE.0.03=高
+value.DOF_MAXSIZE.1.0=無限
+
+option.DOF_DOWNSAMPLING=景深降採樣量
+option.DOF_DOWNSAMPLING.comment=景深效果的降採樣量。減少景深瑕疵，增加像素化瑕疵。無/低效能影響。
+
+option.DOF_FAR_BLUR_ONLY=僅遠處模糊
+option.DOF_FAR_BLUR_ONLY.comment=僅模糊遠處物體。
+
+option.DOF_SAMPLE_REJECTION=採樣拒絕
+option.DOF_SAMPLE_REJECTION.comment=透過 (主要) 移除顏色溢出，改善景深品質。可能對效能產生顯著影響。
+
+option.centerDepthHalflife=焦點延遲
+option.centerDepthHalflife.comment=設定焦點調整所需的時間。
+
+option.DOF_CHROMATIC_ABERRATION=景深色差
+option.DOF_CHROMATIC_ABERRATION.comment=顏色衍射。
+value.DOF_CHROMATIC_ABERRATION.0=§c關閉
+
+
+///////////////////////////////////////////////////////////
+// 螢幕空間反射
+///////////////////////////////////////////////////////////
+
+screen.SSR=反射
+
+option.SSR_MODE=反射模式
+value.SSR_MODE.0=關閉
+value.SSR_MODE.1=天空
+value.SSR_MODE.2=翻轉影像
+value.SSR_MODE.3=光線追蹤
+
+option.SSR_STEPS=光線追蹤品質
+option.SSR_STEPS.comment=光線追蹤迭代次數。越低越快。
+
+option.SSR_DEPTH_TOLERANCE=厚度估計調整器
+option.SSR_DEPTH_TOLERANCE.comment=如果反射盲點困擾您，請增加此值。影響關於像素厚度的假設。無效能影響。
+value.SSR_DEPTH_TOLERANCE.1000=無限
+
+option.SSR_REFLECTION_THRESHOLD=反射閾值
+option.SSR_REFLECTION_THRESHOLD.comment=僅限 PBR。設定啟用 SSR 所需的最小反射率。較高的值可能會導致反射截斷。
+
+option.REFLECTION_FADE=邊緣淡化
+
+option.REFRACTION=螢幕空間折射
+option.REFRACTION.comment=扭曲透過水看到的物體。
+option.REFRACTION_AMOUNT=折射強度
+
+option.GLASS_REFLECTIONS=玻璃反射
+option.GLASS_REFLECTIONS.comment=為彩色玻璃方塊新增反射。
+
+///////////////////////////////////////////////////////////
+// 水
+///////////////////////////////////////////////////////////
+
+screen.WATER=水
+
+option.WATER_WAVES=水波
+option.WATER_WAVES.comment=「物理」波浪。移動水面。
+option.WATER_WAVE_AMOUNT=波浪高度
+
+option.WATER_NORMALS=波浪法線
+value.WATER_NORMALS.0=關閉
+value.WATER_NORMALS.1=雜訊
+value.WATER_NORMALS.2=正弦波
+option.WATER_NORMALS_AMOUNT=法線強度
+option.WATER_NORMALS_AMOUNT.comment=假波浪，假裝是真波浪。增加細節。
+option.WATER_NORMALS_SIZE=法線縮放
+
+option.WATER_ABSORPTION_DENSITY=水吸收密度
+option.WATER_ABSORPTION_BIAS=水吸收偏差
+option.WATER_ABSORPTION_BIAS.comment=為水霧距離新增一個常數。有助於使水更可見。
+
+option.WATER_TEXTURE_VISIBLE=水紋理
+option.WATER_TEXTURE_VISIBLE.comment=啟用原版水紋理
+
+screen.WATER_COLOR_OPTS=水顏色選項
+
+option.WATER_ABSORPTION_COLOR_DAY_R=水吸收顏色 (白天) §cR
+option.WATER_ABSORPTION_COLOR_DAY_G=水吸收顏色 (白天) §2G
+option.WATER_ABSORPTION_COLOR_DAY_B=水吸收顏色 (白天) §9B
+option.WATER_ABSORPTION_COLOR_MULT=吸收顏色倍增器
+
+///////////////////////////////////////////////////////////
+// 後處理
+///////////////////////////////////////////////////////////
+
+screen.POST_PROCESSING=後處理
+
+option.BLOOM=泛光
+option.BLOOM.comment=在明亮物體周圍產生光暈。看起來不錯 ;)。
+option.BLOOM_AMOUNT=泛光強度
+
+option.MOTION_BLUR=動態模糊
+option.MOTION_BLUR_STRENGTH=動態模糊強度
+
+option.SCREEN_SPACE_AMBIENT_OCCLUSION=SSAO
+option.SCREEN_SPACE_AMBIENT_OCCLUSION.comment=螢幕空間環境光遮蔽。使凹陷處變暗。高效能影響。
+
+option.SSAO_QUALITY=SSAO 品質
+value.SSAO_QUALITY.1=低
+value.SSAO_QUALITY.2=中
+value.SSAO_QUALITY.3=高
+
+option.SSAO_STRENGTH=SSAO 強度
+
+screen.TAA_OPTIONS=TAA 選項
+option.TAA.comment=時間性反鋸齒。以稍微模糊的圖像為代價平滑邊緣。可能與 OptiFine 的高解析度截圖功能產生問題。
+option.TAA_BLEND=TAA 混合常數
+option.TAA_BLEND.comment=控制目前幀的不透明度。將此值設定得較低以獲得更平滑的 TAA。
+option.TAA_SHARPENING_AMOUNT=TAA 銳化
+option.TAA_SHARPENING_AMOUNT.comment=變更銳化效果的強度。
+
+///////////////////////////////////////////////////////////
+// PBR 選項
+///////////////////////////////////////////////////////////
+
+screen.PBR_OPTS=物理基礎渲染
+
+option.PBR_FORMAT=PBR 格式
+value.PBR_FORMAT.1=LabPBR 1.3
+value.PBR_FORMAT.2=SeusPBR / OldPBR
+
+option.PBR=PBR
+option.PBR.comment=啟用物理基礎渲染。請確保在 OptiFine 著色器選項中啟用法線和鏡面反射貼圖。
+
+option.HEIGHT_AO=高度作為環境光遮蔽
+option.HEIGHT_AO.comment=使用高度資訊進行環境光遮蔽。
+
+option.FRAG_NORMALS=法線貼圖修正
+option.FRAG_NORMALS.comment=對於較新的 OptiFine 版本，這可能不是必需的。如果法線貼圖未顯示在實體或手持物體上，請啟用此選項。
+
+option.HARDCODED_METALS=使用硬編碼金屬
+option.HARDCODED_METALS.comment=如果禁用，著色器將使用顏色作為反射率資料。僅限 LabPBR。
+
+option.SUBSURAFCE_SCATTERING=次表面散射
+
+option.PARALLAX_OCCLUSION=視差遮蔽貼圖
+option.PARALLAX_OCCLUSION.comment=使用高度貼圖為方塊新增額外細節。低效能影響。可能在螢幕邊緣產生瑕疵。
+screen.POM_OPTIONS=POM 選項
+option.POM_DEPTH=POM 深度
+option.POM_DEPTH.comment=指定 POM 的深度。較高的值會產生瑕疵。
+option.POM_DISTORTION=POM 扭曲
+option.POM_DISTORTION.comment=誇大高度貼圖。有助於使用較小的 POM 深度值創建更多深度。與較高的 POM 深度值一起使用時會產生瑕疵。
+option.POM_SMOOTH=平滑 POM
+option.POM_SMOOTH.comment=平滑高度貼圖。顯著減少瑕疵。
+
+option.DIRECTIONAL_LIGHTMAP=方向性光照貼圖
+option.DIRECTIONAL_LIGHTMAP.comment=將法線貼圖應用於動態光源。需要支援 PBR 的資源包。
+option.DIRECTIONAL_LIGHTMAP_STRENGTH=方向性光照貼圖強度
+
+///////////////////////////////////////////////////////////
+// 大氣
+///////////////////////////////////////////////////////////
+
+screen.ATMOSPHERE=大氣
+
+option.FOG=霧
+value.FOG.0=§c關閉
+value.FOG.1=正常
+value.FOG.2=邊界
+option.FOG_AMOUNT=霧量
+
+option.SUNSET_FOG=晨霧
+option.SUNSET_FOG.comment=在日落期間增加霧量。僅適用於「正常」模式下的霧。需要啟用霧和日落。
+option.SUNSET_FOG_AMOUNT=晨霧強度
+
+option.CAVE_FOG=洞穴霧
+option.CAVE_FOG_BRIGHTNESS=洞穴霧亮度
+
+option.GODRAYS=上帝之光
+option.GODRAY_STRENGTH=上帝之光強度
+option.GODRAY_STEPS=上帝之光採樣
+option.GODRAY_SIZE=上帝之光半徑
+
+screen.GODRAY_OPTIONS=上帝之光顏色
+option.GODRAY_SUN_R=上帝之光 (太陽) §cR
+option.GODRAY_SUN_G=上帝之光 (太陽) §2G
+option.GODRAY_SUN_B=上帝之光 (太陽) §9B
+option.GODRAY_MOON_R=上帝之光 (月亮) §cR
+option.GODRAY_MOON_G=上帝之光 (月亮) §2G
+option.GODRAY_MOON_B=上帝之光 (月亮) §9B
+
+screen.SKY_OPTIONS=天空顏色
+option.SKY_NOON_R=天空 (中午) §cR
+option.SKY_NOON_G=天空 (中午) §2G
+option.SKY_NOON_B=天空 (中午) §9B
+option.SKY_MIDNIGHT_R=天空 (午夜) §cR
+option.SKY_MIDNIGHT_G=天空 (午夜) §2G
+option.SKY_MIDNIGHT_B=天空 (午夜) §9B
+option.SKY_SUNSET_R=天空 (日落) §cR
+option.SKY_SUNSET_G=天空 (日落) §2G
+option.SKY_SUNSET_B=天空 (日落) §9B
+
+option.END_SKY_UP_R=終界天空 (上) §cR
+option.END_SKY_UP_G=終界天空 (上) §2G
+option.END_SKY_UP_B=終界天空 (上) §9B
+option.END_SKY_DOWN_R=終界天空 (下) §cR
+option.END_SKY_DOWN_G=終界天空 (下) §2G
+option.END_SKY_DOWN_B=終界天空 (下) §9B
+
+option.sunPathRotation=太陽角度
+suffix.sunPathRotation=°
+
+///////////////////////////////////////////////////////////
+// 相機
+///////////////////////////////////////////////////////////
+
+screen.CAMERA=相機與色調映射
+
+option.EXPOSURE=曝光
+
+option.TONEMAP=色調映射
+value.TONEMAP.1=自訂 Reinhard
+value.TONEMAP.2=Unreal
+
+option.CONTRAST=對比度
+option.VIBRANCE=鮮豔度
+option.SATURATION=飽和度
+option.BRIGHTNESS=亮度
+
+option.VIGNETTE=暈影
+option.VIGNETTE.comment=使螢幕邊緣變暗。
+value.VIGNETTE.0=關閉
+value.VIGNETTE.1=圓形
+value.VIGNETTE.2=方形
+option.VIGNETTE_STRENGTH=暈影強度
+
+///////////////////////////////////////////////////////////
+// 天氣
+///////////////////////////////////////////////////////////
+
+screen.WEATHER=天氣
+
+option.RAIN_DETECTION_MODE=雨水偵測
+value.RAIN_DETECTION_MODE.0=溫度
+value.RAIN_DETECTION_MODE.1=顏色
+
+option.RAIN_OPACITY=雨水不透明度
+option.RAIN_REFRACTION=雨水折射
+option.RAIN_REFRACTION_STRENGTH=雨水折射強度
+
+///////////////////////////////////////////////////////////
+// 其他
+///////////////////////////////////////////////////////////
+
+screen.MISC=其他
+
+option.OUTLINE=輪廓
+option.OUTLINE_DISTANCE=輪廓距離
+value.OUTLINE.0=關閉
+value.OUTLINE.1=白色
+value.OUTLINE.2=黑色
+value.OUTLINE.3=彩虹
+
+option.SELECTION_OUTLINE=方塊選取輪廓
+option.SELECTION_OUTLINE.comment=§c§n/!\§r 僅適用於較新的 OptiFine 版本 (G7 或更高)
+value.SELECTION_OUTLINE.0=黑色
+value.SELECTION_OUTLINE.1=白色
+value.SELECTION_OUTLINE.2=彩虹
+option.SELECTION_OUTLINE_OPACITY=方塊選取輪廓不透明度
+
+option.WAVY_BLOCKS=波浪方塊
+
+option.WAVY_LEAVES=波浪樹葉
+
+option.HAND_INVISIBILITY_EFFECT=手部隱形效果
+option.HAND_INVISIBILITY_EFFECT.comment=隱形時扭曲手持物體
+
+option.WORLD_CURVE=World Curvature
+option.WORLD_CURVE_RADIUS=World Radius
+
+option.WHITE_WORLD=白色世界
+
+option.TORCHLIGHT_EXTRA_BRIGHTNESS=動態光源亮度
+option.TORCHLIGHT_EXTRA_BRIGHTNESS.comment=改變發光方塊的亮度
+
+screen.OPTIMISATION=優化
+option.OPTIMIZE_INTERPOLATION=Flat Vertices
+option.OPTIMIZE_INTERPOLATION.comment=在使用平滑的自定義模型時禁用
+
+
+///////////////////////////////////////////////////////////
+// DEBUG
+///////////////////////////////////////////////////////////
+
+screen.DEBUG=Debug
+screen.DUMP=Ze Dumpster
+
+option.DEBUG_VIEW=Debug
+value.DEBUG_VIEW.0=Normals
+value.DEBUG_VIEW.1=Lightmap
+value.DEBUG_VIEW.2=PBR
+
+option.DEBUG_VIEW_PBR=PBR Debug
+value.DEBUG_VIEW_PBR.0=Roughness
+value.DEBUG_VIEW_PBR.1=Reflectance
+value.DEBUG_VIEW_PBR.2=Height
+value.DEBUG_VIEW_PBR.3=Emission
+value.DEBUG_VIEW_PBR.4=Ambient Occlusion
+
+
+option.CREDITS=v2.1.3
+//value.CREDITS.0=§r by §4D§cr§6D§ee§as§bt§3e§9n §r§k:###
+value.CREDITS.0=by DrDesten
+
+option.SUPER_SECRET_SETTING=Super Secret Settings 
+value.SUPER_SECRET_SETTING.0=
+value.SUPER_SECRET_SETTING.1=
