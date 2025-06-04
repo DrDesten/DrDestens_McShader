@@ -42,7 +42,7 @@ vec3 getSky(vec3 playerDir) {
     #elif defined END 
 
         float viewHeight = playerDir.y;
-        float offset     = noise(vec2(abs(atan(playerDir.z, playerDir.x))) * 4.4) - 0.5;
+        float offset     = snoise(vec2(abs(atan(playerDir.z, playerDir.x))) * 4.4) - 0.5;
         offset          *= sq(1 - sq(viewHeight)) * 0.25;
         viewHeight       = saturate(viewHeight * 0.5 + 0.5 + offset);
 

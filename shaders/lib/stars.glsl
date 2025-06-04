@@ -37,7 +37,7 @@ vec4 getStars(vec3 playerDir, float starMask) {
     float starNoise = sqmag(skyDir - vdir) * 75;
 
     float stars     = fstep(starNoise, (STAR_SIZE * 1e-4 * STAR_DENSITY), 5e3);
-    stars          *= fstep(noise(skyCoord * 10), STAR_COVERAGE, 2);
+    stars          *= fstep(snoise(skyCoord * 10), STAR_COVERAGE, 2);
     stars          *= starMask;
 
 #ifdef SHOOTING_STARS

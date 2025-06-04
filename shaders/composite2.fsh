@@ -242,14 +242,14 @@ void main() {
     if (id == 10) {   // REFRACTION <SEE THROUGH> /////////////////////////////////////////////////////////////
 
         vec2 noiseCoord = vec2((coord.x - 0.5) * aspectRatio, coord.y - 0.5);
-        vec2 distort    = vec2( sin( noise(noiseCoord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * (0.02 * REFRACTION_AMOUNT) );
+        vec2 distort    = vec2( sin( snoise(noiseCoord * 3 * linearDepth) * TWO_PI + (frameTimeCounter * 2)) * (0.02 * REFRACTION_AMOUNT) );
         coord += distort / linearDepth;
 
     }
     if (isEyeInWater != 0) {   // REFRACTION <IN MEDIUM> /////////////////////////////////////////////////////////////
 
         vec2 noiseCoord = vec2((coord.x - 0.5) * aspectRatio, coord.y - 0.5);
-        vec2 distort    = vec2( sin( noise(noiseCoord * 10) * TWO_PI + (frameTimeCounter * 2)) * (0.005 * REFRACTION_AMOUNT) );
+        vec2 distort    = vec2( sin( snoise(noiseCoord * 10) * TWO_PI + (frameTimeCounter * 2)) * (0.005 * REFRACTION_AMOUNT) );
         coord += distort;
 
     }
