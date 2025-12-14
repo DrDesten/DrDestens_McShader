@@ -32,14 +32,16 @@ vec2 coord = gl_FragCoord.xy * screenSizeInverse;
 /////////////////////////////////////////////////////////////////////////////////////
 
 vec3 vectorBlur(vec2 coord, vec2 blur, int samples, float dither) {
-    if (sqmag(blur) < sq(screenSizeInverse.x)) return getAlbedo(coord);
-
     vec3 col      = vec3(0);
     vec2 blurStep = blur / float(samples);
     vec2 scoord   = blurStep * dither + coord;
 
     for (int i = 0; i < samples; i++) {
+        #if defined MC_GL_VENDOR_MESA || defined MC_GL_RENDERER_MESA
+        col    += texture(colortex0, scoord).rgb;
+        #else 
         col    += textureLod(colortex0, scoord, 0).rgb;
+        #endif
         scoord += blurStep;
     }
 
@@ -105,14 +107,17 @@ void main() {
 
     vec2  screenMotionVector      = screenPos.xy - lastScreenPos.xy;
     vec2  worldScreenMotionVector = screenPos.xy - lastWorldProjected.xy;
-    float a        = sqmag(worldScreenMotionVector);
-    float b        = sqmag(screenMotionVector);
-    float selector = 1 / ( exp2(a/b - b/a) + 1 );
 
-    vec2 motionReprojection = mix(lastScreenPos, lastWorldProjected, selector).xy;
-    vec2 motionVector = (screenPos.xy - motionReprojection) * float(screenPos.z > 0.56);
-    motionVector     /= length(motionVector) + 3;
-    vec3 color        = vectorBlur(coord, motionVector, 4, Bayer4(gl_FragCoord.xy)); 
+    float a     = sqmag(worldScreenMotionVector) + 1e-5;
+    float b     = sqmag(screenMotionVector);
+    float ratio = saturate(b / a) * float(screenPos.z > 0.56);
+
+    vec2  motionVector = worldScreenMotionVector * ratio;
+    motionVector      /= length(motionVector) + 3;
+
+    vec3 color = sqmag(motionVector) > sqmag(screenSizeInverse)
+        ? vectorBlur(coord, motionVector, 4, Bayer4(gl_FragCoord.xy))
+        : texture(colortex0, coord).rgb;
     #else 
     vec3 color = getAlbedo(coord);
     #endif
