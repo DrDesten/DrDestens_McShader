@@ -2,12 +2,17 @@
 									PARTICLES
 //////////////////////////////////////////////////////////////////////////////////// */
 
+// Render Order: after deferred
+
 #include "/lib/settings.glsl"
 #include "/lib/stddef.glsl"
 #include "/core/math.glsl"
 
 #include "/lib/gbuffers/basics.glsl"
 #include "/lib/gbuffers/color.glsl"
+
+uniform float frameTimeCounter;
+#include "/lib/lightmap.glsl"
 
 #include "/lib/pbr/gbuffers.glsl"
 #include "/lib/pbr/pbr.glsl"
@@ -17,7 +22,6 @@ in vec2 coord;
 in vec4 glcolor;
 
 #if FOG != 0
-uniform float frameTimeCounter;
 uniform float far;
 #include "/lib/sky.glsl"
 in vec3 playerPos;
@@ -61,7 +65,9 @@ void main() {
 
 #else
 
-	color.rgb = gamma(color.rgb);
+	vec3 lightmapColor = getCustomLightmap(lightmap, customLightmapBlend);
+	color.rgb  = gamma(color.rgb);
+	color.rgb *= lightmapColor;
 
 #endif
 
